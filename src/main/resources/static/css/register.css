@@ -1,0 +1,214 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+:root {
+    --primary: #3b82f6;
+    --soft-blue: #DCEEFF;
+    --border: #E2E8F0;
+    --text-main: #0F172A;
+    --text-sub: #64748B;
+    --radius: 12px;
+}
+
+body {
+    background-color: #FFFFFF;
+    min-height: 100vh;
+}
+
+.register-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* LEFT SIDE (FORM) */
+.register-split-left {
+    flex: 1.1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background-color: white;
+}
+
+.form-wrapper {
+    width: 100%;
+    max-width: 400px;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 30px;
+}
+
+.form-header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; }
+.form-header p { color: var(--text-sub); font-size: 0.9rem; margin-bottom: 25px; }
+
+/* FORM ELEMENTS */
+.register-form { display: flex; flex-direction: column; gap: 15px; }
+.form-row { display: flex; gap: 12px; }
+.input-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; color: var(--text-main); }
+.input-group input {
+    width: 100%; padding: 11px 14px; border: 1px solid var(--border);
+    border-radius: var(--radius); background: #F8FAFC; outline: none; font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+.input-group input:focus {
+    border-color: var(--primary);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
+}
+.input-with-icon { position: relative; display: flex; align-items: center; }
+.input-with-icon i { position: absolute; left: 14px; color: var(--text-sub); font-size: 0.85rem; }
+.input-with-icon input { padding-left: 40px; }
+
+.btn-submit {
+    background: var(--primary); color: white; padding: 12px; border: none;
+    border-radius: var(--radius); font-weight: 600; cursor: pointer; margin-top: 5px;
+    transition: background 0.2s;
+}
+.btn-submit:hover { background: #2563eb; }
+
+.form-divider { display: flex; align-items: center; margin: 5px 0; color: var(--text-sub); font-size: 0.8rem; }
+.form-divider::before, .form-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+.form-divider span { padding: 0 10px; }
+
+/* FIX: Cải tiến hiển thị nút Google */
+.btn-google {
+    background: white; border: 1px solid var(--border); padding: 11px;
+    border-radius: var(--radius); display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer;
+    font-size: 0.9rem; font-weight: 500; color: #475569; transition: background 0.2s;
+}
+.btn-google:hover { background: #F8FAFC; }
+.google-icon { flex-shrink: 0; }
+
+/* TERMS & CHECKBOX */
+.terms-wrapper { margin: 2px 0; }
+.custom-checkbox { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+.custom-checkbox input { display: none; }
+.checkmark { width: 18px; height: 18px; border: 1.5px solid var(--border); border-radius: 4px; position: relative; flex-shrink: 0; background: #F8FAFC; }
+.custom-checkbox input:checked + .checkmark { background: var(--primary); border-color: var(--primary); }
+.custom-checkbox input:checked + .checkmark::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #FFF; font-size: 10px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.terms-text { font-size: 0.85rem; color: var(--text-sub); line-height: 1.4; }
+.terms-text a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+/* FIX: Thiết kế lại Footer Đăng Nhập cao cấp, mượt mà */
+.form-footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.form-footer p { font-size: 0.85rem; color: var(--text-sub); }
+.login-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+.login-link i {
+    font-size: 0.85rem;
+    transition: transform 0.2s ease;
+}
+.login-link:hover {
+    color: #2563eb;
+}
+.login-link:hover i {
+    transform: translateX(3px); /* Hiệu ứng đẩy icon nhẹ khi hover */
+}
+
+/* RIGHT SIDE (DÀN TRẢI BỐ CỤC TRÊN ẢNH) */
+.register-split-right {
+    flex: 0.9;
+    position: relative;
+    background-image: url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1200');
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+
+.color-fit-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(220, 238, 255, 0.4) 0%, rgba(15, 23, 42, 0.2) 100%);
+    z-index: 1;
+}
+
+.distributed-content {
+    position: relative;
+    z-index: 5;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 60px;
+    color: white;
+}
+
+.experience-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    padding: 6px 15px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.middle-info { max-width: 450px; }
+.middle-info h2 { font-size: 2.8rem; font-weight: 700; line-height: 1.1; margin-bottom: 15px; text-shadow: 0 2px 15px rgba(0, 0, 0, 0.2); }
+.middle-info p { font-size: 1.05rem; line-height: 1.5; opacity: 0.9; font-weight: 300; }
+
+.bottom-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.value-item { display: flex; align-items: center; gap: 12px; flex: 1; }
+.value-icon { width: 35px; height: 35px; background: white; color: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+.value-text strong { display: block; font-size: 0.85rem; margin-bottom: 2px; }
+.value-text p { font-size: 0.75rem; opacity: 0.8; }
+
+.error-message{
+    display:block;
+    margin-top:6px;
+    font-size:13px;
+    color:#ef4444;
+}
+
+.register-split-left {
+    flex: 1.1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background-color: white;
+    overflow-y: auto; /* Thêm dòng này để cuộn mượt mà nếu màn hình quá nhỏ */
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .register-split-right { display: none; }
+}

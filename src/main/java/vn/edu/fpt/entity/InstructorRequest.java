@@ -3,6 +3,7 @@ package vn.edu.fpt.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import vn.edu.fpt.enums.InstructorRequestStatus;
 
 @Getter
 @Setter
@@ -28,8 +29,9 @@ public class InstructorRequest extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
-    private String status;
+    private InstructorRequestStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewed_by")

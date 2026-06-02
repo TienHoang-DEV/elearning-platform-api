@@ -61,7 +61,7 @@ public class CourseController {
 
         if (search != null && !search.trim().isEmpty()) {
             // Lấy danh sách khóa học khớp với từ khóa tìm kiếm
-            courses = courseRepository.findByTitleContainingIgnoreCase(search.trim());
+            courses = courseRepository.findByTitleContainingIgnoreCase((search.trim()));
         } else {
             // Nếu không tìm kiếm, lấy toàn bộ khóa học
             courses = courseRepository.findAll();

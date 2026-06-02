@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Recovery - Learning Hub</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../../static/css/forgot_password.css">
+</head>
+<body>
+
+<div class="flow-container">
+
+    <div id="step-request" class="step-card active">
+        <div class="icon-header security-shield">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+
+        <div class="title-group">
+            <h1>Forgot Your Password?</h1>
+            <p>Enter your email address and we'll send you a verification code.</p>
+        </div>
+
+        <form id="form-request" onsubmit="transitionToStep(event, 'step-verify')">
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" id="email" name="email" placeholder="name@company.com" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary">Send Verification Code</button>
+        </form>
+
+        <div class="card-footer">
+            <a th:href="@{/login}" class="back-link">
+                <i class="fa-solid fa-arrow-left"></i> Back to Login
+            </a>
+        </div>
+    </div>
+
+    <div id="step-verify" class="step-card">
+        <div class="icon-header identity-key">
+            <i class="fa-solid fa-key"></i>
+        </div>
+
+        <div class="title-group">
+            <h1>Verify Your Identity</h1>
+            <p>Enter the 6-digit code sent to your email.</p>
+        </div>
+
+        <form id="form-verify" onsubmit="transitionToStep(event, 'step-reset')">
+            <div class="otp-container">
+                <input type="text" maxlength="1" class="otp-input" required pattern="[0-9]">
+                <input type="text" maxlength="1" class="otp-input" required pattern="[0-9]">
+                <input type="text" maxlength="1" class="otp-input" required pattern="[0-9]">
+                <input type="text" maxlength="1" class="otp-input" required pattern="[0-9]">
+                <input type="text" maxlength="1" class="otp-input" required pattern="[0-9]">
+                <input type="text" maxlength="1" class="otp-input" required pattern="[0-9]">
+            </div>
+
+            <div class="timer-container">
+                <span class="timer-text">Resend code in <strong id="countdown">02:00</strong></span>
+                <button type="button" id="btn-resend" class="btn-resend" disabled onclick="resetTimer()">Resend Code</button>
+            </div>
+
+            <button type="submit" class="btn-primary">Verify Code</button>
+        </form>
+
+        <div class="card-footer">
+            <a href="#" onclick="changeStep('step-request')" class="back-link">
+                <i class="fa-solid fa-arrow-left"></i> Change Email
+            </a>
+        </div>
+    </div>
+
+    <div id="step-reset" class="step-card">
+        <div class="icon-header reset-lock">
+            <i class="fa-solid fa-lock-open"></i>
+        </div>
+
+        <div class="title-group">
+            <h1>Create New Password</h1>
+            <p>Your new password must be structurally fundamentally different from prior iterations.</p>
+        </div>
+
+        <form id="form-reset" onsubmit="transitionToStep(event, 'step-success')">
+            <div class="input-group">
+                <label for="newPassword">New Password</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="newPassword" placeholder="••••••••" required oninput="checkPasswordStrength(this.value)">
+                </div>
+            </div>
+
+            <div class="strength-meter-wrapper">
+                <div class="strength-meter-bar">
+                    <div id="strength-bar-fill" class="strength-bar-fill"></div>
+                </div>
+                <span id="strength-text" class="strength-text">Strength: <strong>Weak</strong></span>
+            </div>
+
+            <div class="input-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <input type="password" id="confirmPassword" placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <ul class="requirements-list">
+                <li id="req-len" class="invalid"><i class="fa-solid fa-circle-check"></i> Minimum 8 characters</li>
+                <li id="req-up" class="invalid"><i class="fa-solid fa-circle-check"></i> One uppercase letter</li>
+                <li id="req-num" class="invalid"><i class="fa-solid fa-circle-check"></i> One number</li>
+                <li id="req-sp" class="invalid"><i class="fa-solid fa-circle-check"></i> One special character</li>
+            </ul>
+
+            <button type="submit" class="btn-primary">Reset Password</button>
+        </form>
+    </div>
+
+    <div id="step-success" class="step-card">
+        <div class="success-checkmark-wrapper">
+            <div class="checkmark-circle">
+                <i class="fa-solid fa-check"></i>
+            </div>
+        </div>
+
+        <div class="title-group" style="margin-bottom: 32px;">
+            <h1>Password Reset Successfully</h1>
+            <p>Your security credentials have been systematically updated. You can safely access the console again.</p>
+        </div>
+
+        <a th:href="@{/login}" class="btn-primary text-center-link">Back to Login</a>
+    </div>
+
+</div>
+
+<script>
+    function changeStep(stepId) {
+        document.querySelectorAll('.step-card').forEach(card => card.classList.remove('active'));
+        document.getElementById(stepId).classList.add('active');
+        if(stepId === 'step-verify') startTimer();
+    }
+
+    function transitionToStep(event, nextStepId) {
+        event.preventDefault();
+        changeStep(nextStepId);
+    }
+
+    /* OTP Input Auto-Tab Script */
+    const inputs = document.querySelectorAll('.otp-input');
+    inputs.forEach((input, index) => {
+        input.addEventListener('keyup', (e) => {
+            if (e.key >= 0 && e.key <= 9) {
+                if (index < inputs.length - 1) inputs[index + 1].focus();
+            } else if (e.key === 'Backspace') {
+                if (index > 0) inputs[index - 1].focus();
+            }
+        });
+    });
+
+    /* Step 2 Countdown Logic */
+    let timerInterval;
+    function startTimer() {
+        clearInterval(timerInterval);
+        let time = 120;
+        const display = document.getElementById('countdown');
+        const resendBtn = document.getElementById('btn-resend');
+        resendBtn.disabled = true;
+
+        timerInterval = setInterval(() => {
+            let minutes = Math.floor(time / 60);
+            let seconds = time % 60;
+            display.textContent = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            if (--time < 0) {
+                clearInterval(timerInterval);
+                resendBtn.disabled = false;
+            }
+        }, 1000);
+    }
+    function resetTimer() { startTimer(); }
+
+    /* Step 3 Live Rules Engine */
+    function checkPasswordStrength(val) {
+        const bar = document.getElementById('strength-bar-fill');
+        const txt = document.querySelector('#strength-text strong');
+
+        const checks = {
+            len: val.length >= 8,
+            up: /[A-Z]/.test(val),
+            num: /[0-9]/.test(val),
+            sp: /[^A-Za-z0-9]/.test(val)
+        };
+
+        Object.keys(checks).forEach(key => {
+            const el = document.getElementById(`req-${key}`);
+            if(checks[key]) el.className = 'valid'; else el.className = 'invalid';
+        });
+
+        let score = Object.values(checks).filter(Boolean).length;
+        bar.className = 'strength-bar-fill';
+        if(score <= 2) { bar.classList.add('weak'); txt.textContent = 'Weak'; }
+        else if(score === 3) { bar.classList.add('medium'); txt.textContent = 'Medium'; }
+        else { bar.classList.add('strong'); txt.textContent = 'Strong'; }
+    }
+</script>
+</body>
+</html>
