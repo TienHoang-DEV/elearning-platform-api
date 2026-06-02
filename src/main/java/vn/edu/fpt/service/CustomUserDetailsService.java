@@ -36,7 +36,7 @@ public class CustomUserDetailsService
 
         System.out.println("=== USER FOUND: " + user.getEmail());
         System.out.println("=== PASSWORD HASH: " + user.getPasswordHash());
-        System.out.println("=== ROLE: " + user.getRole().getName());
+        System.out.println("=== ROLE: " + user.getRoles().toString());
 
         // Thêm dòng này để test
 //        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();

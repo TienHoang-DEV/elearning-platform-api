@@ -22,11 +22,12 @@ public class CustomUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority>
     getAuthorities() {
 
-        return List.of(
-                new SimpleGrantedAuthority(
-                        "ROLE_" + user.getRole().getName().toUpperCase()
-                )
-        );
+        return user.getRoles()
+                .stream()
+                .map(role -> new SimpleGrantedAuthority(
+                        "ROLE_" + role.getName().toUpperCase()
+                ))
+                .toList();
     }
 
     @Override

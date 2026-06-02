@@ -64,7 +64,7 @@ public class AuthService {
         user.setStatus("ACTIVE");
 
 
-        user.setRole(role);
+        user.getRoles().add(role);
 
         userRepository.save(user);
     }
