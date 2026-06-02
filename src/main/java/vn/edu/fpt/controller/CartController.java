@@ -14,6 +14,8 @@ import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.repository.EnrollmentRepository;
 import vn.edu.fpt.service.CartItemService;
 import vn.edu.fpt.service.CartService;
+import vn.edu.fpt.mapper.DtoMapper;
+import vn.edu.fpt.dto.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +59,7 @@ public class CartController {
         }
         return userRepository.findByEmail("28tech@gmail.com")
                 .orElseGet(() -> userRepository.findAll().stream().findFirst()
-                        .orElseThrow(() -> new IllegalStateException("Không tìm thấy người dùng nào trong DB để giả lập.")));
+                        .orElseThrow(() -> new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!")));
     }
 
     @org.springframework.transaction.annotation.Transactional
@@ -66,34 +68,16 @@ public class CartController {
         User user = getMockUser();
         Cart cart = cartService.getOrCreateCartForUser(user);
         
-        // Khởi tạo các item trong giỏ hàng để tránh LazyInitializationException
-        org.hibernate.Hibernate.initialize(cart.getItems());
-        
-        // Khởi tạo course, instructor và các lazy collection cần thiết cho view
-        if (cart.getItems() != null) {
-            for (CartItem item : cart.getItems()) {
-                org.hibernate.Hibernate.initialize(item.getCourse());
-                if (item.getCourse() != null) {
-                    org.hibernate.Hibernate.initialize(item.getCourse().getInstructor());
-                    org.hibernate.Hibernate.initialize(item.getCourse().getCategory());
-                    org.hibernate.Hibernate.initialize(item.getCourse().getFeedbacks());
-                    org.hibernate.Hibernate.initialize(item.getCourse().getSections());
-                    if (item.getCourse().getSections() != null) {
-                        for (vn.edu.fpt.entity.CourseSection section : item.getCourse().getSections()) {
-                            org.hibernate.Hibernate.initialize(section.getLessons());
-                        }
-                    }
-                }
-            }
-        }
+        CartDto cartDto = DtoMapper.INSTANCE.toCartDto(cart);
 
-        // Nhóm các CartItem theo Giảng viên của khóa học
-        Map<User, List<CartItem>> itemsByInstructor = cart.getItems().stream()
+        // Nhóm các CartItemDto theo Giảng viên của khóa học
+        Map<UserDto, List<CartItemDto>> itemsByInstructor = cartDto.getItems().stream()
+                .filter(item -> item.getCourse() != null && item.getCourse().getInstructor() != null)
                 .collect(Collectors.groupingBy(item -> item.getCourse().getInstructor()));
         
         int cartSize = cartItemService.countItemsInCart(cart);
         
-        model.addAttribute("cart", cart);
+        model.addAttribute("cart", cartDto);
         model.addAttribute("itemsByInstructor", itemsByInstructor);
         model.addAttribute("cartSize", cartSize);
         

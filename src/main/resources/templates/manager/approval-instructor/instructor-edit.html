@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Manager - Phê duyệt Giảng viên</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="../../../static/css/manager/instructor.css" th:href="@{/css/manager/instructor.css}">
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Hệ thống Quản lý</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="../dashboard/dashboard.html"><i class="ph ph-squares-four"></i><span>Tổng
+                                quan</span></a>
+                    </li>
+                    <li class="active">
+                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Phê duyệt giảng
+                                viên</span></a>
+                    </li>
+                    <li>
+                        <a href="../approval-course/course-list.html"><i class="ph ph-book-open"></i><span>Phê duyệt
+                                khóa học</span></a>
+                    </li>
+                    <li>
+                        <a href="../revenue/revenue-list.html"><i class="ph ph-currency-circle-dollar"></i><span>Doanh
+                                thu</span></a>
+                    </li>
+                    <li>
+                        <a href="../feedback-report/feedback-report-list.html"><i
+                                class="ph ph-chat-circle-dots"></i><span>Phản hồi</span></a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="avatar footer-avatar">M</div>
+                <div class="profile-info">
+                    <div class="profile-name">Quản trị viên</div>
+                    <div class="profile-email">admin@system.com</div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <main class="content">
+                <!-- Header Title -->
+                <div class="detail-header-container">
+                    <div>
+                        <h1 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 5px;">Xét duyệt yêu cầu</h1>
+                        <p style="color: var(--text-gray); font-size: 0.95rem;">Xem xét hồ sơ và đưa ra quyết định phê
+                            duyệt.</p>
+                    </div>
+                </div>
+
+                <!-- 70/30 Split Layout Container -->
+                <div class="split-layout-container">
+
+                    <!-- Left Side: Profile Details (70%) -->
+                    <div class="detail-card">
+                        <!-- Profile Header -->
+                        <div class="profile-section">
+                            <img th:src="${request.avatarUrl != null ? request.avatarUrl : '/images/default-avatar.png'}"
+                                alt="Avatar" class="profile-avatar-large">
+                            <div class="profile-details">
+                                <div class="profile-name-lg" th:text="${request.fullName}">Tiến sĩ Eleanor Vance</div>
+                                <div class="profile-title-sub"
+                                    th:text="${request.bio != null ? request.bio : 'Ứng viên Giảng viên'}">
+                                    Chuyên gia Khoa học Dữ liệu cấp cao tại TechCorp</div>
+
+                                <div class="profile-meta-info">
+                                    <span class="meta-item"><i class="ph ph-envelope"></i> <span
+                                            th:text="${request.email}">eleanor@example.com</span></span>
+                                    <span class="meta-item"><i class="ph ph-calendar"></i> <span
+                                            th:text="${request.createdAt != null ? #temporals.format(request.createdAt, 'dd/MM/yyyy') : ''}">01/06/2026</span></span>
+                                </div>
+
+                                <span th:class="${'badge badge-' + (request.status.name() == 'PENDING' ? 'warning' : request.status.name() == 'APPROVED' ? 'success' : request.status.name() == 'REJECTED' ? 'danger' : 'dark')}"
+                                    th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : request.status.name() == 'REJECTED' ? 'Từ chối' : 'Bị chặn'}"
+                                    style="margin-top: 5px;">PENDING</span>
+                            </div>
+                        </div>
+
+                        <!-- Introduction Section -->
+                        <div class="detail-section">
+                            <div class="detail-section-title">
+                                <i class="ph ph-user-circle"></i> Giới thiệu
+                            </div>
+                            <div class="intro-text"
+                                th:text="${request.description != null ? request.description : 'Không có phần tự giới thiệu.'}">
+                                Tôi có hơn 10 năm kinh nghiệm trong lĩnh vực Khoa học Dữ liệu và rất mong muốn được chia
+                                sẻ kiến thức của mình với những học viên ham học hỏi.
+                            </div>
+                        </div>
+
+                        <!-- Documents Section (CV and Certificates) -->
+                        <div class="documents-grid">
+                            <!-- CV File -->
+                            <div class="doc-group">
+                                <div class="detail-section-title">
+                                    <i class="ph ph-file-text"></i> Sơ yếu lý lịch
+                                </div>
+                                <div class="doc-card" th:if="${request.cvUrl != null && !request.cvUrl.isEmpty()}">
+                                    <div class="doc-left">
+                                        <i class="ph ph-file-pdf"></i>
+                                        <div>
+                                            <div class="doc-name"
+                                                th:text="${#strings.substringAfter(request.cvUrl, '/') != '' ? #strings.substringAfter(request.cvUrl, '/') : 'instructor_cv.pdf'}">
+                                                eleanor_vance_cv.pdf</div>
+                                        </div>
+                                    </div>
+                                    <a th:href="${request.cvUrl}" target="_blank" class="doc-link">Xem PDF</a>
+                                </div>
+                                <div th:if="${request.cvUrl == null || request.cvUrl.isEmpty()}" class="intro-text"
+                                    style="padding: 15px; font-style: italic; color: var(--text-gray);">
+                                    Không có tệp CV được tải lên.
+                                </div>
+                            </div>
+
+                            <!-- Certificates -->
+                            <div class="doc-group">
+                                <div class="detail-section-title">
+                                    <i class="ph ph-certificate"></i> Chứng chỉ
+                                </div>
+                                <div class="doc-card"
+                                    th:if="${request.certificateUrl != null && !request.certificateUrl.isEmpty()}">
+                                    <div class="doc-left">
+                                        <i class="ph ph-medal"></i>
+                                        <div>
+                                            <div class="doc-name"
+                                                th:text="${#strings.substringAfter(request.certificateUrl, '/') != '' ? #strings.substringAfter(request.certificateUrl, '/') : 'chứng_chỉ_giảng_viên.pdf'}">
+                                                Chứng chỉ chuyên môn</div>
+                                        </div>
+                                    </div>
+                                    <a th:href="${request.certificateUrl}" target="_blank" class="doc-link">Xem tài
+                                        liệu</a>
+                                </div>
+                                <div th:if="${request.certificateUrl == null || request.certificateUrl.isEmpty()}"
+                                    class="intro-text"
+                                    style="padding: 15px; font-style: italic; color: var(--text-gray);">
+                                    Không có chứng chỉ được tải lên.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Sticky Action Form (30%) -->
+                    <div class="action-card">
+                        <div class="action-card-title">
+                            <i class="ph ph-sliders"></i> Quyết định duyệt
+                        </div>
+
+                        <form th:action="@{/manager/instructor/update-status}" method="post">
+                            <!-- Hidden ID parameter -->
+                            <input type="hidden" name="id" th:value="${request.id}" />
+
+                            <div class="status-radio-group">
+                                <!-- Option: Phê duyệt -->
+                                <label class="status-radio-label approved-label">
+                                    <input type="radio" name="status" value="APPROVED"
+                                        th:checked="${request.status.name() == 'APPROVED'}" required />
+                                    <i class="ph ph-check-circle status-icon"></i>
+                                    <span>Phê duyệt</span>
+                                </label>
+
+                                <!-- Option: Từ chối (ẩn nếu đã APPROVED hoặc BLOCKED) -->
+                                <label class="status-radio-label rejected-label"
+                                    th:style="${request.status.name() == 'APPROVED' or request.status.name() == 'BLOCKED' ? 'display: none !important;' : ''}">
+                                    <input type="radio" name="status" value="REJECTED"
+                                        th:checked="${request.status.name() == 'REJECTED'}" required />
+                                    <i class="ph ph-x-circle status-icon"></i>
+                                    <span>Từ chối</span>
+                                </label>
+
+                                <!-- Option: Chặn tài khoản (ẩn nếu đã REJECTED) -->
+                                <label class="status-radio-label blocked-label"
+                                    th:style="${request.status.name() == 'REJECTED' ? 'display: none !important;' : ''}">
+                                    <input type="radio" name="status" value="BLOCKED"
+                                        th:checked="${request.status.name() == 'BLOCKED'}" required />
+                                    <i class="ph ph-prohibit status-icon"></i>
+                                    <span>Chặn tài khoản</span>
+                                </label>
+                            </div>
+
+                            <!-- Hidden Rejection Reason Field (Shows dynamically via JS) -->
+                            <div class="rejection-reason-section" id="rejectionReasonSection" style="display: none;">
+                                <label style="font-weight: 600; font-size: 0.9rem; color: var(--text-main);">Lý do từ
+                                    chối:</label>
+                                <textarea name="rejectionReason" id="rejectionReasonTextarea"
+                                    class="rejection-reason-textarea" rows="4" placeholder="Nhập lý do cụ thể..."
+                                    th:text="${request.rejectionReason}"></textarea>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="ph ph-floppy-disk"></i> Lưu thay đổi
+                                </button>
+                                <a th:href="@{/manager/instructor/list}" class="btn btn-outline btn-block"
+                                    style="text-decoration: none;">
+                                    <i class="ph ph-x"></i> Hủy bỏ
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Inline script to handle radio active styles and rejection reason visibility -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const radioLabels = document.querySelectorAll(".status-radio-label");
+            const rejectionSection = document.getElementById("rejectionReasonSection");
+            const textarea = document.getElementById("rejectionReasonTextarea");
+
+            function updateActiveStates() {
+                radioLabels.forEach(label => {
+                    const radio = label.querySelector('input[type="radio"]');
+                    const statusType = radio.value; // approved, rejected, blocked
+
+                    // Remove all temporary active style classes
+                    label.classList.remove("active-approved", "active-rejected", "active-blocked");
+
+                    if (radio.checked) {
+                        // Apply active color scheme class
+                        label.classList.add(`active-${statusType}`);
+
+                        // Toggle rejection text field
+                        if (statusType === "rejected") {
+                            rejectionSection.style.display = "flex";
+                            textarea.setAttribute("required", "required");
+                        } else {
+                            rejectionSection.style.display = "none";
+                            textarea.removeAttribute("required");
+                        }
+                    }
+                });
+            }
+
+            // Bind click event listeners
+            radioLabels.forEach(label => {
+                const radio = label.querySelector('input[type="radio"]');
+                radio.addEventListener("change", updateActiveStates);
+            });
+
+            // Initial check on page load
+            updateActiveStates();
+        });
+    </script>
+</body>
+
+</html>

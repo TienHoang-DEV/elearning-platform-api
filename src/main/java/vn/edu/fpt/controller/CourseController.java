@@ -12,7 +12,10 @@ import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.repository.UserRepository;
+import vn.edu.fpt.mapper.DtoMapper;
+import vn.edu.fpt.dto.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class CourseController {
@@ -31,7 +34,8 @@ public class CourseController {
 
     private User getSessionUser() {
         try {
-            jakarta.servlet.http.HttpServletRequest request = ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes()).getRequest();
+            jakarta.servlet.http.HttpServletRequest request = ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder
+                    .currentRequestAttributes()).getRequest();
             jakarta.servlet.http.HttpSession session = request.getSession(false);
             if (session != null) {
                 User sessionUser = (User) session.getAttribute("user");
@@ -43,7 +47,8 @@ public class CourseController {
         }
         return userRepository.findByEmail("28tech@gmail.com")
                 .orElseGet(() -> userRepository.findAll().stream().findFirst()
-                        .orElseThrow(() -> new IllegalStateException("Không tìm thấy người dùng nào trong DB để giả lập.")));
+                        .orElseThrow(
+                                () -> new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!")));
     }
 
     @org.springframework.transaction.annotation.Transactional
@@ -51,9 +56,9 @@ public class CourseController {
     public String showCourseList(
             @RequestParam(value = "search", required = false) String search,
             Model model) {
-        
+
         List<Course> courses;
-        
+
         if (search != null && !search.trim().isEmpty()) {
             // Lấy danh sách khóa học khớp với từ khóa tìm kiếm
             courses = courseRepository.findByTitleContainingIgnoreCase((search.trim()));
@@ -61,31 +66,19 @@ public class CourseController {
             // Nếu không tìm kiếm, lấy toàn bộ khóa học
             courses = courseRepository.findAll();
         }
-        
-        List<Category> parentCategories = categoryRepository.findByParentIsNullAndStatus("active");
-        
-        // Khởi tạo các collection Lazy để Thymeleaf có thể sử dụng (vì OSIV có thể đang bị tắt)
-        for (Category parent : parentCategories) {
-            org.hibernate.Hibernate.initialize(parent.getChildren());
-            for (Category child : parent.getChildren()) {
-                org.hibernate.Hibernate.initialize(child.getCourses());
-            }
-        }
-        
-        for (Course course : courses) {
-            org.hibernate.Hibernate.initialize(course.getInstructor());
-            org.hibernate.Hibernate.initialize(course.getCategory());
-            org.hibernate.Hibernate.initialize(course.getFeedbacks());
-            org.hibernate.Hibernate.initialize(course.getSections());
-            if (course.getSections() != null) {
-                for (vn.edu.fpt.entity.CourseSection section : course.getSections()) {
-                    org.hibernate.Hibernate.initialize(section.getLessons());
-                }
-            }
-        }
 
-        model.addAttribute("parentCategories", parentCategories);
-        
+        List<Category> parentCategories = categoryRepository.findByParentIsNullAndStatus("ACTIVE");
+
+        List<CategoryDto> categoryDtos = parentCategories.stream()
+                .map(DtoMapper.INSTANCE::toCategoryDto)
+                .collect(Collectors.toList());
+
+        List<CourseDto> courseDtos = courses.stream()
+                .map(DtoMapper.INSTANCE::toCourseDto)
+                .collect(Collectors.toList());
+
+        model.addAttribute("parentCategories", categoryDtos);
+
         User user = getSessionUser();
         java.util.Set<Integer> enrolledCourseIds = new java.util.HashSet<>();
         if (user != null) {
@@ -99,16 +92,16 @@ public class CourseController {
         model.addAttribute("enrolledCourseIds", enrolledCourseIds);
 
         // Đưa danh sách khóa học vào Model với key là "courses" để Thymeleaf render
-        model.addAttribute("courses", courses);
+        model.addAttribute("courses", courseDtos);
         // Đưa từ khóa tìm kiếm vào Model để hiển thị lại trên thanh tìm kiếm và tiêu đề
         model.addAttribute("search", search);
-        
+
         // Trả về template course/list.html
         return "course/list";
     }
 
     @GetMapping("/coursemanager")
-    public String getall(){
+    public String getall() {
         return "instructor_course/course_manager";
     }
 
@@ -118,36 +111,8 @@ public class CourseController {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
 
-        org.hibernate.Hibernate.initialize(course.getInstructor());
-        org.hibernate.Hibernate.initialize(course.getCategory());
-        org.hibernate.Hibernate.initialize(course.getFeedbacks());
-        if (course.getFeedbacks() != null) {
-            for (vn.edu.fpt.entity.Feedback fb : course.getFeedbacks()) {
-                org.hibernate.Hibernate.initialize(fb.getUser());
-            }
-        }
-        
-        org.hibernate.Hibernate.initialize(course.getEnrollments());
-        
-        org.hibernate.Hibernate.initialize(course.getSections());
-        if (course.getSections() != null) {
-            for (vn.edu.fpt.entity.CourseSection section : course.getSections()) {
-                org.hibernate.Hibernate.initialize(section.getLessons());
-            }
-        }
-
-        User user = getSessionUser();
-        java.util.Set<Integer> enrolledCourseIds = new java.util.HashSet<>();
-        if (user != null) {
-            enrolledCourseIds = enrollmentRepository.findByUser(user).stream()
-                    .map(e -> {
-                        org.hibernate.Hibernate.initialize(e.getCourse());
-                        return e.getCourse().getId();
-                    })
-                    .collect(java.util.stream.Collectors.toSet());
-        }
-        model.addAttribute("enrolledCourseIds", enrolledCourseIds);
-        model.addAttribute("course", course);
+        CourseDto courseDto = DtoMapper.INSTANCE.toCourseDto(course);
+        model.addAttribute("course", courseDto);
         return "course/detail";
     }
 }

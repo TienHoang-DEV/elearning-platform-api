@@ -16,7 +16,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
+import vn.edu.fpt.mapper.DtoMapper;
+import vn.edu.fpt.dto.*;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -53,7 +54,7 @@ public class StudentProfileController {
         }
         return userRepository.findByEmail("28tech@gmail.com")
                 .orElseGet(() -> userRepository.findAll().stream().findFirst()
-                        .orElseThrow(() -> new IllegalStateException("Không tìm thấy người dùng nào trong DB để giả lập.")));
+                        .orElseThrow(() -> new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!")));
     }
 
     @GetMapping("/")
@@ -65,8 +66,6 @@ public class StudentProfileController {
     @GetMapping("/student/profile")
     public String showStudentProfile(Model model) {
         User user = getSessionUser();
-        
-        org.hibernate.Hibernate.initialize(user.getEnrollments());
         
         int enrollmentsCount = user.getEnrollments().size();
         long certificatesCount = user.getEnrollments().stream()
@@ -82,7 +81,7 @@ public class StudentProfileController {
             totalHours = 2;
         }
 
-        model.addAttribute("currentUser", user);
+        model.addAttribute("currentUser", DtoMapper.INSTANCE.toUserDto(user));
         model.addAttribute("enrollmentsCount", enrollmentsCount);
         model.addAttribute("certificatesCount", certificatesCount);
         model.addAttribute("studyHours", totalHours);
@@ -96,23 +95,13 @@ public class StudentProfileController {
         User user = getSessionUser();
         List<Enrollment> enrollments = enrollmentRepository.findByUser(user);
         
-        for (Enrollment en : enrollments) {
-            org.hibernate.Hibernate.initialize(en.getCourse());
-            if (en.getCourse() != null) {
-                org.hibernate.Hibernate.initialize(en.getCourse().getInstructor());
-                org.hibernate.Hibernate.initialize(en.getCourse().getCategory());
-                org.hibernate.Hibernate.initialize(en.getCourse().getSections());
-                if (en.getCourse().getSections() != null) {
-                    for (vn.edu.fpt.entity.CourseSection section : en.getCourse().getSections()) {
-                        org.hibernate.Hibernate.initialize(section.getLessons());
-                    }
-                }
-            }
-        }
+        List<EnrollmentDto> enrollmentDtos = enrollments.stream()
+                .map(DtoMapper.INSTANCE::toEnrollmentDto)
+                .collect(Collectors.toList());
         
-        model.addAttribute("currentUser", user);
-        model.addAttribute("enrollments", enrollments);
-        model.addAttribute("enrollmentsCount", enrollments.size());
+        model.addAttribute("currentUser", DtoMapper.INSTANCE.toUserDto(user));
+        model.addAttribute("enrollments", enrollmentDtos);
+        model.addAttribute("enrollmentsCount", enrollmentDtos.size());
         
         return "my_learning/my_learning";
     }
@@ -123,20 +112,12 @@ public class StudentProfileController {
         User user = getSessionUser();
         List<Order> orders = orderRepository.findByUser(user);
         
-        for (Order order : orders) {
-            org.hibernate.Hibernate.initialize(order.getItems());
-            if (order.getItems() != null) {
-                for (vn.edu.fpt.entity.OrderItem item : order.getItems()) {
-                    org.hibernate.Hibernate.initialize(item.getCourse());
-                    if (item.getCourse() != null) {
-                        org.hibernate.Hibernate.initialize(item.getCourse().getInstructor());
-                    }
-                }
-            }
-        }
+        List<OrderDto> orderDtos = orders.stream()
+                .map(DtoMapper.INSTANCE::toOrderDto)
+                .collect(Collectors.toList());
         
-        model.addAttribute("currentUser", user);
-        model.addAttribute("orders", orders);
+        model.addAttribute("currentUser", DtoMapper.INSTANCE.toUserDto(user));
+        model.addAttribute("orders", orderDtos);
         
         return "purchase_history/purchase_history";
     }
@@ -146,32 +127,17 @@ public class StudentProfileController {
     public String showRecommendations(Model model) {
         User user = getSessionUser();
         
-        org.hibernate.Hibernate.initialize(user.getEnrollments());
-        
         Set<Integer> enrolledCourseIds = user.getEnrollments().stream()
-                .map(e -> {
-                    org.hibernate.Hibernate.initialize(e.getCourse());
-                    return e.getCourse().getId();
-                })
+                .filter(e -> e.getCourse() != null)
+                .map(e -> e.getCourse().getId())
                 .collect(Collectors.toSet());
                 
-        List<Course> recommendedCourses = courseRepository.findAll().stream()
+        List<CourseDto> recommendedCourses = courseRepository.findAll().stream()
                 .filter(c -> !enrolledCourseIds.contains(c.getId()))
+                .map(DtoMapper.INSTANCE::toCourseDto)
                 .collect(Collectors.toList());
                 
-        for (Course course : recommendedCourses) {
-            org.hibernate.Hibernate.initialize(course.getInstructor());
-            org.hibernate.Hibernate.initialize(course.getCategory());
-            org.hibernate.Hibernate.initialize(course.getFeedbacks());
-            org.hibernate.Hibernate.initialize(course.getSections());
-            if (course.getSections() != null) {
-                for (vn.edu.fpt.entity.CourseSection section : course.getSections()) {
-                    org.hibernate.Hibernate.initialize(section.getLessons());
-                }
-            }
-        }
-                
-        model.addAttribute("currentUser", user);
+        model.addAttribute("currentUser", DtoMapper.INSTANCE.toUserDto(user));
         model.addAttribute("recommendedCourses", recommendedCourses);
         
         return "recommendations/recommendations";

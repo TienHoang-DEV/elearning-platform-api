@@ -152,7 +152,7 @@
                                 </div>
                                 <div class="meta-info">
                                     <span class="meta-label d-block text-muted fw-semibold" style="font-size:11px;">Danh Mục:</span>
-                                    <span class="meta-value text-dark fw-medium fs-7" th:text="${course.category.name}">Âm nhạc và Nghệ thuật biểu diễn</span>
+                                    <span class="meta-value text-dark fw-medium fs-7" th:text="${course.category?.name ?: 'Chưa phân loại'}">Âm nhạc và Nghệ thuật biểu diễn</span>
                                 </div>
                             </div>
                         </div>
@@ -164,7 +164,7 @@
                                 </div>
                                 <div class="meta-info">
                                     <span class="meta-label d-block text-muted fw-semibold" style="font-size:11px;">Danh Mục Con:</span>
-                                    <span class="meta-value text-dark fw-medium fs-7" th:text="${course.category.description}">Nhạc cụ</span>
+                                    <span class="meta-value text-dark fw-medium fs-7" th:text="${course.category?.description ?: 'Không có mô tả'}">Nhạc cụ</span>
                                 </div>
                             </div>
                         </div>
@@ -361,8 +361,8 @@
                                 <div class="border rounded-3 p-4 bg-white shadow-sm" th:each="fb : ${course.feedbacks}">
                                     <div class="d-flex justify-content-between align-items-start mb-3">
                                         <div class="d-flex align-items-center gap-3">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary" style="width: 44px; height: 44px;">
-                                                <i data-lucide="user" style="width:20px; height:20px;"></i>
+                                            <div class="avatar-ring-wrapper d-flex align-items-center justify-content-center rounded-circle p-0.5" style="border: 2px solid #e2e8f0; width: 44px; height: 44px;">
+                                                <img th:src="${fb.user?.email == '28tech@gmail.com' ? '/images/avatar.png' : '/images/student2.png'}" alt="Learner Avatar" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='/images/student2.png';">
                                             </div>
                                             <div class="d-flex flex-column">
                                                 <span class="fw-semibold text-dark fs-7" th:text="${fb.user.lastName + ' ' + fb.user.firstName}">Nguyễn Văn An</span>
@@ -400,7 +400,7 @@
                             
                             <!-- Thumbnail with overlay preview -->
                             <div class="thumbnail-container position-relative bg-dark" style="aspect-ratio: 16/9; overflow: hidden;">
-                                <img th:src="${course.thumbnailPath}" th:alt="${course.title}" class="w-100 h-100 object-fit-cover">
+                                <img th:src="${course.thumbnailPath}" th:alt="${course.title}" class="w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
                                 <div class="badge bg-warning text-dark position-absolute top-0 start-0 m-3 px-3 py-2 fw-extrabold fs-7 rounded-sm shadow-sm" style="z-index: 2;">GIẢM 20%</div>
                                 
                                 <div class="thumbnail-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-40" th:if="${course.getFirstLessonId() != null}">
@@ -456,7 +456,7 @@
                                             <i data-lucide="users" class="text-muted" style="width:18px;"></i>
                                             <span>Đã Mua:</span>
                                         </div>
-                                        <span class="fw-semibold text-dark fs-7" th:text="${course.enrollments != null ? course.enrollments.size() : 0} + ' người'">0 người</span>
+                                        <span class="fw-semibold text-dark fs-7" th:text="${course.enrollmentsCount} + ' người'">0 người</span>
                                     </li>
                                 </ul>
 
@@ -498,7 +498,7 @@
                         </video>
                     </div>
                     <div th:unless="${course.getFirstLessonId() != null}" class="simulated-player position-relative w-100 bg-black d-flex align-items-center justify-content-center" style="aspect-ratio: 16/9; overflow: hidden;">
-                        <img th:src="${course.thumbnailPath}" alt="Course Preview" class="w-100 h-100 object-fit-cover opacity-50">
+                        <img th:src="${course.thumbnailPath}" alt="Course Preview" class="w-100 h-100 object-fit-cover opacity-50" onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
                         <div class="position-absolute text-white fs-5 fw-bold">Chưa có video xem thử</div>
                     </div>
                 </div>

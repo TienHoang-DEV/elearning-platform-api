@@ -140,24 +140,25 @@
                 <div class="col-lg-4 col-md-6 col-12 course-card-wrapper" 
                      th:each="enrollment : ${enrollments}" 
                      th:data-completed="${enrollment.progressPercent != null && enrollment.progressPercent.doubleValue() >= 100 ? 'true' : 'false'}"
-                     th:data-course-id="${enrollment.course.id}">
+                     th:data-course-id="${enrollment.course?.id}">
                     <div class="card h-100 border-0 shadow-sm course-card overflow-hidden">
                         <!-- Thumbnail -->
                         <div class="position-relative overflow-hidden">
-                            <img th:src="${enrollment.course.thumbnailPath}" 
-                                 th:alt="${enrollment.course.title}" class="w-100 object-fit-cover" style="height: 220px; transition: transform 0.5s ease;">
+                            <img th:src="${enrollment.course?.thumbnailPath}" 
+                                 th:alt="${enrollment.course?.title}" class="w-100 object-fit-cover" style="height: 220px; transition: transform 0.5s ease;"
+                                 onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
                         </div>
                         
                         <!-- Body -->
                         <div class="card-body p-4 d-flex flex-column justify-content-between" style="min-height: 200px;">
                             <div>
-                                <h3 class="course-card-title fw-bold fs-6 mb-3 font-heading leading-snug" th:text="${enrollment.course.title}">
+                                <h3 class="course-card-title fw-bold fs-6 mb-3 font-heading leading-snug" th:text="${enrollment.course?.title}">
                                     Đệm hát Guitar những bài hát của Eric Clapton
                                 </h3>
                                 
                                 <div class="d-flex align-items-center gap-2 text-muted fs-8 mb-4">
                                     <i data-lucide="clock" class="flex-shrink-0" style="width: 14px; height: 14px;"></i>
-                                    <span class="text-truncate" th:text="'Trình độ: ' + ${enrollment.course.level == 'beginner' ? 'Cơ bản' : (enrollment.course.level == 'intermediate' ? 'Trung cấp' : 'Nâng cao')}">Trình độ: Cơ bản</span>
+                                    <span class="text-truncate" th:text="'Trình độ: ' + ${enrollment.course?.level == 'beginner' ? 'Cơ bản' : (enrollment.course?.level == 'intermediate' ? 'Trung cấp' : 'Nâng cao')}">Trình độ: Cơ bản</span>
                                 </div>
                             </div>
                             
@@ -169,7 +170,7 @@
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center fs-8 text-muted">
                                     <span class="fw-medium text-dark" th:text="${#numbers.formatDecimal(enrollment.progressPercent ?: 0, 0, 0)} + '% Hoàn Thành'">0% Hoàn Thành</span>
-                                    <span th:text="${enrollment.course.totalLessonsCount} + ' bài học'">45 bài học</span>
+                                    <span th:text="${enrollment.course?.totalLessonsCount ?: 0} + ' bài học'">45 bài học</span>
                                 </div>
                             </div>
                         </div>
@@ -178,9 +179,9 @@
                         <div class="card-footer bg-transparent border-top p-4 py-3 d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center gap-2">
                                 <img th:src="@{/images/instructor_hero.png}" alt="Instructor" class="rounded-circle border" style="width: 28px; height: 28px; object-fit: cover;">
-                                <span class="fw-bold fs-8 text-uppercase tracking-wider text-muted-dark" th:text="${enrollment.course.instructor.lastName + ' ' + enrollment.course.instructor.firstName}">GIẢNG VIÊN</span>
+                                <span class="fw-bold fs-8 text-uppercase tracking-wider text-muted-dark" th:text="${enrollment.course?.instructor != null ? enrollment.course.instructor.lastName + ' ' + enrollment.course.instructor.firstName : 'GIẢNG VIÊN'}">GIẢNG VIÊN</span>
                             </div>
-                            <a th:href="@{/course/{id}(id=${enrollment.course.id})}" class="btn btn-primary btn-sm rounded-pill px-3 py-1 fw-bold fs-8">Học tiếp</a>
+                            <a th:href="@{/course/{id}(id=${enrollment.course?.id})}" class="btn btn-primary btn-sm rounded-pill px-3 py-1 fw-bold fs-8">Học tiếp</a>
                         </div>
                     </div>
                 </div>

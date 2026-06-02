@@ -24,13 +24,14 @@ public class InstructorProfileController {
         this.categoryService = categoryService;
     }
 
+    @org.springframework.transaction.annotation.Transactional
     @GetMapping("/profile")
     public String profile(HttpSession session, Model model){
         //Sau có login
 //       User user = (User)session.getAttribute("user");
 
        User tmp = service.findById(1);
-       model.addAttribute("instructor", tmp);
+       model.addAttribute("instructor", vn.edu.fpt.mapper.DtoMapper.INSTANCE.toUserDto(tmp));
        return "instructor_course/course_manager";
     }
 

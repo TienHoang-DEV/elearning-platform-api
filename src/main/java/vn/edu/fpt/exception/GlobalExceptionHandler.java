@@ -12,34 +12,54 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private boolean isApiRequest(HttpServletRequest request) {
+        String accept = request.getHeader("Accept");
+        return (accept != null && accept.contains("application/json")) || request.getRequestURI().startsWith("/api/");
+    }
+
     @ExceptionHandler(CourseNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCourseNotFound(CourseNotFoundException ex, HttpServletRequest request) {
-        ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), "Course Not Found", ex.getMessage(), request.getRequestURI());
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    public Object handleCourseNotFound(CourseNotFoundException ex, HttpServletRequest request) throws Exception {
+        if (isApiRequest(request)) {
+            ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), "Course Not Found", ex.getMessage(), request.getRequestURI());
+            return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+        }
+        throw ex;
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
-        ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), "Not Found", ex.getMessage(), request.getRequestURI());
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    public Object handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) throws Exception {
+        if (isApiRequest(request)) {
+            ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), "Not Found", ex.getMessage(), request.getRequestURI());
+            return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+        }
+        throw ex;
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException ex, HttpServletRequest request) {
-        ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Bad Request", ex.getMessage(), request.getRequestURI());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    public Object handleBadRequest(BadRequestException ex, HttpServletRequest request) throws Exception {
+        if (isApiRequest(request)) {
+            ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Bad Request", ex.getMessage(), request.getRequestURI());
+            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        }
+        throw ex;
     }
 
     @ExceptionHandler(ApplicationException.class)
-    public ResponseEntity<ErrorResponse> handleApplication(ApplicationException ex, HttpServletRequest request) {
-        ErrorResponse body = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Application Error", ex.getMessage(), request.getRequestURI());
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    public Object handleApplication(ApplicationException ex, HttpServletRequest request) throws Exception {
+        if (isApiRequest(request)) {
+            ErrorResponse body = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Application Error", ex.getMessage(), request.getRequestURI());
+            return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        throw ex;
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleOther(Exception ex, HttpServletRequest request) {
-        ErrorResponse body = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error", "An unexpected error occurred", request.getRequestURI());
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    public Object handleOther(Exception ex, HttpServletRequest request) throws Exception {
+        if (isApiRequest(request)) {
+            ErrorResponse body = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error", ex.getMessage(), request.getRequestURI());
+            return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        throw ex;
     }
 }
 

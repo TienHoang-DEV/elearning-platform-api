@@ -115,32 +115,33 @@
                 <!-- Card dynamic -->
                 <div class="col" th:each="course : ${recommendedCourses}">
                     <div class="card h-100 border-0 shadow-sm course-card overflow-hidden d-flex flex-column justify-content-between">
-                        <a th:href="@{/course/detail(id=${course.id})}" class="text-decoration-none text-dark d-block">
+                        <a th:href="@{/course/detail(id=${course?.id})}" class="text-decoration-none text-dark d-block">
                             <div class="position-relative overflow-hidden">
-                                <img th:src="${course.thumbnailPath}" th:alt="${course.title}" class="w-100 object-fit-cover" style="height: 220px;">
+                                <img th:src="${course?.thumbnailPath}" th:alt="${course?.title}" class="w-100 object-fit-cover" style="height: 220px;"
+                                     onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
                             </div>
                             <div class="card-body p-4 pb-1">
-                                <h3 class="course-card-title fw-bold fs-6 mb-3 font-heading leading-snug" th:text="${course.title}">
+                                <h3 class="course-card-title fw-bold fs-6 mb-3 font-heading leading-snug" th:text="${course?.title}">
                                     Tiêu đề khóa học
                                 </h3>
                                 <div class="d-flex align-items-center gap-2 text-muted fs-8 mb-2">
                                     <i data-lucide="user" style="width: 14px; height: 14px;"></i>
-                                    <span th:text="${course.instructor.lastName + ' ' + course.instructor.firstName}">GIẢNG VIÊN</span>
+                                    <span th:text="${course?.instructor != null ? course.instructor.lastName + ' ' + course.instructor.firstName : 'GIẢNG VIÊN'}">GIẢNG VIÊN</span>
                                 </div>
                                 <div class="rating-stars mb-4 d-flex align-items-center gap-1">
-                                    <span class="rating-value fw-bold text-dark fs-8 me-1" th:text="${course.averageRating}">5</span>
+                                    <span class="rating-value fw-bold text-dark fs-8 me-1" th:text="${course?.averageRating ?: 0}">5</span>
                                     <i data-lucide="star" class="star-icon star-filled" th:each="starIdx : ${#numbers.sequence(1, 5)}"
-                                       th:style="${course.averageRating >= starIdx ? 'fill: #ffb400; stroke: #ffb400;' : 'fill: none; stroke: #ccc;'}"></i>
-                                    <span class="text-muted fs-8 ms-1" th:text="'(' + ${course.ratingCount} + ')'">(0)</span>
+                                       th:style="${(course?.averageRating ?: 0) >= starIdx ? 'fill: #ffb400; stroke: #ffb400;' : 'fill: none; stroke: #ccc;'}"></i>
+                                    <span class="text-muted fs-8 ms-1" th:text="'(' + ${course?.ratingCount ?: 0} + ')'">(0)</span>
                                 </div>
                             </div>
                         </a>
                         <div class="card-body p-4 pt-1 d-flex align-items-end justify-content-between">
                             <div class="price-box">
                                 <span class="price-current fw-extrabold fs-6 text-primary" 
-                                      th:text="${course.price.compareTo(T(java.math.BigDecimal).ZERO) == 0 ? 'Miễn phí' : #numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">209,300 VND</span>
+                                      th:text="${course?.price == null || course.price.compareTo(T(java.math.BigDecimal).ZERO) == 0 ? 'Miễn phí' : #numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">209,300 VND</span>
                             </div>
-                            <button class="btn btn-outline-primary btn-cart rounded-3 p-2 d-flex align-items-center justify-content-center btn-add-to-cart" th:data-course-id="${course.id}" aria-label="Thêm vào giỏ hàng">
+                            <button class="btn btn-outline-primary btn-cart rounded-3 p-2 d-flex align-items-center justify-content-center btn-add-to-cart" th:data-course-id="${course?.id}" aria-label="Thêm vào giỏ hàng">
                                 <i data-lucide="shopping-cart" style="width: 18px; height: 18px;"></i>
                             </button>
                         </div>

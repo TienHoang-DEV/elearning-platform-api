@@ -103,17 +103,31 @@ public class Course extends BaseEntity {
             return 0.0;
         }
         double sum = 0;
+        int count = 0;
         for (Feedback fb : feedbacks) {
             if (fb.getRating() != null) {
                 sum += fb.getRating();
+                count++;
             }
         }
-        double avg = sum / feedbacks.size();
+        if (count == 0) {
+            return 0.0;
+        }
+        double avg = sum / count;
         return Math.round(avg * 10.0) / 10.0;
     }
 
     public int getRatingCount() {
-        return feedbacks == null ? 0 : feedbacks.size();
+        if (feedbacks == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Feedback fb : feedbacks) {
+            if (fb.getRating() != null) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public int getStarCount(int star) {
@@ -179,6 +193,10 @@ public class Course extends BaseEntity {
         return null;
     }
 
+    public int getEnrollmentsCount() {
+        return enrollments != null ? enrollments.size() : 0;
+    }
+
     public String getThumbnailPath() {
         if (thumbnailUrl == null || thumbnailUrl.trim().isEmpty()) {
             return "/images/course_thumbnail.png";
@@ -186,24 +204,40 @@ public class Course extends BaseEntity {
         if (thumbnailUrl.startsWith("http://") || thumbnailUrl.startsWith("https://")) {
             return thumbnailUrl;
         }
+        
+        // Trích xuất tên tệp tin nếu thumbnailUrl là một đường dẫn
+        String fileName = thumbnailUrl;
+        if (thumbnailUrl.contains("/")) {
+            fileName = thumbnailUrl.substring(thumbnailUrl.lastIndexOf("/") + 1);
+        }
+
+        // Ánh xạ các hình ảnh mẫu trong database seed về ảnh local để hiển thị đẹp mắt
+        if (fileName.equals("2aOboQZWp6Ov5iGTAZLOlCgmiOhOKsGgeQU1cI0O.jpg") || 
+            fileName.equals("dsa-28tech.jpg") || 
+            fileName.equals("spring-boot.jpg")) {
+            return "/images/tech_course.png";
+        }
+
+        // Check if it is a known local image in static/images
+        if (fileName.equals("acoustic_course.png") || 
+            fileName.equals("course_thumbnail.png") ||
+            fileName.equals("cuisine_course.png") ||
+            fileName.equals("dome_hero.png") ||
+            fileName.equals("eric_clapton_fan.png") ||
+            fileName.equals("guitar_bolero_classical.png") ||
+            fileName.equals("guitar_expert.png") ||
+            fileName.equals("guitar_les_paul.png") ||
+            fileName.equals("guitar_natural_acoustic.png") ||
+            fileName.equals("guitar_stratocaster_sunburst.png") ||
+            fileName.equals("guitar_sunburst_acoustic.png") ||
+            fileName.equals("tech_course.png")) {
+            return "/images/" + fileName;
+        }
+
         if (thumbnailUrl.startsWith(vn.edu.fpt.util.AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/")) {
             return vn.edu.fpt.util.AppConstants.AZURE_STORAGE_BASE_URL + "/" + thumbnailUrl;
         }
-        // Check if it is a known local image in static/images
-        if (thumbnailUrl.equals("acoustic_course.png") || 
-            thumbnailUrl.equals("course_thumbnail.png") ||
-            thumbnailUrl.equals("cuisine_course.png") ||
-            thumbnailUrl.equals("dome_hero.png") ||
-            thumbnailUrl.equals("eric_clapton_fan.png") ||
-            thumbnailUrl.equals("guitar_bolero_classical.png") ||
-            thumbnailUrl.equals("guitar_expert.png") ||
-            thumbnailUrl.equals("guitar_les_paul.png") ||
-            thumbnailUrl.equals("guitar_natural_acoustic.png") ||
-            thumbnailUrl.equals("guitar_stratocaster_sunburst.png") ||
-            thumbnailUrl.equals("guitar_sunburst_acoustic.png") ||
-            thumbnailUrl.equals("tech_course.png")) {
-            return "/images/" + thumbnailUrl;
-        }
+
         // Default fallback: resolve from Azure Blob Storage course-thumbnails container
         return vn.edu.fpt.util.AppConstants.AZURE_STORAGE_BASE_URL + "/" + 
                vn.edu.fpt.util.AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + 

@@ -124,7 +124,7 @@
                                                        class="filter-category-link text-decoration-none d-flex justify-content-between align-items-center text-muted" 
                                                        th:data-category-id="${childCat.id}">
                                                         <span th:text="${childCat.name}">HTML</span>
-                                                        <span class="text-muted fs-8" th:text="'(' + ${childCat.courses.size()} + ')'">(0)</span>
+                                                        <span class="text-muted fs-8" th:text="'(' + ${childCat.courseCount} + ')'">(0)</span>
                                                     </a>
                                                 </li>
                                             </ul>
@@ -268,7 +268,7 @@
                              th:data-category-id="${course.category != null ? course.category.id : ''}">
                             <!-- Left: Thumbnail -->
                             <a th:href="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id)} ? @{/student/my-learning} : @{/course/detail(id=${course.id})}" class="position-relative overflow-hidden rounded-3 flex-shrink-0 align-self-center align-self-md-start" style="width: 240px; height: 145px; display: block;">
-                                <img th:src="${course.thumbnailPath}" th:alt="${course.title}" class="w-100 h-100 object-fit-cover">
+                                <img th:src="${course.thumbnailPath}" th:alt="${course.title}" class="w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
                                 <span class="position-absolute top-0 start-0 badge-discount text-white fw-bold fs-8 px-2.5 py-1 m-3">GIẢM 30%</span>
                                 <span class="position-absolute bottom-0 end-0 bg-dark bg-opacity-75 text-white fs-8 px-2.5 py-1 rounded-pill m-3 fw-medium" th:text="${course.getTotalLessonsCount() * 10} + ' phút'">31 phút</span>
                             </a>
@@ -303,7 +303,7 @@
                                     <div class="d-flex align-items-center gap-3 text-muted fs-8">
                                         <span class="d-flex align-items-center gap-1"><i data-lucide="clock" style="width: 14px;"></i> 31 phút</span>
                                         <span class="d-flex align-items-center gap-1"><i data-lucide="zap" style="width: 14px;"></i> <span th:text="${course.level}">Cơ bản</span></span>
-                                        <span class="d-flex align-items-center gap-1"><i data-lucide="eye" style="width: 14px;"></i> 7 lượt mua</span>
+                                        <span class="d-flex align-items-center gap-1"><i data-lucide="eye" style="width: 14px;"></i> <span th:text="${course.enrollmentsCount} + ' lượt mua'">0 lượt mua</span></span>
                                     </div>
                                     
                                     <!-- Price & Cart -->
