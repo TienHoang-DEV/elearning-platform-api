@@ -5,7 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import vn.edu.fpt.exception.CourseNotFoundException;
+//import vn.edu.fpt.exeption.CourseNotFoundException;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.CategoryRepository;
 import vn.edu.fpt.entity.Course;
@@ -56,7 +56,7 @@ public class CourseController {
         
         if (search != null && !search.trim().isEmpty()) {
             // Lấy danh sách khóa học khớp với từ khóa tìm kiếm
-            courses = courseRepository.findByTitleContainingIgnoreCase(search.trim());
+            courses = courseRepository.findByTitleContainingIgnoreCase((search.trim());
         } else {
             // Nếu không tìm kiếm, lấy toàn bộ khóa học
             courses = courseRepository.findAll();

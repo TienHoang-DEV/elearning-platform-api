@@ -3,7 +3,6 @@ package vn.edu.fpt.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -56,10 +55,10 @@ public class User extends BaseEntity{
     @Column(length = 20, nullable = false)
     private String status;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)
-    private Set<Course> courses = new HashSet<>();
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<PasswordResetToken> passwordResetTokens = new HashSet<>();
 
+<<<<<<< HEAD
 
     @Builder.Default
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
@@ -72,30 +71,16 @@ public class User extends BaseEntity{
     public void addCourse(Course course) {
         courses.add(course);
         course.setInstructor(this);
+=======
+    public void addPasswordResetToken(PasswordResetToken passwordResetToken) {
+        passwordResetTokens.add(passwordResetToken);
+        passwordResetToken.setUser(this);
+>>>>>>> feature/auth-backend-register-final
     }
 
-    public void removeCourse(Course course) {
-        courses.remove(course);
-        course.setInstructor(null);
+    public void removePasswordResetToken(PasswordResetToken passwordResetToken) {
+        passwordResetTokens.remove(passwordResetToken);
+        passwordResetToken.setUser(null);
     }
 
-    public void addOrder(Order order) {
-        orders.add(order);
-        order.setUser(this);
-    }
-
-    public void removeOrder(Order order) {
-        orders.remove(order);
-        order.setUser(null);
-    }
-
-    public void addEnrollment(Enrollment enrollment) {
-        enrollments.add(enrollment);
-        enrollment.setUser(this);
-    }
-
-    public void removeEnrollment(Enrollment enrollment) {
-        enrollments.remove(enrollment);
-        enrollment.setUser(null);
-    }
 }

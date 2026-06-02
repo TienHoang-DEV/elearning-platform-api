@@ -9,6 +9,11 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
 	Optional<User> findByEmail(String email);
+<<<<<<< HEAD
     User save(User u );
 
+=======
+
+	boolean existsByEmail(String email);
+>>>>>>> feature/auth-backend-register-final
 }
