@@ -63,7 +63,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login_no")
                         .loginProcessingUrl("/login_no")
-                        .usernameParameter("email")   // ✅ thêm dòng này
+                        .usernameParameter("email")   // thêm dòng này
                         .passwordParameter("password")
                         .defaultSuccessUrl("/home", true)
                         .failureUrl("/login_no?error")
