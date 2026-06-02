@@ -60,4 +60,19 @@ public class User extends BaseEntity{
         passwordResetToken.setUser(null);
     }
 
+    public Role getRole() {
+        return role;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
 }

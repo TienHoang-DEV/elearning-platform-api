@@ -300,6 +300,13 @@ body {
     gap: 8px;
 }
 
+.error-message{
+    display:block;
+    margin-top:6px;
+    font-size:13px;
+    color:#ef4444;
+}
+
 /* RESPONSIVE */
 @media (max-width: 900px) {
     .auth-image { display: none; }

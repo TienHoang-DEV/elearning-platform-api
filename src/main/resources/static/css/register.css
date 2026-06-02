@@ -191,6 +191,23 @@ body {
 .value-text strong { display: block; font-size: 0.85rem; margin-bottom: 2px; }
 .value-text p { font-size: 0.75rem; opacity: 0.8; }
 
+.error-message{
+    display:block;
+    margin-top:6px;
+    font-size:13px;
+    color:#ef4444;
+}
+
+.register-split-left {
+    flex: 1.1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background-color: white;
+    overflow-y: auto; /* Thêm dòng này để cuộn mượt mà nếu màn hình quá nhỏ */
+}
+
 /* RESPONSIVE */
 @media (max-width: 1024px) {
     .register-split-right { display: none; }
