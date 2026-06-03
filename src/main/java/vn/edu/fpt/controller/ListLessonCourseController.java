@@ -1,7 +1,7 @@
 package vn.edu.fpt.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,24 +20,20 @@ import vn.edu.fpt.dto.*;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.ArrayList;
 import vn.edu.fpt.entity.LessonMaterial;
 
 @Controller
+@RequiredArgsConstructor
 public class ListLessonCourseController {
 
-    @Autowired
-    CourseService courseService;
+    private final CourseService courseService;
 
-    @Autowired
-    LessonService lessonService;
+    private final LessonService lessonService;
 
-    @Autowired
-    AzureBlobService azureBlobService;
+    private final AzureBlobService azureBlobService;
 
-    @Autowired
-    DtoMapper dtoMapper;
+    private final DtoMapper dtoMapper;
 
     @Transactional
     @GetMapping("/course/{courseId}")

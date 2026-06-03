@@ -3,6 +3,10 @@ package vn.edu.fpt.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import vn.edu.fpt.dto.*;
+import vn.edu.fpt.dto.quizdto.QuizAnswerDTO;
+import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
+import vn.edu.fpt.dto.quizdto.QuizDTO;
+import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
 import vn.edu.fpt.entity.*;
 
 @Mapper(componentModel = "spring")
@@ -20,6 +24,14 @@ public interface DtoMapper {
     
     @Mapping(target = "courseCount", expression = "java(category.getCourses() != null ? category.getCourses().size() : 0)")
     CategoryDto toCategoryDto(Category category);
+
+    QuizDTO toQuizDto(Quiz quiz);
+
+    QuizQuestionDTO toQuizQuestionDto(QuizQuestion quizQuestion);
+
+    QuizAnswerDTO toQuizAnswerDto(QuizAnswer quizAnswer);
+
+    QuizAttemptDTO toQuizAttemptDto(QuizAttempt quizAttempt);
     
     CourseSectionDto toCourseSectionDto(CourseSection section);
     LessonDto toLessonDto(Lesson lesson);
