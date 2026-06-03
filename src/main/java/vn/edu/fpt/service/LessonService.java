@@ -17,11 +17,31 @@ public class LessonService {
         this.repository = lessonRepository;
     }
 
-    public List<Lesson> findAll() { return repository.findAll(); }
-    public Optional<Lesson> findById(Integer id) { return repository.findById(id); }
-    public Optional<Lesson> findByIdWithMaterials(Integer id) { return repository.findByIdWithMaterials(id); }
-    public Optional<Lesson> findByIdWithQuizzes(Integer id) { return repository.findByIdWithQuizzes(id); }
-    public Lesson save(Lesson entity) { return repository.save(entity); }
-    public void deleteById(Integer id) { repository.deleteById(id); }
-    public boolean existsById(Integer id) { return repository.existsById(id); }
+    public List<Lesson> findAll() {
+        return repository.findAll();
+    }
+
+    public Optional<Lesson> findById(Integer id) {
+        return repository.findById(id);
+    }
+
+    public Optional<Lesson> findByIdWithMaterials(Integer id) {
+        return repository.findByIdWithMaterials(id);
+    }
+
+    public Optional<Lesson> findByIdWithQuizzes(Integer id) {
+        return repository.findByIdWithQuizzes(id);
+    }
+
+    public Lesson save(Lesson entity) {
+        return repository.save(entity);
+    }
+
+    public void deleteById(Integer id) {
+        repository.deleteById(id);
+    }
+
+    public boolean existsById(Integer id) {
+        return repository.existsById(id);
+    }
 }
