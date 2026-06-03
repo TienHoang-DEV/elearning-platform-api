@@ -17,11 +17,13 @@ import vn.edu.fpt.service.UserService;
 @RequestMapping("/instructor")
 @Controller
 public class InstructorProfileController {
-     private UserService service;
-     private CategoryService categoryService;
-    public InstructorProfileController(UserService userService, CategoryService categoryService) {
+     private final UserService service;
+     private final CategoryService categoryService;
+     private final vn.edu.fpt.mapper.DtoMapper dtoMapper;
+    public InstructorProfileController(UserService userService, CategoryService categoryService, vn.edu.fpt.mapper.DtoMapper dtoMapper) {
         this.service = userService;
         this.categoryService = categoryService;
+        this.dtoMapper = dtoMapper;
     }
 
     @org.springframework.transaction.annotation.Transactional
@@ -31,7 +33,7 @@ public class InstructorProfileController {
 //       User user = (User)session.getAttribute("user");
 
        User tmp = service.findById(1);
-       model.addAttribute("instructor", vn.edu.fpt.mapper.DtoMapper.INSTANCE.toUserDto(tmp));
+       model.addAttribute("instructor", dtoMapper.toUserDto(tmp));
        return "instructor_course/course_manager";
     }
 

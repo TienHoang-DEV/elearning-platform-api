@@ -2,7 +2,6 @@ package vn.edu.fpt.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.dto.quizdto.QuizAnswerDTO;
 import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
@@ -12,8 +11,6 @@ import vn.edu.fpt.entity.*;
 
 @Mapper(componentModel = "spring")
 public interface DtoMapper {
-
-    DtoMapper INSTANCE = Mappers.getMapper(DtoMapper.class);
 
     UserDto toUserDto(User user);
     
