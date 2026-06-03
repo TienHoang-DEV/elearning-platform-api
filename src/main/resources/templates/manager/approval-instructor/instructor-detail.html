@@ -135,15 +135,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Lý do từ chối (chỉ hiện khi có) -->
-                    <div class="detail-section" th:if="${request.rejectionReason != null and !request.rejectionReason.isEmpty()}">
-                        <div class="detail-section-title">
-                            <i class="ph ph-warning-circle"></i> Lý do từ chối
-                        </div>
-                        <div class="intro-text" style="border-left: 4px solid #dc3545; color: #721c24; background-color: #fff5f5;"
-                             th:text="${request.rejectionReason}">Hồ sơ không đủ điều kiện.</div>
-                    </div>
                 </div>
             </main>
         </div>

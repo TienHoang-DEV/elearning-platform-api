@@ -187,7 +187,7 @@ CREATE TABLE instructor_requests (
 
     status VARCHAR(20) NOT NULL
         CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
-    -- Trạng thái: pending (chờ duyệt), approved (phê duyệt), rejected (từ chối)
+    -- Trạng thái: pending (chờ duyệt), approved (phê duyệt)
 
     reviewed_by INT NULL,
     -- Tham chiếu đến manager/admin đã review yêu cầu này
