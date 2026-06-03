@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.InstructorRequestDTO;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.service.InstructorRequestService;
 
 @Controller
@@ -54,7 +55,7 @@ public class ManagerInstructorController {
     @GetMapping("/detail/{id}")
     public String detailInstructorRequest(@PathVariable Integer id, Model model) {
         InstructorRequestDTO request = instructorRequestService.findDtoById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy yêu cầu với ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy yêu cầu với ID: " + id));
 
         model.addAttribute("request", request);
         return "manager/approval-instructor/instructor-detail";
@@ -67,7 +68,7 @@ public class ManagerInstructorController {
     @GetMapping("/edit/{id}")
     public String editInstructorRequest(@PathVariable Integer id, Model model) {
         InstructorRequestDTO request = instructorRequestService.findDtoById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy yêu cầu với ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy yêu cầu với ID: " + id));
 
         model.addAttribute("request", request);
         return "manager/approval-instructor/instructor-edit";
