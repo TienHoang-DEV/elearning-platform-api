@@ -120,38 +120,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Phân trang (Pagination) -->
-                <div class="pagination-container" th:if="${requestPage.totalPages > 1}">
-                    <div class="pagination-info">
-                        Hiển thị <span th:text="${requestPage.number * requestPage.size + 1}">1</span>
-                        đến <span
-                            th:text="${(requestPage.number + 1) * requestPage.size < requestPage.totalElements ? (requestPage.number + 1) * requestPage.size : requestPage.totalElements}">10</span>
-                        trong số <span th:text="${requestPage.totalElements}">50</span> yêu cầu
-                    </div>
-                    <div class="pagination-buttons">
-                        <!-- Nút Trước (Previous) -->
-                        <a th:href="@{/manager/instructor/list(page=${requestPage.number - 1}, keyword=${keyword}, status=${status})}"
-                            th:class="${requestPage.hasPrevious() ? 'page-btn' : 'page-btn disabled'}"
-                            th:aria-disabled="${!requestPage.hasPrevious()}">
-                            <i class="ph ph-caret-left"></i> Trước
-                        </a>
-
-                        <!-- Các số trang (Page numbers) -->
-                        <span th:each="pageNum : ${#numbers.sequence(0, requestPage.totalPages - 1)}">
-                            <a th:href="@{/manager/instructor/list(page=${pageNum}, keyword=${keyword}, status=${status})}"
-                                th:text="${pageNum + 1}"
-                                th:class="${pageNum == requestPage.number ? 'page-btn active' : 'page-btn'}">1</a>
-                        </span>
-
-                        <!-- Nút Tiếp (Next) -->
-                        <a th:href="@{/manager/instructor/list(page=${requestPage.number + 1}, keyword=${keyword}, status=${status})}"
-                            th:class="${requestPage.hasNext() ? 'page-btn' : 'page-btn disabled'}"
-                            th:aria-disabled="${!requestPage.hasNext()}">
-                            Tiếp <i class="ph ph-caret-right"></i>
-                        </a>
-                    </div>
-                </div>
             </main>
         </div>
     </div>
