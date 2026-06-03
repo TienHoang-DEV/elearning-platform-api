@@ -1,5 +1,6 @@
 package vn.edu.fpt.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Controller;
@@ -7,21 +8,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
-import vn.edu.fpt.entity.Course;
-import vn.edu.fpt.entity.CourseSection;
-import vn.edu.fpt.entity.Lesson;
+import vn.edu.fpt.entity.*;
 import vn.edu.fpt.exception.CourseNotFoundException;
-import vn.edu.fpt.service.AzureBlobService;
-import vn.edu.fpt.service.CourseService;
-import vn.edu.fpt.service.LessonService;
+import vn.edu.fpt.service.*;
 import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.*;
+import vn.edu.fpt.util.SecurityUtils;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-import vn.edu.fpt.entity.LessonMaterial;
+import java.util.Set;
 
 @Controller
 @RequiredArgsConstructor
@@ -31,6 +29,8 @@ public class ListLessonCourseController {
 
     private final LessonService lessonService;
 
+    private final CourseSectionService courseSectionService;
+
     private final AzureBlobService azureBlobService;
 
     private final DtoMapper dtoMapper;
@@ -38,32 +38,29 @@ public class ListLessonCourseController {
     @Transactional
     @GetMapping("/course/{courseId}")
     public String listSection(@PathVariable Integer courseId) {
-        Course course = courseService.findById(courseId)
-                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        User user = SecurityUtils.getCurrentUser();
 
-        if (course.getSections() == null || course.getSections().isEmpty()) {
-            throw new CourseNotFoundException("Khóa học không có section nào");
+        Course course = courseService.findById(courseId);
+
+        Integer lessonIdFinalCompleted = lessonService.findLessonIdFinalCompletedByCourseIdAndUserId(course.getId(), user.getId());
+        if (lessonIdFinalCompleted == null) {
+            throw new CourseNotFoundException("Khóa học này chưa có bài học nào.");
         }
 
-        Iterator<CourseSection> iterator = course.getSections().iterator();
-        CourseSection courseSection = iterator.next();
-
-        if (courseSection.getLessons() == null || courseSection.getLessons().isEmpty()) {
-            throw new CourseNotFoundException("Section không có bài học nào");
+        Integer sectionId = lessonService.findSectionIdByLessonId(lessonIdFinalCompleted);
+        if (sectionId == null) {
+            throw new CourseNotFoundException("Không tìm thấy phần học tương ứng với bài học.");
         }
 
-        Integer firstLessonId = courseSection.getLessons().iterator().next().getId();
-        return String.format("redirect:/course/%d/section/%d/lesson/%d", courseId, courseSection.getId(), firstLessonId);
+        return String.format("redirect:/course/%d/section/%d/lesson/%d", courseId, sectionId, lessonIdFinalCompleted);
     }
 
     @Transactional
     @GetMapping("/course/{courseId}/section/{sectionId}/lesson/{lessonId}")
     public String viewLesson(Model model, @PathVariable Integer courseId, @PathVariable Integer sectionId, @PathVariable Integer lessonId) {
-        Course course = courseService.findById(courseId)
-                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        Course course = courseService.findByIdWithSectionsAndLessons(courseId);
 
-        Lesson lesson = lessonService.findByIdWithMaterials(lessonId)
-                .orElseThrow(() -> new CourseNotFoundException("Bài học không tìm thấy"));
+        Lesson lesson = lessonService.findByIdWithMaterials(lessonId);
 
         CourseDto courseDto = dtoMapper.toCourseDto(course);
         LessonDto lessonDto = dtoMapper.toLessonDto(lesson);

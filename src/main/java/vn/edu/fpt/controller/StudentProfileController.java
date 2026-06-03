@@ -45,6 +45,10 @@ public class StudentProfileController {
 
     private User getSessionUser() {
         try {
+            User currentUser = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
+            if (currentUser != null) {
+                return userRepository.findById(currentUser.getId()).orElse(currentUser);
+            }
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
             HttpSession session = request.getSession(false);
             if (session != null) {

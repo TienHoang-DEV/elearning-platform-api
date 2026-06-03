@@ -30,6 +30,10 @@ public class CourseController {
 
     private User getSessionUser() {
         try {
+            User currentUser = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
+            if (currentUser != null) {
+                return userRepository.findById(currentUser.getId()).orElse(currentUser);
+            }
             jakarta.servlet.http.HttpServletRequest request = ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder
                     .currentRequestAttributes()).getRequest();
             jakarta.servlet.http.HttpSession session = request.getSession(false);
