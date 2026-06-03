@@ -1,11 +1,10 @@
 package vn.edu.fpt.dto.quizdto;
 
 import lombok.*;
-import vn.edu.fpt.entity.QuizAnswer;
 
+import java.util.ArrayList;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,7 +16,8 @@ public class QuizQuestionDTO {
     private String questionType;
     private Integer points;
     private Integer position;
-    private Set<QuizAnswer> answers = new HashSet<>();
+    @Builder.Default
+    private List<QuizAnswerDTO> answers = new ArrayList<>();
     private Integer id;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

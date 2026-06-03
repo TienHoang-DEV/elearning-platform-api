@@ -1,11 +1,10 @@
 package vn.edu.fpt.dto.quizdto;
 
 import lombok.*;
-import vn.edu.fpt.entity.QuizAttempt;
-import vn.edu.fpt.entity.QuizQuestion;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -17,8 +16,26 @@ public class QuizDTO {
     private Integer id;
     private String title;
     private Integer passScore;
-    private Set<QuizQuestion> questions;
-    private Set<QuizAttempt> attempts;
+    @Builder.Default
+    private List<QuizQuestionDTO> questions = new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public Integer getQuestionCount() {
+        return questions != null ? questions.size() : 0;
+    }
+
+    public Integer getTotalPoints() {
+        if (questions == null || questions.isEmpty()) {
+            return 0;
+        }
+        int totalPoints = 0;
+        for (QuizQuestionDTO question : questions) {
+            if (question == null || question.getPoints() == null) {
+                continue;
+            }
+            totalPoints += question.getPoints();
+        }
+        return totalPoints;
+    }
 }

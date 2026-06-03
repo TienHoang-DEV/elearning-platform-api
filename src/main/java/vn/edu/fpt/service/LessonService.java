@@ -3,6 +3,7 @@ package vn.edu.fpt.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.Lesson;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.LessonRepository;
 
 import java.util.List;
@@ -29,8 +30,8 @@ public class LessonService {
         return repository.findByIdWithMaterials(id);
     }
 
-    public Optional<Lesson> findByIdWithQuizzes(Integer id) {
-        return repository.findByIdWithQuizzes(id);
+    public Lesson findByIdWithQuizzes(Integer id) {
+        return repository.findByIdWithQuizzes(id).orElseThrow(() -> new ResourceNotFoundException("Lesson with id " + id + " not found"));
     }
 
     public Lesson save(Lesson entity) {

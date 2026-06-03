@@ -1,7 +1,7 @@
 package vn.edu.fpt.dto.quizdto;
 
 import lombok.*;
-import vn.edu.fpt.entity.User;
+import vn.edu.fpt.dto.UserDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class QuizAttemptDTO {
-    private User user;
+    private UserDto user;
     private BigDecimal score;
     private Boolean passed;
     private LocalDateTime startedAt;
