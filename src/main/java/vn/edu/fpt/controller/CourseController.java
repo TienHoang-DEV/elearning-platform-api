@@ -11,6 +11,7 @@ import vn.edu.fpt.repository.CategoryRepository;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.entity.Enrollment;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.*;
@@ -32,6 +33,9 @@ public class CourseController {
     @Autowired
     private vn.edu.fpt.repository.EnrollmentRepository enrollmentRepository;
 
+    @Autowired
+    private DtoMapper dtoMapper;
+
     private User getSessionUser() {
         try {
             jakarta.servlet.http.HttpServletRequest request = ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder
@@ -46,9 +50,13 @@ public class CourseController {
         } catch (Exception ignored) {
         }
         return userRepository.findByEmail("28tech@gmail.com")
-                .orElseGet(() -> userRepository.findAll().stream().findFirst()
-                        .orElseThrow(
-                                () -> new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!")));
+                .orElseGet(() -> {
+                    List<User> allUsers = userRepository.findAll();
+                    if (allUsers.isEmpty()) {
+                        throw new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!");
+                    }
+                    return allUsers.get(0);
+                });
     }
 
     @org.springframework.transaction.annotation.Transactional
@@ -69,25 +77,28 @@ public class CourseController {
 
         List<Category> parentCategories = categoryRepository.findByParentIsNullAndStatus("ACTIVE");
 
-        List<CategoryDto> categoryDtos = parentCategories.stream()
-                .map(DtoMapper.INSTANCE::toCategoryDto)
-                .collect(Collectors.toList());
+        List<CategoryDto> categoryDtos = new java.util.ArrayList<>();
+        for (Category category : parentCategories) {
+            categoryDtos.add(dtoMapper.toCategoryDto(category));
+        }
 
-        List<CourseDto> courseDtos = courses.stream()
-                .map(DtoMapper.INSTANCE::toCourseDto)
-                .collect(Collectors.toList());
+        List<CourseDto> courseDtos = new java.util.ArrayList<>();
+        for (Course course : courses) {
+            courseDtos.add(dtoMapper.toCourseDto(course));
+        }
 
         model.addAttribute("parentCategories", categoryDtos);
 
         User user = getSessionUser();
         java.util.Set<Integer> enrolledCourseIds = new java.util.HashSet<>();
         if (user != null) {
-            enrolledCourseIds = enrollmentRepository.findByUser(user).stream()
-                    .map(e -> {
-                        org.hibernate.Hibernate.initialize(e.getCourse());
-                        return e.getCourse().getId();
-                    })
-                    .collect(java.util.stream.Collectors.toSet());
+            List<Enrollment> userEnrollments = enrollmentRepository.findByUser(user);
+            for (Enrollment e : userEnrollments) {
+                org.hibernate.Hibernate.initialize(e.getCourse());
+                if (e.getCourse() != null) {
+                    enrolledCourseIds.add(e.getCourse().getId());
+                }
+            }
         }
         model.addAttribute("enrolledCourseIds", enrolledCourseIds);
 
@@ -111,7 +122,7 @@ public class CourseController {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
 
-        CourseDto courseDto = DtoMapper.INSTANCE.toCourseDto(course);
+        CourseDto courseDto = dtoMapper.toCourseDto(course);
         model.addAttribute("course", courseDto);
         return "course/detail";
     }

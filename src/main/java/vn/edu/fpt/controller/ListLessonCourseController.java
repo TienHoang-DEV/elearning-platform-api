@@ -36,6 +36,9 @@ public class ListLessonCourseController {
     @Autowired
     AzureBlobService azureBlobService;
 
+    @Autowired
+    DtoMapper dtoMapper;
+
     @Transactional
     @GetMapping("/course/{courseId}")
     public String listSection(@PathVariable Integer courseId) {
@@ -66,11 +69,11 @@ public class ListLessonCourseController {
         Lesson lesson = lessonService.findByIdWithMaterials(lessonId)
                 .orElseThrow(() -> new CourseNotFoundException("Bài học không tìm thấy"));
 
-        CourseDto courseDto = DtoMapper.INSTANCE.toCourseDto(course);
-        LessonDto lessonDto = DtoMapper.INSTANCE.toLessonDto(lesson);
+        CourseDto courseDto = dtoMapper.toCourseDto(course);
+        LessonDto lessonDto = dtoMapper.toLessonDto(lesson);
         List<LessonMaterialDto> materialDtos = new ArrayList<>();
         for (LessonMaterial m : lesson.getMaterials()) {
-            materialDtos.add(DtoMapper.INSTANCE.toLessonMaterialDto(m));
+            materialDtos.add(dtoMapper.toLessonMaterialDto(m));
         }
 
         model.addAttribute("course", courseDto);

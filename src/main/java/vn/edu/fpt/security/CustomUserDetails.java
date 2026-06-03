@@ -21,13 +21,15 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority>
     getAuthorities() {
-
-        return user.getRoles()
-                .stream()
-                .map(role -> new SimpleGrantedAuthority(
+        List<SimpleGrantedAuthority> authorities = new java.util.ArrayList<>();
+        if (user.getRoles() != null) {
+            for (vn.edu.fpt.entity.Role role : user.getRoles()) {
+                authorities.add(new SimpleGrantedAuthority(
                         "ROLE_" + role.getName().toUpperCase()
-                ))
-                .toList();
+                ));
+            }
+        }
+        return authorities;
     }
 
     @Override
