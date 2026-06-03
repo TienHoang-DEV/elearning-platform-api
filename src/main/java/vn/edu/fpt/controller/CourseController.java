@@ -32,7 +32,11 @@ public class CourseController {
         try {
             User currentUser = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
             if (currentUser != null) {
-                return userRepository.findById(currentUser.getId()).orElse(currentUser);
+                try {
+                    return userService.findById(currentUser.getId());
+                } catch (Exception e) {
+                    return currentUser;
+                }
             }
             jakarta.servlet.http.HttpServletRequest request = ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder
                     .currentRequestAttributes()).getRequest();
