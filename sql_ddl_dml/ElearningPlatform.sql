@@ -2574,4 +2574,21 @@ VALUES
 (@UserLongId, @C14Id, 4, N'Chất lượng.', 'VISIBLE', DATEADD(day, -1, GETDATE())),
 (@UserAnId, @C14Id, 4, N'Học xong làm được ngay.', 'VISIBLE', DATEADD(day, -1, GETDATE()));
 
+
+DECLARE @EnrollmentId INT = SCOPE_IDENTITY();
+
+INSERT INTO lesson_progress (
+    enrollment_id,
+    lesson_id,
+    is_completed,
+    last_accessed
+)
+VALUES
+(1, 1, 1, GETDATE()),
+(1, 2, 1, GETDATE()),
+(1, 3, 1, GETDATE()),
+(1, 4, 1, GETDATE()),
+(1, 5, 1, GETDATE()),
+(1, 6, 1, GETDATE());
+
 GO

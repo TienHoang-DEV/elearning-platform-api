@@ -47,6 +47,10 @@ public class CartController {
 
     private User getMockUser() {
         try {
+            User currentUser = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
+            if (currentUser != null) {
+                return userRepository.findById(currentUser.getId()).orElse(currentUser);
+            }
             jakarta.servlet.http.HttpServletRequest request = 
                 ((org.springframework.web.context.request.ServletRequestAttributes) 
                  org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes())
