@@ -20,7 +20,6 @@ import vn.edu.fpt.dto.*;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.ArrayList;
 import vn.edu.fpt.entity.LessonMaterial;
 
@@ -34,8 +33,7 @@ public class ListLessonCourseController {
 
     private final AzureBlobService azureBlobService;
 
-    @Autowired
-    DtoMapper dtoMapper;
+    private final DtoMapper dtoMapper;
 
     @Transactional
     @GetMapping("/course/{courseId}")
