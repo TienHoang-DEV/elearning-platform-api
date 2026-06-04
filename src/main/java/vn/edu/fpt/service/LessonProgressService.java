@@ -2,9 +2,14 @@ package vn.edu.fpt.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.entity.Enrollment;
+import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.LessonProgress;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.LessonProgressRepository;
+import vn.edu.fpt.util.SecurityUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,4 +27,25 @@ public class LessonProgressService {
     public LessonProgress save(LessonProgress entity) { return repository.save(entity); }
     public void deleteById(Integer id) { repository.deleteById(id); }
     public boolean existsById(Integer id) { return repository.existsById(id); }
+
+    public void saveLessonProgressByEnrollmentAndLessonId(Enrollment enrollment, Integer lessonId) {
+        // kiểm tra trước xem trong db đã có cặp enrollment id và lesson id trùng với cặp tham số chưa, nếu có thì cập nhật, nếu chưa có thì tạo mới
+        LessonProgress lessonProgress = repository.findByEnrollmentIdAndLessonId(enrollment.getId(), lessonId);
+        if (lessonProgress == null) {
+             lessonProgress = LessonProgress.builder()
+                    .enrollment(enrollment)
+                    .lesson(Lesson.builder().id(lessonId).build())
+                    .completed(true)
+                    .lastAccessed(LocalDateTime.now())
+                    .build();
+        } else {
+            lessonProgress.setLastAccessed(LocalDateTime.now());
+            lessonProgress.setCompleted(true);
+        }
+        repository.save(lessonProgress);
+    }
+
+    public Integer findNumberOfLessonCompletedByEnrollment(Enrollment enrollment) {
+        return repository.findNumberOfLessonCompletedByEnrollment(enrollment.getId());
+    }
 }

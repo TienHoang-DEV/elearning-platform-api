@@ -1,6 +1,5 @@
 package vn.edu.fpt.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Controller;
@@ -9,30 +8,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import vn.edu.fpt.entity.*;
-import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.service.*;
 import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.util.SecurityUtils;
-
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Set;
 
 @Controller
 @RequiredArgsConstructor
 public class ListLessonCourseController {
 
     private final CourseService courseService;
-
     private final LessonService lessonService;
-
-    private final CourseSectionService courseSectionService;
-
+    private final LessonProgressService lessonProgressService;
     private final AzureBlobService azureBlobService;
-
+    private final EnrollmentService enrollmentService;
+    private final CourseSectionService courseSectionService;
     private final DtoMapper dtoMapper;
 
     @Transactional
@@ -68,11 +61,9 @@ public class ListLessonCourseController {
         model.addAttribute("lesson", lessonDto);
         model.addAttribute("materials", materialDtos);
 
-        String thumbnailUrl = course.getThumbnailUrl();
-        if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
-            model.addAttribute("posterUrl", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + thumbnailUrl);
-        }
+        String thumbnailUrl = courseService.getThumbnailUrl(course);
 
+        model.addAttribute("posterUrl", thumbnailUrl);
         return "learning/learning";
     }
 
@@ -90,4 +81,17 @@ public class ListLessonCourseController {
             return "https://www.w3schools.com/html/mov_bbb.mp4";
         }
     }
+
+    @GetMapping("/lesson-completed/{lessonId}")
+    @ResponseBody
+    public void updateLessonProgress(@PathVariable("lessonId") Integer lessonId) {
+        User user = SecurityUtils.getCurrentUser();
+        Integer sectionId = lessonService.findSectionIdByLessonId(lessonId);
+        Integer courseId = courseSectionService.findCourseIdBySectionId(sectionId);
+        Enrollment enrollment = enrollmentService.findEnrollmentByCourseIdAndUserId(courseId, user.getId());
+        lessonProgressService.saveLessonProgressByEnrollmentAndLessonId(enrollment, lessonId);
+        enrollmentService.updateEnrollmentProgressPercent(enrollment, courseId, sectionId);
+    }
+
+
 }

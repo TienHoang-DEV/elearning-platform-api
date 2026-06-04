@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeTabs();
     initializeMaterial();
     initializeVideo();
+    progressVideo();
     initializeSidebarToggle();
 });
 
@@ -36,6 +37,25 @@ function initializeTabs() {
             document.getElementById(targetPanelId).classList.remove("d-none");
         });
     });
+}
+
+function progressVideo() {
+    const video = document.querySelector("#lesson-video");
+    let completed = false;
+    if (!video) return;
+    const lessonId = video.dataset.lessonId;
+    video.addEventListener("timeupdate", function () {
+        if (completed) return;
+        let percent = (video.currentTime / video.duration) * 100;
+        if (percent >= 90) {
+            completed = true;
+            fetch("/lesson-completed/" + lessonId).catch(
+                () => {
+                    completed = false;
+                }
+            )
+        }
+    })
 }
 
 function initializeVideo() {

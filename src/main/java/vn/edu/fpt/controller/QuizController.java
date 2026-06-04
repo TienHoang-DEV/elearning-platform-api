@@ -14,7 +14,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-public class QuizViewController {
+public class QuizController {
 
     private final LessonService lessonService;
 

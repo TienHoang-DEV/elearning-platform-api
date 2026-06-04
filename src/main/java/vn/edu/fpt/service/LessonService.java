@@ -1,9 +1,7 @@
 package vn.edu.fpt.service;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.exception.CourseNotFoundException;
@@ -71,5 +69,9 @@ public class LessonService {
             return null;
         }
         return repository.findSectionIdByLessonId(lessonIdFinalCompleted);
+    }
+
+    public Integer findNumberOfLessonByCourseId(Integer courseId) {
+        return repository.findNumberOfLessonByCourseId(courseId);
     }
 }
