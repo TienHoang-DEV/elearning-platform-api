@@ -64,12 +64,9 @@
                             class="search-input">
                         <select name="status" class="search-input search-select" onchange="this.form.submit()">
                             <option value="" th:selected="${status == null or status == ''}">Tất cả trạng thái</option>
-                            <option value="PENDING"
-                                th:selected="${status == 'PENDING'}">Đang chờ duyệt</option>
-                            <option value="APPROVED"
-                                th:selected="${status == 'APPROVED'}">Đã duyệt</option>
-                            <option value="REJECTED"
-                                th:selected="${status == 'REJECTED'}">Từ chối</option>
+                            <option value="PENDING" th:selected="${status == 'PENDING'}">Đang chờ duyệt</option>
+                            <option value="APPROVED" th:selected="${status == 'APPROVED'}">Đã duyệt</option>
+                            <option value="REJECTED" th:selected="${status == 'REJECTED'}">Từ chối</option>
                         </select>
                         <button type="submit" style="display: none;">Search</button>
                     </div>
@@ -78,7 +75,7 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Giảng viên</th>
+                                <th>Tên</th>
                                 <th>Email</th>
                                 <th>Ngày đăng ký</th>
                                 <th>Trạng thái</th>
@@ -97,8 +94,9 @@
                                     th:text="${request.createdAt != null ? #temporals.format(request.createdAt, 'dd/MM/yyyy') : ''}">
                                     5/24/2026</td>
                                 <td>
-                                    <span th:class="${'badge badge-' + (request.status.name() == 'PENDING' ? 'warning' : request.status.name() == 'APPROVED' ? 'success' : request.status.name() == 'REJECTED' ? 'danger' : 'dark')}"
-                                          th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : request.status.name() == 'REJECTED' ? 'Từ chối' : 'Bị chặn'}">
+                                    <span
+                                        th:class="${'badge badge-' + (request.status.name() == 'PENDING' ? 'warning' : request.status.name() == 'APPROVED' ? 'success' : request.status.name() == 'REJECTED' ? 'danger' : 'dark')}"
+                                        th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : request.status.name() == 'REJECTED' ? 'Từ chối' : 'Bị chặn'}">
                                         Đang chờ duyệt
                                     </span>
                                 </td>
@@ -118,6 +116,67 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- ══════════ PAGINATION ══════════ -->
+                <div class="pagination-circle-container" th:if="${requestPage.totalPages > 1}">
+                    <div class="pagination-circle-buttons">
+                        <!-- Previous -->
+                        <a th:if="${requestPage.hasPrevious()}"
+                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${requestPage.number - 1}, size=${requestPage.size})}"
+                            class="page-circle-btn">
+                            <i class="ph ph-caret-left"></i>
+                        </a>
+                        <span th:unless="${requestPage.hasPrevious()}" class="page-circle-btn disabled">
+                            <i class="ph ph-caret-left"></i>
+                        </span>
+
+                        <!-- Page 1 (always show) -->
+                        <a th:if="${requestPage.number != 0}"
+                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=0, size=${requestPage.size})}"
+                            class="page-circle-btn">1</a>
+                        <span th:if="${requestPage.number == 0}" class="page-circle-btn active">1</span>
+
+                        <!-- Ellipsis after page 1 -->
+                        <span th:if="${requestPage.number > 2}" class="page-circle-ellipsis">…</span>
+
+                        <!-- Page before current -->
+                        <a th:if="${requestPage.number > 1 && requestPage.number - 1 > 0}"
+                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${requestPage.number - 1}, size=${requestPage.size})}"
+                            class="page-circle-btn" th:text="${requestPage.number}">2</a>
+
+                        <!-- Current page (if not first or last) -->
+                        <span
+                            th:if="${requestPage.number > 0 && requestPage.number < requestPage.totalPages - 1}"
+                            class="page-circle-btn active" th:text="${requestPage.number + 1}">3</span>
+
+                        <!-- Page after current -->
+                        <a th:if="${requestPage.number < requestPage.totalPages - 2 && requestPage.number + 1 < requestPage.totalPages - 1}"
+                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${requestPage.number + 1}, size=${requestPage.size})}"
+                            class="page-circle-btn" th:text="${requestPage.number + 2}">4</a>
+
+                        <!-- Ellipsis before last page -->
+                        <span th:if="${requestPage.number < requestPage.totalPages - 3}"
+                            class="page-circle-ellipsis">…</span>
+
+                        <!-- Last page (always show) -->
+                        <a th:if="${requestPage.number != requestPage.totalPages - 1}"
+                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${requestPage.totalPages - 1}, size=${requestPage.size})}"
+                            class="page-circle-btn" th:text="${requestPage.totalPages}">8</a>
+                        <span th:if="${requestPage.number == requestPage.totalPages - 1}"
+                            class="page-circle-btn active" th:text="${requestPage.totalPages}">8</span>
+
+                        <!-- Next -->
+                        <a th:if="${requestPage.hasNext()}"
+                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${requestPage.number + 1}, size=${requestPage.size})}"
+                            class="page-circle-btn">
+                            <i class="ph ph-caret-right"></i>
+                        </a>
+                        <span th:unless="${requestPage.hasNext()}" class="page-circle-btn disabled">
+                            <i class="ph ph-caret-right"></i>
+                        </span>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
