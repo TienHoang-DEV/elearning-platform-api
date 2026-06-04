@@ -42,6 +42,14 @@ public class CustomUserDetails implements UserDetails {
         return user.getEmail();
     }
 
+    /**
+     * Getter để truy cập User entity từ SecurityContext
+     * @return User entity
+     */
+    public User getUser() {
+        return user;
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;

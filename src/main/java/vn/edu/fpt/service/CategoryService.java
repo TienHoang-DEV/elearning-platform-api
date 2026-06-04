@@ -4,17 +4,31 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.repository.CategoryRepository;
+import vn.edu.fpt.mapper.DtoMapper;
+import vn.edu.fpt.dto.CategoryDto;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class CategoryService {
     private final CategoryRepository repository;
+    private final DtoMapper dtoMapper;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, DtoMapper dtoMapper) {
         this.repository = categoryRepository;
+        this.dtoMapper = dtoMapper;
+    }
+
+    public List<CategoryDto> getActiveParentCategories() {
+        List<Category> parentCategories = repository.findByParentIsNullAndStatus("ACTIVE");
+        List<CategoryDto> dtos = new java.util.ArrayList<>();
+        for (Category category : parentCategories) {
+            dtos.add(dtoMapper.toCategoryDto(category));
+        }
+        return dtos;
     }
 
     public List<Category> findAll() {

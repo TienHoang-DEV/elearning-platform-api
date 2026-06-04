@@ -2,11 +2,14 @@ package vn.edu.fpt.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
+import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.repository.CourseSectionRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -17,9 +20,31 @@ public class CourseSectionService {
         this.repository = courseSectionRepository;
     }
 
-    public List<CourseSection> findAll() { return repository.findAll(); }
-    public Optional<CourseSection> findById(Integer id) { return repository.findById(id); }
-    public CourseSection save(CourseSection entity) { return repository.save(entity); }
-    public void deleteById(Integer id) { repository.deleteById(id); }
-    public boolean existsById(Integer id) { return repository.existsById(id); }
+    public List<CourseSection> findAll() {
+        return repository.findAll();
+    }
+
+    public Optional<CourseSection> findById(Integer id) {
+        return repository.findById(id);
+    }
+
+    public CourseSection save(CourseSection entity) {
+        return repository.save(entity);
+    }
+
+    public void deleteById(Integer id) {
+        repository.deleteById(id);
+    }
+
+    public boolean existsById(Integer id) {
+        return repository.existsById(id);
+    }
+
+    public Set<CourseSection> findSectionsByCourse(Course course) {
+        if (course.getSections() == null || course.getSections().isEmpty()) {
+            throw new CourseNotFoundException("Khóa học không có section nào");
+        }
+        return course.getSections();
+    }
+
 }
