@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.InstructorRequestDTO;
+import vn.edu.fpt.enums.InstructorRequestStatus;
+import vn.edu.fpt.exception.BadRequestException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.service.InstructorRequestService;
 
@@ -72,5 +74,21 @@ public class ManagerInstructorController {
 
         model.addAttribute("request", request);
         return "manager/approval-instructor/instructor-edit";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String reviewInstructorRequest(
+            @PathVariable Integer id,
+            @RequestParam("status") InstructorRequestStatus status,
+            @RequestParam(required = false) String rejectionReason,
+            RedirectAttributes redirectAttributes) {
+        try {
+            instructorRequestService.reviewRequest(id, status, rejectionReason);
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái yêu cầu thành công.");
+            return "redirect:/manager/instructor/detail/" + id;
+        } catch (BadRequestException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+            return "redirect:/manager/instructor/edit/" + id;
+        }
     }
 }
