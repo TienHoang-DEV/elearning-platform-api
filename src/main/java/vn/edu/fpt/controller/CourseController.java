@@ -6,11 +6,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.entity.Cart;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.service.CourseService;
 import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.UserService;
 import vn.edu.fpt.service.EnrollmentService;
+import vn.edu.fpt.service.CartService;
+import vn.edu.fpt.service.CartItemService;
 import java.util.List;
 
 @Controller
@@ -27,6 +30,12 @@ public class CourseController {
 
     @Autowired
     private EnrollmentService enrollmentService;
+
+    @Autowired
+    private CartService cartService;
+
+    @Autowired
+    private CartItemService cartItemService;
 
     private User getSessionUser() {
         try {
@@ -66,9 +75,14 @@ public class CourseController {
     @GetMapping("/courses")
     public String showCourseList(
             @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "categoryId", required = false) Integer categoryId,
+            @RequestParam(value = "ratings", required = false) List<Integer> ratings,
+            @RequestParam(value = "prices", required = false) List<String> prices,
+            @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort,
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             Model model) {
 
-        List<CourseDto> courseDtos = courseService.getCoursesBySearch(search);
+        List<CourseDto> filteredCourses = courseService.getFilteredAndSortedCourses(search, categoryId, ratings, prices, sort);
         List<CategoryDto> categoryDtos = categoryService.getActiveParentCategories();
 
         model.addAttribute("parentCategories", categoryDtos);
@@ -77,12 +91,49 @@ public class CourseController {
         java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
         model.addAttribute("enrolledCourseIds", enrolledCourseIds);
 
-        // Đưa danh sách khóa học vào Model với key là "courses" để Thymeleaf render
-        model.addAttribute("courses", courseDtos);
-        // Đưa từ khóa tìm kiếm vào Model để hiển thị lại trên thanh tìm kiếm và tiêu đề
-        model.addAttribute("search", search);
+        // Lấy số lượng giỏ hàng hiển thị trên Header
+        int cartSize = 0;
+        if (user != null) {
+            try {
+                Cart cart = cartService.getOrCreateCartForUser(user);
+                cartSize = cartItemService.countItemsInCart(cart);
+            } catch (Exception ignored) {}
+        }
+        model.addAttribute("cartSize", cartSize);
 
-        // Trả về template course/list.html
+        // Phân trang danh sách khóa học (4 khóa học/trang)
+        int totalCourses = filteredCourses.size();
+        int itemsPerPage = 4;
+        int totalPages = (int) Math.ceil((double) totalCourses / itemsPerPage);
+        if (totalPages < 1) {
+            totalPages = 1;
+        }
+
+        if (page > totalPages) {
+            page = totalPages;
+        }
+        if (page < 1) {
+            page = 1;
+        }
+
+        int startIndex = (page - 1) * itemsPerPage;
+        int endIndex = Math.min(startIndex + itemsPerPage, totalCourses);
+
+        List<CourseDto> pagedCourses = new java.util.ArrayList<>();
+        if (startIndex < totalCourses) {
+            pagedCourses = filteredCourses.subList(startIndex, endIndex);
+        }
+
+        model.addAttribute("courses", pagedCourses);
+        model.addAttribute("search", search);
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("selectedRatings", ratings);
+        model.addAttribute("selectedPrices", prices);
+        model.addAttribute("sort", sort);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalCourses", totalCourses);
+
         return "course/list";
     }
 
