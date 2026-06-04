@@ -4,9 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.entity.Cart;
+import vn.edu.fpt.entity.Course;
+import vn.edu.fpt.entity.Feedback;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.service.CourseService;
 import vn.edu.fpt.service.CategoryService;
@@ -14,6 +17,7 @@ import vn.edu.fpt.service.UserService;
 import vn.edu.fpt.service.EnrollmentService;
 import vn.edu.fpt.service.CartService;
 import vn.edu.fpt.service.CartItemService;
+import vn.edu.fpt.service.FeedbackService;
 import java.util.List;
 
 @Controller
@@ -21,6 +25,9 @@ public class CourseController {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private FeedbackService feedbackService;
 
     @Autowired
     private CategoryService categoryService;
@@ -152,6 +159,9 @@ public class CourseController {
             java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
             model.addAttribute("enrolledCourseIds", enrolledCourseIds);
 
+            boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), id);
+            model.addAttribute("hasReviewed", hasReviewed);
+
             try {
                 Cart cart = cartService.getOrCreateCartForUser(user);
                 int cartSize = cartItemService.countItemsInCart(cart);
@@ -159,5 +169,30 @@ public class CourseController {
             } catch (Exception ignored) {}
         }
         return "course/detail";
+    }
+
+    @PostMapping("/course/review/add")
+    public String addCourseReview(@RequestParam("courseId") Integer courseId,
+                                  @RequestParam("rating") Integer rating,
+                                  @RequestParam(value = "comment", required = false, defaultValue = "") String comment,
+                                  org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        User user = getSessionUser();
+        if (user == null) {
+            return "redirect:/";
+        }
+        if (feedbackService.hasUserReviewedCourse(user.getId(), courseId)) {
+            return "redirect:/course/detail?id=" + courseId;
+        }
+        Course course = courseService.findById(courseId);
+        Feedback feedback = Feedback.builder()
+                .user(user)
+                .course(course)
+                .rating(rating)
+                .comment(comment)
+                .createdAt(java.time.LocalDateTime.now())
+                .build();
+        feedbackService.save(feedback);
+        redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
+        return "redirect:/course/detail?id=" + courseId;
     }
 }

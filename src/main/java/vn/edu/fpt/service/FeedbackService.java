@@ -22,4 +22,7 @@ public class FeedbackService {
     public Feedback save(Feedback entity) { return repository.save(entity); }
     public void deleteById(Integer id) { repository.deleteById(id); }
     public boolean existsById(Integer id) { return repository.existsById(id); }
+    public boolean hasUserReviewedCourse(Integer userId, Integer courseId) {
+        return repository.existsByUserIdAndCourseId(userId, courseId);
+    }
 }
