@@ -151,7 +151,7 @@
                             <div class="doc-card" th:if="${request.cvUrl != null && !request.cvUrl.isEmpty()}">
                                 <div class="doc-left">
                                     <i class="ph ph-file-pdf"></i>
-                                    <div class="doc-name" th:text="${#strings.substringAfter(request.cvUrl,'/') != '' ? #strings.substringAfter(request.cvUrl,'/') : 'instructor_cv.pdf'}">cv.pdf</div>
+                                    <div class="doc-name" th:title="${request.cvUrl}" th:text="${request.cvOriginalName != null ? request.cvOriginalName : 'instructor_cv.pdf'}">cv.pdf</div>
                                 </div>
                                 <a th:href="${request.cvUrl}" target="_blank" class="doc-link">Xem PDF</a>
                             </div>
@@ -162,7 +162,7 @@
                             <div class="doc-card" th:if="${request.certificateUrl != null && !request.certificateUrl.isEmpty()}">
                                 <div class="doc-left">
                                     <i class="ph ph-medal"></i>
-                                    <div class="doc-name" th:text="${#strings.substringAfter(request.certificateUrl,'/') != '' ? #strings.substringAfter(request.certificateUrl,'/') : 'certificate.pdf'}">cert.pdf</div>
+                                    <div class="doc-name" th:title="${request.certificateUrl}" th:text="${request.certificateOriginalName != null ? request.certificateOriginalName : 'chứng_chỉ.pdf'}">cert.pdf</div>
                                 </div>
                                 <a th:href="${request.certificateUrl}" target="_blank" class="doc-link">Xem tài liệu</a>
                             </div>
@@ -182,7 +182,7 @@
                     <div class="action-card">
                         <div class="action-card-title"><i class="ph ph-shield-check"></i> Quyết định xét duyệt</div>
 
-                        <div class="form-actions">
+                        <div class="form-actions" th:if="${request.status.name() == 'PENDING'}">
                             <!-- Approve trigger -->
                             <a href="#approve-modal" class="btn btn-block btn-approve-trigger">
                                 <i class="ph ph-check-circle"></i>&nbsp; Phê duyệt
@@ -192,6 +192,14 @@
                             <a href="#reject-modal" class="btn btn-block btn-reject-trigger">
                                 <i class="ph ph-x-circle"></i>&nbsp; Từ chối
                             </a>
+                        </div>
+
+                        <div th:unless="${request.status.name() == 'PENDING'}" style="text-align: center; padding: 15px 0;">
+                            <span th:class="${'badge badge-' + (request.status.name() == 'APPROVED' ? 'success' : request.status.name() == 'REJECTED' ? 'danger' : 'dark')}"
+                                  th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : request.status.name() == 'REJECTED' ? 'Từ chối' : 'Bị chặn'}"
+                                  style="font-size: 1rem; padding: 8px 16px; display: inline-block;">
+                                Đang chờ duyệt
+                            </span>
                         </div>
 
                         <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-color);">
