@@ -91,12 +91,18 @@ CREATE TABLE users (
 );
 
 CREATE TABLE user_roles (
+	id INT PRIMARY KEY IDENTITY(1,1),
+	-- Mã định danh tự tăng cho mỗi bản ghi user_role
+
     user_id INT NOT NULL,
     role_id INT NOT NULL,
 
     created_at DATETIME DEFAULT GETDATE(),
+    -- Thời gian token được tạo
+    updated_at DATETIME NULL,
+    -- Thời gian cập nhật gần nhất
 
-    PRIMARY KEY (user_id, role_id),
+    CONSTRAINT UQ_user_roles_user_role UNIQUE (user_id, role_id),
 
     CONSTRAINT FK_user_roles_user
         FOREIGN KEY (user_id) REFERENCES users(id),
@@ -187,7 +193,7 @@ CREATE TABLE instructor_requests (
 
     status VARCHAR(20) NOT NULL
         CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
-    -- Trạng thái: pending (chờ duyệt), approved (phê duyệt), rejected (từ chối)
+    -- Trạng thái: pending (chờ duyệt), approved (phê duyệt)
 
     reviewed_by INT NULL,
     -- Tham chiếu đến manager/admin đã review yêu cầu này
@@ -2561,6 +2567,22 @@ VALUES
 (@UserKhoaId, @C14Id, 5, N'Cực tốt.', 'VISIBLE', DATEADD(day, -1, GETDATE())),
 (@UserLongId, @C14Id, 4, N'Chất lượng.', 'VISIBLE', DATEADD(day, -1, GETDATE())),
 (@UserAnId, @C14Id, 4, N'Học xong làm được ngay.', 'VISIBLE', DATEADD(day, -1, GETDATE()));
+
+DECLARE @EnrollmentId INT = SCOPE_IDENTITY();
+
+INSERT INTO lesson_progress (
+    enrollment_id,
+    lesson_id,
+    is_completed,
+    last_accessed
+)
+VALUES
+(1, 1, 1, GETDATE()),
+(1, 2, 1, GETDATE()),
+(1, 3, 1, GETDATE()),
+(1, 4, 1, GETDATE()),
+(1, 5, 1, GETDATE()),
+(1, 6, 1, GETDATE());
 
 GO
 

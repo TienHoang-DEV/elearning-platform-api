@@ -39,4 +39,9 @@ public interface LessonRepository extends JpaRepository<Lesson, Integer> {
                         select min(l.id) from Lesson l where l.courseSection.course.id = :id
             """)
     Integer findFirstLessonIdByCourseId(@Param("id") Integer attr2);
+
+    @Query("""
+        select count(l.id) from Lesson l where l.courseSection.course.id = :courseId 
+""")
+    Integer findNumberOfLessonByCourseId(@Param("courseId") Integer courseId);
 }

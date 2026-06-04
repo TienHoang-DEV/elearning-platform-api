@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.exception.CourseNotFoundException;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.CourseSectionRepository;
 
 import java.util.List;
@@ -47,4 +48,7 @@ public class CourseSectionService {
         return course.getSections();
     }
 
+    public Integer findCourseIdBySectionId(Integer sectionId) {
+        return repository.findBySectionId(sectionId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khóa học nào với Section id là " + sectionId));
+    }
 }

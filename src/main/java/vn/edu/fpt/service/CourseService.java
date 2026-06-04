@@ -4,10 +4,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.exception.CourseNotFoundException;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.CourseDto;
 import vn.edu.fpt.exception.CourseNotFoundException;
+import vn.edu.fpt.util.AppConstants;
 
 import java.util.List;
 import java.util.Optional;
@@ -168,4 +170,13 @@ public class CourseService {
     public Course findById(Integer courseId) {
         return repository.findById(courseId).orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id " + courseId));
     }
+
+    public String getThumbnailUrl(Course course) {
+        String thumbnailUrl = course.getThumbnailUrl();
+        if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
+            return AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + thumbnailUrl;
+        }
+        return null;
+    }
+
 }

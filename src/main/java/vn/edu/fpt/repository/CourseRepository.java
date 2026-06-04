@@ -29,4 +29,5 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
                                     where c.id = :id
             """)
     Optional<Course> findByIdWithEnrollmentAndLessonProgress(@Param("id") Integer courseId);
+
 }
