@@ -66,22 +66,26 @@
                 <div class="detail-card">
                     <!-- Profile Header Section -->
                     <div class="profile-section">
-                        <img th:src="${request.avatarUrl != null ? request.avatarUrl : '/images/default-avatar.png'}" 
-                             alt="Avatar" class="profile-avatar-large">
+                        <img th:src="${request.avatarUrl != null ? request.avatarUrl : '/images/default-avatar.png'}"
+                            alt="Avatar" class="profile-avatar-large">
                         <div class="profile-details">
                             <div class="profile-name-lg" th:text="${request.fullName}">Tiến sĩ Eleanor Vance</div>
-                            <div class="profile-title-sub" th:text="${request.bio != null ? request.bio : 'Ứng viên Giảng viên'}">
+                            <div class="profile-title-sub"
+                                th:text="${request.bio != null ? request.bio : 'Ứng viên Giảng viên'}">
                                 Chuyên gia Khoa học Dữ liệu cấp cao tại TechCorp
                             </div>
-                            
+
                             <div class="profile-meta-info">
-                                <span class="meta-item"><i class="ph ph-envelope"></i> <span th:text="${request.email}">eleanor@example.com</span></span>
-                                <span class="meta-item"><i class="ph ph-calendar"></i> <span th:text="${request.createdAt != null ? #temporals.format(request.createdAt, 'dd/MM/yyyy') : ''}">01/06/2026</span></span>
+                                <span class="meta-item"><i class="ph ph-envelope"></i> <span
+                                        th:text="${request.email}">eleanor@example.com</span></span>
+                                <span class="meta-item"><i class="ph ph-calendar"></i> <span
+                                        th:text="${request.createdAt != null ? #temporals.format(request.createdAt, 'dd/MM/yyyy') : ''}">01/06/2026</span></span>
                             </div>
 
-                            <span th:class="${'badge badge-' + (request.status.name() == 'PENDING' ? 'warning' : request.status.name() == 'APPROVED' ? 'success' : 'danger')}"
-                                  th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : 'Từ chối'}"
-                                  style="margin-top: 5px;">PENDING</span>
+                            <span
+                                th:class="${'badge badge-' + (request.status.name() == 'PENDING' ? 'warning' : request.status.name() == 'APPROVED' ? 'success' : 'danger')}"
+                                th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : 'Từ chối'}"
+                                style="margin-top: 5px;">PENDING</span>
                         </div>
                     </div>
 
@@ -90,8 +94,10 @@
                         <div class="detail-section-title">
                             <i class="ph ph-user-circle"></i> Giới thiệu
                         </div>
-                        <div class="intro-text" th:text="${request.description != null ? request.description : 'Không có phần tự giới thiệu.'}">
-                            Tôi có hơn 10 năm kinh nghiệm trong lĩnh vực Khoa học Dữ liệu và rất mong muốn được chia sẻ kiến thức của mình với những học viên ham học hỏi.
+                        <div class="intro-text"
+                            th:text="${request.description != null ? request.description : 'Không có phần tự giới thiệu.'}">
+                            Tôi có hơn 10 năm kinh nghiệm trong lĩnh vực Khoa học Dữ liệu và rất mong muốn được chia sẻ
+                            kiến thức của mình với những học viên ham học hỏi.
                         </div>
                     </div>
 
@@ -105,13 +111,14 @@
                             <div class="doc-card" th:if="${request.cvUrl != null && !request.cvUrl.isEmpty()}">
                                 <div class="doc-left">
                                     <i class="ph ph-file-pdf"></i>
-                                    <div>
-                                        <div class="doc-name" th:text="${#strings.substringAfter(request.cvUrl, '/') != '' ? #strings.substringAfter(request.cvUrl, '/') : 'instructor_cv.pdf'}">eleanor_vance_cv.pdf</div>
-                                    </div>
+                                    <div class="doc-name" th:title="${request.cvUrl}"
+                                        th:text="${request.cvOriginalName != null ? request.cvOriginalName : 'instructor_cv.pdf'}">
+                                        instructor_cv.pdf</div>
                                 </div>
-                                <a th:href="${request.cvUrl}" target="_blank" class="doc-link">Xem PDF</a>
+                                <a th:href="${request.cvUrl}" target="_blank" class="doc-link">Xem</a>
                             </div>
-                            <div th:if="${request.cvUrl == null || request.cvUrl.isEmpty()}" class="intro-text" style="padding: 15px; font-style: italic; color: var(--text-gray);">
+                            <div th:if="${request.cvUrl == null || request.cvUrl.isEmpty()}" class="intro-text"
+                                style="padding: 15px; font-style: italic; color: var(--text-gray);">
                                 Không có tệp CV được tải lên.
                             </div>
                         </div>
@@ -121,20 +128,23 @@
                             <div class="detail-section-title">
                                 <i class="ph ph-certificate"></i> Chứng chỉ
                             </div>
-                            <div class="doc-card" th:if="${request.certificateUrl != null && !request.certificateUrl.isEmpty()}">
+                            <div class="doc-card"
+                                th:if="${request.certificateUrl != null && !request.certificateUrl.isEmpty()}">
                                 <div class="doc-left">
                                     <i class="ph ph-medal"></i>
-                                    <div>
-                                        <div class="doc-name" th:text="${#strings.substringAfter(request.certificateUrl, '/') != '' ? #strings.substringAfter(request.certificateUrl, '/') : 'chứng_chỉ_giảng_viên.pdf'}">Chứng chỉ chuyên môn</div>
-                                    </div>
+                                    <div class="doc-name" th:title="${request.certificateUrl}"
+                                        th:text="${request.certificateOriginalName != null ? request.certificateOriginalName : 'chứng_chỉ.pdf'}">
+                                        Chứng chỉ chuyên môn</div>
                                 </div>
-                                <a th:href="${request.certificateUrl}" target="_blank" class="doc-link">Xem tài liệu</a>
+                                <a th:href="${request.certificateUrl}" target="_blank" class="doc-link">Xem</a>
                             </div>
-                            <div th:if="${request.certificateUrl == null || request.certificateUrl.isEmpty()}" class="intro-text" style="padding: 15px; font-style: italic; color: var(--text-gray);">
+                            <div th:if="${request.certificateUrl == null || request.certificateUrl.isEmpty()}"
+                                class="intro-text" style="padding: 15px; font-style: italic; color: var(--text-gray);">
                                 Không có chứng chỉ được tải lên.
                             </div>
                         </div>
-                        <div th:if="${request.status.name()=='REJECTED' && request.rejectionReason != null}" class="rejection-box">
+                        <div th:if="${request.status.name()=='REJECTED' && request.rejectionReason != null}"
+                            class="rejection-box">
                             <div class="rejection-box-title"><i class="ph ph-warning"></i> Lý do từ chối</div>
                             <div class="rejection-box-body" th:text="${request.rejectionReason}">Lý do...</div>
                         </div>

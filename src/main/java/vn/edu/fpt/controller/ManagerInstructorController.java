@@ -37,7 +37,7 @@ public class ManagerInstructorController {
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "") String status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "5") int size,
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -72,6 +72,10 @@ public class ManagerInstructorController {
         InstructorRequestDTO request = instructorRequestService.findDtoById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy yêu cầu với ID: " + id));
 
+        if (request.getStatus() != InstructorRequestStatus.PENDING) {
+            return "redirect:/manager/instructor/detail/" + id;
+        }
+
         model.addAttribute("request", request);
         return "manager/approval-instructor/instructor-edit";
     }
@@ -85,7 +89,7 @@ public class ManagerInstructorController {
         try {
             instructorRequestService.reviewRequest(id, status, rejectionReason);
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái yêu cầu thành công.");
-            return "redirect:/manager/instructor/detail/" + id;
+            return "redirect:/manager/instructor/list";
         } catch (BadRequestException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
             return "redirect:/manager/instructor/edit/" + id;
