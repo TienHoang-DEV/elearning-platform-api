@@ -146,6 +146,18 @@ public class CourseController {
     public String showCourseDetail(@RequestParam("id") Integer id, Model model) {
         CourseDto courseDto = courseService.getCourseDetail(id);
         model.addAttribute("course", courseDto);
+
+        User user = getSessionUser();
+        if (user != null) {
+            java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
+            model.addAttribute("enrolledCourseIds", enrolledCourseIds);
+
+            try {
+                Cart cart = cartService.getOrCreateCartForUser(user);
+                int cartSize = cartItemService.countItemsInCart(cart);
+                model.addAttribute("cartSize", cartSize);
+            } catch (Exception ignored) {}
+        }
         return "course/detail";
     }
 }

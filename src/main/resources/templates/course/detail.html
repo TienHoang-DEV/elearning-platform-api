@@ -470,7 +470,8 @@
                                 <!-- Nếu chưa mua -->
                                 <button th:unless="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id)}"
                                         class="btn btn-primary w-100 py-3 fw-bold fs-7 rounded-3 d-flex align-items-center justify-content-center gap-2 shadow-primary" 
-                                        id="btn-add-to-cart" th:data-course-id="${course.id}">
+                                        type="button"
+                                        th:onclick="'addToCart(this, ' + ${course.id} + ')'">
                                     <span>Thêm Vào Giỏ Hàng</span>
                                     <i data-lucide="shopping-cart" style="width:16px;"></i>
                                 </button>
@@ -527,6 +528,29 @@
     <script th:src="@{/js/main.js}"></script>
     <script>
         lucide.createIcons();
+        
+        function addToCart(btn, courseId) {
+            btn.disabled = true;
+            fetch('/api/cart/add?courseId=' + courseId, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    btn.disabled = false;
+                    if (data.success) {
+                        const badge = document.getElementById('cart-badge-count');
+                        if (badge) {
+                            badge.textContent = data.cartSize;
+                        }
+                        alert(data.message);
+                    } else {
+                        alert(data.message || 'Không thể thêm vào giỏ hàng.');
+                    }
+                })
+                .catch(err => {
+                    btn.disabled = false;
+                    console.error('Lỗi khi thêm vào giỏ hàng:', err);
+                    alert('Có lỗi xảy ra khi thêm vào giỏ hàng.');
+                });
+        }
         
         // Pause video when modal is closed, load when opened
         const videoModal = document.getElementById('videoModal');
