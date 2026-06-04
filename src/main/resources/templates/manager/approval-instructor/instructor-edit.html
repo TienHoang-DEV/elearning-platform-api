@@ -182,7 +182,7 @@
                     <div class="action-card">
                         <div class="action-card-title"><i class="ph ph-shield-check"></i> Quyết định xét duyệt</div>
 
-                        <div class="form-actions">
+                        <div class="form-actions" th:if="${request.status.name() == 'PENDING'}">
                             <!-- Approve trigger -->
                             <a href="#approve-modal" class="btn btn-block btn-approve-trigger">
                                 <i class="ph ph-check-circle"></i>&nbsp; Phê duyệt
@@ -192,6 +192,14 @@
                             <a href="#reject-modal" class="btn btn-block btn-reject-trigger">
                                 <i class="ph ph-x-circle"></i>&nbsp; Từ chối
                             </a>
+                        </div>
+
+                        <div th:unless="${request.status.name() == 'PENDING'}" style="text-align: center; padding: 15px 0;">
+                            <span th:class="${'badge badge-' + (request.status.name() == 'APPROVED' ? 'success' : request.status.name() == 'REJECTED' ? 'danger' : 'dark')}"
+                                  th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : request.status.name() == 'REJECTED' ? 'Từ chối' : 'Bị chặn'}"
+                                  style="font-size: 1rem; padding: 8px 16px; display: inline-block;">
+                                Đang chờ duyệt
+                            </span>
                         </div>
 
                         <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-color);">

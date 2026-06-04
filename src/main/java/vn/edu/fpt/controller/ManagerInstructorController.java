@@ -72,6 +72,10 @@ public class ManagerInstructorController {
         InstructorRequestDTO request = instructorRequestService.findDtoById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy yêu cầu với ID: " + id));
 
+        if (request.getStatus() != InstructorRequestStatus.PENDING) {
+            return "redirect:/manager/instructor/detail/" + id;
+        }
+
         model.addAttribute("request", request);
         return "manager/approval-instructor/instructor-edit";
     }

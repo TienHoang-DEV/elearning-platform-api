@@ -104,7 +104,7 @@
                                     <div class="actions">
                                         <a th:href="@{/manager/instructor/detail/{id}(id=${request.id})}"
                                             class="action-btn"><i class="ph ph-eye"></i> Xem Chi Tiết</a>
-                                        <a th:href="@{/manager/instructor/edit/{id}(id=${request.id})}"
+                                        <a th:if="${request.status.name() == 'PENDING'}" th:href="@{/manager/instructor/edit/{id}(id=${request.id})}"
                                             class="action-btn"><i class="ph ph-pencil-simple"></i> Sửa</a>
                                     </div>
                                 </td>
