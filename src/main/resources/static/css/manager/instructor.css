@@ -38,6 +38,7 @@ body {
 /* Sidebar */
 .sidebar {
     width: 250px;
+    flex-shrink: 0;
     background-color: var(--white);
     border-right: 1px solid var(--border-color);
     display: flex;
@@ -708,7 +709,7 @@ body {
 
 .documents-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 20px;
 }
 
@@ -732,6 +733,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    min-width: 0;
 }
 
 .doc-card {
@@ -743,6 +745,7 @@ body {
     align-items: center;
     justify-content: space-between;
     transition: all 0.2s ease;
+    min-width: 0;
 }
 
 .doc-card:hover {
@@ -754,6 +757,9 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
+    overflow: hidden;
+    flex: 1;
 }
 
 .doc-left i {
@@ -765,6 +771,10 @@ body {
     font-weight: 500;
     font-size: 0.95rem;
     color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .doc-link {
@@ -772,6 +782,8 @@ body {
     text-decoration: none;
     font-weight: 600;
     font-size: 0.85rem;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .doc-link:hover {

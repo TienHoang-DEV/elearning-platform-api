@@ -85,7 +85,7 @@ public class ManagerInstructorController {
         try {
             instructorRequestService.reviewRequest(id, status, rejectionReason);
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái yêu cầu thành công.");
-            return "redirect:/manager/instructor/detail/" + id;
+            return "redirect:/manager/instructor/list";
         } catch (BadRequestException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
             return "redirect:/manager/instructor/edit/" + id;
