@@ -43,14 +43,8 @@ public class ListLessonCourseController {
         Course course = courseService.findById(courseId);
 
         Integer lessonIdFinalCompleted = lessonService.findLessonIdFinalCompletedByCourseIdAndUserId(course.getId(), user.getId());
-        if (lessonIdFinalCompleted == null) {
-            throw new CourseNotFoundException("Khóa học này chưa có bài học nào.");
-        }
 
         Integer sectionId = lessonService.findSectionIdByLessonId(lessonIdFinalCompleted);
-        if (sectionId == null) {
-            throw new CourseNotFoundException("Không tìm thấy phần học tương ứng với bài học.");
-        }
 
         return String.format("redirect:/course/%d/section/%d/lesson/%d", courseId, sectionId, lessonIdFinalCompleted);
     }

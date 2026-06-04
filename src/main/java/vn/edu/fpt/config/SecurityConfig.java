@@ -53,6 +53,9 @@ public class SecurityConfig {
 
                 .authenticationProvider(authenticationProvider)
 
+//                    .authorizeHttpRequests(auth -> auth
+//                            .anyRequest().permitAll()
+//                    )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/login_no", "/register",

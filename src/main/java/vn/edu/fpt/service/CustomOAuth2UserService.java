@@ -75,7 +75,7 @@ public class CustomOAuth2UserService
 
             user.setStatus("ACTIVE");
 
-            user.getRoles().add(role);
+            user.addUserRole(role);
 
             userRepository.save(user);
 

@@ -13,14 +13,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.UserService;
+import vn.edu.fpt.mapper.DtoMapper;
 
 @RequestMapping("/instructor")
 @Controller
 public class InstructorProfileController {
      private final UserService service;
      private final CategoryService categoryService;
-     private final vn.edu.fpt.mapper.DtoMapper dtoMapper;
-    public InstructorProfileController(UserService userService, CategoryService categoryService, vn.edu.fpt.mapper.DtoMapper dtoMapper) {
+     private final DtoMapper dtoMapper;
+    public InstructorProfileController(UserService userService, CategoryService categoryService, DtoMapper dtoMapper) {
         this.service = userService;
         this.categoryService = categoryService;
         this.dtoMapper = dtoMapper;
