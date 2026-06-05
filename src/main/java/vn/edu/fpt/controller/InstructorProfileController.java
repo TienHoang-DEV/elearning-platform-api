@@ -27,17 +27,7 @@ public class InstructorProfileController {
         this.dtoMapper = dtoMapper;
     }
 
-    @org.springframework.transaction.annotation.Transactional
-    @GetMapping("/profile")
-    public String profile(HttpSession session, Model model){
-        //Sau có login
-//       User user = (User)session.getAttribute("user");
-
-       User tmp = service.findById(1);
-       model.addAttribute("instructor", dtoMapper.toUserDto(tmp));
-       return "instructor_course/course_manager";
-    }
-
+   
     @PostMapping("/profiles")
     public String updateProfile(
                                 @RequestParam("email") String email,
