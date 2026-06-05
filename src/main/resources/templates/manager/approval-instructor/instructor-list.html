@@ -21,24 +21,19 @@
             <nav class="sidebar-nav">
                 <ul>
                     <li>
-                        <a href="../dashboard/dashboard.html"><i class="ph ph-squares-four"></i><span>Tổng
-                                quan</span></a>
+                        <a th:href="@{/manager/dashboard}"><i class="ph ph-squares-four"></i><span>Tổng quan</span></a>
                     </li>
                     <li class="active">
-                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Phê duyệt giảng
-                                viên</span></a>
+                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Phê duyệt giảng viên</span></a>
                     </li>
                     <li>
-                        <a href="../approval-course/course-list.html"><i class="ph ph-book-open"></i><span>Phê duyệt
-                                khóa học</span></a>
+                        <a th:href="@{/manager/course/list}"><i class="ph ph-book-open"></i><span>Phê duyệt khóa học</span></a>
                     </li>
                     <li>
-                        <a href="../revenue/revenue-list.html"><i class="ph ph-currency-circle-dollar"></i><span>Doanh
-                                thu</span></a>
+                        <a th:href="@{/manager/revenue/list}"><i class="ph ph-currency-circle-dollar"></i><span>Doanh thu</span></a>
                     </li>
                     <li>
-                        <a href="../feedback-report/feedback-report-list.html"><i
-                                class="ph ph-chat-circle-dots"></i><span>Phản hồi</span></a>
+                        <a th:href="@{/manager/feedback-report/list}"><i class="ph ph-chat-circle-dots"></i><span>Phản hồi</span></a>
                     </li>
                 </ul>
             </nav>
