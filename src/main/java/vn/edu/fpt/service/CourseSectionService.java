@@ -11,6 +11,10 @@ import vn.edu.fpt.repository.CourseSectionRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import vn.edu.fpt.dto.CourseSectionDto;
+import vn.edu.fpt.dto.LessonDto;
 
 @Service
 @Transactional
@@ -50,5 +54,26 @@ public class CourseSectionService {
 
     public Integer findCourseIdBySectionId(Integer sectionId) {
         return repository.findBySectionId(sectionId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khóa học nào với Section id là " + sectionId));
+    }
+
+    public Map<Integer, Boolean> getSectionCompletedMap(Set<CourseSectionDto> sections, List<Integer> completedLessonIds) {
+        Map<Integer, Boolean> sectionCompletedMap = new HashMap<>();
+        if (sections != null) {
+            for (CourseSectionDto sectionDto : sections) {
+                boolean allCompleted = true;
+                if (sectionDto.getLessons() == null || sectionDto.getLessons().isEmpty()) {
+                    allCompleted = false;
+                } else {
+                    for (LessonDto l : sectionDto.getLessons()) {
+                        if (completedLessonIds == null || !completedLessonIds.contains(l.getId())) {
+                            allCompleted = false;
+                            break;
+                        }
+                    }
+                }
+                sectionCompletedMap.put(sectionDto.getId(), allCompleted);
+            }
+        }
+        return sectionCompletedMap;
     }
 }

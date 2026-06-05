@@ -1,5 +1,6 @@
 package vn.edu.fpt.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.CourseSection;
@@ -7,6 +8,7 @@ import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.LessonRepository;
+import vn.edu.fpt.util.AppConstants;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,12 +16,11 @@ import java.util.Set;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class LessonService {
-    private final LessonRepository repository;
 
-    public LessonService(LessonRepository lessonRepository) {
-        this.repository = lessonRepository;
-    }
+    private final LessonRepository repository;
+    private final AzureBlobService azureBlobService;
 
     public List<Lesson> findAll() {
         return repository.findAll();
@@ -64,6 +65,10 @@ public class LessonService {
         return lessonId.get(0);
     }
 
+    public List<Integer> getCompletedLessonIdsByCourseIdAndUserId(Integer courseId, Integer userId) {
+        return repository.getCompletedLessonIdByCourseIdAndUserId(courseId, userId);
+    }
+
     public Integer findSectionIdByLessonId(Integer lessonIdFinalCompleted) {
         if (lessonIdFinalCompleted == null) {
             return null;
@@ -73,5 +78,18 @@ public class LessonService {
 
     public Integer findNumberOfLessonByCourseId(Integer courseId) {
         return repository.findNumberOfLessonByCourseId(courseId);
+    }
+
+    public String findLessonUrl(Integer lessonId) {
+        try {
+            Lesson lesson = this.findById(lessonId).orElse(null);
+            if (lesson == null || lesson.getVideoUrl() == null || lesson.getVideoUrl().trim().isEmpty()) {
+                return "https://www.w3schools.com/html/mov_bbb.mp4";
+            }
+            return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
+        } catch (Exception e) {
+            // Fallback sang video test công cộng nếu Azure bị lỗi ở local dev
+            return "https://www.w3schools.com/html/mov_bbb.mp4";
+        }
     }
 }
