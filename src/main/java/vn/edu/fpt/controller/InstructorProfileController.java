@@ -18,29 +18,8 @@ import vn.edu.fpt.mapper.DtoMapper;
 @RequestMapping("/instructor")
 @Controller
 public class InstructorProfileController {
-     private final UserService service;
-     private final CategoryService categoryService;
-     private final DtoMapper dtoMapper;
-    public InstructorProfileController(UserService userService, CategoryService categoryService, DtoMapper dtoMapper) {
-        this.service = userService;
-        this.categoryService = categoryService;
-        this.dtoMapper = dtoMapper;
-    }
+    
 
    
-    @PostMapping("/profiles")
-    public String updateProfile(
-                                @RequestParam("email") String email,
-                                @RequestParam("firstName") String firstName,
-                                @RequestParam("lastName") String lastName,
-                                @RequestParam("bio") String bio,
-                                @RequestParam("avatarFile") MultipartFile avatar,
-                                @RequestParam("phone") String phone,
-                                RedirectAttributes redirectAttributes
-                                ){
-        User tmp = service.findById(1);
-        service.updateProfileInstuctor(email, firstName, lastName, bio, phone, avatar);
-        redirectAttributes.addFlashAttribute("sucess","Thay đổi thành công!!!");
-        return "redirect:/instructor/profile";
-    }
+   
 }
