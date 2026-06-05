@@ -58,6 +58,16 @@
                     </div>
                 </div>
 
+                <!-- Flash messages -->
+                <div th:if="${successMessage}" class="flash-alert success">
+                    <i class="ph ph-check-circle"></i>
+                    <span th:text="${successMessage}"></span>
+                </div>
+                <div th:if="${errorMessage}" class="flash-alert error">
+                    <i class="ph ph-warning-circle"></i>
+                    <span th:text="${errorMessage}"></span>
+                </div>
+
                 <div class="detail-card">
                     <!-- Profile Header Section -->
                     <div class="profile-section">

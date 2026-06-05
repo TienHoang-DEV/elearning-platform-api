@@ -103,17 +103,6 @@
                     <p style="color:var(--text-gray);font-size:0.95rem;">Xem xét hồ sơ và phê duyệt hoặc từ chối đơn đăng ký.</p>
                 </div>
             </div>
-
-            <!-- Flash messages -->
-            <div th:if="${successMessage}" class="flash-alert success">
-                <i class="ph ph-check-circle"></i>
-                <span th:text="${successMessage}"></span>
-            </div>
-            <div th:if="${errorMessage}" class="flash-alert error">
-                <i class="ph ph-warning-circle"></i>
-                <span th:text="${errorMessage}"></span>
-            </div>
-
             <!-- Split 7:3 -->
             <div class="split-layout-container">
 
