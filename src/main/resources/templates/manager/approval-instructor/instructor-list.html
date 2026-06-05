@@ -21,24 +21,19 @@
             <nav class="sidebar-nav">
                 <ul>
                     <li>
-                        <a href="../dashboard/dashboard.html"><i class="ph ph-squares-four"></i><span>Tổng
-                                quan</span></a>
+                        <a th:href="@{/manager/dashboard}"><i class="ph ph-squares-four"></i><span>Tổng quan</span></a>
                     </li>
                     <li class="active">
-                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Phê duyệt giảng
-                                viên</span></a>
+                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Phê duyệt giảng viên</span></a>
                     </li>
                     <li>
-                        <a href="../approval-course/course-list.html"><i class="ph ph-book-open"></i><span>Phê duyệt
-                                khóa học</span></a>
+                        <a th:href="@{/manager/course/list}"><i class="ph ph-book-open"></i><span>Phê duyệt khóa học</span></a>
                     </li>
                     <li>
-                        <a href="../revenue/revenue-list.html"><i class="ph ph-currency-circle-dollar"></i><span>Doanh
-                                thu</span></a>
+                        <a th:href="@{/manager/revenue/list}"><i class="ph ph-currency-circle-dollar"></i><span>Doanh thu</span></a>
                     </li>
                     <li>
-                        <a href="../feedback-report/feedback-report-list.html"><i
-                                class="ph ph-chat-circle-dots"></i><span>Phản hồi</span></a>
+                        <a th:href="@{/manager/feedback-report/list}"><i class="ph ph-chat-circle-dots"></i><span>Phản hồi</span></a>
                     </li>
                 </ul>
             </nav>
@@ -130,42 +125,13 @@
                             <i class="ph ph-caret-left"></i>
                         </span>
 
-                        <!-- Page 1 (always show) -->
-                        <a th:if="${requestPage.number != 0}"
-                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=0, size=${requestPage.size})}"
-                            class="page-circle-btn">1</a>
-                        <span th:if="${requestPage.number == 0}" class="page-circle-btn active">1</span>
+                        <!-- Danh sách số trang -->
+                        <a th:each="i : ${#numbers.sequence(0, requestPage.totalPages - 1)}"
+                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${i}, size=${requestPage.size})}"
+                            th:class="${requestPage.number == i ? 'page-circle-btn active' : 'page-circle-btn'}"
+                            th:text="${i + 1}">1</a>
 
-                        <!-- Ellipsis after page 1 -->
-                        <span th:if="${requestPage.number > 2}" class="page-circle-ellipsis">…</span>
-
-                        <!-- Page before current -->
-                        <a th:if="${requestPage.number > 1 && requestPage.number - 1 > 0}"
-                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${requestPage.number - 1}, size=${requestPage.size})}"
-                            class="page-circle-btn" th:text="${requestPage.number}">2</a>
-
-                        <!-- Current page (if not first or last) -->
-                        <span
-                            th:if="${requestPage.number > 0 && requestPage.number < requestPage.totalPages - 1}"
-                            class="page-circle-btn active" th:text="${requestPage.number + 1}">3</span>
-
-                        <!-- Page after current -->
-                        <a th:if="${requestPage.number < requestPage.totalPages - 2 && requestPage.number + 1 < requestPage.totalPages - 1}"
-                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${requestPage.number + 1}, size=${requestPage.size})}"
-                            class="page-circle-btn" th:text="${requestPage.number + 2}">4</a>
-
-                        <!-- Ellipsis before last page -->
-                        <span th:if="${requestPage.number < requestPage.totalPages - 3}"
-                            class="page-circle-ellipsis">…</span>
-
-                        <!-- Last page (always show) -->
-                        <a th:if="${requestPage.number != requestPage.totalPages - 1}"
-                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${requestPage.totalPages - 1}, size=${requestPage.size})}"
-                            class="page-circle-btn" th:text="${requestPage.totalPages}">8</a>
-                        <span th:if="${requestPage.number == requestPage.totalPages - 1}"
-                            class="page-circle-btn active" th:text="${requestPage.totalPages}">8</span>
-
-                        <!-- Next -->
+                        <!-- Nút Next -->
                         <a th:if="${requestPage.hasNext()}"
                             th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${requestPage.number + 1}, size=${requestPage.size})}"
                             class="page-circle-btn">
