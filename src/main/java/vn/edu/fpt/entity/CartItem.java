@@ -21,5 +21,9 @@ public class CartItem extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
+
+    @Builder.Default
+    @Column(name = "selected", nullable = false)
+    private boolean selected = true;
 }
 
