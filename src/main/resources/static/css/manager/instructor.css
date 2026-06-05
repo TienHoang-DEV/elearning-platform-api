@@ -108,6 +108,12 @@ body {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+}
+
+.main-wrapper::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome, Safari, Opera */
 }
 
 /* Topbar */
@@ -151,11 +157,11 @@ body {
 
 /* Dashboard Content */
 .content {
-    padding: 30px;
+    padding: 20px 30px;
 }
 
 .page-header {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .page-header h1 {
@@ -323,23 +329,66 @@ body {
     color: #fff;
 }
 
+.table-pagination-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 600px; /* Tổng chiều cao tối thiểu cố định của cả cụm (bảng + phân trang) */
+    justify-content: space-between;
+}
+
 .table-container {
     background: #fff;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     overflow: hidden;
-    margin-top: 20px;
+    margin-top: 15px;
+    min-height: 470px;
 }
 
 .data-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
+    table-layout: fixed; /* Bắt buộc kích thước cột cố định, không co giãn theo nội dung */
+}
+
+/* Định nghĩa độ rộng cố định cho từng cột */
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) {
+    width: 22%;
+}
+
+.data-table th:nth-child(2),
+.data-table td:nth-child(2) {
+    width: 28%;
+}
+
+.data-table th:nth-child(3),
+.data-table td:nth-child(3) {
+    width: 15%;
+}
+
+.data-table th:nth-child(4),
+.data-table td:nth-child(4) {
+    width: 15%;
+}
+
+.data-table th:nth-child(5),
+.data-table td:nth-child(5) {
+    width: 20%;
+}
+
+/* Tránh chữ quá dài làm vỡ cột */
+.data-table td:nth-child(1),
+.data-table td:nth-child(2) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .data-table th,
 .data-table td {
-    padding: 15px 20px;
+    padding: 12px 20px;
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -1313,8 +1362,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 28px;
-    padding: 20px 0;
+    margin-top: 30px;
+    padding: 10px 0;
 }
 
 .pagination-circle-buttons {
@@ -1378,4 +1427,4 @@ body {
     letter-spacing: 2px;
     padding: 0 2px;
     user-select: none;
-}
+}
