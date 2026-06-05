@@ -4,13 +4,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.entity.Cart;
+import vn.edu.fpt.entity.Course;
+import vn.edu.fpt.entity.Feedback;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.service.CourseService;
 import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.UserService;
 import vn.edu.fpt.service.EnrollmentService;
+import vn.edu.fpt.service.CartService;
+import vn.edu.fpt.service.CartItemService;
+import vn.edu.fpt.service.FeedbackService;
 import java.util.List;
 
 @Controller
@@ -20,6 +27,9 @@ public class CourseController {
     private CourseService courseService;
 
     @Autowired
+    private FeedbackService feedbackService;
+
+    @Autowired
     private CategoryService categoryService;
 
     @Autowired
@@ -27,6 +37,12 @@ public class CourseController {
 
     @Autowired
     private EnrollmentService enrollmentService;
+
+    @Autowired
+    private CartService cartService;
+
+    @Autowired
+    private CartItemService cartItemService;
 
     private User getSessionUser() {
         try {
@@ -66,9 +82,14 @@ public class CourseController {
     @GetMapping("/courses")
     public String showCourseList(
             @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "categoryId", required = false) Integer categoryId,
+            @RequestParam(value = "ratings", required = false) List<Integer> ratings,
+            @RequestParam(value = "prices", required = false) List<String> prices,
+            @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort,
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             Model model) {
 
-        List<CourseDto> courseDtos = courseService.getCoursesBySearch(search);
+        List<CourseDto> filteredCourses = courseService.getFilteredAndSortedCourses(search, categoryId, ratings, prices, sort);
         List<CategoryDto> categoryDtos = categoryService.getActiveParentCategories();
 
         model.addAttribute("parentCategories", categoryDtos);
@@ -77,12 +98,49 @@ public class CourseController {
         java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
         model.addAttribute("enrolledCourseIds", enrolledCourseIds);
 
-        // Đưa danh sách khóa học vào Model với key là "courses" để Thymeleaf render
-        model.addAttribute("courses", courseDtos);
-        // Đưa từ khóa tìm kiếm vào Model để hiển thị lại trên thanh tìm kiếm và tiêu đề
-        model.addAttribute("search", search);
+        // Lấy số lượng giỏ hàng hiển thị trên Header
+        int cartSize = 0;
+        if (user != null) {
+            try {
+                Cart cart = cartService.getOrCreateCartForUser(user);
+                cartSize = cartItemService.countItemsInCart(cart);
+            } catch (Exception ignored) {}
+        }
+        model.addAttribute("cartSize", cartSize);
 
-        // Trả về template course/list.html
+        // Phân trang danh sách khóa học (4 khóa học/trang)
+        int totalCourses = filteredCourses.size();
+        int itemsPerPage = 4;
+        int totalPages = (int) Math.ceil((double) totalCourses / itemsPerPage);
+        if (totalPages < 1) {
+            totalPages = 1;
+        }
+
+        if (page > totalPages) {
+            page = totalPages;
+        }
+        if (page < 1) {
+            page = 1;
+        }
+
+        int startIndex = (page - 1) * itemsPerPage;
+        int endIndex = Math.min(startIndex + itemsPerPage, totalCourses);
+
+        List<CourseDto> pagedCourses = new java.util.ArrayList<>();
+        if (startIndex < totalCourses) {
+            pagedCourses = filteredCourses.subList(startIndex, endIndex);
+        }
+
+        model.addAttribute("courses", pagedCourses);
+        model.addAttribute("search", search);
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("selectedRatings", ratings);
+        model.addAttribute("selectedPrices", prices);
+        model.addAttribute("sort", sort);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalCourses", totalCourses);
+
         return "course/list";
     }
 
@@ -95,6 +153,46 @@ public class CourseController {
     public String showCourseDetail(@RequestParam("id") Integer id, Model model) {
         CourseDto courseDto = courseService.getCourseDetail(id);
         model.addAttribute("course", courseDto);
+
+        User user = getSessionUser();
+        if (user != null) {
+            java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
+            model.addAttribute("enrolledCourseIds", enrolledCourseIds);
+
+            boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), id);
+            model.addAttribute("hasReviewed", hasReviewed);
+
+            try {
+                Cart cart = cartService.getOrCreateCartForUser(user);
+                int cartSize = cartItemService.countItemsInCart(cart);
+                model.addAttribute("cartSize", cartSize);
+            } catch (Exception ignored) {}
+        }
         return "course/detail";
+    }
+
+    @PostMapping("/course/review/add")
+    public String addCourseReview(@RequestParam("courseId") Integer courseId,
+                                  @RequestParam("rating") Integer rating,
+                                  @RequestParam(value = "comment", required = false, defaultValue = "") String comment,
+                                  org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        User user = getSessionUser();
+        if (user == null) {
+            return "redirect:/";
+        }
+        if (feedbackService.hasUserReviewedCourse(user.getId(), courseId)) {
+            return "redirect:/course/detail?id=" + courseId;
+        }
+        Course course = courseService.findById(courseId);
+        Feedback feedback = Feedback.builder()
+                .user(user)
+                .course(course)
+                .rating(rating)
+                .comment(comment)
+                .createdAt(java.time.LocalDateTime.now())
+                .build();
+        feedbackService.save(feedback);
+        redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
+        return "redirect:/course/detail?id=" + courseId;
     }
 }
