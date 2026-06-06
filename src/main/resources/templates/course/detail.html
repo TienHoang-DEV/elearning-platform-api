@@ -753,33 +753,13 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
+    <!-- Shared Add to Cart JavaScript -->
+    <script th:src="@{/js/add_cart.js}"></script>
+
     <!-- Custom JavaScript -->
     <script th:src="@{/js/course_detail.js}"></script>
     <script>
         lucide.createIcons();
-
-        function addToCart(btn, courseId) {
-            btn.disabled = true;
-            fetch('/api/cart/add?courseId=' + courseId, { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    btn.disabled = false;
-                    if (data.success) {
-                        const badge = document.getElementById('cart-badge-count');
-                        if (badge) {
-                            badge.textContent = data.cartSize;
-                        }
-                        alert(data.message);
-                    } else {
-                        alert(data.message || 'Không thể thêm vào giỏ hàng.');
-                    }
-                })
-                .catch(err => {
-                    btn.disabled = false;
-                    console.error('Lỗi khi thêm vào giỏ hàng:', err);
-                    alert('Có lỗi xảy ra khi thêm vào giỏ hàng.');
-                });
-        }
 
         // Pause video when modal is closed, load when opened
         const videoModal = document.getElementById('videoModal');
