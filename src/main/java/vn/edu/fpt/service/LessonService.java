@@ -5,10 +5,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.entity.Lesson;
+import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.LessonRepository;
 import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.util.SecurityUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -91,5 +93,25 @@ public class LessonService {
             // Fallback sang video test công cộng nếu Azure bị lỗi ở local dev
             return "https://www.w3schools.com/html/mov_bbb.mp4";
         }
+    }
+
+    public Lesson findNextLessonByCurrentLesson(Lesson lesson, Integer totalNumberOfLesson, Integer totalNumberOfLessonCompleted) {
+        if (totalNumberOfLesson == totalNumberOfLessonCompleted) {
+            return null;
+        }
+        User user = SecurityUtils.getCurrentUser();
+        List<Lesson> nextLessons = repository.findNotCompletedLessons(user, lesson);
+        if (nextLessons == null || nextLessons.isEmpty()) {
+            return null;
+        }
+        nextLessons.forEach(lesson1 -> {
+            System.out.println("khoa hoc " +lesson1.getId());
+        });
+        for (Lesson nextLesson : nextLessons) {
+            if ((nextLesson.getId() > lesson.getId()) || (lesson.getId() == nextLessons.get(nextLessons.size() - 1).getId())) {
+                return nextLesson;
+            }
+        }
+        return null;
     }
 }

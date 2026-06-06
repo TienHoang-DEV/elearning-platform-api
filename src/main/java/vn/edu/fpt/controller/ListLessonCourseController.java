@@ -67,6 +67,10 @@ public class ListLessonCourseController {
 
         Map<Integer, Boolean> sectionCompletedMap = courseSectionService.getSectionCompletedMap(courseDto.getSections(), completedLessonIds);
 
+        // nếu next lesson bằng null tức là người học đã hoàn thành hết khóa học, không có bài học tiếp theo
+        Lesson nextLesson = lessonService.findNextLessonByCurrentLesson(lesson, totalNumberOfLesson, totalNumberOfLessonCompleted);
+
+        model.addAttribute("nextLesson", nextLesson);
         model.addAttribute("currentSectionId", sectionId);
         model.addAttribute("sectionCompletedMap", sectionCompletedMap);
         model.addAttribute("completedLessonIds", completedLessonIds);

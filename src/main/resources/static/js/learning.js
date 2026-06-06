@@ -135,7 +135,7 @@ function initializeMaterial() {
         }
 
         fetch(`/material/${materialId}`)
-            .then(response => {
+            .then((response) => {
                 if (!response.ok) {
                     throw new Error(`Fetch /material/${materialId} failed: ${response.status}`);
                 }
@@ -170,3 +170,4 @@ function initializeSidebarToggle() {
         });
     }
 }
+
