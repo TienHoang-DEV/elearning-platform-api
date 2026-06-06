@@ -52,10 +52,10 @@
                 </div>
 
                 <!-- Search Input -->
-                <div class="search-bar-wrapper position-relative flex-grow-1">
+                <form th:action="@{/courses}" method="get" class="search-bar-wrapper position-relative flex-grow-1">
                     <i data-lucide="search" class="search-icon position-absolute start-0 top-50 translate-middle-y ms-3 text-muted" style="width:18px; height:18px;"></i>
-                    <input type="text" placeholder="Tìm kiếm khóa học..." class="form-control rounded-pill border-0 bg-light px-4 py-2 ps-5" id="search-input">
-                </div>
+                    <input type="text" name="search" placeholder="Tìm kiếm khóa học..." class="form-control rounded-pill border-0 bg-light px-4 py-2 ps-5" id="search-input">
+                </form>
             </div>
 
             <!-- User Utilities (Logged In state) -->
@@ -124,12 +124,16 @@
                     <p class="text-muted fs-7 m-0">Tiếp tục hành trình chinh phục kiến thức của bạn.</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-primary rounded-pill px-4 py-2 fs-7 fw-semibold active-filter" id="btn-filter-all">
+                    <a th:href="@{/student/my-learning(filter='all')}" 
+                       th:class="${filter == 'all'} ? 'btn btn-primary rounded-pill px-4 py-2 fs-7 fw-semibold active-filter' : 'btn btn-outline-secondary rounded-pill px-4 py-2 fs-7 fw-semibold text-dark outline-filter'"
+                       style="border-color: var(--border); text-decoration: none;" id="btn-filter-all">
                         Tất cả khóa học
-                    </button>
-                    <button class="btn btn-outline-secondary rounded-pill px-4 py-2 fs-7 fw-semibold text-dark outline-filter" id="btn-filter-incomplete" style="border-color: var(--border);">
+                    </a>
+                    <a th:href="@{/student/my-learning(filter='incomplete')}" 
+                       th:class="${filter == 'incomplete'} ? 'btn btn-primary rounded-pill px-4 py-2 fs-7 fw-semibold active-filter' : 'btn btn-outline-secondary rounded-pill px-4 py-2 fs-7 fw-semibold text-dark outline-filter'"
+                       style="border-color: var(--border); text-decoration: none;" id="btn-filter-incomplete">
                         Chưa hoàn thành
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -143,17 +147,19 @@
                      th:data-course-id="${enrollment.course?.id}">
                     <div class="card h-100 border-0 shadow-sm course-card overflow-hidden">
                         <!-- Thumbnail -->
-                        <div class="position-relative overflow-hidden">
+                        <a th:href="@{/course/{id}(id=${enrollment.course?.id})}" class="position-relative overflow-hidden d-block">
                             <img th:src="${enrollment.course?.thumbnailPath}" 
                                  th:alt="${enrollment.course?.title}" class="w-100 object-fit-cover" style="height: 220px; transition: transform 0.5s ease;"
                                  onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
-                        </div>
+                        </a>
                         
                         <!-- Body -->
                         <div class="card-body p-4 d-flex flex-column justify-content-between" style="min-height: 200px;">
                             <div>
-                                <h3 class="course-card-title fw-bold fs-6 mb-3 font-heading leading-snug" th:text="${enrollment.course?.title}">
-                                    Đệm hát Guitar những bài hát của Eric Clapton
+                                <h3 class="course-card-title fw-bold fs-6 mb-3 font-heading leading-snug">
+                                    <a th:href="@{/course/{id}(id=${enrollment.course?.id})}" class="text-decoration-none text-dark" th:text="${enrollment.course?.title}">
+                                        Đệm hát Guitar những bài hát của Eric Clapton
+                                    </a>
                                 </h3>
                                 
                                 <div class="d-flex align-items-center gap-2 text-muted fs-8 mb-4">
@@ -204,21 +210,28 @@
                 <div class="total-courses-badge fs-8 text-muted fw-semibold py-1 px-3 bg-light rounded-pill border" th:text="'Tổng: ' + ${enrollmentsCount} + ' khóa học'">
                     Tổng: 2 khóa học
                 </div>
-                <nav aria-label="Page navigation">
+                <nav aria-label="Page navigation" th:if="${totalPages > 1}">
                     <ul class="pagination gap-2 border-0 m-0">
-                        <li class="page-item">
-                            <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 page-nav-btn" href="#" aria-label="Previous">
+                        <!-- Nút Trước (Previous) -->
+                        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                            <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 page-nav-btn" 
+                               th:href="@{/student/my-learning(filter=${filter}, page=${currentPage - 1})}" aria-label="Previous">
                                 <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
                             </a>
                         </li>
-                        <li class="page-item active">
-                            <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 fw-bold page-num-btn" href="#">1</a>
+                        
+                        <!-- Danh sách số trang -->
+                        <li class="page-item" th:each="pageNum : ${#numbers.sequence(1, totalPages)}" th:classappend="${pageNum == currentPage} ? 'active'">
+                            <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 page-num-btn"
+                               th:classappend="${pageNum == currentPage} ? 'fw-bold text-white' : 'fw-semibold text-dark'"
+                               th:href="@{/student/my-learning(filter=${filter}, page=${pageNum})}"
+                               th:text="${pageNum}">1</a>
                         </li>
-                        <li class="page-item">
-                            <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 fw-semibold page-num-btn text-dark" href="#">2</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 page-nav-btn" href="#" aria-label="Next">
+                        
+                        <!-- Nút Sau (Next) -->
+                        <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                            <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 page-nav-btn" 
+                               th:href="@{/student/my-learning(filter=${filter}, page=${currentPage + 1})}" aria-label="Next">
                                 <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
                             </a>
                         </li>
