@@ -1,4 +1,4 @@
-﻿USE master
+USE master
 IF DB_ID('ElearningPlatform') IS NOT NULL
 BEGIN
     ALTER DATABASE ElearningPlatform
@@ -634,6 +634,9 @@ CREATE TABLE cart_items (
 
     course_id INT NOT NULL,
     -- Tham chiếu đến bảng courses, khóa học nào được thêm vào giỏ
+
+    selected BIT NOT NULL DEFAULT 1,
+    -- Trạng thái chọn thanh toán của khóa học (1 = true, 0 = false)
 
     created_at DATETIME DEFAULT GETDATE(),
     -- Thời gian tạo bản ghi
