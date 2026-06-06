@@ -5,35 +5,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
     initializeCartButtons();
-    initializeSearchRedirect();
 });
-
-function initializeSearchRedirect() {
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = searchInput.value.trim();
-                if (query) {
-                    window.location.href = `/courses?search=${encodeURIComponent(query)}`;
-                }
-            }
-        });
-    }
-}
 
 // Shopping Cart Actions
 function initializeCartButtons() {
     const cartButtons = document.querySelectorAll(".btn-cart");
     const cartBadge = document.querySelector(".cart-count-badge");
     
-    // Create a Toast container if it doesn't exist
-    let toastContainer = document.querySelector(".toast-container");
-    if (!toastContainer) {
-        toastContainer = document.createElement("div");
-        toastContainer.className = "toast-container position-fixed bottom-0 end-0 p-3";
-        toastContainer.style.zIndex = "1100";
-        document.body.appendChild(toastContainer);
+    // Get static toast elements from HTML
+    const toast = document.getElementById("cart-toast");
+    const toastMsgText = document.getElementById("toast-message-text");
+    const toastCloseBtn = document.getElementById("toast-close-btn");
+    
+    if (toastCloseBtn && toast) {
+        toastCloseBtn.addEventListener("click", () => {
+            toast.classList.remove("show");
+        });
     }
 
     cartButtons.forEach(btn => {
@@ -71,10 +58,24 @@ function initializeCartButtons() {
                     // Get course title
                     const card = btn.closest(".card");
                     const title = card ? card.querySelector(".course-card-title").textContent.trim() : "Khóa học";
-                    if (data.message && data.message.includes("có sẵn")) {
-                        showToast(data.message);
-                    } else {
-                        showToast(`Đã thêm khóa học "${title}" vào giỏ hàng thành công!`);
+                    
+                    // Trigger custom hybrid toast
+                    if (toast && toastMsgText) {
+                        if (data.message && data.message.includes("có sẵn")) {
+                            toastMsgText.textContent = data.message;
+                        } else {
+                            toastMsgText.textContent = `Đã thêm khóa học "${title}" vào giỏ hàng thành công!`;
+                        }
+                        
+                        toast.classList.add("show");
+                        
+                        // Auto-hide after 3 seconds
+                        if (window.toastTimeout) {
+                            clearTimeout(window.toastTimeout);
+                        }
+                        window.toastTimeout = setTimeout(() => {
+                            toast.classList.remove("show");
+                        }, 3000);
                     }
                 } else {
                     alert(data.message || 'Không thể thêm vào giỏ hàng.');
@@ -89,47 +90,3 @@ function initializeCartButtons() {
     });
 }
 
-function showToast(message) {
-    const toastContainer = document.querySelector(".toast-container");
-    
-    // Toast Element
-    const toastId = "toast-" + Date.now();
-    const toastHtml = `
-        <div id="${toastId}" class="toast border-0 rounded-3 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-body d-flex align-items-center gap-3 p-3 rounded-3" style="background-color: #d1e7dd; border: 1px solid #a3cfbb; border-left: 5px solid #0f5132;">
-                <i data-lucide="check-circle" style="color: #0f5132; width: 24px; height: 24px;"></i>
-                <div class="toast-content flex-grow-1">
-                    <p class="toast-title fw-bold m-0 fs-7" style="color: #0f5132;">Thành công!</p>
-                    <p class="toast-message m-0 fs-8" style="color: #0f5132; font-weight: 500;">${message}</p>
-                </div>
-                <button type="button" class="btn-close btn-close-sm shadow-none" data-bs-dismiss="toast" aria-label="Close" style="filter: invert(20%) sepia(20%) saturate(1000%) hue-rotate(90deg) brightness(30%);"></button>
-            </div>
-        </div>
-    `;
-    
-    toastContainer.insertAdjacentHTML("beforeend", toastHtml);
-    
-    const toastElement = document.getElementById(toastId);
-    
-    // Initialize Lucide icon inside the new toast
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons({
-            attrs: {
-                class: 'lucide-icon'
-            },
-            nameAttr: 'data-lucide',
-            node: toastElement
-        });
-    }
-
-    // Initialize Bootstrap Toast
-    const bsToast = new bootstrap.Toast(toastElement, {
-        delay: 3000
-    });
-    bsToast.show();
-    
-    // Remove from DOM after hidden
-    toastElement.addEventListener("hidden.bs.toast", () => {
-        toastElement.remove();
-    });
-}

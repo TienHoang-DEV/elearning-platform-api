@@ -52,10 +52,12 @@
                 </div>
 
                 <!-- Search Input -->
-                <div class="search-bar-wrapper position-relative flex-grow-1">
-                    <i data-lucide="search" class="search-icon position-absolute start-0 top-50 translate-middle-y ms-3 text-muted" style="width:18px; height:18px;"></i>
-                    <input type="text" placeholder="Tìm kiếm khóa học..." class="form-control rounded-pill border-0 bg-light px-4 py-2 ps-5" id="search-input">
-                </div>
+                <form th:action="@{/courses}" method="get" class="flex-grow-1">
+                    <div class="search-bar-wrapper position-relative">
+                        <i data-lucide="search" class="search-icon position-absolute start-0 top-50 translate-middle-y ms-3 text-muted" style="width:18px; height:18px;"></i>
+                        <input type="text" name="search" placeholder="Tìm kiếm khóa học..." class="form-control rounded-pill border-0 bg-light px-4 py-2 ps-5" id="search-input">
+                    </div>
+                </form>
             </div>
 
             <!-- User Utilities -->
@@ -130,8 +132,7 @@
                                 </div>
                                 <div class="rating-stars mb-4 d-flex align-items-center gap-1">
                                     <span class="rating-value fw-bold text-dark fs-8 me-1" th:text="${course?.averageRating ?: 0}">5</span>
-                                    <i data-lucide="star" class="star-icon star-filled" th:each="starIdx : ${#numbers.sequence(1, 5)}"
-                                       th:style="${(course?.averageRating ?: 0) >= starIdx ? 'fill: #ffb400; stroke: #ffb400;' : 'fill: none; stroke: #ccc;'}"></i>
+                                    <i data-lucide="star" th:class="${(course?.averageRating ?: 0) >= starIdx ? 'star-icon star-filled' : 'star-icon star-empty'}" th:each="starIdx : ${#numbers.sequence(1, 5)}"></i>
                                     <span class="text-muted fs-8 ms-1" th:text="'(' + ${course?.ratingCount ?: 0} + ')'">(0)</span>
                                 </div>
                             </div>
@@ -221,6 +222,20 @@
             </div>
         </div>
     </footer>
+
+    <!-- Custom Toast Notification Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+        <div id="cart-toast" class="custom-toast shadow-lg">
+            <div class="toast-body d-flex align-items-center gap-3 p-3 rounded-3">
+                <i data-lucide="check-circle" class="toast-success-icon"></i>
+                <div class="toast-content flex-grow-1">
+                    <p class="toast-title fw-bold m-0 fs-7">Thành công!</p>
+                    <p id="toast-message-text" class="toast-message m-0 fs-8">Thông báo</p>
+                </div>
+                <button type="button" class="btn-close btn-close-sm shadow-none" id="toast-close-btn" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap 5 Bundle JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
