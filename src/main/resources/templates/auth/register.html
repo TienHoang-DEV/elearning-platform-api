@@ -36,7 +36,8 @@
                         <input
                                 type="text"
                                 th:field="*{firstName}"
-                                placeholder="Họ">
+                                placeholder="Họ"
+                                required>
                         <small class="error-message"
                                th:if="${#fields.hasErrors('firstName')}"
                                th:errors="*{firstName}">
@@ -47,10 +48,12 @@
                         <input
                                 type="text"
                                 th:field="*{lastName}"
-                                placeholder="Tên">
+                                placeholder="Tên"
+                                required>
                         <small class="error-message"
                                th:if="${#fields.hasErrors('lastName')}"
-                               th:errors="*{lastName}">
+                               th:errors="*{lastName}"
+                               >
                         </small>
                     </div>
                 </div>
@@ -62,11 +65,12 @@
                         <input
                                 type="email"
                                 th:field="*{email}"
-                                placeholder="email@example.com">
-                        <small class="error-message"
+                                placeholder="email@example.com"
+                                required>
+                        <div class="error-message"
                                th:if="${#fields.hasErrors('email')}"
                                th:errors="*{email}">
-                        </small>
+                        </div>
                     </div>
                 </div>
 
@@ -77,11 +81,12 @@
                         <input
                                 type="tel"
                                 th:field="*{phoneNumber}"
-                                placeholder="Ví dụ: 0912345678">
-                        <small class="error-message"
+                                placeholder="Ví dụ: 0912345678"
+                                required>
+                        <div class="error-message"
                                th:if="${#fields.hasErrors('phoneNumber')}"
                                th:errors="*{phoneNumber}">
-                        </small>
+                        </div>
                     </div>
                 </div>
 
@@ -92,11 +97,12 @@
                         <input
                                 type="password"
                                 th:field="*{password}"
-                                placeholder="Tối thiểu 8 ký tự">
-                        <small class="error-message"
+                                placeholder="Tối thiểu 8 ký tự và có ít nhất 1 chữ hoa và 1 kí tự đặc biệt!"
+                                required>
+                        <div class="error-message"
                                th:if="${#fields.hasErrors('password')}"
                                th:errors="*{password}">
-                        </small>
+                        </div>
                     </div>
                 </div>
 
@@ -107,11 +113,12 @@
                         <input
                                 type="password"
                                 th:field="*{confirmPassword}"
-                                placeholder="Nhập lại mật khẩu">
-                        <small class="error-message"
+                                placeholder="Nhập lại mật khẩu"
+                                required>
+                        <div class="error-message"
                                th:if="${#fields.hasErrors('confirmPassword')}"
                                th:errors="*{confirmPassword}">
-                        </small>
+                        </div>
                     </div>
                 </div>
 
@@ -143,7 +150,7 @@
 
             <div class="form-footer">
                 <p>Bạn đã có tài khoản?</p>
-                <a th:href="@{/login}" class="login-link">
+                <a th:href="@{/login_no}" class="login-link">
                     <span>Đăng nhập ngay</span>
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                 </a>

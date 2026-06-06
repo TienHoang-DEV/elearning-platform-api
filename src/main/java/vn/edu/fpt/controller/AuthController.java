@@ -102,10 +102,38 @@ public class AuthController {
             @Valid
             @ModelAttribute("registerRequest")
             RegisterRequest request,
-
             BindingResult result) {
 
         if(result.hasErrors()) {
+            return "auth/register";
+        }
+
+        if (result.hasErrors()) {
+            return "register";
+        }
+
+        if (authService.existsByEmail(request.getEmail())) {
+            result.rejectValue(
+                    "email",
+                    "duplicate",
+                    "Email đã tồn tại");
+        }
+
+        if (authService.existsByPhone(request.getPhoneNumber())) {
+            result.rejectValue(
+                    "phoneNumber",
+                    "duplicate",
+                    "Số điện thoại đã tồn tại");
+        }
+
+        if (!request.isPasswordMatched()) {
+            result.rejectValue(
+                    "confirmPassword",
+                    "mismatch",
+                    "Mật khẩu xác nhận không khớp");
+        }
+
+        if (result.hasErrors()) {
             return "auth/register";
         }
 

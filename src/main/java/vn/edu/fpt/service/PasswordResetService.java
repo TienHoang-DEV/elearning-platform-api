@@ -11,6 +11,7 @@ import vn.edu.fpt.repository.PasswordResetTokenRepository;
 import vn.edu.fpt.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -52,17 +53,21 @@ public class PasswordResetService {
 
     public PasswordResetToken validateToken(String token) {
 
-        PasswordResetToken resetToken =
-                tokenRepository.findByToken(token)
-                        .orElseThrow(() ->
-                                new RuntimeException("Invalid token"));
+        Optional<PasswordResetToken> optionalToken =
+                tokenRepository.findByToken(token);
+
+        if (optionalToken.isEmpty()) {
+            return null;
+        }
+
+        PasswordResetToken resetToken = optionalToken.get();
 
         if (resetToken.getIsUsed()) {
-            throw new RuntimeException("Token already used");
+            return null;
         }
 
         if (resetToken.getExpiredDate().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token expired");
+            return null;
         }
 
         return resetToken;
@@ -78,6 +83,9 @@ public class PasswordResetService {
         // 2. validate token
         PasswordResetToken resetToken = validateToken(request.getToken());
 
+        if(resetToken == null){
+            return;
+        }
         // 3. get user
         User user = resetToken.getUser();
 

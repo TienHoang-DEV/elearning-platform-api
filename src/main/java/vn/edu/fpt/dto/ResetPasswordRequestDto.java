@@ -24,4 +24,9 @@ public class ResetPasswordRequestDto {
     @NotBlank(message = "Retype password không được để trống")
     private String confirmPassword;
 
+    public boolean isPasswordMatched() {
+        return password != null
+                && password.equals(confirmPassword);
+    }
+
 }

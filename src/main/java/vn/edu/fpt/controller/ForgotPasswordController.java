@@ -9,13 +9,16 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.ForgotPasswordRequestDto;
 import vn.edu.fpt.dto.ResetPasswordRequestDto;
+import vn.edu.fpt.service.AuthService;
 import vn.edu.fpt.service.PasswordResetService;
+import vn.edu.fpt.service.UserService;
 
 @Controller
 @RequiredArgsConstructor
 public class ForgotPasswordController {
 
     private final PasswordResetService passwordResetService;
+    private final AuthService authService;
 
     @GetMapping("/forgot-password")
     public String forgotPasswordPage(Model model) {
@@ -28,7 +31,7 @@ public class ForgotPasswordController {
 
     @PostMapping("/forgot-password")
     public String processForgotPassword(
-            @Valid @ModelAttribute ForgotPasswordRequestDto request,
+            @Valid @ModelAttribute("forgotPasswordRequest") ForgotPasswordRequestDto request,
             BindingResult result,
             RedirectAttributes redirectAttributes) {
 
@@ -36,11 +39,23 @@ public class ForgotPasswordController {
             return "auth/forgot-password";
         }
 
+
+
+        if (!authService.existsByEmail(request.getEmail())) {
+
+            result.rejectValue(
+                    "email",
+                    "notFound",
+                    "Email không tồn tại trong hệ thống");
+
+            return "auth/forgot-password";
+        }
+
         passwordResetService.sendResetLink(request.getEmail());
 
         redirectAttributes.addFlashAttribute(
                 "message",
-                "If email exists, reset link has been sent"
+                "Link đặt lại mật khẩu đã được gửi tới email của bạn"
         );
 
         return "redirect:/forgot-password";
@@ -51,7 +66,9 @@ public class ForgotPasswordController {
             @RequestParam String token,
             Model model) {
 
-        passwordResetService.validateToken(token);
+        if(passwordResetService.validateToken(token) == null){
+            return "auth/invalid-token";
+        }
 
         ResetPasswordRequestDto request = new ResetPasswordRequestDto();
         request.setToken(token);
@@ -63,16 +80,29 @@ public class ForgotPasswordController {
 
     @PostMapping("/reset-password")
     public String processResetPassword(
-            @Valid @ModelAttribute ResetPasswordRequestDto request,
+            @Valid @ModelAttribute("resetPasswordRequest") ResetPasswordRequestDto request,
             BindingResult result) {
 
         if (result.hasErrors()) {
-            return "auth/eset-password";
+            return "auth/reset-password";
         }
+
+        if (!request.isPasswordMatched()) {
+            result.rejectValue(
+                    "confirmPassword",
+                    "mismatch",
+                    "Mật khẩu xác nhận không khớp");
+        }
+
+        if (result.hasErrors()) {
+            return "auth/reset-password";
+        }
+
+
 
         passwordResetService.resetPassword(request);
 
-        return "redirect:/login_no?resetSuccess";
+        return "auth/changepass-success";
     }
 
 }

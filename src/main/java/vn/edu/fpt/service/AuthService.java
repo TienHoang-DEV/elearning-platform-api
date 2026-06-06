@@ -69,25 +69,14 @@ public class AuthService {
         userRepository.save(user);
     }
 
-//    public User login(String email, String password) {
-//
-//        Optional<User> optionalUser = userRepository.findByEmail(email);
-//
-//        if (!optionalUser.isPresent()) {
-//            throw new RuntimeException("Email không tồn tại");
-//        }
-//
-//        User user = optionalUser.get();
-//
-//        boolean match = passwordEncoder.matches(password, user.getPasswordHash());
-//
-//        if (!match) {
-//            throw new RuntimeException("Sai mật khẩu");
-//        }
-//        System.out.println("INPUT password: " + password);
-//        System.out.println("DB hash: " + user.getPasswordHash());
-//        System.out.println("MATCH: " + passwordEncoder.matches(password, user.getPasswordHash()));
-//
-//        return user;
-//    }
+    public boolean existsByEmail(String email){
+        return userRepository.existsByEmail(email);
+    }
+
+    public boolean existsByPhone(String phone){
+        return userRepository.existsByPhone(phone);
+    }
+
+
+
 }
