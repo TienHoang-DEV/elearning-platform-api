@@ -413,3 +413,32 @@ html, body {
     }
 }
 
+/* Custom validation highlights */
+.quiz-option-ui.is-correct {
+    border-color: var(--quiz-success) !important;
+    background: #f0fdf4 !important;
+}
+
+.quiz-option-ui.is-incorrect {
+    border-color: #ef4444 !important;
+    background: #fef2f2 !important;
+}
+
+.quiz-answer-badge.incorrect-badge {
+    background: #fee2e2 !important;
+    color: #ef4444 !important;
+}
+
+.quiz-result-success {
+    background: #f0fdf4 !important;
+    border-color: #bbf7d0 !important;
+    color: #166534 !important;
+}
+
+.quiz-result-failed {
+    background: #fef2f2 !important;
+    border-color: #fecaca !important;
+    color: #991b1b !important;
+}
+
+

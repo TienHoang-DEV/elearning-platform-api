@@ -29,19 +29,26 @@ public class StudentProfileController {
     private final OrderRepository orderRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final CourseRepository courseRepository;
+    private final DtoMapper dtoMapper;
 
     public StudentProfileController(UserRepository userRepository,
                                     OrderRepository orderRepository,
                                     EnrollmentRepository enrollmentRepository,
-                                    CourseRepository courseRepository) {
+                                    CourseRepository courseRepository,
+                                    DtoMapper dtoMapper) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.courseRepository = courseRepository;
+        this.dtoMapper = dtoMapper;
     }
 
     private User getSessionUser() {
         try {
+            User currentUser = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
+            if (currentUser != null) {
+                return userRepository.findById(currentUser.getId()).orElse(currentUser);
+            }
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
             HttpSession session = request.getSession(false);
             if (session != null) {
@@ -53,8 +60,13 @@ public class StudentProfileController {
         } catch (Exception ignored) {
         }
         return userRepository.findByEmail("28tech@gmail.com")
-                .orElseGet(() -> userRepository.findAll().stream().findFirst()
-                        .orElseThrow(() -> new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!")));
+                .orElseGet(() -> {
+                    List<User> allUsers = userRepository.findAll();
+                    if (allUsers.isEmpty()) {
+                        throw new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!");
+                    }
+                    return allUsers.get(0);
+                });
     }
 
     @GetMapping("/")
@@ -68,9 +80,12 @@ public class StudentProfileController {
         User user = getSessionUser();
         
         int enrollmentsCount = user.getEnrollments().size();
-        long certificatesCount = user.getEnrollments().stream()
-                .filter(e -> e.getProgressPercent() != null && e.getProgressPercent().doubleValue() >= 100)
-                .count();
+        long certificatesCount = 0;
+        for (Enrollment e : user.getEnrollments()) {
+            if (e.getProgressPercent() != null && e.getProgressPercent().doubleValue() >= 100) {
+                certificatesCount++;
+            }
+        }
                 
         int totalHours = 0;
         for (Enrollment en : user.getEnrollments()) {
@@ -81,7 +96,7 @@ public class StudentProfileController {
             totalHours = 2;
         }
 
-        model.addAttribute("currentUser", DtoMapper.INSTANCE.toUserDto(user));
+        model.addAttribute("currentUser", dtoMapper.toUserDto(user));
         model.addAttribute("enrollmentsCount", enrollmentsCount);
         model.addAttribute("certificatesCount", certificatesCount);
         model.addAttribute("studyHours", totalHours);
@@ -95,11 +110,12 @@ public class StudentProfileController {
         User user = getSessionUser();
         List<Enrollment> enrollments = enrollmentRepository.findByUser(user);
         
-        List<EnrollmentDto> enrollmentDtos = enrollments.stream()
-                .map(DtoMapper.INSTANCE::toEnrollmentDto)
-                .collect(Collectors.toList());
+        List<EnrollmentDto> enrollmentDtos = new java.util.ArrayList<>();
+        for (Enrollment enrollment : enrollments) {
+            enrollmentDtos.add(dtoMapper.toEnrollmentDto(enrollment));
+        }
         
-        model.addAttribute("currentUser", DtoMapper.INSTANCE.toUserDto(user));
+        model.addAttribute("currentUser", dtoMapper.toUserDto(user));
         model.addAttribute("enrollments", enrollmentDtos);
         model.addAttribute("enrollmentsCount", enrollmentDtos.size());
         
@@ -112,11 +128,12 @@ public class StudentProfileController {
         User user = getSessionUser();
         List<Order> orders = orderRepository.findByUser(user);
         
-        List<OrderDto> orderDtos = orders.stream()
-                .map(DtoMapper.INSTANCE::toOrderDto)
-                .collect(Collectors.toList());
+        List<OrderDto> orderDtos = new java.util.ArrayList<>();
+        for (Order order : orders) {
+            orderDtos.add(dtoMapper.toOrderDto(order));
+        }
         
-        model.addAttribute("currentUser", DtoMapper.INSTANCE.toUserDto(user));
+        model.addAttribute("currentUser", dtoMapper.toUserDto(user));
         model.addAttribute("orders", orderDtos);
         
         return "purchase_history/purchase_history";
@@ -127,17 +144,21 @@ public class StudentProfileController {
     public String showRecommendations(Model model) {
         User user = getSessionUser();
         
-        Set<Integer> enrolledCourseIds = user.getEnrollments().stream()
-                .filter(e -> e.getCourse() != null)
-                .map(e -> e.getCourse().getId())
-                .collect(Collectors.toSet());
+        Set<Integer> enrolledCourseIds = new java.util.HashSet<>();
+        for (Enrollment e : user.getEnrollments()) {
+            if (e.getCourse() != null) {
+                enrolledCourseIds.add(e.getCourse().getId());
+            }
+        }
                 
-        List<CourseDto> recommendedCourses = courseRepository.findAll().stream()
-                .filter(c -> !enrolledCourseIds.contains(c.getId()))
-                .map(DtoMapper.INSTANCE::toCourseDto)
-                .collect(Collectors.toList());
+        List<CourseDto> recommendedCourses = new java.util.ArrayList<>();
+        for (Course c : courseRepository.findAll()) {
+            if (!enrolledCourseIds.contains(c.getId())) {
+                recommendedCourses.add(dtoMapper.toCourseDto(c));
+            }
+        }
                 
-        model.addAttribute("currentUser", DtoMapper.INSTANCE.toUserDto(user));
+        model.addAttribute("currentUser", dtoMapper.toUserDto(user));
         model.addAttribute("recommendedCourses", recommendedCourses);
         
         return "recommendations/recommendations";

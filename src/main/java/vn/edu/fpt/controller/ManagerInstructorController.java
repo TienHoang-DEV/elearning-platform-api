@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.InstructorRequestDTO;
+import vn.edu.fpt.enums.InstructorRequestStatus;
+import vn.edu.fpt.exception.BadRequestException;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.service.InstructorRequestService;
 
 @Controller
@@ -34,7 +37,7 @@ public class ManagerInstructorController {
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "") String status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "8") int size,
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -54,7 +57,7 @@ public class ManagerInstructorController {
     @GetMapping("/detail/{id}")
     public String detailInstructorRequest(@PathVariable Integer id, Model model) {
         InstructorRequestDTO request = instructorRequestService.findDtoById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy yêu cầu với ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy yêu cầu với ID: " + id));
 
         model.addAttribute("request", request);
         return "manager/approval-instructor/instructor-detail";
@@ -67,9 +70,29 @@ public class ManagerInstructorController {
     @GetMapping("/edit/{id}")
     public String editInstructorRequest(@PathVariable Integer id, Model model) {
         InstructorRequestDTO request = instructorRequestService.findDtoById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy yêu cầu với ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy yêu cầu với ID: " + id));
+
+        if (request.getStatus() != InstructorRequestStatus.PENDING) {
+            return "redirect:/manager/instructor/detail/" + id;
+        }
 
         model.addAttribute("request", request);
         return "manager/approval-instructor/instructor-edit";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String reviewInstructorRequest(
+            @PathVariable Integer id,
+            @RequestParam("status") InstructorRequestStatus status,
+            @RequestParam(required = false) String rejectionReason,
+            RedirectAttributes redirectAttributes) {
+        try {
+            instructorRequestService.reviewRequest(id, status, rejectionReason);
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái yêu cầu thành công.");
+            return "redirect:/manager/instructor/list";
+        } catch (BadRequestException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+            return "redirect:/manager/instructor/edit/" + id;
+        }
     }
 }

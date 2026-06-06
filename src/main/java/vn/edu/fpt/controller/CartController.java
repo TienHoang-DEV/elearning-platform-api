@@ -31,19 +31,26 @@ public class CartController {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final DtoMapper dtoMapper;
 
     public CartController(CartService cartService, CartItemService cartItemService,
                           CourseRepository courseRepository, UserRepository userRepository,
-                          EnrollmentRepository enrollmentRepository) {
+                          EnrollmentRepository enrollmentRepository,
+                          DtoMapper dtoMapper) {
         this.cartService = cartService;
         this.cartItemService = cartItemService;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.enrollmentRepository = enrollmentRepository;
+        this.dtoMapper = dtoMapper;
     }
 
     private User getMockUser() {
         try {
+            User currentUser = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
+            if (currentUser != null) {
+                return userRepository.findById(currentUser.getId()).orElse(currentUser);
+            }
             jakarta.servlet.http.HttpServletRequest request = 
                 ((org.springframework.web.context.request.ServletRequestAttributes) 
                  org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes())
@@ -58,8 +65,13 @@ public class CartController {
         } catch (Exception ignored) {
         }
         return userRepository.findByEmail("28tech@gmail.com")
-                .orElseGet(() -> userRepository.findAll().stream().findFirst()
-                        .orElseThrow(() -> new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!")));
+                .orElseGet(() -> {
+                    List<User> allUsers = userRepository.findAll();
+                    if (allUsers.isEmpty()) {
+                        throw new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!");
+                    }
+                    return allUsers.get(0);
+                });
     }
 
     @org.springframework.transaction.annotation.Transactional
@@ -68,12 +80,21 @@ public class CartController {
         User user = getMockUser();
         Cart cart = cartService.getOrCreateCartForUser(user);
         
-        CartDto cartDto = DtoMapper.INSTANCE.toCartDto(cart);
+        CartDto cartDto = dtoMapper.toCartDto(cart);
 
         // Nhóm các CartItemDto theo Giảng viên của khóa học
-        Map<UserDto, List<CartItemDto>> itemsByInstructor = cartDto.getItems().stream()
-                .filter(item -> item.getCourse() != null && item.getCourse().getInstructor() != null)
-                .collect(Collectors.groupingBy(item -> item.getCourse().getInstructor()));
+        Map<UserDto, List<CartItemDto>> itemsByInstructor = new HashMap<>();
+        if (cartDto.getItems() != null) {
+            for (CartItemDto item : cartDto.getItems()) {
+                if (item.getCourse() != null && item.getCourse().getInstructor() != null) {
+                    UserDto instructor = item.getCourse().getInstructor();
+                    if (!itemsByInstructor.containsKey(instructor)) {
+                        itemsByInstructor.put(instructor, new java.util.ArrayList<>());
+                    }
+                    itemsByInstructor.get(instructor).add(item);
+                }
+            }
+        }
         
         int cartSize = cartItemService.countItemsInCart(cart);
         

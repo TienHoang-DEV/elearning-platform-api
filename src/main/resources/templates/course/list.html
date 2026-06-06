@@ -89,7 +89,11 @@
     <main class="py-5">
         <div class="container py-3">
             
-            <div class="row g-4">
+            <form id="filterForm" action="/courses" method="get">
+                <input type="hidden" name="search" th:value="${search}">
+                <input type="hidden" name="categoryId" id="categoryIdInput" th:value="${categoryId}">
+                <input type="hidden" name="page" id="pageInput" th:value="${currentPage}">
+                <div class="row g-4">
                 
                 <!-- Left Sidebar Filters -->
                 <aside class="col-lg-3 col-md-4 col-12">
@@ -121,8 +125,9 @@
                                             <ul class="list-unstyled d-flex flex-column gap-2 m-0 fs-7">
                                                 <li th:each="childCat : ${parentCat.children}">
                                                     <a href="#" 
-                                                       class="filter-category-link text-decoration-none d-flex justify-content-between align-items-center text-muted" 
-                                                       th:data-category-id="${childCat.id}">
+                                                       class="filter-category-link text-decoration-none d-flex justify-content-between align-items-center"
+                                                       th:classappend="${categoryId == childCat.id} ? 'active-category fw-bold text-primary' : 'text-muted'"
+                                                       th:onclick="'selectCategory(' + ${childCat.id} + '); return false;'">
                                                         <span th:text="${childCat.name}">HTML</span>
                                                         <span class="text-muted fs-8" th:text="'(' + ${childCat.courseCount} + ')'">(0)</span>
                                                     </a>
@@ -143,7 +148,7 @@
                             </h4>
                             <div class="d-flex flex-column gap-2">
                                 <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
-                                    <input type="checkbox" class="form-check-input border-secondary-subtle filter-rating-checkbox" value="5">
+                                    <input type="checkbox" name="ratings" class="form-check-input border-secondary-subtle filter-rating-checkbox" value="5" th:checked="${selectedRatings != null && selectedRatings.contains(5)}" onchange="submitFormResetPage()">
                                     <span class="d-flex align-items-center gap-1">
                                         <i data-lucide="star" class="star-icon star-filled"></i>
                                         <i data-lucide="star" class="star-icon star-filled"></i>
@@ -154,7 +159,7 @@
                                     </span>
                                 </label>
                                 <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
-                                    <input type="checkbox" class="form-check-input border-secondary-subtle filter-rating-checkbox" value="4">
+                                    <input type="checkbox" name="ratings" class="form-check-input border-secondary-subtle filter-rating-checkbox" value="4" th:checked="${selectedRatings != null && selectedRatings.contains(4)}" onchange="submitFormResetPage()">
                                     <span class="d-flex align-items-center gap-1">
                                         <i data-lucide="star" class="star-icon star-filled"></i>
                                         <i data-lucide="star" class="star-icon star-filled"></i>
@@ -165,7 +170,7 @@
                                     </span>
                                 </label>
                                 <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
-                                    <input type="checkbox" class="form-check-input border-secondary-subtle filter-rating-checkbox" value="3">
+                                    <input type="checkbox" name="ratings" class="form-check-input border-secondary-subtle filter-rating-checkbox" value="3" th:checked="${selectedRatings != null && selectedRatings.contains(3)}" onchange="submitFormResetPage()">
                                     <span class="d-flex align-items-center gap-1">
                                         <i data-lucide="star" class="star-icon star-filled"></i>
                                         <i data-lucide="star" class="star-icon star-filled"></i>
@@ -176,7 +181,7 @@
                                     </span>
                                 </label>
                                 <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
-                                    <input type="checkbox" class="form-check-input border-secondary-subtle filter-rating-checkbox" value="2">
+                                    <input type="checkbox" name="ratings" class="form-check-input border-secondary-subtle filter-rating-checkbox" value="2" th:checked="${selectedRatings != null && selectedRatings.contains(2)}" onchange="submitFormResetPage()">
                                     <span class="d-flex align-items-center gap-1">
                                         <i data-lucide="star" class="star-icon star-filled"></i>
                                         <i data-lucide="star" class="star-icon star-filled"></i>
@@ -187,7 +192,7 @@
                                     </span>
                                 </label>
                                 <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
-                                    <input type="checkbox" class="form-check-input border-secondary-subtle filter-rating-checkbox" value="1">
+                                    <input type="checkbox" name="ratings" class="form-check-input border-secondary-subtle filter-rating-checkbox" value="1" th:checked="${selectedRatings != null && selectedRatings.contains(1)}" onchange="submitFormResetPage()">
                                     <span class="d-flex align-items-center gap-1">
                                         <i data-lucide="star" class="star-icon star-filled"></i>
                                         <i data-lucide="star" class="star-icon star-empty"></i>
@@ -209,23 +214,23 @@
                             </h4>
                             <div class="d-flex flex-column gap-2 fs-7 text-muted-dark">
                                 <label class="d-flex align-items-center gap-2 cursor-pointer">
-                                    <input type="checkbox" class="form-check-input border-secondary-subtle filter-price-checkbox" value="0-0">
+                                    <input type="checkbox" name="prices" class="form-check-input border-secondary-subtle filter-price-checkbox" value="0-0" th:checked="${selectedPrices != null && selectedPrices.contains('0-0')}" onchange="submitFormResetPage()">
                                     <span>Miễn phí (0 VNĐ)</span>
                                 </label>
                                 <label class="d-flex align-items-center gap-2 cursor-pointer">
-                                    <input type="checkbox" class="form-check-input border-secondary-subtle filter-price-checkbox" value="200000-500000">
+                                    <input type="checkbox" name="prices" class="form-check-input border-secondary-subtle filter-price-checkbox" value="200000-500000" th:checked="${selectedPrices != null && selectedPrices.contains('200000-500000')}" onchange="submitFormResetPage()">
                                     <span>200.000 - 500.000 VNĐ</span>
                                 </label>
                                 <label class="d-flex align-items-center gap-2 cursor-pointer">
-                                    <input type="checkbox" class="form-check-input border-secondary-subtle filter-price-checkbox" value="500000-700000">
+                                    <input type="checkbox" name="prices" class="form-check-input border-secondary-subtle filter-price-checkbox" value="500000-700000" th:checked="${selectedPrices != null && selectedPrices.contains('500000-700000')}" onchange="submitFormResetPage()">
                                     <span>500.000 - 700.000 VNĐ</span>
                                 </label>
                                 <label class="d-flex align-items-center gap-2 cursor-pointer">
-                                    <input type="checkbox" class="form-check-input border-secondary-subtle filter-price-checkbox" value="700000-1000000">
+                                    <input type="checkbox" name="prices" class="form-check-input border-secondary-subtle filter-price-checkbox" value="700000-1000000" th:checked="${selectedPrices != null && selectedPrices.contains('700000-1000000')}" onchange="submitFormResetPage()">
                                     <span>700.000 - 1.000.000 VNĐ</span>
                                 </label>
                                 <label class="d-flex align-items-center gap-2 cursor-pointer">
-                                    <input type="checkbox" class="form-check-input border-secondary-subtle filter-price-checkbox" value="1000000-99999999">
+                                    <input type="checkbox" name="prices" class="form-check-input border-secondary-subtle filter-price-checkbox" value="1000000-99999999" th:checked="${selectedPrices != null && selectedPrices.contains('1000000-99999999')}" onchange="submitFormResetPage()">
                                     <span>Trên 1.000.000 VNĐ</span>
                                 </label>
                             </div>
@@ -244,14 +249,14 @@
                                 th:text="${search != null && !search.isEmpty()} ? 'Kết quả cho &quot;' + ${search} + '&quot;' : 'Tất cả khóa học'">
                                 Kết quả cho "Guitar"
                             </h2>
-                            <span class="text-muted fs-7 ms-2" th:text="${courses.size()} + ' khóa học'">128 khóa học</span>
+                            <span class="text-muted fs-7 ms-2" th:text="${totalCourses != null} ? ${totalCourses} + ' khóa học' : ${courses.size()} + ' khóa học'">128 khóa học</span>
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <select id="sort-select" class="form-select border-light-subtle rounded-3 py-2 px-3 fs-7 text-muted fw-semibold" style="width: 170px; cursor: pointer;">
-                                <option value="newest" selected>Mới nhất</option>
-                                <option value="rating">Đánh giá tốt nhất</option>
-                                <option value="price-asc">Giá tăng dần</option>
-                                <option value="price-desc">Giá giảm dần</option>
+                            <select name="sort" id="sort-select" class="form-select border-light-subtle rounded-3 py-2 px-3 fs-7 text-muted fw-semibold" style="width: 170px; cursor: pointer;" onchange="submitFormResetPage()">
+                                <option value="newest" th:selected="${sort == 'newest'}">Mới nhất</option>
+                                <option value="rating" th:selected="${sort == 'rating'}">Đánh giá tốt nhất</option>
+                                <option value="price-asc" th:selected="${sort == 'price-asc'}">Giá tăng dần</option>
+                                <option value="price-desc" th:selected="${sort == 'price-desc'}">Giá giảm dần</option>
                             </select>
                         </div>
                     </div>
@@ -322,7 +327,8 @@
                                         <!-- Nếu chưa mua -->
                                         <button th:unless="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id)}"
                                                 class="btn btn-add-to-cart px-3 py-2 fw-bold fs-8 d-flex align-items-center gap-2 rounded-3" 
-                                                th:data-course-id="${course.id}">
+                                                type="button"
+                                                th:onclick="'addToCart(this, ' + ${course.id} + ')'">
                                             <i data-lucide="shopping-cart" style="width:16px;"></i> Thêm vào giỏ hàng
                                         </button>
                                     </div>
@@ -333,23 +339,47 @@
                     </div>
 
                     <!-- Centered Pagination (Numbers only matching image) -->
-                    <div class="d-flex justify-content-center">
+                    <div class="d-flex justify-content-center" th:if="${totalPages > 1}">
                         <nav aria-label="Page navigation">
                             <ul class="pagination gap-2 border-0 m-0">
-                                <li class="page-item">
-                                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 fw-semibold page-num-btn text-dark" href="#">1</a>
+                                <!-- Nút trang trước -->
+                                <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 fw-semibold page-num-btn text-dark" 
+                                       href="#" th:onclick="'changePage(' + ${currentPage - 1} + '); return false;'">
+                                       &lt;
+                                    </a>
                                 </li>
-                                <li class="page-item active">
-                                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 fw-bold page-num-btn text-white" href="#">2</a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 fw-semibold page-num-btn text-dark" href="#">3</a>
-                                </li>
-                                <li class="page-item disabled">
-                                    <span class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 border-0 bg-transparent text-muted fw-semibold" style="width: 38px; height: 38px;">...</span>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 fw-semibold page-num-btn text-dark" href="#">10</a>
+                                
+                                <!-- Số trang -->
+                                <th:block th:each="pageNum : ${#numbers.sequence(1, totalPages)}">
+                                    <li class="page-item" th:classappend="${pageNum == currentPage} ? 'active'"
+                                        th:if="${totalPages <= 7 || pageNum == 1 || pageNum == totalPages || (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)}">
+                                        <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 page-num-btn"
+                                           href="#" 
+                                           th:classappend="${pageNum == currentPage} ? 'text-white fw-bold' : 'text-dark fw-semibold'"
+                                           th:text="${pageNum}" 
+                                           th:onclick="'changePage(' + ${pageNum} + '); return false;'">
+                                           1
+                                        </a>
+                                    </li>
+                                    
+                                    <!-- Dấu ... ở đầu -->
+                                    <li class="page-item disabled" th:if="${totalPages > 7 && pageNum == 2 && currentPage > 3}">
+                                        <span class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 border-0 bg-transparent text-muted fw-semibold" style="width: 38px; height: 38px;">...</span>
+                                    </li>
+                                    
+                                    <!-- Dấu ... ở cuối -->
+                                    <li class="page-item disabled" th:if="${totalPages > 7 && pageNum == totalPages - 1 && currentPage < totalPages - 2}">
+                                        <span class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 border-0 bg-transparent text-muted fw-semibold" style="width: 38px; height: 38px;">...</span>
+                                    </li>
+                                </th:block>
+                                
+                                <!-- Nút trang tiếp theo -->
+                                <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center p-0 fw-semibold page-num-btn text-dark" 
+                                       href="#" th:onclick="'changePage(' + ${currentPage + 1} + '); return false;'">
+                                       &gt;
+                                    </a>
                                 </li>
                             </ul>
                         </nav>
@@ -358,6 +388,7 @@
                 </section>
                 
             </div>
+            </form>
             
         </div>
     </main>
@@ -420,8 +451,52 @@
     <!-- Bootstrap 5 Bundle JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-    <!-- Custom JavaScript -->
-    <script th:src="@{/js/course.js}"></script>
-<script>lucide.createIcons();</script>
+    <!-- Custom Inline JavaScript Helpers -->
+    <script>
+        function selectCategory(catId) {
+            const input = document.getElementById('categoryIdInput');
+            if (input.value == catId) {
+                input.value = ''; // Click lại danh mục đang chọn để hủy bỏ lọc
+            } else {
+                input.value = catId;
+            }
+            document.getElementById('pageInput').value = 1; // Reset trang về 1
+            document.getElementById('filterForm').submit();
+        }
+        
+        function changePage(pageNum) {
+            document.getElementById('pageInput').value = pageNum;
+            document.getElementById('filterForm').submit();
+        }
+        
+        function submitFormResetPage() {
+            document.getElementById('pageInput').value = 1; // Reset trang về 1 khi chọn lọc/sắp xếp mới
+            document.getElementById('filterForm').submit();
+        }
+        
+        function addToCart(btn, courseId) {
+            btn.disabled = true;
+            fetch('/api/cart/add?courseId=' + courseId, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    btn.disabled = false;
+                    if (data.success) {
+                        const badge = document.getElementById('cart-badge-count');
+                        if (badge) {
+                            badge.textContent = data.cartSize;
+                        }
+                        alert(data.message);
+                    } else {
+                        alert(data.message || 'Không thể thêm vào giỏ hàng.');
+                    }
+                })
+                .catch(err => {
+                    btn.disabled = false;
+                    console.error('Lỗi khi thêm vào giỏ hàng:', err);
+                    alert('Có lỗi xảy ra khi thêm vào giỏ hàng.');
+                });
+        }
+    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

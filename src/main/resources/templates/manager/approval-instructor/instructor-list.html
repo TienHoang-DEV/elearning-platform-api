@@ -21,24 +21,19 @@
             <nav class="sidebar-nav">
                 <ul>
                     <li>
-                        <a href="../dashboard/dashboard.html"><i class="ph ph-squares-four"></i><span>Tổng
-                                quan</span></a>
+                        <a th:href="@{/manager/dashboard}"><i class="ph ph-squares-four"></i><span>Tổng quan</span></a>
                     </li>
                     <li class="active">
-                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Phê duyệt giảng
-                                viên</span></a>
+                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Phê duyệt giảng viên</span></a>
                     </li>
                     <li>
-                        <a href="../approval-course/course-list.html"><i class="ph ph-book-open"></i><span>Phê duyệt
-                                khóa học</span></a>
+                        <a th:href="@{/manager/course/list}"><i class="ph ph-book-open"></i><span>Phê duyệt khóa học</span></a>
                     </li>
                     <li>
-                        <a href="../revenue/revenue-list.html"><i class="ph ph-currency-circle-dollar"></i><span>Doanh
-                                thu</span></a>
+                        <a th:href="@{/manager/revenue/list}"><i class="ph ph-currency-circle-dollar"></i><span>Doanh thu</span></a>
                     </li>
                     <li>
-                        <a href="../feedback-report/feedback-report-list.html"><i
-                                class="ph ph-chat-circle-dots"></i><span>Phản hồi</span></a>
+                        <a th:href="@{/manager/feedback-report/list}"><i class="ph ph-chat-circle-dots"></i><span>Phản hồi</span></a>
                     </li>
                 </ul>
             </nav>
@@ -64,14 +59,9 @@
                             class="search-input">
                         <select name="status" class="search-input search-select" onchange="this.form.submit()">
                             <option value="" th:selected="${status == null or status == ''}">Tất cả trạng thái</option>
-                            <option value="PENDING"
-                                th:selected="${status == 'PENDING'}">Đang chờ duyệt</option>
-                            <option value="APPROVED"
-                                th:selected="${status == 'APPROVED'}">Đã duyệt</option>
-                            <option value="REJECTED"
-                                th:selected="${status == 'REJECTED'}">Từ chối</option>
-                            <option value="BLOCKED"
-                                th:selected="${status == 'BLOCKED'}">Bị chặn</option>
+                            <option value="PENDING" th:selected="${status == 'PENDING'}">Đang chờ duyệt</option>
+                            <option value="APPROVED" th:selected="${status == 'APPROVED'}">Đã duyệt</option>
+                            <option value="REJECTED" th:selected="${status == 'REJECTED'}">Từ chối</option>
                         </select>
                         <button type="submit" style="display: none;">Search</button>
                     </div>
@@ -80,7 +70,7 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Giảng viên</th>
+                                <th>Tên</th>
                                 <th>Email</th>
                                 <th>Ngày đăng ký</th>
                                 <th>Trạng thái</th>
@@ -99,8 +89,9 @@
                                     th:text="${request.createdAt != null ? #temporals.format(request.createdAt, 'dd/MM/yyyy') : ''}">
                                     5/24/2026</td>
                                 <td>
-                                    <span th:class="${'badge badge-' + (request.status.name() == 'PENDING' ? 'warning' : request.status.name() == 'APPROVED' ? 'success' : request.status.name() == 'REJECTED' ? 'danger' : 'dark')}"
-                                          th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : request.status.name() == 'REJECTED' ? 'Từ chối' : 'Bị chặn'}">
+                                    <span
+                                        th:class="${'badge badge-' + (request.status.name() == 'PENDING' ? 'warning' : request.status.name() == 'APPROVED' ? 'success' : request.status.name() == 'REJECTED' ? 'danger' : 'dark')}"
+                                        th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : request.status.name() == 'REJECTED' ? 'Từ chối' : 'Bị chặn'}">
                                         Đang chờ duyệt
                                     </span>
                                 </td>
@@ -108,7 +99,7 @@
                                     <div class="actions">
                                         <a th:href="@{/manager/instructor/detail/{id}(id=${request.id})}"
                                             class="action-btn"><i class="ph ph-eye"></i> Xem Chi Tiết</a>
-                                        <a th:href="@{/manager/instructor/edit/{id}(id=${request.id})}"
+                                        <a th:if="${request.status.name() == 'PENDING'}" th:href="@{/manager/instructor/edit/{id}(id=${request.id})}"
                                             class="action-btn"><i class="ph ph-pencil-simple"></i> Sửa</a>
                                     </div>
                                 </td>
@@ -121,37 +112,37 @@
                     </table>
                 </div>
 
-                <!-- Phân trang (Pagination) -->
-                <div class="pagination-container" th:if="${requestPage.totalPages > 1}">
-                    <div class="pagination-info">
-                        Hiển thị <span th:text="${requestPage.number * requestPage.size + 1}">1</span>
-                        đến <span
-                            th:text="${(requestPage.number + 1) * requestPage.size < requestPage.totalElements ? (requestPage.number + 1) * requestPage.size : requestPage.totalElements}">10</span>
-                        trong số <span th:text="${requestPage.totalElements}">50</span> yêu cầu
-                    </div>
-                    <div class="pagination-buttons">
-                        <!-- Nút Trước (Previous) -->
-                        <a th:href="@{/manager/instructor/list(page=${requestPage.number - 1}, keyword=${keyword}, status=${status})}"
-                            th:class="${requestPage.hasPrevious() ? 'page-btn' : 'page-btn disabled'}"
-                            th:aria-disabled="${!requestPage.hasPrevious()}">
-                            <i class="ph ph-caret-left"></i> Trước
+                <!-- ══════════ PAGINATION ══════════ -->
+                <div class="pagination-circle-container" th:if="${requestPage.totalPages > 1}">
+                    <div class="pagination-circle-buttons">
+                        <!-- Previous -->
+                        <a th:if="${requestPage.hasPrevious()}"
+                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${requestPage.number - 1}, size=${requestPage.size})}"
+                            class="page-circle-btn">
+                            <i class="ph ph-caret-left"></i>
                         </a>
-
-                        <!-- Các số trang (Page numbers) -->
-                        <span th:each="pageNum : ${#numbers.sequence(0, requestPage.totalPages - 1)}">
-                            <a th:href="@{/manager/instructor/list(page=${pageNum}, keyword=${keyword}, status=${status})}"
-                                th:text="${pageNum + 1}"
-                                th:class="${pageNum == requestPage.number ? 'page-btn active' : 'page-btn'}">1</a>
+                        <span th:unless="${requestPage.hasPrevious()}" class="page-circle-btn disabled">
+                            <i class="ph ph-caret-left"></i>
                         </span>
 
-                        <!-- Nút Tiếp (Next) -->
-                        <a th:href="@{/manager/instructor/list(page=${requestPage.number + 1}, keyword=${keyword}, status=${status})}"
-                            th:class="${requestPage.hasNext() ? 'page-btn' : 'page-btn disabled'}"
-                            th:aria-disabled="${!requestPage.hasNext()}">
-                            Tiếp <i class="ph ph-caret-right"></i>
+                        <!-- Danh sách số trang -->
+                        <a th:each="i : ${#numbers.sequence(0, requestPage.totalPages - 1)}"
+                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${i}, size=${requestPage.size})}"
+                            th:class="${requestPage.number == i ? 'page-circle-btn active' : 'page-circle-btn'}"
+                            th:text="${i + 1}">1</a>
+
+                        <!-- Nút Next -->
+                        <a th:if="${requestPage.hasNext()}"
+                            th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${requestPage.number + 1}, size=${requestPage.size})}"
+                            class="page-circle-btn">
+                            <i class="ph ph-caret-right"></i>
                         </a>
+                        <span th:unless="${requestPage.hasNext()}" class="page-circle-btn disabled">
+                            <i class="ph ph-caret-right"></i>
+                        </span>
                     </div>
                 </div>
+
             </main>
         </div>
     </div>

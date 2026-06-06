@@ -21,13 +21,15 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority>
     getAuthorities() {
-
-        return user.getRoles()
-                .stream()
-                .map(role -> new SimpleGrantedAuthority(
+        List<SimpleGrantedAuthority> authorities = new java.util.ArrayList<>();
+        if (user.getRoles() != null) {
+            for (vn.edu.fpt.entity.Role role : user.getRoles()) {
+                authorities.add(new SimpleGrantedAuthority(
                         "ROLE_" + role.getName().toUpperCase()
-                ))
-                .toList();
+                ));
+            }
+        }
+        return authorities;
     }
 
     @Override
@@ -38,6 +40,14 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String getUsername() {
         return user.getEmail();
+    }
+
+    /**
+     * Getter để truy cập User entity từ SecurityContext
+     * @return User entity
+     */
+    public User getUser() {
+        return user;
     }
 
     @Override

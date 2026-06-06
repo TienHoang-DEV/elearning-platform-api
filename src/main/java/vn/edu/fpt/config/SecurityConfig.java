@@ -47,9 +47,15 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin())
+                )
 
                 .authenticationProvider(authenticationProvider)
 
+//                    .authorizeHttpRequests(auth -> auth
+//                            .anyRequest().permitAll()
+//                    )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/login_no", "/register",
@@ -84,6 +90,9 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login_no")
                         .permitAll()
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(new org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint("/login_no"))
                 );
 
         return http.build();

@@ -6,11 +6,13 @@ import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.util.AppConstants;
 
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -48,7 +50,7 @@ public class AzureBlobService {
 
     public String generateSasUrl(String containerName, String blobName) {
         // Lấy blob client theo tên container và tên file.
-        String decodedBlobName = java.net.URLDecoder.decode(blobName, java.nio.charset.StandardCharsets.UTF_8);
+        String decodedBlobName = extractBlobName(blobName);
         BlobClient blobClient = blobServiceClient
                 .getBlobContainerClient(containerName)
                 .getBlobClient(decodedBlobName); //  .getBlobClient chỉ nhận tham số là tên file
@@ -62,5 +64,30 @@ public class AzureBlobService {
 
         // Ghép URL gốc của blob với chuỗi SAS để trả về link truy cập tạm thời.
         return blobClient.getBlobUrl() + "?" + blobClient.generateSas(sasValues);
+    }
+
+    public static String extractBlobName(String blobUrlOrName) {
+        if (blobUrlOrName == null || blobUrlOrName.isBlank()) {
+            return blobUrlOrName;
+        }
+
+        String blobName = blobUrlOrName.trim();
+        if (blobName.startsWith("http://") || blobName.startsWith("https://")) {
+            try {
+                String path = URI.create(blobName).getPath();
+                int containerSeparator = path.indexOf('/', 1);
+                blobName = containerSeparator >= 0 ? path.substring(containerSeparator + 1) : path;
+            } catch (IllegalArgumentException ignored) {
+                int queryIndex = blobName.indexOf('?');
+                blobName = queryIndex >= 0 ? blobName.substring(0, queryIndex) : blobName;
+                int slashIndex = blobName.lastIndexOf('/');
+                blobName = slashIndex >= 0 ? blobName.substring(slashIndex + 1) : blobName;
+            }
+        } else {
+            int queryIndex = blobName.indexOf('?');
+            blobName = queryIndex >= 0 ? blobName.substring(0, queryIndex) : blobName;
+        }
+
+        return URLDecoder.decode(blobName, StandardCharsets.UTF_8);
     }
 }

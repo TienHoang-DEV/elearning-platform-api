@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import vn.edu.fpt.entity.LessonMaterial;
 import vn.edu.fpt.service.AzureBlobService;
 import vn.edu.fpt.service.LessonMaterialService;
+import vn.edu.fpt.util.AppConstants;
 
 @Controller
 public class MaterialViewController {
@@ -26,7 +27,7 @@ public class MaterialViewController {
         if (lessonMaterial == null) {
             return null;
         }
-        String url = azureBlobService.generateSasUrl(System.getProperty("AZURE_STORAGE_CONTAINER_MATERIALS"), lessonMaterial.getFileUrl());
+        String url = azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
         return url;
     }
 }
