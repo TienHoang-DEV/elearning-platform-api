@@ -28,44 +28,42 @@ function initializeTabs() {
             const targetPanelId = tabs[btn.id];
             if (!targetPanelId) return;
 
-            // Remove active classes
             tabBtns.forEach(b => b.classList.remove("active"));
             panels.forEach(p => p.classList.add("d-none"));
 
-            // Activate current
             btn.classList.add("active");
             document.getElementById(targetPanelId).classList.remove("d-none");
         });
     });
 }
 
-// hàm này gọi đến một Controller sử lí việc cập nhật tiến độ leson bài học
 function progressVideo() {
     const video = document.querySelector("#lesson-video");
+    if (!video) return;
+
     const totalLessonTag = document.querySelector("#total-lesson-completed");
     let lessonProgressStatus = video.dataset.lessonProgressStatus;
     let totalLesson = parseInt(totalLessonTag.dataset.totalLesson);
     let totalLessonCompleted = parseInt(totalLessonTag.dataset.totalLessonCompleted);
     let completed = false;
-    if (!video) return;
     const lessonId = video.dataset.lessonId;
+
     video.addEventListener("timeupdate", function () {
         if (completed) return;
+
         let percent = (video.currentTime / video.duration) * 100;
         if (percent >= 90) {
             completed = true;
             fetch("/lesson-completed/" + lessonId)
-                .catch(
-                    () => {
-                        completed = false;
-                    }
-                )
+                .catch(() => {
+                    completed = false;
+                });
+
             if (lessonProgressStatus === "false") {
                 totalLessonCompleted++;
-                totalLessonTag.textContent = totalLessonCompleted + "/" + totalLesson + " Bài học";
+                totalLessonTag.textContent = totalLessonCompleted + "/" + totalLesson + " Bai hoc";
                 lessonProgressStatus = "true";
 
-                // Tự động cập nhật biểu tượng dấu tích trong thanh bên
                 const currentLessonItem = document.querySelector(`.lesson-item[data-sidebar-lesson-id="${lessonId}"]`);
                 if (currentLessonItem) {
                     const indicator = currentLessonItem.querySelector(".lesson-icon-indicator");
@@ -78,13 +76,11 @@ function progressVideo() {
                         }
                     }
 
-                    // Kiểm tra xem tất cả bài học trong section đã hoàn thành chưa để tích section
                     const accordionItem = currentLessonItem.closest('.accordion-item');
                     if (accordionItem) {
                         const allLessonItems = accordionItem.querySelectorAll('.lesson-item');
                         let allCompleted = true;
                         allLessonItems.forEach(item => {
-                            // Bài học hiện tại vừa tích xanh xong (chưa kết xuất lại HTML nên ta check cả indicator hiện tại lẫn class bg-success)
                             const isCurrent = item.dataset.sidebarLessonId === lessonId;
                             const hasCheck = item.querySelector('.lesson-icon-indicator.bg-success');
                             if (!isCurrent && !hasCheck) {
@@ -103,21 +99,22 @@ function progressVideo() {
                 }
             }
         }
-    })
+    });
 }
 
 function initializeVideo() {
     const videoTag = document.querySelector("#lesson-video");
+    if (!videoTag) return;
+
     const lessonId = videoTag.dataset.lessonId;
-    fetch("/lesson/" + lessonId).then((response) => {
-        return response.text();
-    }).then(text => {
-        videoTag.src = text;
-    }).catch(
-        error => {
+    fetch("/lesson/" + lessonId)
+        .then(response => response.text())
+        .then(text => {
+            videoTag.src = text;
+        })
+        .catch(error => {
             console.log(error);
-        }
-    )
+        });
 }
 
 function initializeMaterial() {
@@ -127,12 +124,18 @@ function initializeMaterial() {
         const openLink = viewer.querySelector(".btn-open-lesson-document");
         const downloadLink = viewer.querySelector(".btn-download-lesson-document");
         const materialId = docFrame?.dataset?.materialId;
+
         if (!materialId) {
             console.warn("initializeMaterial: missing materialId for viewer", viewer);
             return;
         }
+
+        if (downloadLink) {
+            downloadLink.href = `/material/${materialId}/download`;
+        }
+
         fetch(`/material/${materialId}`)
-            .then(response => {
+            .then((response) => {
                 if (!response.ok) {
                     throw new Error(`Fetch /material/${materialId} failed: ${response.status}`);
                 }
@@ -140,7 +143,6 @@ function initializeMaterial() {
             })
             .then(url => {
                 if (openLink) openLink.href = url;
-                if (downloadLink) downloadLink.href = url;
                 if (docFrame) docFrame.src = url;
             })
             .catch(err => {
@@ -151,7 +153,6 @@ function initializeMaterial() {
     });
 }
 
-// 5. Sidebar toggling
 function initializeSidebarToggle() {
     const toggleBtn = document.getElementById("btn-sidebar-toggle");
     const sidebar = document.querySelector(".sidebar-curriculum-container");
@@ -161,7 +162,6 @@ function initializeSidebarToggle() {
         toggleBtn.addEventListener("click", () => {
             sidebar.classList.toggle("d-none");
 
-            // Adjust left side width class
             if (sidebar.classList.contains("d-none")) {
                 mainContent.className = "col-12 main-player-content";
             } else {
@@ -170,3 +170,4 @@ function initializeSidebarToggle() {
         });
     }
 }
+

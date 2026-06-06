@@ -32,17 +32,23 @@ public class CartController {
     private final UserRepository userRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final DtoMapper dtoMapper;
+    private final vn.edu.fpt.repository.CouponRepository couponRepository;
+    private final vn.edu.fpt.repository.CartInstructorCouponRepository cartInstructorCouponRepository;
 
     public CartController(CartService cartService, CartItemService cartItemService,
                           CourseRepository courseRepository, UserRepository userRepository,
                           EnrollmentRepository enrollmentRepository,
-                          DtoMapper dtoMapper) {
+                          DtoMapper dtoMapper,
+                          vn.edu.fpt.repository.CouponRepository couponRepository,
+                          vn.edu.fpt.repository.CartInstructorCouponRepository cartInstructorCouponRepository) {
         this.cartService = cartService;
         this.cartItemService = cartItemService;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.dtoMapper = dtoMapper;
+        this.couponRepository = couponRepository;
+        this.cartInstructorCouponRepository = cartInstructorCouponRepository;
     }
 
     private User getMockUser() {
@@ -98,9 +104,102 @@ public class CartController {
         
         int cartSize = cartItemService.countItemsInCart(cart);
         
+        // Tính toán hóa đơn trên server
+        long subtotal = 0;
+        long courseDiscounts = 0;
+        long instructorDiscounts = 0;
+        long selectedItemsCount = 0;
+        
+        Map<Integer, String> appliedVoucherCodes = new HashMap<>();
+        Map<Integer, Long> appliedVoucherDiscounts = new HashMap<>();
+        Map<Integer, Boolean> voucherSuccess = new HashMap<>();
+        Map<Integer, String> instructorCheckboxState = new HashMap<>(); // "checked", "unchecked", "indeterminate"
+        
+        for (Map.Entry<UserDto, List<CartItemDto>> entry : itemsByInstructor.entrySet()) {
+            UserDto instructorDto = entry.getKey();
+            List<CartItemDto> itemsList = entry.getValue();
+            
+            vn.edu.fpt.entity.CartInstructorCoupon appliedCoupon = cart.getInstructorCoupons().stream()
+                .filter(cic -> cic.getInstructor().getId().equals(instructorDto.getId()))
+                .findFirst()
+                .orElse(null);
+                
+            long instSubtotal = 0;
+            long instCourseDiscounts = 0;
+            long groupSelectedCount = 0;
+            
+            for (CartItemDto item : itemsList) {
+                if (item.isSelected()) {
+                    long price = item.getCourse().getPrice().longValue();
+                    long discount = Math.round(price * 0.3); // 30% discount
+                    
+                    subtotal += price;
+                    courseDiscounts += discount;
+                    selectedItemsCount++;
+                    
+                    instSubtotal += price;
+                    instCourseDiscounts += discount;
+                    groupSelectedCount++;
+                }
+            }
+            
+            // Xác định trạng thái checkbox của giảng viên
+            if (groupSelectedCount == itemsList.size()) {
+                instructorCheckboxState.put(instructorDto.getId(), "checked");
+            } else if (groupSelectedCount == 0) {
+                instructorCheckboxState.put(instructorDto.getId(), "unchecked");
+            } else {
+                instructorCheckboxState.put(instructorDto.getId(), "indeterminate");
+            }
+            
+            if (appliedCoupon != null) {
+                vn.edu.fpt.entity.Coupon coupon = appliedCoupon.getCoupon();
+                appliedVoucherCodes.put(instructorDto.getId(), coupon.getCode());
+                
+                if (groupSelectedCount > 0) {
+                    long instSubtotalAfterDiscount = instSubtotal - instCourseDiscounts;
+                    long instDiscountAmount = 0;
+                    if ("PERCENT".equalsIgnoreCase(coupon.getDiscountType())) {
+                        double rate = coupon.getDiscountValue().doubleValue() / 100.0;
+                        instDiscountAmount = Math.round(instSubtotalAfterDiscount * rate);
+                    } else if ("FIXED".equalsIgnoreCase(coupon.getDiscountType())) {
+                        instDiscountAmount = coupon.getDiscountValue().longValue();
+                        if (instDiscountAmount > instSubtotalAfterDiscount) {
+                            instDiscountAmount = instSubtotalAfterDiscount;
+                        }
+                    }
+                    instructorDiscounts += instDiscountAmount;
+                    appliedVoucherDiscounts.put(instructorDto.getId(), instDiscountAmount);
+                    voucherSuccess.put(instructorDto.getId(), true);
+                } else {
+                    voucherSuccess.put(instructorDto.getId(), false);
+                }
+            }
+        }
+        
+        long total = subtotal - courseDiscounts - instructorDiscounts;
+        if (total < 0) total = 0;
+        
+        boolean allSelected = cart.getItems().isEmpty() ? false : cart.getItems().stream().allMatch(vn.edu.fpt.entity.CartItem::isSelected);
+        boolean noneSelected = cart.getItems().stream().noneMatch(vn.edu.fpt.entity.CartItem::isSelected);
+        String globalCheckboxState = allSelected ? "checked" : (noneSelected ? "unchecked" : "indeterminate");
+        
         model.addAttribute("cart", cartDto);
         model.addAttribute("itemsByInstructor", itemsByInstructor);
         model.addAttribute("cartSize", cartSize);
+        
+        // Thêm thông tin hóa đơn vào Model
+        model.addAttribute("subtotal", subtotal);
+        model.addAttribute("courseDiscounts", courseDiscounts);
+        model.addAttribute("instructorDiscounts", instructorDiscounts);
+        model.addAttribute("total", total);
+        model.addAttribute("selectedItemsCount", selectedItemsCount);
+        
+        model.addAttribute("appliedVoucherCodes", appliedVoucherCodes);
+        model.addAttribute("appliedVoucherDiscounts", appliedVoucherDiscounts);
+        model.addAttribute("voucherSuccess", voucherSuccess);
+        model.addAttribute("instructorCheckboxState", instructorCheckboxState);
+        model.addAttribute("globalCheckboxState", globalCheckboxState);
         
         return "cart/cart";
     }
@@ -184,8 +283,17 @@ public class CartController {
                 return ResponseEntity.ok(response);
             }
 
-            java.util.List<CartItem> itemsList = new java.util.ArrayList<>(items);
-            for (CartItem item : itemsList) {
+            java.util.List<CartItem> selectedItems = items.stream()
+                    .filter(CartItem::isSelected)
+                    .collect(Collectors.toList());
+
+            if (selectedItems.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Vui lòng chọn ít nhất một khóa học để thanh toán.");
+                return ResponseEntity.ok(response);
+            }
+
+            for (CartItem item : selectedItems) {
                 Course course = item.getCourse();
                 boolean alreadyEnrolled = enrollmentRepository.existsByUserAndCourse(user, course);
                 if (!alreadyEnrolled) {
@@ -196,10 +304,23 @@ public class CartController {
                             .build();
                     enrollmentRepository.save(enrollment);
                 }
+                cart.removeItem(item);
                 cartItemService.deleteById(item.getId());
             }
 
-            cart.getItems().clear();
+            // Xóa các applied coupons của các giảng viên không còn khóa học nào của họ trong giỏ hàng
+            java.util.Set<User> remainingInstructors = cart.getItems().stream()
+                    .map(item -> item.getCourse().getInstructor())
+                    .collect(Collectors.toSet());
+            
+            java.util.List<vn.edu.fpt.entity.CartInstructorCoupon> couponsToRemove = cart.getInstructorCoupons().stream()
+                    .filter(cic -> !remainingInstructors.contains(cic.getInstructor()))
+                    .collect(Collectors.toList());
+            
+            for (vn.edu.fpt.entity.CartInstructorCoupon cic : couponsToRemove) {
+                cart.removeInstructorCoupon(cic);
+            }
+
             cartService.save(cart);
 
             response.put("success", true);
@@ -208,6 +329,146 @@ public class CartController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Thanh toán thất bại: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/api/cart/toggle-select")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> toggleSelect(@RequestParam("cartItemId") Integer cartItemId,
+                                                            @RequestParam(value = "selected", required = false) Boolean selected) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            CartItem item = cartItemService.findById(cartItemId)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm trong giỏ hàng."));
+            if (selected != null) {
+                item.setSelected(selected);
+            } else {
+                item.setSelected(!item.isSelected());
+            }
+            cartItemService.save(item);
+            response.put("success", true);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/api/cart/toggle-select-instructor")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> toggleSelectInstructor(@RequestParam("instructorId") Integer instructorId,
+                                                                      @RequestParam("selected") Boolean selected) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User user = getMockUser();
+            Cart cart = cartService.getOrCreateCartForUser(user);
+            for (CartItem item : cart.getItems()) {
+                if (item.getCourse() != null && item.getCourse().getInstructor() != null 
+                        && item.getCourse().getInstructor().getId().equals(instructorId)) {
+                    item.setSelected(selected);
+                    cartItemService.save(item);
+                }
+            }
+            response.put("success", true);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/api/cart/toggle-select-all")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> toggleSelectAll(@RequestParam("selected") Boolean selected) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User user = getMockUser();
+            Cart cart = cartService.getOrCreateCartForUser(user);
+            for (CartItem item : cart.getItems()) {
+                item.setSelected(selected);
+                cartItemService.save(item);
+            }
+            response.put("success", true);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/api/cart/apply-voucher")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> applyVoucher(@RequestParam("instructorId") Integer instructorId,
+                                                            @RequestParam("code") String code) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User user = getMockUser();
+            Cart cart = cartService.getOrCreateCartForUser(user);
+            
+            String trimmedCode = code.trim();
+            if (trimmedCode.isEmpty()) {
+                // Xóa voucher của giảng viên này nếu nhập trống
+                cart.getInstructorCoupons().removeIf(cic -> cic.getInstructor().getId().equals(instructorId));
+                cartService.save(cart);
+                response.put("success", true);
+                response.put("message", "Đã gỡ bỏ mã giảm giá.");
+                return ResponseEntity.ok(response);
+            }
+
+            // Tìm coupon trong database
+            vn.edu.fpt.entity.Coupon coupon = couponRepository.findByCode(trimmedCode)
+                    .orElseThrow(() -> new IllegalArgumentException("Mã giảm giá không hợp lệ!"));
+
+            // Xác thực coupon
+            if (coupon.getInstructor() == null || !coupon.getInstructor().getId().equals(instructorId)) {
+                throw new IllegalArgumentException("Mã giảm giá này không thuộc về giảng viên hiện tại.");
+            }
+            if ("INACTIVE".equalsIgnoreCase(coupon.getStatus())) {
+                throw new IllegalArgumentException("Mã giảm giá đã bị vô hiệu hóa.");
+            }
+            if (coupon.getExpiredAt() != null && coupon.getExpiredAt().isBefore(java.time.LocalDateTime.now())) {
+                throw new IllegalArgumentException("Mã giảm giá đã hết hạn sử dụng.");
+            }
+            if (coupon.getUsageLimit() != null && coupon.getUsedCount() >= coupon.getUsageLimit()) {
+                throw new IllegalArgumentException("Mã giảm giá đã hết số lần sử dụng.");
+            }
+
+            // Kiểm tra xem người dùng có chọn ít nhất một khóa học của giảng viên này không
+            boolean hasSelectedCourse = cart.getItems().stream()
+                    .anyMatch(item -> item.isSelected() 
+                            && item.getCourse().getInstructor() != null 
+                            && item.getCourse().getInstructor().getId().equals(instructorId));
+
+            if (!hasSelectedCourse) {
+                throw new IllegalArgumentException("Vui lòng tích chọn ít nhất một khóa học của giảng viên này để áp dụng mã!");
+            }
+
+            // Lưu coupon vào Cart
+            // Xóa coupon cũ của giảng viên này trong giỏ hàng nếu có
+            cart.getInstructorCoupons().removeIf(cic -> cic.getInstructor().getId().equals(instructorId));
+            
+            vn.edu.fpt.entity.CartInstructorCoupon newCic = vn.edu.fpt.entity.CartInstructorCoupon.builder()
+                    .cart(cart)
+                    .instructor(coupon.getInstructor())
+                    .coupon(coupon)
+                    .build();
+            cart.addInstructorCoupon(newCic);
+            cartService.save(cart);
+
+            response.put("success", true);
+            response.put("message", "Áp dụng mã giảm giá thành công!");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Có lỗi xảy ra: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
