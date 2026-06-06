@@ -19,51 +19,42 @@ import java.util.UUID;
 @Service
 public class AzureBlobService {
 
-    // Đối tượng client chính để giao tiếp với Azure Blob Storage.
-    private BlobServiceClient blobServiceClient;
-
+    private final BlobServiceClient blobServiceClient;
 
     public AzureBlobService() {
-        // Chuỗi kết nối Azure Storage đã được nạp từ file .env hoặc JVM args.
         String connectionString = System.getProperty("AZURE_STORAGE_CONNECTION_STRING");
-        // Tạo client để thao tác với Azure Blob Storage.
         this.blobServiceClient = new BlobServiceClientBuilder()
                 .connectionString(connectionString)
                 .buildClient();
     }
 
     public String saveFile(MultipartFile file, String containerName) {
-
         try {
             String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
             BlobClient blobClient = blobServiceClient.getBlobContainerClient(containerName).getBlobClient(filename);
 
             blobClient.upload(file.getInputStream(), file.getSize(), true);
-
             blobClient.setHttpHeaders(new BlobHttpHeaders().setContentType(file.getContentType()));
             return blobClient.getBlobUrl();
         } catch (Exception e) {
             throw new RuntimeException("Error");
         }
-
     }
 
     public String generateSasUrl(String containerName, String blobName) {
-        // Lấy blob client theo tên container và tên file.
-        String decodedBlobName = extractBlobName(blobName);
-        BlobClient blobClient = blobServiceClient
-                .getBlobContainerClient(containerName)
-                .getBlobClient(decodedBlobName); //  .getBlobClient chỉ nhận tham số là tên file
-
-
-
-        // Cấu hình thời gian hết hạn và quyền truy cập của SAS.
+        BlobClient blobClient = getBlobClient(containerName, blobName);
         BlobServiceSasSignatureValues sasValues = new BlobServiceSasSignatureValues(
-                OffsetDateTime.now().plusHours(AppConstants.SAS_EXPIRATION_HOURS), new BlobSasPermission().setReadPermission(true)
+                OffsetDateTime.now().plusHours(AppConstants.SAS_EXPIRATION_HOURS),
+                new BlobSasPermission().setReadPermission(true)
         );
-
-        // Ghép URL gốc của blob với chuỗi SAS để trả về link truy cập tạm thời.
         return blobClient.getBlobUrl() + "?" + blobClient.generateSas(sasValues);
+    }
+
+    public BlobClient getBlobClient(String containerName, String blobName) {
+        String decodedBlobName = extractBlobName(blobName);
+        return blobServiceClient
+                .getBlobContainerClient(containerName)
+                .getBlobClient(decodedBlobName);
     }
 
     public static String extractBlobName(String blobUrlOrName) {
@@ -90,4 +81,5 @@ public class AzureBlobService {
 
         return URLDecoder.decode(blobName, StandardCharsets.UTF_8);
     }
+
 }
