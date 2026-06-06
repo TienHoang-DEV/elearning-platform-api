@@ -2601,4 +2601,8 @@ VALUES
 (1, 5, 1, GETDATE()),
 (1, 6, 1, GETDATE());
 
+UPDATE users
+SET password_hash = '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy'
+WHERE id = 1;
+
 GO

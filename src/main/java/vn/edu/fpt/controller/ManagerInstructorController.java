@@ -37,7 +37,7 @@ public class ManagerInstructorController {
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "") String status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "8") int size,
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());

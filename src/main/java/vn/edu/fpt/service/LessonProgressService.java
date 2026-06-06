@@ -48,4 +48,13 @@ public class LessonProgressService {
     public Integer findNumberOfLessonCompletedByEnrollment(Enrollment enrollment) {
         return repository.findNumberOfLessonCompletedByEnrollment(enrollment.getId());
     }
+
+    public Boolean findStatusByLessonId(Integer lessonId) {
+        Boolean status = false;
+        status = repository.findStatusByLessonId(lessonId);
+        if (status == null) {
+            status = false;
+        }
+        return status;
+    }
 }

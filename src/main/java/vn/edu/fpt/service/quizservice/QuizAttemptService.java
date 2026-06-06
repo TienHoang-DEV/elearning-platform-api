@@ -22,4 +22,8 @@ public class QuizAttemptService {
     public QuizAttempt save(QuizAttempt entity) { return repository.save(entity); }
     public void deleteById(Integer id) { repository.deleteById(id); }
     public boolean existsById(Integer id) { return repository.existsById(id); }
+
+    public List<QuizAttempt> findAttemptsByUserAndQuiz(Integer userId, Integer quizId) {
+        return repository.findByUserIdAndQuizIdOrderBySubmittedAtDesc(userId, quizId);
+    }
 }

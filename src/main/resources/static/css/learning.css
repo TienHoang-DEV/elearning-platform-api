@@ -91,6 +91,26 @@
     border-color: var(--primary) !important;
 }
 
+.active-lesson-item .lesson-link,
+.active-lesson-item .text-muted-dark {
+    color: #ffffff !important;
+}
+
+.active-lesson-item .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.active-lesson-item .lesson-icon-indicator.border {
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    color: #ffffff !important;
+}
+
+.active-lesson-item .lesson-icon-indicator.bg-success {
+    background-color: #198754 !important;
+    border-color: #ffffff !important;
+    color: #ffffff !important;
+}
+
 .active-play-icon-box {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
