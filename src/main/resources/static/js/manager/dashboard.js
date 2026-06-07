@@ -1,22 +1,20 @@
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('revenueChart').getContext('2d');
     
-    // Gradient for the bars (optional, but looks nice)
-    // const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    // gradient.addColorStop(0, '#0056b3');
-    // gradient.addColorStop(1, '#004494');
+    // Use window variables if available, otherwise fallback to mock values
+    const labels = window.chartLabels || ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+    const data = window.chartData || [3000, 2500, 3200, 4100, 2800, 3900, 3000, 2000, 2800, 1900, 2400, 2900];
 
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
+            labels: labels,
             datasets: [{
                 label: 'Doanh thu',
-                data: [3900, 3000, 2000, 2800, 1900, 2400],
+                data: data,
                 backgroundColor: '#0056b3',
                 borderRadius: 4,
-                barThickness: 60, // Adjust depending on width
-                maxBarThickness: 80
+                maxBarThickness: 40
             }]
         },
         options: {
@@ -34,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 label += ': ';
                             }
                             if (context.parsed.y !== null) {
-                                label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                                label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(context.parsed.y);
                             }
                             return label;
                         }
@@ -44,11 +42,9 @@ document.addEventListener('DOMContentLoaded', function() {
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 4000,
                     ticks: {
-                        stepSize: 1000,
                         callback: function(value) {
-                            return '$' + value;
+                            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(value);
                         },
                         color: '#6c757d',
                         font: {
