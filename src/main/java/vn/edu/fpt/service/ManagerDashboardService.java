@@ -99,12 +99,12 @@ public class ManagerDashboardService {
 
     private String formatRevenue(BigDecimal revenue) {
         if (revenue == null) {
-            return "0 ₫";
+            return "0 đ";
         }
         java.text.DecimalFormat formatter = new java.text.DecimalFormat("#,###");
         java.text.DecimalFormatSymbols symbols = new java.text.DecimalFormatSymbols(new java.util.Locale("vi", "VN"));
         symbols.setGroupingSeparator('.');
         formatter.setDecimalFormatSymbols(symbols);
-        return formatter.format(revenue) + " ₫";
+        return formatter.format(revenue) + " đ";
     }
 }

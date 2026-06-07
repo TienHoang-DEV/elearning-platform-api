@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 label += ': ';
                             }
                             if (context.parsed.y !== null) {
-                                label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(context.parsed.y);
+                                label += new Intl.NumberFormat('vi-VN').format(context.parsed.y) + ' đ';
                             }
                             return label;
                         }
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(value);
+                            return new Intl.NumberFormat('vi-VN').format(value) + ' đ';
                         },
                         color: '#6c757d',
                         font: {

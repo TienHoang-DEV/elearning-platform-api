@@ -103,7 +103,6 @@ public class InstructorRequestService {
             request.setRejectionReason(rejectionReason.trim());
             return mapper.toDto(repository.save(request));
         }
-
         throw new BadRequestException("Trạng thái xét duyệt không hợp lệ.");
     }
 }
