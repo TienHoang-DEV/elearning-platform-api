@@ -3,7 +3,9 @@ package vn.edu.fpt.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.ManagerDashboardDTO;
+import vn.edu.fpt.dto.MonthlyRevenueDTO;
 import vn.edu.fpt.enums.InstructorRequestStatus;
+import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.FeedbackReportRepository;
 import vn.edu.fpt.repository.InstructorRequestRepository;
@@ -50,12 +52,12 @@ public class ManagerDashboardService {
         long pendingFeedbacks = feedbackReportRepository.countByStatus("PENDING");
         dto.setPendingFeedbacks(pendingFeedbacks);
 
-        // 4. Calculate monthly revenue (total payment amount of status = 'SUCCESS' in
+        // 4. Calculate monthly revenue (total payment amount of status = SUCCESS in
         // this month)
         LocalDateTime startOfMonth = LocalDateTime.now()
                 .with(TemporalAdjusters.firstDayOfMonth())
                 .withHour(0).withMinute(0).withSecond(0).withNano(0);
-        BigDecimal monthlyRevenue = paymentRepository.sumAmountByStatusAndPaidAtAfter("SUCCESS", startOfMonth);
+        BigDecimal monthlyRevenue = paymentRepository.sumAmountByStatusAndPaidAtAfter(PaymentStatus.SUCCESS, startOfMonth);
 
 
         dto.setMonthlyRevenue(formatRevenue(monthlyRevenue));
@@ -74,11 +76,11 @@ public class ManagerDashboardService {
                 .with(TemporalAdjusters.firstDayOfMonth())
                 .withHour(0).withMinute(0).withSecond(0).withNano(0);
 
-        List<Object[]> rawChartData = paymentRepository.getMonthlyRevenue("SUCCESS", twelveMonthsAgo);
-        for (Object[] row : rawChartData) {
-            int year = ((Number) row[0]).intValue();
-            int month = ((Number) row[1]).intValue();
-            BigDecimal amount = (BigDecimal) row[2];
+        List<MonthlyRevenueDTO> rawChartData = paymentRepository.getMonthlyRevenue(PaymentStatus.SUCCESS, twelveMonthsAgo);
+        for (MonthlyRevenueDTO row : rawChartData) {
+            int year = row.year();
+            int month = row.month();
+            BigDecimal amount = row.revenue();
 
             for (int i = 0; i < 12; i++) {
                 java.time.YearMonth m = currentMonth.minusMonths(11 - i);
