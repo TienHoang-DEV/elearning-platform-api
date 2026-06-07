@@ -9,14 +9,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import vn.edu.fpt.entity.*;
 import vn.edu.fpt.service.*;
-import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.util.SecurityUtils;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
 
 @Controller
 @RequiredArgsConstructor
