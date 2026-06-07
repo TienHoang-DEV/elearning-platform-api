@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('revenueChart').getContext('2d');
-    
-    // Use window variables if available, otherwise fallback to mock values
+
+    // dung du lieu cung neu ko co du lieu that
     const labels = window.chartLabels || ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
     const data = window.chartData || [3000, 2500, 3200, 4100, 2800, 3900, 3000, 2000, 2800, 1900, 2400, 2900];
 
