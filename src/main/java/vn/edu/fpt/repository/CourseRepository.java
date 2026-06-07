@@ -30,4 +30,5 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             """)
     Optional<Course> findByIdWithEnrollmentAndLessonProgress(@Param("id") Integer courseId);
 
+    long countByStatus(String status);
 }
