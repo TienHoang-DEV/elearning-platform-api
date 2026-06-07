@@ -57,32 +57,36 @@
             <div class="dropdown">
                 <button class="btn p-0 border-0 dropdown-toggle no-caret" type="button" id="profileDropdown"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                    <img th:src="${session.user != null && session.user.email == '28tech@gmail.com' ? '/images/avatar.png' : '/images/student2.png'}" alt="User Avatar"
+                    <img th:src="${session.user != null && session.user.email == '28tech@gmail.com' ? '/images/avatar.png' : '/images/student2.png'}"
+                         alt="User Avatar"
                          class="user-avatar rounded-circle border border-primary"
                          style="width: 34px; height: 34px; object-fit: cover;">
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 p-2"
                     aria-labelledby="profileDropdown" style="width: 220px; border-radius: var(--radius-lg);">
                     <li class="px-3 py-2 border-bottom mb-1" th:if="${session.user != null}">
-                        <p class="user-name fw-semibold m-0 fs-7 text-dark" th:text="${session.user.lastName + ' ' + session.user.firstName}">Tên Học Viên</p>
-                        <p class="user-email text-muted m-0 fs-8 text-truncate" th:text="${session.user.email}">email@example.com</p>
+                        <p class="user-name fw-semibold m-0 fs-7 text-dark"
+                           th:text="${session.user.lastName + ' ' + session.user.firstName}">Tên Học Viên</p>
+                        <p class="user-email text-muted m-0 fs-8 text-truncate" th:text="${session.user.email}">
+                            email@example.com</p>
                     </li>
                     <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted"
                            th:href="@{/student/profile}"><i data-lucide="user" style="width:16px;"></i>
                         Thông tin của tôi</a></li>
                     <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted"
                            th:href="@{/student/my-learning}"><i data-lucide="graduation-cap"
-                                                                     style="width:16px;"></i> Việc học của tôi</a></li>
+                                                                style="width:16px;"></i> Việc học của tôi</a></li>
                     <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted"
                            th:href="@{/student/recommendations}"><i data-lucide="sparkles"
-                                                                              style="width:16px;"></i> Khóa học đề
+                                                                    style="width:16px;"></i> Khóa học đề
                         xuất</a></li>
                     <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted"
                            th:href="@{/student/purchase-history}"><i data-lucide="history"
-                                                                                style="width:16px;"></i> Lịch sử mua hàng</a>
+                                                                     style="width:16px;"></i> Lịch sử mua hàng</a>
                     </li>
                     <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted"
-                           th:href="@{/courses}"><i data-lucide="search" style="width:16px;"></i> Tìm kiếm khóa học</a></li>
+                           th:href="@{/courses}"><i data-lucide="search" style="width:16px;"></i> Tìm kiếm khóa học</a>
+                    </li>
                     <li>
                         <hr class="dropdown-divider my-2">
                     </li>
@@ -107,6 +111,7 @@
                 <video
                         id="lesson-video"
                         th:data-lesson-id="${lesson.id}"
+                        th:data-lesson-progress-status="${lessonProgressStatus}"
                         class="w-100"
                         style="height: 700px; object-fit: cover;"
                         controls
@@ -263,7 +268,7 @@
                                 <div class="lesson-document-stat">
                                     <span class="lesson-document-stat-label">Upload lúc</span>
                                     <span class="lesson-document-stat-value"
-                                          th:text="${material.createdAt != null ? material.createdAt : '—'}">—</span>
+                                          th:text="${material.createdAt != null ? #temporals.format(material.createdAt, 'dd/MM/yyyy') : '—'}">—</span>
                                 </div>
                             </div>
                             <div class="lesson-document-frame-shell border rounded-3 overflow-hidden bg-light">
@@ -303,7 +308,13 @@
             <div class="flex-grow-1 p-4 pb-0">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="sidebar-title fw-bold font-heading fs-5 m-0 text-dark">Nội dung khóa học</h2>
-                    <span class="text-muted fs-8 font-heading fw-semibold">24/48 bài học</span>
+                    <span
+                            th:data-total-lesson-completed="${totalNumberOfLessonCompleted}"
+                            class="text-muted fs-8 font-heading fw-semibold"
+                            th:data-total-lesson="${totalNumberOfLesson}"
+                            id="total-lesson-completed"
+                            th:text="${totalNumberOfLessonCompleted + '/' + totalNumberOfLesson + ' Bài học'}">
+                    </span>
                 </div>
 
                 <!-- Sections List -->
@@ -312,30 +323,58 @@
                     <div th:each="section, secStat : ${courseSections}" class="accordion-item border-0 border-bottom">
                         <h3 class="accordion-header">
                             <button class="accordion-button bg-light text-dark fw-bold fs-7 p-3 d-flex justify-content-between align-items-center border-0 rounded-0"
+                                    th:classappend="${section.id != currentSectionId} ? 'collapsed' : ''"
                                     type="button" data-bs-toggle="collapse"
-                                    th:attr="data-bs-target=${'#collapse-' + secStat.index}" aria-expanded="true">
+                                    th:attr="data-bs-target=${'#collapse-' + secStat.index}, aria-expanded=${section.id == currentSectionId ? 'true' : 'false'}">
                                     <span class="text-start d-inline-flex flex-column">
                                         <span class="d-block mb-1" th:text="${section.position + '. ' + section.title}">Section Title</span>
-                                        <span class="text-muted fs-8 fw-semibold font-body" th:text="${section.lessons != null ? section.lessons.size() + ' bài học' : '0 bài học'}">0 bài học • 0 phút</span>
+                                        <span class="text-muted fs-8 fw-semibold font-body"
+                                              th:text="${section.lessons != null ? section.lessons.size() + ' bài học' : '0 bài học'}">0 bài học • 0 phút</span>
+                                    </span>
+                                <!-- Section Completion Badge -->
+                                <span th:data-section-status-id="${section.id}"
+                                      th:class="${sectionCompletedMap != null && sectionCompletedMap.get(section.id)} ? 'section-status-badge d-flex align-items-center justify-content-center bg-success text-white rounded-circle ms-2' : 'section-status-badge d-none'"
+                                      style="width: 20px; height: 20px; border: 1px solid #198754;">
+                                        <i data-lucide="check" style="width: 12px; height: 12px;"></i>
                                     </span>
                             </button>
                         </h3>
 
-                        <div th:id="${'collapse-' + secStat.index}" class="accordion-collapse collapse show" th:attr="data-bs-parent='#accordionCurriculum'">
+                        <div th:id="${'collapse-' + secStat.index}"
+                             class="accordion-collapse collapse"
+                             th:classappend="${section.id == currentSectionId} ? 'show' : ''"
+                             th:attr="data-bs-parent='#accordionCurriculum'">
                             <div class="accordion-body p-0">
                                 <div class="list-group list-group-flush">
                                     <!-- Iterate lessons inside section -->
-                                    <div th:each="secLesson, lStat : ${section.lessons}" class="list-group-item list-group-item-action d-flex align-items-start gap-3 p-3 border-0 lesson-item" th:classappend="${secLesson.id == lesson.id} ? ' active-lesson-item' : ''">
-                                        <div class="rounded-circle border d-flex align-items-center justify-content-center flex-shrink-0 mt-0.5 text-muted" style="width: 18px; height: 18px; border-color: #cbd5e1 !important;">
-                                            <i data-lucide="play" style="width: 10px; height: 10px; margin-left: 1px;"></i>
+                                    <div th:each="secLesson, lStat : ${section.lessons}"
+                                         th:data-sidebar-lesson-id="${secLesson.id}"
+                                         class="list-group-item list-group-item-action d-flex align-items-start gap-3 p-3 border-0 lesson-item"
+                                         th:classappend="${secLesson.id == lesson.id} ? ' active-lesson-item' : ''">
+                                        <!-- Lesson Icon Indicator -->
+                                        <div th:if="${completedLessonIds != null && #lists.contains(completedLessonIds, secLesson.id)}"
+                                             class="lesson-icon-indicator rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-0.5 text-white bg-success"
+                                             style="width: 18px; height: 18px; border: 1px solid #198754;">
+                                            <i data-lucide="check" style="width: 10px; height: 10px;"></i>
                                         </div>
+                                        <div th:unless="${completedLessonIds != null && #lists.contains(completedLessonIds, secLesson.id)}"
+                                             class="lesson-icon-indicator rounded-circle border d-flex align-items-center justify-content-center flex-shrink-0 mt-0.5 text-muted"
+                                             style="width: 18px; height: 18px; border-color: #cbd5e1 !important;">
+                                            <i data-lucide="play"
+                                               style="width: 10px; height: 10px; margin-left: 1px;"></i>
+                                        </div>
+
                                         <div class="flex-grow-1">
                                             <a th:href="@{/course/{courseId}/section/{sectionId}/lesson/{lessonId}(courseId=${course.id},sectionId=${section.id},lessonId=${secLesson.id})}"
-                                               class="fs-7 text-muted-dark d-block fw-semibold leading-snug text-decoration-none lesson-link" th:text="${secLesson.title}">Lesson title</a>
-                                            <span class="d-flex align-items-center gap-1 text-muted fs-8 mt-1"><i data-lucide="clock" style="width:12px;"></i> <span th:text="${secLesson.durationSeconds != null ? T(java.lang.String).format('%d:%02d', secLesson.durationSeconds / 60, secLesson.durationSeconds % 60) : '—'}">—</span></span>
+                                               class="fs-7 text-muted-dark d-block fw-semibold leading-snug text-decoration-none lesson-link"
+                                               th:data-lesson-id="${secLesson.id}" th:text="${secLesson.title}">Lesson
+                                                title</a>
+                                            <span class="d-flex align-items-center gap-1 text-muted fs-8 mt-1"><i
+                                                    data-lucide="clock" style="width:12px;"></i> <span
+                                                    th:text="${secLesson.durationSeconds != null ? T(java.lang.String).format('%d:%02d', secLesson.durationSeconds / 60, secLesson.durationSeconds % 60) : '—'}">—</span></span>
                                         </div>
-                                    </div>
 
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -345,14 +384,24 @@
             </div>
 
             <!-- Sidebar Bottom: Continue lesson Sticky bar -->
-            <div class="p-4 border-top bg-white sticky-bottom-sidebar">
-                <button class="btn btn-primary w-100 py-3 fw-bold fs-6 d-flex align-items-center justify-content-center gap-2 rounded-3 shadow-primary"
-                        id="btn-continue-lesson">
-                    <span>Tiếp tục bài học</span>
-                    <i data-lucide="arrow-right" style="width: 20px; height: 20px;"></i>
+            <div th:if="${nextLesson != null}"
+                 class="p-4 border-top bg-white sticky-bottom-sidebar">
+                <a class="btn btn-primary w-100 py-3 fw-bold fs-6 d-flex align-items-center justify-content-center gap-2 rounded-3 shadow-primary text-decoration-none"
+                   th:href="@{/course/{courseId}/section/{sectionId}/lesson/{lessonId}
+                    (courseId=${nextLesson.courseSection.course.id},
+                    sectionId=${nextLesson.courseSection.id},
+                    lessonId=${nextLesson.id})}">
+                    <span th:text="|Bài học tiếp theo: ${nextLesson.title}|"></span>
+                    <i data-lucide="arrow-right"
+                       style="width: 20px; height: 20px;"></i>
+                </a>
+            </div>
+            <div th:if="${nextLesson == null}"
+                 class="p-4 border-top bg-white sticky-bottom-sidebar">
+                <button class="btn btn-success w-100 py-3 fw-bold" disabled>
+                    Bạn đã hoàn thành toàn bộ khóa học!
                 </button>
             </div>
-
         </aside>
 
     </div>

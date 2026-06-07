@@ -31,11 +31,13 @@
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            overflow: hidden;
+            overflow-y: auto;
             margin: 0;
+            padding: 3rem 1rem;
             position: relative;
+            box-sizing: border-box;
         }
 
         /* Vibrant Dynamic Mesh Background */
@@ -126,13 +128,14 @@
             -webkit-backdrop-filter: blur(30px);
             border: 2px solid var(--glass-border);
             border-radius: 32px;
-            padding: 4.5rem 3.5rem;
-            max-width: 660px;
+            padding: 4rem 3.5rem;
+            max-width: 680px;
             width: 90%;
             box-shadow: 0 35px 70px -15px rgba(59, 130, 246, 0.15), 
                         inset 0 1px 1px rgba(255, 255, 255, 0.8);
             z-index: 10;
             position: relative;
+            margin: auto;
         }
 
         /* Gradient Borders / Highlights */
@@ -245,6 +248,7 @@
             display: none;
             opacity: 0;
             height: 0;
+            text-align: left;
         }
 
         .details-header {
@@ -261,13 +265,27 @@
 
         .details-body {
             padding: 1.4rem;
-            max-height: 200px;
+            max-height: 320px;
             overflow-y: auto;
             font-family: 'Courier New', Courier, monospace;
-            font-size: 0.85rem;
-            color: #d33a87;
+            font-size: 0.78rem;
+            line-height: 1.7;
             text-align: left;
             white-space: pre-wrap;
+            word-break: break-all;
+            background: #1e1e2e;
+            color: #f8f8f2;
+        }
+
+        .details-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        .details-body::-webkit-scrollbar-track {
+            background: #2d2d3f;
+        }
+        .details-body::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.5);
+            border-radius: 3px;
         }
 
         .btn-toggle-details {
@@ -378,6 +396,9 @@
         <div class="d-flex justify-content-center gap-3 flex-wrap">
             <button onclick="window.location.reload();" class="btn-custom-primary shadow-sm" id="btnRetry">
                 <i class="bi bi-arrow-clockwise me-2"></i>Thử lại
+            </button>
+            <button onclick="window.history.back();" class="btn-custom-secondary" id="btnBack">
+                <i class="bi bi-arrow-left me-2"></i>Trở lại trang trước
             </button>
             <a href="/home" class="btn-custom-secondary" id="btnHome">
                 <i class="bi bi-house-door me-2"></i>Quay lại Trang chủ

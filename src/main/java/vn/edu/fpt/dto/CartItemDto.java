@@ -11,4 +11,5 @@ import java.math.BigDecimal;
 public class CartItemDto {
     private Integer id;
     private CourseDto course;
+    private boolean selected;
 }

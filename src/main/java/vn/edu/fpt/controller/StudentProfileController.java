@@ -106,18 +106,46 @@ public class StudentProfileController {
 
     @org.springframework.transaction.annotation.Transactional
     @GetMapping("/student/my-learning")
-    public String showMyLearning(Model model) {
+    public String showMyLearning(
+            @org.springframework.web.bind.annotation.RequestParam(value = "filter", defaultValue = "all") String filter,
+            @org.springframework.web.bind.annotation.RequestParam(value = "page", defaultValue = "1") int page,
+            Model model) {
         User user = getSessionUser();
         List<Enrollment> enrollments = enrollmentRepository.findByUser(user);
         
         List<EnrollmentDto> enrollmentDtos = new java.util.ArrayList<>();
         for (Enrollment enrollment : enrollments) {
-            enrollmentDtos.add(dtoMapper.toEnrollmentDto(enrollment));
+            EnrollmentDto dto = dtoMapper.toEnrollmentDto(enrollment);
+            if ("incomplete".equalsIgnoreCase(filter)) {
+                if (dto.getProgressPercent() != null && dto.getProgressPercent().doubleValue() >= 100.0) {
+                    continue;
+                }
+            }
+            enrollmentDtos.add(dto);
+        }
+        
+        int pageSize = 6;
+        int totalItems = enrollmentDtos.size();
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        if (totalPages == 0) {
+            totalPages = 1;
+        }
+        
+        int currentPage = Math.max(1, Math.min(page, totalPages));
+        int fromIndex = (currentPage - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalItems);
+        
+        List<EnrollmentDto> pagedEnrollments = new java.util.ArrayList<>();
+        if (fromIndex < totalItems) {
+            pagedEnrollments = enrollmentDtos.subList(fromIndex, toIndex);
         }
         
         model.addAttribute("currentUser", dtoMapper.toUserDto(user));
-        model.addAttribute("enrollments", enrollmentDtos);
-        model.addAttribute("enrollmentsCount", enrollmentDtos.size());
+        model.addAttribute("enrollments", pagedEnrollments);
+        model.addAttribute("enrollmentsCount", totalItems);
+        model.addAttribute("filter", filter);
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", totalPages);
         
         return "my_learning/my_learning";
     }

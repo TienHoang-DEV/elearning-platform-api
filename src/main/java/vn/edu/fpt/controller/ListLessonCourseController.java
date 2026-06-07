@@ -15,6 +15,8 @@ import vn.edu.fpt.dto.*;
 import vn.edu.fpt.util.SecurityUtils;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 @RequiredArgsConstructor
@@ -23,7 +25,6 @@ public class ListLessonCourseController {
     private final CourseService courseService;
     private final LessonService lessonService;
     private final LessonProgressService lessonProgressService;
-    private final AzureBlobService azureBlobService;
     private final EnrollmentService enrollmentService;
     private final CourseSectionService courseSectionService;
     private final DtoMapper dtoMapper;
@@ -45,6 +46,7 @@ public class ListLessonCourseController {
     @Transactional
     @GetMapping("/course/{courseId}/section/{sectionId}/lesson/{lessonId}")
     public String viewLesson(Model model, @PathVariable Integer courseId, @PathVariable Integer sectionId, @PathVariable Integer lessonId) {
+        User user = SecurityUtils.getCurrentUser();
         Course course = courseService.findByIdWithSectionsAndLessons(courseId);
 
         Lesson lesson = lessonService.findByIdWithMaterials(lessonId);
@@ -55,14 +57,30 @@ public class ListLessonCourseController {
         for (LessonMaterial m : lesson.getMaterials()) {
             materialDtos.add(dtoMapper.toLessonMaterialDto(m));
         }
+        String thumbnailUrl = courseService.getThumbnailUrl(course);
+        Integer totalNumberOfLesson = lessonService.findNumberOfLessonByCourseId(courseId);
+        Enrollment enrollment = enrollmentService.findEnrollmentByCourseIdAndUserId(courseId, user.getId());
+        Integer totalNumberOfLessonCompleted = lessonProgressService.findNumberOfLessonCompletedByEnrollment(enrollment);
+        Boolean lessonProgressStatus = lessonProgressService.findStatusByLessonId(lessonId);
 
+        List<Integer> completedLessonIds = lessonService.getCompletedLessonIdsByCourseIdAndUserId(courseId, user.getId());
+
+        Map<Integer, Boolean> sectionCompletedMap = courseSectionService.getSectionCompletedMap(courseDto.getSections(), completedLessonIds);
+
+        // nếu next lesson bằng null tức là người học đã hoàn thành hết khóa học, không có bài học tiếp theo
+        Lesson nextLesson = lessonService.findNextLessonByCurrentLesson(lesson, totalNumberOfLesson, totalNumberOfLessonCompleted);
+
+        model.addAttribute("nextLesson", nextLesson);
+        model.addAttribute("currentSectionId", sectionId);
+        model.addAttribute("sectionCompletedMap", sectionCompletedMap);
+        model.addAttribute("completedLessonIds", completedLessonIds);
+        model.addAttribute("lessonProgressStatus", lessonProgressStatus);
+        model.addAttribute("totalNumberOfLesson", totalNumberOfLesson);
+        model.addAttribute("totalNumberOfLessonCompleted", totalNumberOfLessonCompleted);
         model.addAttribute("course", courseDto);
         model.addAttribute("courseSections", courseDto.getSections());
         model.addAttribute("lesson", lessonDto);
         model.addAttribute("materials", materialDtos);
-
-        String thumbnailUrl = courseService.getThumbnailUrl(course);
-
         model.addAttribute("posterUrl", thumbnailUrl);
         return "learning/learning";
     }
@@ -70,16 +88,7 @@ public class ListLessonCourseController {
     @GetMapping("/lesson/{lessonId}")
     @ResponseBody
     public String lessonView(@PathVariable("lessonId") Integer lessonId) {
-        try {
-            Lesson lesson = lessonService.findById(lessonId).orElse(null);
-            if (lesson == null || lesson.getVideoUrl() == null || lesson.getVideoUrl().trim().isEmpty()) {
-                return "https://www.w3schools.com/html/mov_bbb.mp4";
-            }
-            return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
-        } catch (Exception e) {
-            // Fallback sang video test công cộng nếu Azure bị lỗi ở local dev
-            return "https://www.w3schools.com/html/mov_bbb.mp4";
-        }
+       return lessonService.findLessonUrl(lessonId);
     }
 
     @GetMapping("/lesson-completed/{lessonId}")

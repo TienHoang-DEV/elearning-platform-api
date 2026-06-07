@@ -116,11 +116,14 @@
                 <div class="col-lg-8 col-12">
                     
                     <!-- Select All Top Bar (Shopee style) -->
-                    <div class="card border border-light-subtle rounded-3 p-3 bg-white shadow-sm mb-3 select-all-bar">
+                    <div class="card border border-light-subtle rounded-3 p-3 bg-white shadow-sm mb-3 select-all-bar" th:classappend="${cartSize == 0 ? 'd-none' : ''}">
                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="form-check m-0 d-flex align-items-center">
-                                    <input class="form-check-input border-primary custom-checkbox-input" type="checkbox" id="select-all-checkout" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                    <input class="form-check-input border-primary custom-checkbox-input" type="checkbox" id="select-all-checkout" 
+                                           th:checked="${globalCheckboxState == 'checked'}" 
+                                           th:data-indeterminate="${globalCheckboxState == 'indeterminate'}" 
+                                           style="width: 18px; height: 18px; cursor: pointer;">
                                     <label class="form-check-label fw-semibold text-dark fs-7 ms-2 select-all-label" for="select-all-checkout" style="cursor: pointer;">
                                         Chọn tất cả (<span class="cart-count-badge-inline" th:text="${cartSize}">3</span> khóa học)
                                     </label>
@@ -135,17 +138,21 @@
                     </div>
 
                     <!-- Cart Items Wrapper -->
-                    <div class="d-flex flex-column gap-4" id="cart-items-container">
+                    <div class="d-flex flex-column gap-4" th:classappend="${cartSize == 0 ? 'd-none' : ''}" id="cart-items-container">
                         
                         <!-- Loop through the map grouped by instructor -->
                         <div class="card border border-light-subtle rounded-3 bg-white shadow-sm instructor-group-card" 
                              th:each="entry : ${itemsByInstructor}" 
-                             th:id="'group-' + ${entry.key?.lastName}" 
-                             th:data-instructor="${entry.key?.lastName}">
+                             th:id="'group-' + ${entry.key?.id}" 
+                             th:data-instructor-id="${entry.key?.id}">
                             <!-- Group Header -->
                             <div class="instructor-group-header border-bottom p-3 bg-light bg-opacity-25 d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2">
-                                    <input class="form-check-input border-primary instructor-checkbox" type="checkbox" th:data-instructor="${entry.key?.lastName}" checked style="width: 17px; height: 17px; cursor: pointer;">
+                                    <input class="form-check-input border-primary instructor-checkbox" type="checkbox" 
+                                           th:data-instructor-id="${entry.key?.id}" 
+                                           th:checked="${instructorCheckboxState[entry.key?.id] == 'checked'}" 
+                                           th:data-indeterminate="${instructorCheckboxState[entry.key?.id] == 'indeterminate'}" 
+                                           style="width: 17px; height: 17px; cursor: pointer;">
                                     <span class="instructor-tag bg-primary-light text-primary px-2.5 py-1 rounded fw-bold fs-8 uppercase tracking-wider ms-2 d-flex align-items-center gap-1">
                                         <i data-lucide="award" style="width: 12px; height: 12px;"></i> Giảng viên
                                     </span>
@@ -163,12 +170,13 @@
                                 <!-- Loop through items of this instructor -->
                                 <div class="cart-item-row p-3 border-bottom-dashed d-flex flex-sm-row flex-column align-items-start gap-3" 
                                      th:each="item : ${entry.value}" 
-                                     th:id="'cart-item-' + ${item.id}" 
-                                     th:data-price="${item.course?.price ?: 0}" 
-                                     th:data-discount="${(item.course?.price != null ? item.course.price.doubleValue() : 0.0) * 0.3}" 
-                                     th:data-instructor="${entry.key?.lastName}">
+                                     th:id="'cart-item-' + ${item.id}">
                                     <div class="d-flex align-items-center align-self-sm-stretch align-self-start">
-                                        <input class="form-check-input border-primary item-checkbox" type="checkbox" th:data-id="'cart-item-' + ${item.id}" th:data-instructor="${entry.key?.lastName}" checked style="width: 17px; height: 17px; cursor: pointer;">
+                                        <input class="form-check-input border-primary item-checkbox" type="checkbox" 
+                                               th:data-id="${item.id}" 
+                                               th:data-instructor-id="${entry.key?.id}" 
+                                               th:checked="${item.selected}" 
+                                               style="width: 17px; height: 17px; cursor: pointer;">
                                     </div>
                                     <!-- Thumbnail -->
                                     <img th:src="${item.course?.thumbnailPath}" th:alt="${item.course?.title}" class="rounded-3 flex-shrink-0 object-fit-cover align-self-center align-self-sm-start" style="width: 130px; height: 80px;"
@@ -225,23 +233,40 @@
                                 </div>
                                 <div class="d-flex align-items-center gap-2 flex-grow-1 flex-md-grow-0 justify-content-end">
                                     <div class="position-relative">
-                                        <input type="text" th:placeholder="'Nhập mã ' + ${(entry.key?.lastName != null ? entry.key.lastName.toUpperCase() : 'GV')} + '10...'" class="form-control rounded-pill border-light-subtle px-3 py-1.5 fs-8 text-uppercase input-instructor-voucher" th:id="'voucher-input-' + ${entry.key?.lastName}" th:data-instructor="${entry.key?.lastName}" style="width: 180px;">
-                                        <div class="position-absolute end-0 top-50 translate-middle-y me-2 d-none" th:id="'voucher-success-icon-' + ${entry.key?.lastName}">
+                                        <input type="text" th:placeholder="'Nhập mã ' + ${(entry.key?.lastName != null ? entry.key.lastName.toUpperCase() : 'GV')} + '10...'" 
+                                               class="form-control rounded-pill border-light-subtle px-3 py-1.5 fs-8 text-uppercase input-instructor-voucher" 
+                                               th:id="'voucher-input-' + ${entry.key?.id}" 
+                                               th:data-instructor-id="${entry.key?.id}" 
+                                               th:value="${appliedVoucherCodes[entry.key?.id]}"
+                                               style="width: 180px;">
+                                        <div class="position-absolute end-0 top-50 translate-middle-y me-2" 
+                                             th:classappend="${voucherSuccess[entry.key?.id] == true ? '' : 'd-none'}" 
+                                             th:id="'voucher-success-icon-' + ${entry.key?.id}">
                                             <i data-lucide="check-circle-2" class="text-success" style="width: 14px; height: 14px;"></i>
                                         </div>
                                     </div>
-                                    <button class="btn btn-primary rounded-pill px-3 py-1.5 fw-bold fs-8 btn-apply-instructor-voucher" th:data-instructor="${entry.key?.lastName}">Áp dụng</button>
+                                    <button class="btn btn-primary rounded-pill px-3 py-1.5 fw-bold fs-8 btn-apply-instructor-voucher" th:data-instructor-id="${entry.key?.id}">Áp dụng</button>
                                 </div>
                             </div>
-                            <div class="px-3 pb-2 bg-light bg-opacity-50 d-none" th:id="'voucher-msg-container-' + ${entry.key?.lastName}">
-                                <div class="fs-8" th:id="'voucher-msg-' + ${entry.key?.lastName}"></div>
+                            <div class="px-3 pb-2 bg-light bg-opacity-50" 
+                                 th:classappend="${appliedVoucherCodes[entry.key?.id] != null ? '' : 'd-none'}" 
+                                 th:id="'voucher-msg-container-' + ${entry.key?.id}">
+                                <div class="fs-8" th:id="'voucher-msg-' + ${entry.key?.id}">
+                                    <span th:if="${voucherSuccess[entry.key?.id] == true}" class="fs-8 text-success fw-medium">
+                                        <i data-lucide="check" class="d-inline-block me-1" style="width:12px;height:12px;"></i>
+                                        Áp dụng thành công: Giảm thêm <span th:text="${#numbers.formatDecimal(appliedVoucherDiscounts[entry.key?.id], 0, 'COMMA', 0, 'POINT') + ' VNĐ'}"></span>
+                                    </span>
+                                    <span th:if="${voucherSuccess[entry.key?.id] == false}" class="fs-8 text-warning fw-medium">
+                                        Tích chọn khóa học để kích hoạt mã giảm giá!
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
                     </div>
 
                     <!-- Empty Cart State (Hidden by default) -->
-                    <div class="card border border-light-subtle rounded-3 p-5 bg-white text-center shadow-sm d-none" id="empty-cart-state">
+                    <div class="card border border-light-subtle rounded-3 p-5 bg-white text-center shadow-sm" th:classappend="${cartSize == 0 ? '' : 'd-none'}" id="empty-cart-state">
                         <div class="d-flex flex-column align-items-center justify-content-center py-4">
                             <div class="empty-cart-icon-wrapper rounded-circle bg-light d-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
                                 <i data-lucide="shopping-bag" class="text-muted" style="width: 36px; height: 36px;"></i>
@@ -257,7 +282,7 @@
                 </div>
 
                 <!-- Right Column: Order Summary (30%) -->
-                <div class="col-lg-4 col-12">
+                <div class="col-lg-4 col-12" th:classappend="${cartSize == 0 ? 'd-none' : ''}">
                     
                     <!-- Order Info summary card -->
                     <div class="card border border-light-subtle rounded-3 p-4 bg-white shadow-sm mb-4 sticky-summary">
@@ -265,27 +290,33 @@
                         
                         <div class="d-flex flex-column gap-3 mb-4">
                             <div class="d-flex justify-content-between align-items-center fs-7 text-muted-dark">
-                                <span>Tạm tính (<span class="selected-items-count">3</span> khóa học)</span>
-                                <span class="fw-semibold text-dark" id="summary-subtotal">1,197,000 VNĐ</span>
+                                <span>Tạm tính (<span class="selected-items-count" th:text="${selectedItemsCount}">3</span> khóa học)</span>
+                                <span class="fw-semibold text-dark" id="summary-subtotal" th:text="${#numbers.formatDecimal(subtotal, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">1,197,000 VNĐ</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center fs-7 text-muted-dark">
                                 <span>Khuyến mãi khóa học</span>
-                                <span class="fw-semibold text-success" id="summary-discounts">-229,400 VNĐ</span>
+                                <span class="fw-semibold text-success" id="summary-discounts" th:text="'-' + ${#numbers.formatDecimal(courseDiscounts, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">-229,400 VNĐ</span>
                             </div>
                             <!-- Instructor Discount row (Shopee style, hidden/0 by default) -->
-                            <div class="d-flex justify-content-between align-items-center fs-7 text-muted-dark d-none" id="instructor-discounts-row">
+                            <div class="d-flex justify-content-between align-items-center fs-7 text-muted-dark" 
+                                 th:classappend="${instructorDiscounts > 0 ? '' : 'd-none'}" 
+                                 id="instructor-discounts-row">
                                 <span>Giảm giá Giảng viên</span>
-                                <span class="fw-semibold text-success" id="summary-instructor-discounts">-0 VNĐ</span>
+                                <span class="fw-semibold text-success" id="summary-instructor-discounts" th:text="'-' + ${#numbers.formatDecimal(instructorDiscounts, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">-0 VNĐ</span>
                             </div>
                             <hr class="my-1 text-muted opacity-25">
                             <div class="d-flex justify-content-between align-items-center font-heading">
                                 <span class="fw-bold text-dark fs-6">Tổng thanh toán</span>
-                                <span class="fw-extrabold fs-4 text-primary" id="summary-total">967,600 VNĐ</span>
+                                <span class="fw-extrabold fs-4 text-primary" id="summary-total" th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">967,600 VNĐ</span>
                             </div>
                         </div>
 
                         <!-- Checkout CTA Button -->
-                        <button class="btn btn-primary w-100 py-3 fw-bold fs-6 d-flex align-items-center justify-content-center gap-2 rounded-3 shadow-primary mb-3" id="btn-checkout">
+                        <button class="btn btn-primary w-100 py-3 fw-bold fs-6 d-flex align-items-center justify-content-center gap-2 rounded-3 shadow-primary mb-3" 
+                                id="btn-checkout" 
+                                th:disabled="${selectedItemsCount == 0}" 
+                                th:classappend="${selectedItemsCount == 0 ? 'opacity-50' : ''}" 
+                                th:style="${selectedItemsCount == 0 ? 'cursor: not-allowed;' : 'cursor: pointer;'}">
                             <span>Thanh toán ngay</span>
                             <i data-lucide="credit-card" style="width: 20px; height: 20px;"></i>
                         </button>
