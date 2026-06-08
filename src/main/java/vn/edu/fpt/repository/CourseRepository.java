@@ -22,12 +22,4 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             select distinct c from Course c left join fetch c.sections s left join fetch s.lessons where c.id = :id
             """)
     Optional<Course> findByIdWithSectionsAndLessons(@Param("id") Integer id);
-
-    @Query("""
-            select distinct c from Course c left join c.enrollments e
-                        left join e.lessonProgresses
-                                    where c.id = :id
-            """)
-    Optional<Course> findByIdWithEnrollmentAndLessonProgress(@Param("id") Integer courseId);
-
 }

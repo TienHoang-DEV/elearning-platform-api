@@ -60,7 +60,11 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/login_no", "/register",
                                 "/css/**", "/js/**",
-                                "/images/**", "/oauth2/**"
+                                "/images/**", "/oauth2/**",
+                                "/forgot-password",
+                                "/reset-password",
+                                "/password-reset-success",
+                                "/home"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

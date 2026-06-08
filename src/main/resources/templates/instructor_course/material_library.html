@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Learning Hub - Thư Viện Tài Liệu</title>
+    <link rel="stylesheet" th:href="@{/css/manager_course.css}"/>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div th:replace="~{fragments/sidebar :: sidebar(activePage='materials')}"></div>
+
+<!-- MAIN -->
+<main class="main-content">
+    <div class="page-header">
+        <h1><span class="icon">🗂️</span> Thư Viện Tài Liệu</h1>
+        <button type="button" class="btn btn-primary" id="openUploadMaterialBtn">+ Tải Tài Liệu Lên</button>
+    </div>
+
+    <!-- Bộ lọc -->
+    <div class="card" style="margin-bottom:16px;">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <input type="text" class="form-control" placeholder="🔍 Tìm tài liệu..." style="max-width:280px;"/>
+            <select class="form-control" style="max-width:160px;">
+                <option value="">Tất cả loại</option>
+                <option value="pdf">PDF</option>
+                <option value="video">Video</option>
+                <option value="docx">Word</option>
+                <option value="pptx">PowerPoint</option>
+                <option value="xlsx">Excel</option>
+            </select>
+            <select class="form-control" style="max-width:200px;">
+                <option value="">Tất cả khóa học</option>
+                <option th:each="c : ${courses}" th:value="${c.id}" th:text="${c.title}">Khóa học</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Danh sách tài liệu -->
+    <div class="card">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Tên Tài Liệu</th>
+                    <th>Loại</th>
+                    <th>Dùng Trong</th>
+                    <th>Kích Thước</th>
+                    <th>Ngày Tải Lên</th>
+                    <th>Thao Tác</th>
+                </tr>
+                </thead>
+                <tbody th:if="${materials != null and not #lists.isEmpty(materials)}">
+                <tr th:each="m : ${materials}">
+                    <td>
+                        <span th:switch="${m.type}">
+                            <span th:case="'pdf'">📄</span>
+                            <span th:case="'video'">🎬</span>
+                            <span th:case="'docx'">📝</span>
+                            <span th:case="'pptx'">📊</span>
+                            <span th:case="*">📎</span>
+                        </span>
+                        <span th:text="${m.name}">Tên tài liệu</span>
+                    </td>
+                    <td><span class="badge" th:text="${m.type?.toUpperCase()}">PDF</span></td>
+                    <td th:text="${m.lessonTitle ?: '—'}">Tên bài giảng</td>
+                    <td th:text="${m.sizeDisplay ?: '—'}">2.4 MB</td>
+                    <td th:text="${#temporals.format(m.uploadedAt,'dd/MM/yyyy')}">01/01/2025</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-outline"
+                                th:data-material-id="${m.id}"
+                                th:data-material-name="${m.name}"
+                                onclick="openEditMaterialModal(this.dataset)">✏️</button>
+                        <button type="button" class="btn btn-sm btn-danger"
+                                th:data-material-id="${m.id}"
+                                onclick="openDeleteMaterialModal(this.dataset.materialId)">🗑</button>
+                    </td>
+                </tr>
+                </tbody>
+                <tbody th:if="${materials == null or #lists.isEmpty(materials)}">
+                <tr><td colspan="6" class="table-empty">Chưa có tài liệu nào. Nhấn "+ Tải Tài Liệu Lên" để bắt đầu.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- ===== Modal: Upload Tài Liệu ===== -->
+<div class="modal-overlay" id="modal-upload-material">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3>📤 Tải Tài Liệu Lên</h3>
+            <button class="modal-close" data-close-modal="modal-upload-material">✕</button>
+        </div>
+        <form th:action="@{/instructor/materials/upload}" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label>Tên Tài Liệu <span class="required">*</span></label>
+                    <input type="text" name="name" class="form-control"
+                           placeholder="VD: Slide buổi 1 - Giới thiệu" required/>
+                </div>
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label>Gắn Vào Bài Giảng (tùy chọn)</label>
+                    <select name="lessonId" class="form-control">
+                        <option value="">— Không gắn vào bài giảng —</option>
+                        <optgroup th:each="section : ${sections}"
+                                  th:label="${section.title}">
+                            <option th:each="lesson : ${section.lessons}"
+                                    th:value="${lesson.id}"
+                                    th:text="${lesson.title}">Bài giảng</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="file-upload-area" onclick="document.getElementById('materialFileInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <p>Kéo thả hoặc nhấn để chọn file</p>
+                    <p style="font-size:.75rem;color:#aaa;margin-top:4px;">PDF, DOCX, PPTX, XLSX, MP4. Tối đa 2GB.</p>
+                    <span class="choose-btn">Chọn File</span>
+                </div>
+                <input type="file" id="materialFileInput" name="file"
+                       accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,video/*" style="display:none;"/>
+                <div id="materialFilePreview" style="margin-top:8px;font-size:.85rem;color:var(--text-muted);"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" data-close-modal="modal-upload-material">Hủy</button>
+                <button type="submit" class="btn btn-primary">📤 Tải Lên</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== Modal: Sửa Tài Liệu ===== -->
+<div class="modal-overlay" id="modal-edit-material">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>✏️ Chỉnh Sửa Tài Liệu</h3>
+            <button class="modal-close" data-close-modal="modal-edit-material">✕</button>
+        </div>
+        <form th:action="@{/instructor/materials/update}" method="POST">
+            <input type="hidden" name="materialId" id="editMaterialId"/>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label>Tên Tài Liệu <span class="required">*</span></label>
+                    <input type="text" name="name" id="editMaterialName" class="form-control" required/>
+                </div>
+                <div class="form-group">
+                    <label>Gắn Vào Bài Giảng</label>
+                    <select name="lessonId" class="form-control" id="editMaterialLesson">
+                        <option value="">— Không gắn —</option>
+                        <optgroup th:each="section : ${sections}" th:label="${section.title}">
+                            <option th:each="lesson : ${section.lessons}"
+                                    th:value="${lesson.id}"
+                                    th:text="${lesson.title}">Bài giảng</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" data-close-modal="modal-edit-material">Hủy</button>
+                <button type="submit" class="btn btn-primary">💾 Lưu Thay Đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== Modal: Xóa Tài Liệu ===== -->
+<div class="modal-overlay" id="modal-delete-material">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>🗑 Xóa Tài Liệu</h3>
+            <button class="modal-close" data-close-modal="modal-delete-material">✕</button>
+        </div>
+        <div class="modal-body">
+            <p>Bạn có chắc chắn muốn xóa tài liệu này? Hành động này <strong>không thể hoàn tác</strong>.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" data-close-modal="modal-delete-material">Hủy</button>
+            <form th:action="@{/instructor/materials/delete}" method="POST" style="display:inline;">
+                <input type="hidden" name="materialId" id="deleteMaterialId"/>
+                <button type="submit" class="btn btn-danger">🗑 Xóa</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/instructor_course.js}"></script>
+<script>
+    document.getElementById('openUploadMaterialBtn').addEventListener('click', function () {
+        document.getElementById('modal-upload-material').classList.add('active');
+    });
+    function openEditMaterialModal(data) {
+        document.getElementById('editMaterialId').value = data.materialId;
+        document.getElementById('editMaterialName').value = data.materialName;
+        document.getElementById('modal-edit-material').classList.add('active');
+    }
+    function openDeleteMaterialModal(id) {
+        document.getElementById('deleteMaterialId').value = id;
+        document.getElementById('modal-delete-material').classList.add('active');
+    }
+</script>
+</body>
+</html>

@@ -54,27 +54,11 @@ public class LessonMaterialService {
         if (lessonMaterial == null) {
             return ResponseEntity.notFound().build();
         }
-
         BlobClient blobClient = azureBlobService.getBlobClient(
                 AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS,
                 lessonMaterial.getFileUrl()
         );
-        BlobProperties properties = blobClient.getProperties();
-
-        String fileName = lessonMaterial.getFileName() != null && !lessonMaterial.getFileName().isBlank()
-                ? lessonMaterial.getFileName()
-                : "material-" + lessonMaterial.getId();
-
-        MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
-        if (properties.getContentType() != null && !properties.getContentType().isBlank()) {
-            mediaType = MediaType.parseMediaType(properties.getContentType());
-        }
-
-        return ResponseEntity.ok()
-                .contentType(mediaType)
-                .contentLength(properties.getBlobSize())
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20"))
-                .body(new InputStreamResource(blobClient.openInputStream()));
+        return azureBlobService.dowloadFile(blobClient);
     }
 }
 

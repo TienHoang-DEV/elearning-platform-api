@@ -15,7 +15,7 @@ public class QuizDTO {
 
     private Integer id;
     private String title;
-    private Integer passScore;
+    private Double passScorePercent;
     @Builder.Default
     private List<QuizQuestionDTO> questions = new ArrayList<>();
     private LocalDateTime createdAt;

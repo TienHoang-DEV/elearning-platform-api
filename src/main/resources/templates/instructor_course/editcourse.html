@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Learning Hub - Chỉnh Sửa Khóa Học</title>
+    <link rel="stylesheet" th:href="@{/css/manager_course.css}"/>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div th:replace="~{fragments/sidebar :: sidebar(activePage='courses')}"></div>
+
+<!-- MAIN -->
+<main class="main-content">
+    <div class="page-header">
+        <h1>
+            <span class="icon">✏️</span>
+            <span th:text="${course != null ? course.title : 'Tạo Khóa Học Mới'}">Khóa Học</span>
+        </h1>
+        <a th:href="@{/instructor/courses}" class="btn btn-outline">← Quay lại danh sách</a>
+    </div>
+
+    <!-- Wizard Notice -->
+    <div class="wizard-notice">
+        ⚠️ <strong>Lưu ý:</strong> Hoàn thành từng bước và nhấn Lưu trước khi chuyển bước tiếp theo.
+    </div>
+
+    <!-- Wizard Steps -->
+    <div class="wizard-steps">
+        <a th:href="@{/instructor/courses/{id}/edit/info(id=${course.id})}"
+           class="wizard-step" th:classappend="${activeStep == 'info'} ? 'active' : ''">
+            <div class="step-dot">1</div>
+            <div class="step-label">GIỚI THIỆU<br/>KHÓA HỌC</div>
+        </a>
+        <a th:href="@{/instructor/courses/{id}/edit/pricing(id=${course.id})}"
+           class="wizard-step" th:classappend="${activeStep == 'pricing'} ? 'active' : ''">
+            <div class="step-dot">2</div>
+            <div class="step-label">GIÁ KHÓA HỌC</div>
+        </a>
+        <a th:href="@{/instructor/courses/{id}/edit/curriculum(id=${course.id})}"
+           class="wizard-step" th:classappend="${activeStep == 'curriculum'} ? 'active' : ''">
+            <div class="step-dot">3</div>
+            <div class="step-label">CHƯƠNG TRÌNH<br/>GIẢNG DẠY</div>
+        </a>
+        <a th:href="@{/instructor/courses/{id}/edit/quiz(id=${course.id})}"
+           class="wizard-step" th:classappend="${activeStep == 'quiz'} ? 'active' : ''">
+            <div class="step-dot">4</div>
+            <div class="step-label">CÂU HỎI ÔN TẬP</div>
+        </a>
+        <a th:href="@{/instructor/courses/{id}/edit/publish(id=${course.id})}"
+           class="wizard-step" th:classappend="${activeStep == 'publish'} ? 'active' : ''">
+            <div class="step-dot">5</div>
+            <div class="step-label">XUẤT BẢN</div>
+        </a>
+    </div>
+
+    <!-- Nội dung từng step sẽ được include riêng -->
+    <!-- Ví dụ controller trả về fragment tương ứng với activeStep -->
+    <div th:replace="~{course-editor/step-info :: content}"
+         th:if="${activeStep == 'info'}"></div>
+    <div th:replace="~{course-editor/step-pricing :: content}"
+         th:if="${activeStep == 'pricing'}"></div>
+    <div th:replace="~{course-editor/step-curriculum :: content}"
+         th:if="${activeStep == 'curriculum'}"></div>
+    <div th:replace="~{course-editor/step-quiz :: content}"
+         th:if="${activeStep == 'quiz'}"></div>
+    <div th:replace="~{course-editor/step-publish :: content}"
+         th:if="${activeStep == 'publish'}"></div>
+
+</main>
+
+<!-- Modals dùng chung cho editor -->
+<div th:replace="~{course-editor/modals :: all}"></div>
+
+<script th:src="@{/js/instructor_course.js}"></script>
+</body>
+</html>

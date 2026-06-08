@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Learning Hub - Khóa Học</title>
+    <link rel="stylesheet" th:href="@{/css/course_manage.css}"/>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div th:replace="~{fragments/sidebar :: sidebar(activePage='courses')}"></div>
+
+<!-- MAIN -->
+<main class="main-content">
+    <div class="page-header">
+        <h1><span class="icon">📚</span> Khóa Học</h1>
+        <a th:href="@{/instructor/courses/create}" class="btn btn-primary">+ Tạo Khóa Học Mới</a>
+    </div>
+
+    <div class="card">
+        <div class="tab-bar" data-tab-group="courses">
+            <button class="tab-btn active" data-tab="all"      data-tab-group="courses">Khóa Học Đang Bán</button>
+            <button class="tab-btn"        data-tab="pending"  data-tab-group="courses">Chờ Duyệt</button>
+            <button class="tab-btn"        data-tab="draft"    data-tab-group="courses">Nháp</button>
+            <button class="tab-btn"        data-tab="rejected" data-tab-group="courses">Bị Từ Chối</button>
+            <button class="tab-btn"        data-tab="hidden"   data-tab-group="courses">Ẩn</button>
+        </div>
+
+        <!-- Tab: Đang Bán -->
+        <div class="tab-content" data-tab-group="courses" data-tab="all">
+            <div style="margin-bottom:12px;">
+                <input type="text" class="form-control" placeholder="🔍 Tìm kiếm khóa học..." style="max-width:320px;"/>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Mã Khóa Học</th>
+                        <th>Tên Khóa Học</th>
+                        <th>Lịch Cập Nhật</th>
+                        <th>Giá Gốc (VNĐ)</th>
+                        <th>Giá Bán (VNĐ)</th>
+                        <th>Thao Tác</th>
+                    </tr>
+                    </thead>
+                    <tbody th:if="${courses != null and not #lists.isEmpty(courses)}">
+                    <tr th:each="course : ${courses}">
+                        <td th:text="${course.id}">KH001</td>
+                        <td th:text="${course.title}">Tên khóa học</td>
+                        <td th:text="${#temporals.format(course.updatedAt,'dd/MM/yyyy')}">01/01/2025</td>
+                        <td th:text="${#numbers.formatInteger(course.originalPrice,0,'COMMA')}">500,000</td>
+                        <td th:text="${#numbers.formatInteger(course.salePrice,0,'COMMA')}">399,000</td>
+                        <td>
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                               class="btn btn-sm btn-outline">✏️ Sửa</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tbody th:if="${courses == null or #lists.isEmpty(courses)}">
+                    <tr><td colspan="6" class="table-empty">Không có dữ liệu</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Chờ Duyệt -->
+        <div class="tab-content" data-tab-group="courses" data-tab="pending" style="display:none;">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Mã Khóa Học</th><th>Tên Khóa Học</th><th>Ngày Gửi</th><th>Thao Tác</th>
+                    </tr>
+                    </thead>
+                    <tbody th:if="${pendingCourses != null and not #lists.isEmpty(pendingCourses)}">
+                    <tr th:each="course : ${pendingCourses}">
+                        <td th:text="${course.id}"></td>
+                        <td th:text="${course.title}"></td>
+                        <td th:text="${#temporals.format(course.updatedAt,'dd/MM/yyyy')}"></td>
+                        <td>
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                               class="btn btn-sm btn-outline">✏️ Sửa</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tbody th:if="${pendingCourses == null or #lists.isEmpty(pendingCourses)}">
+                    <tr><td colspan="4" class="table-empty">Không có khóa học đang chờ duyệt</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Nháp -->
+        <div class="tab-content" data-tab-group="courses" data-tab="draft" style="display:none;">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Mã Khóa Học</th><th>Tên Khóa Học</th><th>Lần Sửa Cuối</th><th>Thao Tác</th>
+                    </tr>
+                    </thead>
+                    <tbody th:if="${draftCourses != null and not #lists.isEmpty(draftCourses)}">
+                    <tr th:each="course : ${draftCourses}">
+                        <td th:text="${course.id}"></td>
+                        <td th:text="${course.title}"></td>
+                        <td th:text="${#temporals.format(course.updatedAt,'dd/MM/yyyy')}"></td>
+                        <td>
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                               class="btn btn-sm btn-outline">✏️ Tiếp Tục</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tbody th:if="${draftCourses == null or #lists.isEmpty(draftCourses)}">
+                    <tr><td colspan="4" class="table-empty">Không có khóa học nháp</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Bị Từ Chối -->
+        <div class="tab-content" data-tab-group="courses" data-tab="rejected" style="display:none;">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Mã</th><th>Tên Khóa Học</th><th>Lý Do Từ Chối</th><th>Thao Tác</th>
+                    </tr>
+                    </thead>
+                    <tbody th:if="${rejectedCourses != null and not #lists.isEmpty(rejectedCourses)}">
+                    <tr th:each="course : ${rejectedCourses}">
+                        <td th:text="${course.id}"></td>
+                        <td th:text="${course.title}"></td>
+                        <td th:text="${course.rejectReason ?: '—'}"></td>
+                        <td>
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                               class="btn btn-sm btn-outline">✏️ Chỉnh Sửa Lại</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tbody th:if="${rejectedCourses == null or #lists.isEmpty(rejectedCourses)}">
+                    <tr><td colspan="4" class="table-empty">Không có khóa học bị từ chối</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Ẩn -->
+        <div class="tab-content" data-tab-group="courses" data-tab="hidden" style="display:none;">
+            <div class="table-empty" style="padding:32px;">Không có khóa học ẩn</div>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/instructor_course.js}"></script>
+</body>
+</html>

@@ -9,14 +9,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import vn.edu.fpt.entity.*;
 import vn.edu.fpt.service.*;
-import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.util.SecurityUtils;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
 
 @Controller
 @RequiredArgsConstructor
@@ -67,6 +65,10 @@ public class ListLessonCourseController {
 
         Map<Integer, Boolean> sectionCompletedMap = courseSectionService.getSectionCompletedMap(courseDto.getSections(), completedLessonIds);
 
+        // nếu next lesson bằng null tức là người học đã hoàn thành hết khóa học, không có bài học tiếp theo
+        Lesson nextLesson = lessonService.findNextLessonByCurrentLesson(lesson, totalNumberOfLesson, totalNumberOfLessonCompleted);
+
+        model.addAttribute("nextLesson", nextLesson);
         model.addAttribute("currentSectionId", sectionId);
         model.addAttribute("sectionCompletedMap", sectionCompletedMap);
         model.addAttribute("completedLessonIds", completedLessonIds);

@@ -4,14 +4,20 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
+import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.util.AppConstants;
 
 import java.net.URI;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -39,6 +45,25 @@ public class AzureBlobService {
         } catch (Exception e) {
             throw new RuntimeException("Error");
         }
+    }
+
+    public ResponseEntity<InputStreamResource> dowloadFile(BlobClient blobClient) {
+        BlobProperties properties = blobClient.getProperties();
+        MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
+        if (properties.getContentType() != null && !properties.getContentType().isBlank()) {
+            mediaType = MediaType.parseMediaType(properties.getContentType());
+        }
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .contentLength(properties.getBlobSize())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + URLEncoder.encode(blobClient.getBlobName(), StandardCharsets.UTF_8).replace("+", "%20"))
+                .body(new InputStreamResource(blobClient.openInputStream()));
+        //Encode vì vì tên file có thể chứa các ký tự mà HTTP Header không xử lý tốt, đặc biệt là:
+        //Dấu cách ( )
+        //Tiếng Việt có dấu (à, á, đ, ...)
+        //Ký tự đặc biệt (#, &, %, ?, ...)
+        //URLEncoder được thiết kế cho dữ liệu form HTML: Space -> +
+        //Trong URL hoặc filename*=UTF-8''... của HTTP Header: Space -> %20
     }
 
     public String generateSasUrl(String containerName, String blobName) {

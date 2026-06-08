@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!--
+    FRAGMENT: step-info
+    Dùng trong: course-editor.html
+    th:replace="~{course-editor/step-info :: content}"
+-->
+<div th:fragment="content">
+  <form th:action="@{/instructor/courses/{id}/edit/info(id=${course.id})}"
+        method="POST" enctype="multipart/form-data" id="courseInfoForm">
+
+    <div class="card">
+      <div class="card-title">📝 Giới Thiệu Khóa Học</div>
+
+      <!-- Tiêu đề -->
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>Tiêu Đề Khóa Học <span class="required">*</span></label>
+        <input type="text" name="title" class="form-control" id="courseTitleInput"
+               th:value="${course?.title}"
+               placeholder="Tiêu đề từ 8 đến 60 ký tự" required/>
+        <div class="form-hint">Tối đa 60 ký tự</div>
+      </div>
+
+      <!-- Giới thiệu ngắn -->
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>Giới Thiệu Ngắn</label>
+        <textarea name="shortDesc" class="form-control" id="courseShortInput" rows="2"
+                  placeholder="Mô tả 1–2 câu về khóa học..."
+                  th:text="${course?.shortDesc}"></textarea>
+        <div class="form-hint">Từ 8 đến 500 ký tự</div>
+      </div>
+
+      <!-- Mô tả đầy đủ -->
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>Mô Tả Khóa Học</label>
+        <div class="rich-toolbar">
+          <button data-cmd="bold" type="button"><b>B</b></button>
+          <button data-cmd="italic" type="button"><i>I</i></button>
+          <button data-cmd="underline" type="button"><u>U</u></button>
+          <button data-cmd="insertUnorderedList" type="button">• List</button>
+          <button data-cmd="insertOrderedList" type="button">1. List</button>
+          <button data-cmd="formatBlock" data-val="h3" type="button">H3</button>
+          <button data-cmd="removeFormat" type="button">✕</button>
+        </div>
+        <div class="rich-editor" id="courseDescEditor" contenteditable="true"
+             th:utext="${course?.description}"
+             data-placeholder="Nhập mô tả đầy đủ cho khóa học..."></div>
+        <input type="hidden" name="description" id="descHidden"/>
+      </div>
+
+      <!-- Outcomes & Requirements -->
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Học Viên Đạt Được Gì?</label>
+          <div class="rich-toolbar">
+            <button data-cmd="bold" type="button"><b>B</b></button>
+            <button data-cmd="insertUnorderedList" type="button">• List</button>
+          </div>
+          <div class="rich-editor" id="outcomeEditor" contenteditable="true"
+               th:utext="${course?.outcomes}"
+               style="min-height:70px;"
+               data-placeholder="Mô tả những gì học viên sẽ đạt được..."></div>
+          <input type="hidden" name="outcomes" id="outcomeHidden"/>
+        </div>
+        <div class="form-group">
+          <label>Yêu Cầu Về Khóa Học</label>
+          <div class="rich-toolbar">
+            <button data-cmd="bold" type="button"><b>B</b></button>
+            <button data-cmd="insertUnorderedList" type="button">• List</button>
+          </div>
+          <div class="rich-editor" id="requirementEditor" contenteditable="true"
+               th:utext="${course?.requirements}"
+               style="min-height:70px;"
+               data-placeholder="Nhập yêu cầu về khóa học..."></div>
+          <input type="hidden" name="requirements" id="requirementHidden"/>
+        </div>
+      </div>
+
+      <!-- Level & Category -->
+      <div class="form-grid" style="margin-top:16px;">
+        <div class="form-group">
+          <label>Trình Độ Khóa Học</label>
+          <select name="level" class="form-control">
+            <option value="">Chọn Trình Độ</option>
+            <option th:each="l : ${courselevels}"
+                    th:value="${l}"
+                    th:selected="${course?.level == l}"
+                    th:text="${{
+                                    BEGINNER:'Người mới bắt đầu',
+                                    INTERMEDIATE:'Trung cấp',
+                                    ADVANCED:'Nâng cao'
+                                }[l.name()]}">
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Danh Mục Khóa Học</label>
+          <select name="categoryId" class="form-control">
+            <option value="">Chọn Danh Mục</option>
+            <option th:each="c : ${categories}"
+                    th:value="${c.id}"
+                    th:text="${c.name}"
+                    th:selected="${course?.category?.id == c.id}">
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Thumbnail -->
+      <div class="form-group" style="margin-top:16px;">
+        <label>Hình Thu Nhỏ Của Khóa Học</label>
+        <div th:if="${course?.thumbnailUrl != null}" style="margin-bottom:8px;">
+          <img th:src="${course.thumbnailUrl}" style="max-height:120px;border-radius:8px;" alt="Thumbnail"/>
+        </div>
+        <div class="file-upload-area" onclick="document.getElementById('thumbnailInput').click()">
+          <div class="upload-icon">🖼️</div>
+          <p>Nhấn để chọn ảnh thumbnail (16:9 khuyến nghị)</p>
+          <p style="font-size:.75rem;margin-top:4px;color:#aaa;">JPG, PNG – Tối đa 5MB</p>
+          <span class="choose-btn">Chọn Ảnh</span>
+        </div>
+        <input type="file" id="thumbnailInput" name="thumbnailFile" accept="image/*" style="display:none;"/>
+      </div>
+    </div>
+
+    <!-- Xem trước -->
+    <div class="card">
+      <div class="card-title">👁 Xem Trước Giới Thiệu Khóa Học</div>
+      <div class="preview-panel">
+        <div class="preview-panel-header">👁 XEM TRƯỚC</div>
+        <div class="preview-panel-body">
+          <div class="course-preview-banner" id="courseBanner">
+            <h2 id="previewCourseTitle"
+                th:text="${course?.title ?: 'Tiêu đề khóa học sẽ hiện ở đây'}"></h2>
+            <p id="previewCourseShort"
+               th:text="${course?.shortDesc ?: 'Mô tả ngắn về khóa học...'}"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nút Lưu -->
+    <div style="text-align:right;margin-top:16px;">
+      <a th:href="@{/instructor/courses}" class="btn btn-outline">Hủy</a>
+      <button type="submit" class="btn btn-primary btn-lg">💾 Lưu & Tiếp Theo →</button>
+    </div>
+  </form>
+
+  <script>
+    document.getElementById('courseInfoForm').addEventListener('submit', function () {
+      document.getElementById('descHidden').value = document.getElementById('courseDescEditor').innerHTML;
+      document.getElementById('outcomeHidden').value = document.getElementById('outcomeEditor').innerHTML;
+      document.getElementById('requirementHidden').value = document.getElementById('requirementEditor').innerHTML;
+    });
+  </script>
+</div>
+</html>

@@ -1,5 +1,6 @@
 package vn.edu.fpt.security;
 
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,9 +11,11 @@ import vn.edu.fpt.entity.User;
 import java.util.Collection;
 import java.util.List;
 
+@Getter
 public class CustomUserDetails implements UserDetails {
 
     private final User user;
+
 
     public CustomUserDetails(User user) {
         this.user = user;
@@ -31,6 +34,7 @@ public class CustomUserDetails implements UserDetails {
         }
         return authorities;
     }
+
 
     @Override
     public String getPassword() {
