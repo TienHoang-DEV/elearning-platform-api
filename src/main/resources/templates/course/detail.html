@@ -803,6 +803,58 @@
                         const messageEl = document.getElementById('toast-message-text');
                         if (toastEl && messageEl) {
                             messageEl.textContent = data.message; // Gán nội dung thông báo động từ server
+                            
+                            const titleEl = toastEl.querySelector('.toast-title');
+                            const iconEl = toastEl.querySelector('[data-lucide]');
+                            const closeBtn = toastEl.querySelector('.btn-close');
+                            
+                            if (data.newlyAdded) {
+                                // Giao diện màu xanh (Thành công)
+                                toastEl.classList.remove('bg-warning', 'text-dark');
+                                toastEl.classList.add('bg-success', 'text-white');
+                                
+                                if (titleEl) {
+                                    titleEl.textContent = "Thành công!";
+                                    titleEl.classList.remove('text-dark');
+                                    titleEl.classList.add('text-white');
+                                }
+                                if (messageEl) {
+                                    messageEl.style.setProperty('color', 'rgba(255, 255, 255, 0.9)', 'important');
+                                }
+                                if (iconEl) {
+                                    iconEl.setAttribute('data-lucide', 'check-circle');
+                                    iconEl.className = 'text-white';
+                                }
+                                if (closeBtn) {
+                                    closeBtn.classList.add('btn-close-white');
+                                }
+                            } else {
+                                // Giao diện màu vàng (Cảnh báo/Đã có trong giỏ)
+                                toastEl.classList.remove('bg-success', 'text-white');
+                                toastEl.classList.add('bg-warning', 'text-dark');
+                                
+                                if (titleEl) {
+                                    titleEl.textContent = "Thông báo!";
+                                    titleEl.classList.remove('text-white');
+                                    titleEl.classList.add('text-dark');
+                                }
+                                if (messageEl) {
+                                    messageEl.style.setProperty('color', 'rgba(0, 0, 0, 0.8)', 'important');
+                                }
+                                if (iconEl) {
+                                    iconEl.setAttribute('data-lucide', 'alert-circle');
+                                    iconEl.className = 'text-dark';
+                                }
+                                if (closeBtn) {
+                                    closeBtn.classList.remove('btn-close-white');
+                                }
+                            }
+                            
+                            // Tạo lại icon Lucide nếu thuộc tính thay đổi
+                            if (typeof lucide !== 'undefined') {
+                                lucide.createIcons();
+                            }
+                            
                             const toast = new bootstrap.Toast(toastEl);
                             toast.show();
                         }
