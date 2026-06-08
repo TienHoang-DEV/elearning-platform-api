@@ -61,6 +61,8 @@ public class AuthService {
 
         user.setPhone(request.getPhoneNumber());
 
+        user.setAvatarUrl("https://cdn2.fptshop.com.vn/small/avatar_trang_1_cd729c335b.jpg");
+
         user.setStatus("ACTIVE");
 
 

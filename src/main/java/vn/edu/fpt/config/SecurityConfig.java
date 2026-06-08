@@ -63,7 +63,8 @@ public class SecurityConfig {
                                 "/images/**", "/oauth2/**",
                                 "/forgot-password",
                                 "/reset-password",
-                                "/password-reset-success"
+                                "/password-reset-success",
+                                "/home"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
