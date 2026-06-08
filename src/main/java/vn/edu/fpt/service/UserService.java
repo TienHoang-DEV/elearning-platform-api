@@ -32,8 +32,8 @@ public class UserService {
         this.authService = authService;
     }
 
-    public User findByEmail(String email) {
-        return repository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with email" + email));
+    public Optional<User> findByEmail(String email) {
+        return repository.findByEmail(email);
     }
 
     public List<User> findAll() {
