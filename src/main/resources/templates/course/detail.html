@@ -31,13 +31,16 @@
             justify-content: flex-end;
             gap: 4px;
         }
+
         .star-rating-css input[type="radio"] {
             display: none;
         }
+
         .star-rating-css label {
             cursor: pointer;
             padding: 2px;
         }
+
         /* Default: hollow star (grey border, no fill) */
         .star-rating-css label svg {
             width: 24px;
@@ -46,16 +49,18 @@
             stroke: #ccc !important;
             transition: stroke 0.15s ease-in-out, fill 0.15s ease-in-out;
         }
+
         /* Hover & Checked: filled yellow star (yellow border + yellow fill) */
-        .star-rating-css input[type="radio"]:checked ~ label svg,
-        .star-rating-css input[type="radio"]:checked ~ label svg polygon,
+        .star-rating-css input[type="radio"]:checked~label svg,
+        .star-rating-css input[type="radio"]:checked~label svg polygon,
         .star-rating-css label:hover svg,
         .star-rating-css label:hover svg polygon,
-        .star-rating-css label:hover ~ label svg,
-        .star-rating-css label:hover ~ label svg polygon {
+        .star-rating-css label:hover~label svg,
+        .star-rating-css label:hover~label svg polygon {
             fill: #ffc107 !important;
             stroke: #ffc107 !important;
         }
+
         /* Force solid yellow fill for all read-only/filled stars on the page */
         .star-icon.filled,
         .star-icon.filled polygon,
@@ -439,54 +444,73 @@
                             <div class="d-flex align-items-center gap-2 text-primary fw-bold mb-4">
                                 <i data-lucide="message-square"
                                     style="width: 20px; height: 20px; fill: currentColor;"></i>
-                        <span class="fs-6 fw-bold font-heading">Nhận Xét Khóa Học</span>
+                                <span class="fs-6 fw-bold font-heading">Nhận Xét Khóa Học</span>
                             </div>
 
                             <!-- Thông báo gửi đánh giá thành công -->
-                            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert" th:if="${reviewSuccessMessage}">
+                            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4"
+                                role="alert" th:if="${reviewSuccessMessage}">
                                 <div class="d-flex align-items-center gap-2">
-                                    <i data-lucide="check-circle" class="text-success" style="width:20px; height:20px;"></i>
+                                    <i data-lucide="check-circle" class="text-success"
+                                        style="width:20px; height:20px;"></i>
                                     <span th:text="${reviewSuccessMessage}"></span>
                                 </div>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
                             </div>
 
 
-                            <form id="reviewForm" th:if="${hasReviewed == null || !hasReviewed}" class="border rounded-3 p-4 mb-4 bg-white shadow-sm" th:action="@{/course/review/add}" method="post">
+                            <form id="reviewForm" th:if="${hasReviewed == null || !hasReviewed}"
+                                class="border rounded-3 p-4 mb-4 bg-white shadow-sm" th:action="@{/course/review/add}"
+                                method="post">
                                 <input type="hidden" name="courseId" th:value="${course.id}">
-                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+                                <div
+                                    class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
                                     <div>
-                                        <h3 class="fw-bold font-heading fs-6 text-dark mb-1">Đánh giá khóa học của bạn</h3>
-                                        <p class="text-muted fs-8 m-0">Chia sẻ trải nghiệm học tập để giúp học viên khác chọn khóa học phù hợp.</p>
+                                        <h3 class="fw-bold font-heading fs-6 text-dark mb-1">Đánh giá khóa học của bạn
+                                        </h3>
+                                        <p class="text-muted fs-8 m-0">Chia sẻ trải nghiệm học tập để giúp học viên khác
+                                            chọn khóa học phù hợp.</p>
                                     </div>
                                     <div class="d-flex align-items-center gap-3">
                                         <span class="text-muted fs-8 fw-semibold">Đánh giá sao:</span>
                                         <div class="star-rating-css">
                                             <input type="radio" id="star5" name="rating" value="5" />
-                                            <label for="star5" title="5 sao"><i data-lucide="star" style="fill: currentColor;"></i></label>
+                                            <label for="star5" title="5 sao"><i data-lucide="star"
+                                                    style="fill: currentColor;"></i></label>
 
                                             <input type="radio" id="star4" name="rating" value="4" />
-                                            <label for="star4" title="4 sao"><i data-lucide="star" style="fill: currentColor;"></i></label>
+                                            <label for="star4" title="4 sao"><i data-lucide="star"
+                                                    style="fill: currentColor;"></i></label>
 
                                             <input type="radio" id="star3" name="rating" value="3" />
-                                            <label for="star3" title="3 sao"><i data-lucide="star" style="fill: currentColor;"></i></label>
+                                            <label for="star3" title="3 sao"><i data-lucide="star"
+                                                    style="fill: currentColor;"></i></label>
 
                                             <input type="radio" id="star2" name="rating" value="2" />
-                                            <label for="star2" title="2 sao"><i data-lucide="star" style="fill: currentColor;"></i></label>
+                                            <label for="star2" title="2 sao"><i data-lucide="star"
+                                                    style="fill: currentColor;"></i></label>
 
                                             <input type="radio" id="star1" name="rating" value="1" />
-                                            <label for="star1" title="1 sao"><i data-lucide="star" style="fill: currentColor;"></i></label>
+                                            <label for="star1" title="1 sao"><i data-lucide="star"
+                                                    style="fill: currentColor;"></i></label>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label text-muted fw-semibold fs-8" for="course-review-comment">Nhận xét</label>
-                                    <textarea name="comment" class="form-control fs-7 rounded-3 shadow-none" id="course-review-comment" rows="4" placeholder="Viết cảm nhận của bạn về nội dung, giảng viên hoặc chất lượng bài học..."></textarea>
+                                    <label class="form-label text-muted fw-semibold fs-8"
+                                        for="course-review-comment">Nhận xét</label>
+                                    <textarea name="comment" class="form-control fs-7 rounded-3 shadow-none"
+                                        id="course-review-comment" rows="4"
+                                        placeholder="Viết cảm nhận của bạn về nội dung, giảng viên hoặc chất lượng bài học..."></textarea>
                                 </div>
 
-                                <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
-                                    <button class="btn btn-primary rounded-3 px-4 py-2 fw-bold fs-7 d-inline-flex align-items-center justify-content-center gap-2 ms-sm-auto" type="submit">
+                                <div
+                                    class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                                    <button
+                                        class="btn btn-primary rounded-3 px-4 py-2 fw-bold fs-7 d-inline-flex align-items-center justify-content-center gap-2 ms-sm-auto"
+                                        type="submit">
                                         <span>Gửi đánh giá</span>
                                         <i data-lucide="send" style="width:16px; height:16px;"></i>
                                     </button>
@@ -733,16 +757,17 @@
 
     <!-- Bootstrap Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1100;">
-        <div class="toast border-0 rounded-3 shadow-lg" id="cartToast" role="alert" aria-live="assertive"
+        <div class="toast align-items-center text-white bg-success border-0 rounded-3 shadow-lg" id="cartToast" role="alert" aria-live="assertive"
             aria-atomic="true">
-            <div class="toast-body d-flex align-items-center gap-3 p-3 bg-white"
-                style="border-left: 4px solid var(--bs-success); border-radius: var(--bs-border-radius-lg);">
-                <i data-lucide="check-circle" class="text-success" style="width: 24px; height: 24px;"></i>
-                <div class="toast-content flex-grow-1">
-                    <p class="toast-title fw-bold text-dark m-0 fs-7">Thành công!</p>
-                    <p class="toast-message text-muted m-0 fs-8">Đã thêm khóa học "Guitar điện cơ bản" vào giỏ hàng.</p>
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-3 p-3">
+                    <i data-lucide="check-circle" class="text-white" style="width: 24px; height: 24px;"></i>
+                    <div class="toast-content flex-grow-1">
+                        <p class="toast-title fw-bold text-white m-0 fs-7">Thành công!</p>
+                        <p class="toast-message text-white-50 m-0 fs-8" id="toast-message-text" style="color: rgba(255, 255, 255, 0.9) !important;">Đã thêm khóa học "Guitar điện cơ bản" vào giỏ hàng.</p>
+                    </div>
                 </div>
-                <button type="button" class="btn-close btn-close-sm shadow-none" data-bs-dismiss="toast"
+                <button type="button" class="btn-close btn-close-white me-3 m-auto shadow-none" data-bs-dismiss="toast"
                     aria-label="Close"></button>
             </div>
         </div>
@@ -753,48 +778,85 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
-    <!-- Shared Add to Cart JavaScript -->
-    <script th:src="@{/js/add_cart.js}"></script>
-
     <!-- Custom JavaScript -->
     <script th:src="@{/js/course_detail.js}"></script>
     <script>
         lucide.createIcons();
 
-        // Pause video when modal is closed, load when opened
+        // Hàm gọi API thêm khóa học vào giỏ hàng qua Fetch API (AJAX)
+        function addToCart(btn, courseId) {
+            btn.disabled = true; // Khóa nút bấm để chống spam click nhiều lần
+            
+            // Gửi yêu cầu HTTP POST bất đồng bộ tới API /api/cart/add
+            fetch('/api/cart/add?courseId=' + courseId, { method: 'POST' })
+                .then(res => res.json()) // Chuyển đổi phản hồi thô của server sang định dạng JSON
+                .then(data => {
+                    btn.disabled = false; // Mở khóa lại nút bấm sau khi nhận phản hồi
+                    if (data.success) { // Nếu thêm thành công
+                        const badge = document.getElementById('cart-badge-count');
+                        if (badge) {
+                            badge.textContent = data.cartSize; // Cập nhật số lượng giỏ hàng trên Header
+                        }
+                        
+                        // Hiển thị Bootstrap Toast thông báo thay vì alert
+                        const toastEl = document.getElementById('cartToast');
+                        const messageEl = document.getElementById('toast-message-text');
+                        if (toastEl && messageEl) {
+                            messageEl.textContent = data.message; // Gán nội dung thông báo động từ server
+                            const toast = new bootstrap.Toast(toastEl);
+                            toast.show();
+                        }
+                    } else {
+                        alert(data.message || 'Không thể thêm vào giỏ hàng.'); // Hiển thị lỗi
+                    }
+                })
+                .catch(err => {
+                    btn.disabled = false;
+                    console.error('Lỗi khi thêm vào giỏ hàng:', err);
+                    alert('Có lỗi xảy ra khi thêm vào giỏ hàng.');
+                });
+        }
+
+        // Tự động tạm dừng video khi đóng popup và tải video khi mở popup
         const videoModal = document.getElementById('videoModal');
         if (videoModal) {
+            // Lắng nghe sự kiện 'show.bs.modal' khi popup chuẩn bị mở ra
             videoModal.addEventListener('show.bs.modal', function (event) {
+                // event.relatedTarget là thẻ HTML (nút bấm/thẻ link) đã kích hoạt mở modal này
                 const trigger = event.relatedTarget;
                 if (!trigger) return;
 
+                // Lấy ID và tiêu đề bài học tương ứng từ các thuộc tính data- của nút bấm đó
                 const lessonId = trigger.getAttribute('data-lesson-id');
                 const lessonTitle = trigger.getAttribute('data-lesson-title');
 
-                const video = document.getElementById('previewVideo');
-                const modalTitle = document.getElementById('videoModalLabel');
+                const video = document.getElementById('previewVideo'); // Trình phát video
+                const modalTitle = document.getElementById('videoModalLabel'); // Tiêu đề modal
 
                 if (video && lessonId) {
+                    // Cập nhật tiêu đề popup bằng tên bài học thực tế đang xem thử
                     if (lessonTitle && modalTitle) {
                         modalTitle.textContent = "Xem thử khóa học - " + lessonTitle;
                     }
 
+                    // Gọi Fetch API (GET) tới controller để lấy URL video bảo mật từ Azure
                     fetch("/lesson/" + lessonId)
-                        .then(response => response.text())
+                        .then(response => response.text()) // Nhận URL dạng text thường
                         .then(url => {
-                            video.src = url;
-                            video.load();
-                            video.play().catch(e => console.log("Autoplay prevented:", e));
+                            video.src = url; // Gán link video vào thuộc tính src của thẻ video
+                            video.load();    // Tải tài nguyên video mới
+                            video.play().catch(e => console.log("Autoplay prevented:", e)); // Tự động phát video
                         })
                         .catch(err => console.error("Error loading preview video:", err));
                 }
             });
 
+            // Lắng nghe sự kiện 'hidden.bs.modal' khi popup bị tắt/đóng đi
             videoModal.addEventListener('hidden.bs.modal', function () {
                 const video = document.getElementById('previewVideo');
                 if (video) {
-                    video.pause();
-                    video.removeAttribute('src');
+                    video.pause();           // Tạm dừng video đang phát
+                    video.removeAttribute('src'); // Gỡ bỏ thuộc tính src để tránh tốn băng thông tải tiếp video ngầm
                     video.load();
                 }
             });

@@ -32,11 +32,13 @@ public class CourseDto {
     private java.time.LocalDateTime createdAt;
     private java.time.LocalDateTime updatedAt;
 
+    // Đếm số lượng feedback đạt mức đánh giá sao tương ứng (star)
     public int getStarCount(int star) {
         if (feedbacks == null) {
             return 0;
         }
         int count = 0;
+        // Duyệt qua tất cả feedbacks để lọc ra các đánh giá khớp số sao
         for (FeedbackDto fb : feedbacks) {
             if (fb.getRating() != null && fb.getRating() == star) {
                 count++;
@@ -45,12 +47,16 @@ public class CourseDto {
         return count;
     }
 
+    // Tính tỷ lệ phần trăm của số đánh giá sao tương ứng so với tổng số đánh giá
     public double getStarPercentage(int star) {
-        int total = ratingCount;
+        int total = ratingCount; // Tổng số lượt đánh giá
         if (total == 0) {
             return 0.0;
         }
+        // Công thức: (Số lượng đánh giá X sao * 100) / Tổng số đánh giá
         double pct = (double) getStarCount(star) * 100.0 / total;
+        
+        // Làm tròn đến 1 chữ số sau phần thập phân (Ví dụ: 75.4)
         return Math.round(pct * 10.0) / 10.0;
     }
 }
