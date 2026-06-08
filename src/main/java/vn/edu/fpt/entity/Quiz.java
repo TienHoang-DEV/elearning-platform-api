@@ -23,8 +23,8 @@ public class Quiz extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(255)", nullable = false)
     private String title;
 
-    @Column(name = "pass_score", nullable = false)
-    private Integer passScore;
+    @Column(name = "pass_score_percent", nullable = false)
+    private Double passScorePercent;
 
     @Builder.Default
     @OneToMany(mappedBy = "quiz", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

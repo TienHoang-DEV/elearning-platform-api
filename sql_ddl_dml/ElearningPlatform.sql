@@ -454,8 +454,8 @@ CREATE TABLE quizzes (
     title NVARCHAR(255) NOT NULL,
     -- Tên bài quiz (ví dụ: 'Quiz: Kiểu dữ liệu và biến')
 
-    pass_score INT NOT NULL CHECK (pass_score >= 0),
-    -- Điểm tối thiểu để pass quiz (ví dụ: 70)
+    pass_score_percent  INT NOT NULL CHECK (pass_score_percent  >= 0),
+    -- Phần trăm Điểm tối thiểu để pass quiz (ví dụ: 70)
 
     created_at DATETIME DEFAULT GETDATE(),
     -- Thời gian tạo quiz
@@ -1073,7 +1073,7 @@ DECLARE @Lesson2Id INT = SCOPE_IDENTITY();
 INSERT INTO quizzes (
     lesson_id,
     title,
-    pass_score
+    pass_score_percent 
 )
 VALUES (
     @Lesson2Id,
@@ -1183,7 +1183,7 @@ DECLARE @Lesson3Id INT = SCOPE_IDENTITY();
 INSERT INTO quizzes (
     lesson_id,
     title,
-    pass_score
+    pass_score_percent 
 )
 VALUES (
     @Lesson3Id,
@@ -1291,7 +1291,7 @@ DECLARE @Lesson4Id INT = SCOPE_IDENTITY();
 INSERT INTO quizzes (
     lesson_id,
     title,
-    pass_score
+    pass_score_percent 
 )
 VALUES (
     @Lesson4Id,
@@ -1376,7 +1376,7 @@ SET @Section2Id = SCOPE_IDENTITY();
 INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
 VALUES (@Section2Id, N'Bài 5 - Câu lệnh if else', 'Recording%202026-05-28%20212131.mp4', 780, 1, 1, 'APPROVED');
 DECLARE @Lesson5Id INT = SCOPE_IDENTITY();
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@Lesson5Id, N'Quiz - Câu lệnh if else', 70);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@Lesson5Id, N'Quiz - Câu lệnh if else', 70);
 DECLARE @Quiz5Id INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@Quiz5Id, N'Câu lệnh nào dùng để rẽ nhánh trong C?', 'SINGLE', 1, 1);
 DECLARE @Q51Id INT = SCOPE_IDENTITY();
@@ -1390,7 +1390,7 @@ VALUES (@Q52Id, N'Boolean', 1), (@Q52Id, N'String', 0), (@Q52Id, N'Char', 0), (@
 INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
 VALUES (@Section2Id, N'Bài 6 - Câu lệnh switch case', 'Recording%202026-05-28%20212131.mp4', 840, 2, 1, 'APPROVED');
 DECLARE @Lesson6Id INT = SCOPE_IDENTITY();
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@Lesson6Id, N'Quiz - Câu lệnh switch case', 70);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@Lesson6Id, N'Quiz - Câu lệnh switch case', 70);
 DECLARE @Quiz6Id INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@Quiz6Id, N'Switch case thường dùng để làm gì?', 'SINGLE', 1, 1);
 DECLARE @Q61Id INT = SCOPE_IDENTITY();
@@ -1404,7 +1404,7 @@ VALUES (@Q62Id, N'break', 1), (@Q62Id, N'continue', 0), (@Q62Id, N'return', 0), 
 INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
 VALUES (@Section2Id, N'Bài 7 - Vòng lặp for và while', 'Recording%202026-05-28%20212131.mp4', 900, 3, 1, 'APPROVED');
 DECLARE @Lesson7Id INT = SCOPE_IDENTITY();
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@Lesson7Id, N'Quiz - Vòng lặp for và while', 70);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@Lesson7Id, N'Quiz - Vòng lặp for và while', 70);
 DECLARE @Quiz7Id INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@Quiz7Id, N'Vòng lặp nào thường biết trước số lần lặp?', 'SINGLE', 1, 1);
 DECLARE @Q71Id INT = SCOPE_IDENTITY();
@@ -1423,7 +1423,7 @@ SET @Section3Id = SCOPE_IDENTITY();
 INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
 VALUES (@Section3Id, N'Bài 8 - Khai báo và truy cập mảng', 'Recording%202026-05-28%20212131.mp4', 870, 1, 1, 'APPROVED');
 DECLARE @Lesson8Id INT = SCOPE_IDENTITY();
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@Lesson8Id, N'Quiz - Mảng trong C', 70);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@Lesson8Id, N'Quiz - Mảng trong C', 70);
 DECLARE @Quiz8Id INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@Quiz8Id, N'Chỉ số phần tử đầu tiên của mảng trong C là gì?', 'SINGLE', 1, 1);
 DECLARE @Q81Id INT = SCOPE_IDENTITY();
@@ -1437,7 +1437,7 @@ VALUES (@Q82Id, N'Lưu các phần tử cùng kiểu dữ liệu', 1), (@Q82Id, 
 INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
 VALUES (@Section3Id, N'Bài 9 - Duyệt mảng với vòng lặp', 'Recording%202026-05-28%20212131.mp4', 930, 2, 1, 'APPROVED');
 DECLARE @Lesson9Id INT = SCOPE_IDENTITY();
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@Lesson9Id, N'Quiz - Duyệt mảng', 70);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@Lesson9Id, N'Quiz - Duyệt mảng', 70);
 DECLARE @Quiz9Id INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@Quiz9Id, N'Vòng lặp nào thường dùng để duyệt mảng?', 'SINGLE', 1, 1);
 DECLARE @Q91Id INT = SCOPE_IDENTITY();
@@ -1451,7 +1451,7 @@ VALUES (@Q92Id, N'Khi khai báo', 1), (@Q92Id, N'Khi chạy chương trình', 0)
 INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
 VALUES (@Section3Id, N'Bài 10 - Xử lý chuỗi trong C', 'Recording%202026-05-28%20212131.mp4', 960, 3, 1, 'APPROVED');
 DECLARE @Lesson10Id INT = SCOPE_IDENTITY();
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@Lesson10Id, N'Quiz - Xử lý chuỗi', 70);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@Lesson10Id, N'Quiz - Xử lý chuỗi', 70);
 DECLARE @Quiz10Id INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@Quiz10Id, N'Chuỗi trong C kết thúc bằng ký tự nào?', 'SINGLE', 1, 1);
 DECLARE @Q101Id INT = SCOPE_IDENTITY();
@@ -1470,7 +1470,7 @@ SET @Section4Id = SCOPE_IDENTITY();
 INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
 VALUES (@Section4Id, N'Bài 11 - Hàm trong C', 'Recording%202026-05-28%20212131.mp4', 840, 1, 1, 'APPROVED');
 DECLARE @Lesson11Id INT = SCOPE_IDENTITY();
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@Lesson11Id, N'Quiz - Hàm trong C', 70);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@Lesson11Id, N'Quiz - Hàm trong C', 70);
 DECLARE @Quiz11Id INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@Quiz11Id, N'Mục đích của hàm trong C là gì?', 'SINGLE', 1, 1);
 DECLARE @Q111Id INT = SCOPE_IDENTITY();
@@ -1484,7 +1484,7 @@ VALUES (@Q112Id, N'int', 1), (@Q112Id, N'void', 0), (@Q112Id, N'char', 0), (@Q11
 INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
 VALUES (@Section4Id, N'Bài 12 - Tham số và giá trị trả về', 'Recording%202026-05-28%20212131.mp4', 900, 2, 1, 'APPROVED');
 DECLARE @Lesson12Id INT = SCOPE_IDENTITY();
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@Lesson12Id, N'Quiz - Tham số và giá trị trả về', 70);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@Lesson12Id, N'Quiz - Tham số và giá trị trả về', 70);
 DECLARE @Quiz12Id INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@Quiz12Id, N'Tham số hàm được truyền vào khi nào?', 'SINGLE', 1, 1);
 DECLARE @Q121Id INT = SCOPE_IDENTITY();
@@ -1498,7 +1498,7 @@ VALUES (@Q122Id, N'Kiểu dữ liệu trả về', 1), (@Q122Id, N'Tên hàm', 0
 INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
 VALUES (@Section4Id, N'Bài 13 - Con trỏ cơ bản', 'Recording%202026-05-28%20212131.mp4', 980, 3, 1, 'APPROVED');
 DECLARE @Lesson13Id INT = SCOPE_IDENTITY();
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@Lesson13Id, N'Quiz - Con trỏ cơ bản', 70);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@Lesson13Id, N'Quiz - Con trỏ cơ bản', 70);
 DECLARE @Quiz13Id INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@Quiz13Id, N'Con trỏ lưu gì?', 'SINGLE', 1, 1);
 DECLARE @Q131Id INT = SCOPE_IDENTITY();
@@ -1551,19 +1551,19 @@ DECLARE @C2L3 INT; INSERT INTO lessons (section_id, title, video_url, duration_s
 
 -- Seed quizzes for C2 lessons s1
 -- For brevity, add one quiz with two simple questions per lesson
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@C2L1, N'Quiz - Giới thiệu', 70); DECLARE @C2Q1 INT = SCOPE_IDENTITY();
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@C2L1, N'Quiz - Giới thiệu', 70); DECLARE @C2Q1 INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@C2Q1, N'Giới thiệu C chủ yếu dùng cho gì?', 'SINGLE', 1, 1); DECLARE @C2Q11 INT = SCOPE_IDENTITY();
 INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@C2Q11, N'Lập trình hệ thống', 1), (@C2Q11, N'Trình duyệt', 0), (@C2Q11, N'Office', 0), (@C2Q11, N'Khác', 0);
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@C2Q1, N'C có bước biên dịch hay thông dịch?', 'SINGLE', 1, 2); DECLARE @C2Q12 INT = SCOPE_IDENTITY();
 INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@C2Q12, N'Biên dịch', 1), (@C2Q12, N'Thông dịch', 0), (@C2Q12, N'Cả hai', 0), (@C2Q12, N'Không rõ', 0);
 
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@C2L2, N'Quiz - Kiểu dữ liệu', 70); DECLARE @C2Q2 INT = SCOPE_IDENTITY();
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@C2L2, N'Quiz - Kiểu dữ liệu', 70); DECLARE @C2Q2 INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@C2Q2, N'Kiểu dữ liệu nào lưu số nguyên?', 'SINGLE', 1, 1); DECLARE @C2Q21 INT = SCOPE_IDENTITY();
 INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@C2Q21, N'int', 1), (@C2Q21, N'float', 0), (@C2Q21, N'double', 0), (@C2Q21, N'char', 0);
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@C2Q2, N'Kiểu để lưu ký tự?', 'SINGLE', 1, 2); DECLARE @C2Q22 INT = SCOPE_IDENTITY();
 INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@C2Q22, N'char', 1), (@C2Q22, N'string', 0), (@C2Q22, N'int', 0), (@C2Q22, N'float', 0);
 
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@C2L3, N'Quiz - printf', 70); DECLARE @C2Q3 INT = SCOPE_IDENTITY();
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@C2L3, N'Quiz - printf', 70); DECLARE @C2Q3 INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@C2Q3, N'Hàm printf dùng để?', 'SINGLE', 1, 1); DECLARE @C2Q31 INT = SCOPE_IDENTITY();
 INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@C2Q31, N'Xuất dữ liệu', 1), (@C2Q31, N'Nhập dữ liệu', 0), (@C2Q31, N'Thực thi', 0), (@C2Q31, N'Khác', 0);
 
@@ -1578,13 +1578,13 @@ DECLARE @c2l4 INT; INSERT INTO lessons (section_id, title, video_url, duration_s
 DECLARE @c2l5 INT; INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status) VALUES (@C2S2, N'Bài 6 - Câu lệnh switch case', 'Recording%202026-05-28%20212131.mp4', 840, 2, 1, 'APPROVED'); SET @c2l5 = SCOPE_IDENTITY();
 DECLARE @c2l6 INT; INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status) VALUES (@C2S2, N'Bài 7 - Vòng lặp for và while', 'Recording%202026-05-28%20212131.mp4', 900, 3, 1, 'APPROVED'); SET @c2l6 = SCOPE_IDENTITY();
 
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@c2l4, N'Quiz - If else', 70); DECLARE @c2q4 INT = SCOPE_IDENTITY();
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@c2l4, N'Quiz - If else', 70); DECLARE @c2q4 INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@c2q4, N'If else để làm gì?', 'SINGLE', 1, 1); DECLARE @c2q41 INT = SCOPE_IDENTITY(); INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@c2q41, N'Rẽ nhánh',1),(@c2q41,N'Lặp',0),(@c2q41,N'Khai báo',0),(@c2q41,N'Khác',0);
 
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@c2l5, N'Quiz - Switch', 70); DECLARE @c2q5 INT = SCOPE_IDENTITY();
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@c2l5, N'Quiz - Switch', 70); DECLARE @c2q5 INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@c2q5, N'Switch dùng để?', 'SINGLE', 1, 1); DECLARE @c2q51 INT = SCOPE_IDENTITY(); INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@c2q51, N'Chọn nhánh theo giá trị',1),(@c2q51,N'Lặp',0),(@c2q51,N'Khai báo',0),(@c2q51,N'Khác',0);
 
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@c2l6, N'Quiz - Vòng lặp', 70); DECLARE @c2q6 INT = SCOPE_IDENTITY();
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@c2l6, N'Quiz - Vòng lặp', 70); DECLARE @c2q6 INT = SCOPE_IDENTITY();
 INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@c2q6, N'Vòng lặp for dùng khi?', 'SINGLE', 1, 1); DECLARE @c2q61 INT = SCOPE_IDENTITY(); INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@c2q61, N'Biết trước số lần lặp',1),(@c2q61,N'Không biết trước',0),(@c2q61,N'Khai báo',0),(@c2q61,N'Khác',0);
 
 -- Section 3 lessons (array/string)
@@ -1592,18 +1592,18 @@ DECLARE @c2l7 INT; INSERT INTO lessons (section_id, title, video_url, duration_s
 DECLARE @c2l8 INT; INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status) VALUES (@C2S3, N'Bài 9 - Duyệt mảng', 'Recording%202026-05-28%20212131.mp4', 930, 2, 1, 'APPROVED'); SET @c2l8 = SCOPE_IDENTITY();
 DECLARE @c2l9 INT; INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status) VALUES (@C2S3, N'Bài 10 - Chuỗi', 'Recording%202026-05-28%20212131.mp4', 960, 3, 1, 'APPROVED'); SET @c2l9 = SCOPE_IDENTITY();
 
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@c2l7, N'Quiz - Mảng', 70); DECLARE @c2q7 INT = SCOPE_IDENTITY(); INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@c2q7, N'Chỉ số bắt đầu của mảng?', 'SINGLE', 1, 1); DECLARE @c2q71 INT = SCOPE_IDENTITY(); INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@c2q71, N'0',1),(@c2q71,N'1',0),(@c2q71,N'-1',0),(@c2q71,N'Khác',0);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@c2l7, N'Quiz - Mảng', 70); DECLARE @c2q7 INT = SCOPE_IDENTITY(); INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@c2q7, N'Chỉ số bắt đầu của mảng?', 'SINGLE', 1, 1); DECLARE @c2q71 INT = SCOPE_IDENTITY(); INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@c2q71, N'0',1),(@c2q71,N'1',0),(@c2q71,N'-1',0),(@c2q71,N'Khác',0);
 
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@c2l8, N'Quiz - Duyệt mảng', 70); DECLARE @c2q8 INT = SCOPE_IDENTITY(); INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@c2q8, N'Vòng lặp hay dùng để duyệt mảng?', 'SINGLE', 1, 1); DECLARE @c2q81 INT = SCOPE_IDENTITY(); INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@c2q81, N'for',1),(@c2q81,N'while',0),(@c2q81,N'switch',0),(@c2q81,N'Khác',0);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@c2l8, N'Quiz - Duyệt mảng', 70); DECLARE @c2q8 INT = SCOPE_IDENTITY(); INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@c2q8, N'Vòng lặp hay dùng để duyệt mảng?', 'SINGLE', 1, 1); DECLARE @c2q81 INT = SCOPE_IDENTITY(); INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@c2q81, N'for',1),(@c2q81,N'while',0),(@c2q81,N'switch',0),(@c2q81,N'Khác',0);
 
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@c2l9, N'Quiz - Chuỗi', 70); DECLARE @c2q9 INT = SCOPE_IDENTITY(); INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@c2q9, N'Chuỗi kết thúc bằng gì?', 'SINGLE', 1, 1); DECLARE @c2q91 INT = SCOPE_IDENTITY(); INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@c2q91, N'\0',1),(@c2q91,N'\n',0),(@c2q91,N'space',0),(@c2q91,N'Khác',0);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@c2l9, N'Quiz - Chuỗi', 70); DECLARE @c2q9 INT = SCOPE_IDENTITY(); INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@c2q9, N'Chuỗi kết thúc bằng gì?', 'SINGLE', 1, 1); DECLARE @c2q91 INT = SCOPE_IDENTITY(); INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@c2q91, N'\0',1),(@c2q91,N'\n',0),(@c2q91,N'space',0),(@c2q91,N'Khác',0);
 
 -- Section 4 lessons (functions/pointers)
 DECLARE @c2l10 INT; INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status) VALUES (@C2S4, N'Bài 11 - Hàm', 'Recording%202026-05-28%20212131.mp4', 840, 1, 1, 'APPROVED'); SET @c2l10 = SCOPE_IDENTITY();
 DECLARE @c2l11 INT; INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status) VALUES (@C2S4, N'Bài 12 - Tham số', 'Recording%202026-05-28%20212131.mp4', 900, 2, 1, 'APPROVED'); SET @c2l11 = SCOPE_IDENTITY();
 DECLARE @c2l12 INT; INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status) VALUES (@C2S4, N'Bài 13 - Con trỏ', 'Recording%202026-05-28%20212131.mp4', 980, 3, 1, 'APPROVED'); SET @c2l12 = SCOPE_IDENTITY();
 
-INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@c2l12, N'Quiz - Con trỏ', 70); DECLARE @c2_l12_quiz INT = SCOPE_IDENTITY(); INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@c2_l12_quiz, N'Con trỏ lưu gì?', 'SINGLE', 1, 1); DECLARE @c2q121 INT = SCOPE_IDENTITY(); INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@c2q121, N'Địa chỉ bộ nhớ',1),(@c2q121,N'Giá trị',0),(@c2q121,N'Tên biến',0),(@c2q121,N'Khác',0);
+INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@c2l12, N'Quiz - Con trỏ', 70); DECLARE @c2_l12_quiz INT = SCOPE_IDENTITY(); INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position) VALUES (@c2_l12_quiz, N'Con trỏ lưu gì?', 'SINGLE', 1, 1); DECLARE @c2q121 INT = SCOPE_IDENTITY(); INSERT INTO quiz_answers (question_id, answer_text, is_correct) VALUES (@c2q121, N'Địa chỉ bộ nhớ',1),(@c2q121,N'Giá trị',0),(@c2q121,N'Tên biến',0),(@c2q121,N'Khác',0);
 
 -- lesson material for one of course2 lessons
 INSERT INTO lesson_materials (instructor_id, course_id, lesson_id, file_name, file_url, file_type, created_at)
@@ -1799,7 +1799,7 @@ WHILE @CourseIndex <= 14
                                );
                         SET @LessonId = SCOPE_IDENTITY();
 
-                        INSERT INTO quizzes (lesson_id, title, pass_score)
+                        INSERT INTO quizzes (lesson_id, title, pass_score_percent )
                         VALUES (@LessonId, CONCAT(N'Quiz - Bài ', @LessonGlobalPos, N' - Khóa ', @CourseIndex), 70);
                         SET @QuizId = SCOPE_IDENTITY();
 
@@ -2029,7 +2029,7 @@ DECLARE @Lesson7Id INT = (SELECT id FROM lessons WHERE title = N'Bài 1 - Giới
 DECLARE @Lesson8Id INT = (SELECT id FROM lessons WHERE title = N'Bài 2 - Hướng dẫn cấu hình môi trường Spring Boot');
 
 -- 4. Insert quizzes for Course 2 & 3
-INSERT INTO quizzes (lesson_id, title, pass_score)
+INSERT INTO quizzes (lesson_id, title, pass_score_percent )
 VALUES 
 (@Lesson6Id, N'Quiz - Stack và Queue', 70),
 (@Lesson8Id, N'Quiz - Tổng quan Spring Boot', 70);
@@ -2125,9 +2125,9 @@ DECLARE @C5_L3 INT = (SELECT l.id FROM lessons l JOIN course_sections s ON l.sec
 -- Create missing Quizzes for Course 3 if not exists
 IF NOT EXISTS (SELECT 1 FROM quizzes q JOIN lessons l ON q.lesson_id = l.id WHERE q.title = N'Quiz - Kiểu dữ liệu và biến' AND l.id = @C3_L2)
 BEGIN
-    INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@C3_L2, N'Quiz - Kiểu dữ liệu và biến', 70);
-    INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@C3_L3, N'Quiz - Hàm printf', 70);
-    INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@C3_L1, N'Quiz - Hàm scanf', 70);
+    INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@C3_L2, N'Quiz - Kiểu dữ liệu và biến', 70);
+    INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@C3_L3, N'Quiz - Hàm printf', 70);
+    INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@C3_L1, N'Quiz - Hàm scanf', 70);
 END
 
 -- Quizzes for Course 3
@@ -2138,9 +2138,9 @@ DECLARE @C3_Qz4Id INT = (SELECT q.id FROM quizzes q JOIN lessons l ON q.lesson_i
 -- Create missing Quizzes for Course 4 if not exists
 IF NOT EXISTS (SELECT 1 FROM quizzes q JOIN lessons l ON q.lesson_id = l.id WHERE q.title = N'Quiz - Kiểu dữ liệu và biến' AND l.id = @C4_L1)
 BEGIN
-    INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@C4_L1, N'Quiz - Kiểu dữ liệu và biến', 70);
-    INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@C4_L1, N'Quiz - Hàm printf', 70);
-    INSERT INTO quizzes (lesson_id, title, pass_score) VALUES (@C4_L1, N'Quiz - Hàm scanf', 70);
+    INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@C4_L1, N'Quiz - Kiểu dữ liệu và biến', 70);
+    INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@C4_L1, N'Quiz - Hàm printf', 70);
+    INSERT INTO quizzes (lesson_id, title, pass_score_percent ) VALUES (@C4_L1, N'Quiz - Hàm scanf', 70);
 END
 
 -- Quizzes for Course 4
