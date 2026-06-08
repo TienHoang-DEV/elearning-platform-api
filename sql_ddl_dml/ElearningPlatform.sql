@@ -972,9 +972,9 @@ INSERT INTO categories (name, description, parent_id, status) VALUES (N'SwiftUI'
 INSERT INTO courses (
     instructor_id,
     category_id,
-    title,
+    title,       ///Ko cho trùng
     description,
-    thumbnail_url,
+    thumbnail_url,     ///Ava
     price,
     level,
     status

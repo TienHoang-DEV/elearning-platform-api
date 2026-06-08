@@ -30,6 +30,15 @@ public class Course extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(255)", nullable = false)
     private String title;
 
+    @Column(columnDefinition = "NVARCHAR(255)", nullable = false)
+    private String short_desc;
+
+    @Column(columnDefinition = "NVARCHAR(255)")
+    private String outcome;
+
+    @Column(columnDefinition = "NVARCHAR(255)")
+    private String requirement;
+
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 

@@ -1,7 +1,10 @@
 package vn.edu.fpt.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,12 +33,18 @@ public class User extends BaseEntity{
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
+    @NotBlank
+    @Size(min = 2, max = 50)
     @Column(columnDefinition = "Nvarchar(255)", nullable = false)
     private String firstName;
 
+    @NotBlank
+    @Size(min = 2, max = 50)
     @Column(columnDefinition = "Nvarchar(255)", nullable = false)
     private String lastName;
 
+    @Email
+    @NotBlank
     @Column(length= 255, nullable = false, unique = true)
     private String email;
 

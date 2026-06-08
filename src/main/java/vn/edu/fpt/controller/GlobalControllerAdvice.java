@@ -5,10 +5,16 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import vn.edu.fpt.entity.Cart;
+import vn.edu.fpt.entity.CartItem;
+import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.CartItemService;
 import vn.edu.fpt.service.CartService;
+import vn.edu.fpt.service.CategoryService;
+
+import java.util.List;
 
 @ControllerAdvice
 public class GlobalControllerAdvice {
@@ -16,11 +22,13 @@ public class GlobalControllerAdvice {
     private final CartService cartService;
     private final CartItemService cartItemService;
     private final UserRepository userRepository;
+    private final CategoryService categoryService;
 
-    public GlobalControllerAdvice(CartService cartService, CartItemService cartItemService, UserRepository userRepository) {
+    public GlobalControllerAdvice(CartService cartService, CartItemService cartItemService, UserRepository userRepository, CategoryService categoryService) {
         this.cartService = cartService;
         this.cartItemService = cartItemService;
         this.userRepository = userRepository;
+        this.categoryService = categoryService;
     }
 
     @ModelAttribute("cartSize")
@@ -44,5 +52,14 @@ public class GlobalControllerAdvice {
         } catch (Exception ignored) {
         }
         return 0;
+    }
+
+    @ModelAttribute("categories")
+    public List<Category> list(){
+        return categoryService.findByParentIsNullAndStatus("ACTIVE");
+    }
+    @ModelAttribute("courselevels")
+    public CourseLevel[] lisCourseLevels(){
+        return CourseLevel.values();
     }
 }

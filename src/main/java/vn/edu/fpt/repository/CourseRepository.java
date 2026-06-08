@@ -1,10 +1,13 @@
 package vn.edu.fpt.repository;
 
+import org.mapstruct.control.MappingControl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.edu.fpt.entity.Course;
+import vn.edu.fpt.entity.User;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -22,4 +25,8 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             select distinct c from Course c left join fetch c.sections s left join fetch s.lessons where c.id = :id
             """)
     Optional<Course> findByIdWithSectionsAndLessons(@Param("id") Integer id);
+
+    Course findCourseById(Integer id);
+
+    List<Course> findByInstructorAndStatus(User user, String status);
 }

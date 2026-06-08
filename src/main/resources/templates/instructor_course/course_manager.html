@@ -29,34 +29,34 @@
 
     <nav class="sidebar-nav">
         <a data-page="profile" href="#">
-            <span class="nav-icon">👤</span> Thông Tin Của Tôi
+            <span class="nav-icon"></span> Thông Tin Của Tôi
         </a>
         <a data-page="stats" href="#">
-            <span class="nav-icon">📊</span> Thống Kê
+            <span class="nav-icon"></span> Thống Kê
         </a>
         <a data-page="courses" href="#">
-            <span class="nav-icon">📚</span> Khóa Học
+            <span class="nav-icon"></span> Khóa Học
         </a>
         <a data-page="create-course" href="#">
-            <span class="nav-icon">➕</span> Tạo Khóa Học
+            <span class="nav-icon"></span> Tạo Khóa Học
         </a>
         <a data-page="messages" href="#">
-            <span class="nav-icon">💬</span> Tin Nhắn
+            <span class="nav-icon"></span> Tin Nhắn
         </a>
         <a data-page="payment" href="#">
-            <span class="nav-icon">💳</span> Thanh Toán
+            <span class="nav-icon"></span> Thanh Toán
         </a>
         <a data-page="ads" href="#">
-            <span class="nav-icon">📢</span> Quảng Cáo
+            <span class="nav-icon"></span> Quảng Cáo
         </a>
         <a href="#" style="margin-top:auto;">
-            <span class="nav-icon">🛒</span> Đơn Mua Khóa Học
+            <span class="nav-icon"></span> Đơn Mua Khóa Học
         </a>
         <a href="#">
-            <span class="nav-icon">🔐</span> Khóa Nợ
+            <span class="nav-icon"></span> Khóa Nợ
         </a>
         <a href="#" class="nav-logout">
-            <span class="nav-icon">🚪</span> Đăng Xuất
+            <span class="nav-icon"></span> Đăng Xuất
         </a>
     </nav>
 </aside>
@@ -102,7 +102,7 @@
                         <input type="text" name="phone" class="form-control"
                                th:value="${instructor != null ? instructor.phone : ''}" placeholder="012345789"/>
                     </div>
-
+                    <p class="text-danger" th:text="${error}"></p>
                 </div>
 
                 <div class="form-group" style="margin-bottom:16px;">
@@ -127,16 +127,18 @@
                         <div style="display:flex;align-items:center;gap:12px;">
                             <div class="avatar-preview-wrap" id="avatarPreview">
                                 <span th:if="${instructor.avatarUrl == null}">T</span>
-                                <img th:if="${instructor != null && instructor.avatarUrl != null}" th:src="${instructor.avatarUrl}"
+                                <img th:if="${instructor != null && instructor.avatarUrl != null}"
+                                     th:src="${instructor.avatarUrl}"
                                      alt="Avatar"/>
                             </div>
                             <div>
                                 <input type="file" name="avatarFile" id="avatarInput" accept="image/*"
                                        style="display:none;"/>
                                 <button type="button" class="btn btn-outline btn-sm"
-                                        onclick="document.getElementById('avatarInput').click()">📁 Chọn Ảnh
+                                        onclick="document.getElementById('avatarInput').click()">Chọn Ảnh
                                 </button>
                                 <div class="form-hint">JPG, PNG. Tối đa 2MB.</div>
+<!--                                <input type="file" name="avatarurl" id="avatarurl">-->
                             </div>
                         </div>
                     </div>
@@ -148,10 +150,12 @@
                 <div class="card-title">👁 Xem Trước Hồ Sơ Giảng Viên</div>
                 <div class="profile-preview-card">
                     <div class="profile-preview-avatar" id="profilePreviewAvatar">
-                        <span><img th:src="${instructor != null && instructor.avatarUrl != null ? instructor.avatarUrl : ''}"></span>
+                        <span><img
+                                th:src="${instructor != null && instructor.avatarUrl != null ? instructor.avatarUrl : ''}"></span>
                     </div>
                     <div class="profile-preview-info">
-                        <h2 id="previewName" th:text="${instructor != null ? instructor.firstName + ' ' + instructor.lastName : ''}"></h2>
+                        <h2 id="previewName"
+                            th:text="${instructor != null ? instructor.firstName + ' ' + instructor.lastName : ''}"></h2>
                         <span class="field-tag" id="previewField">Lĩnh vực</span>
                         <p id="previewBio">Giới thiệu bản thân của bạn sẽ hiện ở đây khi bạn nhập vào phía trên...</p>
                     </div>
@@ -161,7 +165,9 @@
             <div style="text-align:right;">
                 <button type="submit" class="btn btn-primary btn-lg">💾 Lưu Thay Đổi</button>
             </div>
-            <h3 th:text="${sucess != null ? sucess : ''}"></h3>
+            <div th:if="${success}" class="success-msg">
+                ✓ Tạo khóa học thành công
+            </div>
         </form>
     </section>
 
@@ -254,11 +260,12 @@
             </div>
             <div class="wizard-step" data-step="2">
                 <div class="step-dot">2</div>
-                <div class="step-label">CHƯƠNG TRÌNH<br/>GIẢNG DẠY</div>
+                <div class="step-label">GIÁ KHÓA HỌC</div>
+
             </div>
             <div class="wizard-step" data-step="3">
                 <div class="step-dot">3</div>
-                <div class="step-label">GIÁ KHÓA HỌC</div>
+                <div class="step-label">CHƯƠNG TRÌNH<br/>GIẢNG DẠY</div>
             </div>
             <div class="wizard-step" data-step="4">
                 <div class="step-dot">4</div>
@@ -271,144 +278,141 @@
         </div>
 
         <!-- ===== STEP 1: GIỚI THIỆU KHÓA HỌC ===== -->
-        <div class="course-step-content" id="step-1">
-            <div class="card">
-                <div class="card-title">📝 Giới Thiệu Khóa Học</div>
+        <form action="/courses/save" method="POST" enctype="multipart/form-data" id="courseForm">
+            <div class="course-step-content" id="step-1">
+                <div class="card">
+                    <div class="card-title">📝 Giới Thiệu Khóa Học</div>
 
-                <div class="form-group" style="margin-bottom:16px;">
-                    <label>Tiêu Đề Khóa Học <span class="required">*</span></label>
-                    <input type="text" id="courseTitleInput" name="title" class="form-control"
-                           placeholder="Tiêu đề khóa học ít 8 ký tự và tối đa 60 ký tự tối đa hình thức"/>
-                    <div class="form-hint">Tiêu đề tốt nhất là từ 5 ký tự và tối đa 500 ký tự tối đa hình thức</div>
-                </div>
-
-                <div class="form-group" style="margin-bottom:16px;">
-                    <label>Giới Thiệu Ngắn</label>
-                    <textarea id="courseShortInput" name="shortDesc" class="form-control"
-                              placeholder="Mô tả ngắn 1 đến 2 câu mô tả về khóa học..." rows="2"></textarea>
-                    <div class="form-hint">Mô tả ngắn từ 8 ký tự và tối đa 500 ký tự đến 500 ký tự</div>
-                </div>
-
-                <div class="form-group" style="margin-bottom:16px;">
-                    <label>Mô Tả Khóa Học</label>
-                    <div class="rich-toolbar">
-                        <button data-cmd="bold" type="button"><b>B</b></button>
-                        <button data-cmd="italic" type="button"><i>I</i></button>
-                        <button data-cmd="underline" type="button"><u>U</u></button>
-                        <button data-cmd="insertUnorderedList" type="button">• List</button>
-                        <button data-cmd="insertOrderedList" type="button">1. List</button>
-                        <button data-cmd="formatBlock" data-val="h3" type="button">H3</button>
-                        <button data-cmd="removeFormat" type="button">✕</button>
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label>Tiêu Đề Khóa Học <span class="required">*</span></label>
+                        <input type="text" id="courseTitleInput" name="title" class="form-control"
+                               placeholder="Tiêu đề khóa học ít 8 ký tự và tối đa 60 ký tự tối đa hình thức"/>
+                        <div class="form-hint">Tiêu đề tốt nhất là từ 5 ký tự và tối đa 500 ký tự tối đa hình thức</div>
                     </div>
-                    <div class="rich-editor" id="courseDescEditor" contenteditable="true"
-                         data-placeholder="Nhập mô tả đầy đủ cho khoá học của bạn..."></div>
-                </div>
 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Học Viên Đạt Được Gì Trong Khóa Học Của Bạn?</label>
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label>Giới Thiệu Ngắn</label>
+                        <textarea id="courseShortInput" name="shortDesc" class="form-control"
+                                  placeholder="Mô tả ngắn 1 đến 2 câu mô tả về khóa học..." rows="2"></textarea>
+                        <div class="form-hint">Mô tả ngắn từ 8 ký tự và tối đa 500 ký tự đến 500 ký tự</div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label>Mô Tả Khóa Học</label>
                         <div class="rich-toolbar">
                             <button data-cmd="bold" type="button"><b>B</b></button>
+                            <button data-cmd="italic" type="button"><i>I</i></button>
+                            <button data-cmd="underline" type="button"><u>U</u></button>
                             <button data-cmd="insertUnorderedList" type="button">• List</button>
+                            <button data-cmd="insertOrderedList" type="button">1. List</button>
+                            <button data-cmd="formatBlock" data-val="h3" type="button">H3</button>
+                            <button data-cmd="removeFormat" type="button">✕</button>
                         </div>
-                        <div class="rich-editor" contenteditable="true" style="min-height:70px;"
-                             data-placeholder="Mô tả những gì học viên sẽ đạt được..."></div>
+                        <div class="rich-editor" id="courseDescEditor" contenteditable="true"
+                             data-placeholder="Nhập mô tả đầy đủ cho khoá học của bạn..."></div>
+                        <input type="hidden" name="description" id="descHidden"/>  <!-- ← THÊM MỚI -->
                     </div>
-                    <div class="form-group">
-                        <label>Yêu Cầu Về Khóa Học (Không bắt buộc)</label>
-                        <div class="rich-toolbar">
-                            <button data-cmd="bold" type="button"><b>B</b></button>
-                            <button data-cmd="insertUnorderedList" type="button">• List</button>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Học Viên Đạt Được Gì Trong Khóa Học Của Bạn?</label>
+                            <div class="rich-toolbar">
+                                <button data-cmd="bold" type="button"><b>B</b></button>
+                                <button data-cmd="insertUnorderedList" type="button">• List</button>
+                            </div>
+                            <div class="rich-editor" id="outcomeEditor" contenteditable="true" style="min-height:70px;"
+                                 data-placeholder="Mô tả những gì học viên sẽ đạt được..."></div>
+                            <input type="hidden" name="outcomes" id="outcomeHidden"/>  <!-- ← THÊM MỚI -->
                         </div>
-                        <div class="rich-editor" contenteditable="true" style="min-height:70px;"
-                             data-placeholder="Nhập yêu cầu về khoá học của bạn..."></div>
+                        <div class="form-group">
+                            <label>Yêu Cầu Về Khóa Học (Không bắt buộc)</label>
+                            <div class="rich-toolbar">
+                                <button data-cmd="bold" type="button"><b>B</b></button>
+                                <button data-cmd="insertUnorderedList" type="button">• List</button>
+                            </div>
+                            <div class="rich-editor" id="requirementEditor" contenteditable="true"
+                                 style="min-height:70px;"
+                                 data-placeholder="Nhập yêu cầu về khoá học của bạn..."></div>
+                            <input type="hidden" name="requirements" id="requirementHidden"/>  <!-- ← THÊM MỚI -->
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-grid" style="margin-top:16px;">
-                    <div class="form-group">
-                        <label>Trình Độ Khóa Học</label>
-                        <select name="level" class="form-control">
-                            <option value="">Chọn Trình Độ</option>
-                            <option value="beginner">Người Mới Bắt Đầu</option>
-                            <option value="intermediate">Trung Cấp</option>
-                            <option value="advanced">Nâng Cao</option>
-                            <option value="all">Tất Cả Các Cấp</option>
-                        </select>
+                    <div class="form-grid" style="margin-top:16px;">
+                        <div class="form-group">
+                            <label>Trình Độ Khóa Học</label>
+                            <select name="level" class="form-control">
+                                <option value="">Chọn Trình Độ</option>
+                                <option th:each="l : ${courselevels}"
+                                        th:value="${l}"
+                                        th:text="${{
+            BEGINNER:'Người mới bắt đầu',
+            INTERMEDIATE:'Trung cấp',
+            ADVANCED:'Nâng cao'
+        }[l.name()]}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Chọn Danh Mục Khóa Học</label>
+                            <select name="categoryId" class="form-control">
+                                <option value="">Chọn Danh Mục</option>
+                                <option th:each="c : ${categories}"
+                                        th:text="${c.name}"
+                                        th:value="${c.id}">Âm Nhạc
+                                </option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Chọn Danh Mục Khóa Học</label>
-                        <select name="categoryId" class="form-control">
-                            <option value="">Chọn Danh Mục</option>
-                            <option value="music">Âm Nhạc</option>
-                            <option value="tech">Công Nghệ</option>
-                            <option value="design">Thiết Kế</option>
-                            <option value="business">Kinh Doanh</option>
-                            <option value="cooking">Nấu Ăn</option>
-                        </select>
-                    </div>
-                </div>
 
-                <div class="form-group" style="margin-top:16px;">
-                    <label>Hình Thu Nhỏ Của Khóa Học</label>
-                    <div class="file-upload-area" onclick="document.getElementById('thumbnailInput').click()">
-                        <div class="upload-icon">🖼️</div>
-                        <p>Nhấn để chọn ảnh thumbnail cho khóa học</p>
-                        <p style="font-size:.75rem;margin-top:4px;color:#aaa;">JPG, PNG – Tỉ lệ 16:9 khuyến nghị</p>
-                        <span class="choose-btn">Chọn Video</span>
+                    <div class="form-group" style="margin-top:16px;">
+                        <label>Hình Thu Nhỏ Của Khóa Học</label>
+                        <div class="file-upload-area" onclick="document.getElementById('thumbnailInput').click()">
+                            <div class="upload-icon">🖼️</div>
+                            <p>Nhấn để chọn ảnh thumbnail cho khóa học</p>
+                            <p style="font-size:.75rem;margin-top:4px;color:#aaa;">JPG, PNG – Tỉ lệ 16:9 khuyến nghị</p>
+                            <span class="choose-btn">Chọn Ảnh</span>
+                        </div>
+                        <input type="file" id="thumbnailInput" name="thumbnailFile" accept="image/*"
+                               style="display:none;"/>
                     </div>
-                    <input type="file" id="thumbnailInput" name="thumbnailFile" accept="image/*" style="display:none;"/>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-close-modal="modal-edit-lesson">💾 Lưu Thay Đổi</button>
+                    </div>
                 </div>
             </div>
+        </form>
 
-            <!-- Xem Trước -->
-            <div class="card">
-                <div class="card-title">👁 Xem Trước Giới Thiệu Khóa Học</div>
-                <div class="preview-panel">
-                    <div class="preview-panel-header">👁 XEM TRƯỚC</div>
-                    <div class="preview-panel-body">
-                        <div class="course-preview-banner" id="courseBanner">
-                            <h2 id="previewCourseTitle">Tiêu đề khóa học sẽ hiện ở đây</h2>
-                            <p id="previewCourseShort">Mô tả ngắn về khóa học...</p>
-                        </div>
-                        <div class="course-preview-meta">
-                            <div class="meta-item">⭐ 4.8 (120 đánh giá)</div>
-                            <div class="meta-item">👥 320 học viên</div>
-                            <div class="meta-item">🕐 12 giờ học</div>
-                            <div class="meta-item">📅 Cập nhật gần đây</div>
-                        </div>
+        <script>
+            document.getElementById('courseForm').addEventListener('submit', function (e) {
+                document.getElementById('descHidden').value = document.getElementById('courseDescEditor').innerHTML;
+                document.getElementById('outcomeHidden').value = document.getElementById('outcomeEditor').innerHTML;
+                document.getElementById('requirementHidden').value = document.getElementById('requirementEditor').innerHTML;
+            });
+        </script>
+        <!-- Xem Trước -->
+        <div class="card">
+            <div class="card-title">👁 Xem Trước Giới Thiệu Khóa Học</div>
+            <div class="preview-panel">
+                <div class="preview-panel-header">👁 XEM TRƯỚC</div>
+                <div class="preview-panel-body">
+                    <div class="course-preview-banner" id="courseBanner">
+                        <h2 id="previewCourseTitle">Tiêu đề khóa học sẽ hiện ở đây</h2>
+                        <p id="previewCourseShort">Mô tả ngắn về khóa học...</p>
                     </div>
+                    <!--                    <div class="course-preview-meta">-->
+                    <!--                        <div class="meta-item">⭐ 4.8 (120 đánh giá)</div>-->
+                    <!--                        <div class="meta-item">👥 320 học viên</div>-->
+                    <!--                        <div class="meta-item">🕐 12 giờ học</div>-->
+                    <!--                        <div class="meta-item">📅 Cập nhật gần đây</div>-->
+                    <!--                    </div>-->
                 </div>
             </div>
         </div>
+        </div>
 
-        <!-- ===== STEP 2: CHƯƠNG TRÌNH GIẢNG DẠY ===== -->
+        <!-- ===== STEP 2: GIÁ KHÓA HỌC ===== -->
         <div class="course-step-content" id="step-2" style="display:none;">
-            <div class="card">
-                <div class="card-title">📖 Chương Trình Giảng Dạy</div>
-                <div class="alert alert-info">
-                    ℹ️ Xem trước cách bài giảng được hiển thị bằng nút "Xem trước bài giảng" bên phải.
-                </div>
-
-                <div id="curriculumList"></div>
-
-                <div class="add-section-btn" id="addSectionBtn">
-                    ＋ Thêm Mục (Chương)
-                </div>
-
-                <!-- Xem trước curriculum -->
-                <div class="preview-panel" style="margin-top:20px;">
-                    <div class="preview-panel-header">📋 XEM TRƯỚC CHƯƠNG TRÌNH GIẢNG DẠY</div>
-                    <div class="preview-panel-body" id="curriculumPreview">
-                        <p style="color:var(--text-muted);font-size:.85rem;">Các chương và bài giảng sẽ hiện ở đây khi
-                            bạn thêm vào...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== STEP 3: GIÁ KHÓA HỌC ===== -->
-        <div class="course-step-content" id="step-3" style="display:none;">
             <div class="card">
                 <div class="card-title">💰 Giá Khóa Học</div>
                 <div class="alert alert-warning">
@@ -446,6 +450,32 @@
                 <div class="voucher-list" id="voucherList"></div>
             </div>
         </div>
+
+        <!-- ===== STEP 3: CHƯƠNG TRÌNH GIẢNG DẠY ===== -->
+        <div class="course-step-content" id="step-3" style="display:none;">
+            <div class="card">
+                <div class="card-title">📖 Chương Trình Giảng Dạy</div>
+                <div class="alert alert-info">
+                    ℹ️ Xem trước cách bài giảng được hiển thị bằng nút "Xem trước bài giảng" bên phải.
+                </div>
+
+                <div id="curriculumList"></div>
+
+                <div class="add-section-btn" id="addSectionBtn">
+                    ＋ Thêm Mục (Chương)
+                </div>
+
+                <!-- Xem trước curriculum -->
+                <div class="preview-panel" style="margin-top:20px;">
+                    <div class="preview-panel-header">📋 XEM TRƯỚC CHƯƠNG TRÌNH GIẢNG DẠY</div>
+                    <div class="preview-panel-body" id="curriculumPreview">
+                        <p style="color:var(--text-muted);font-size:.85rem;">Các chương và bài giảng sẽ hiện ở đây khi
+                            bạn thêm vào...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- ===== STEP 4: CÂU HỎI ÔN TẬP ===== -->
         <div class="course-step-content" id="step-4" style="display:none;">
