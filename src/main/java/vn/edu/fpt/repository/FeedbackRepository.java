@@ -4,4 +4,5 @@ import org.springframework.stereotype.Repository;
 import vn.edu.fpt.entity.Feedback;
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
+    boolean existsByUserIdAndCourseId(Integer userId, Integer courseId);
 }

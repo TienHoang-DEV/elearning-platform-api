@@ -1,103 +1,104 @@
 package vn.edu.fpt.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
-import vn.edu.fpt.entity.Course;
-import vn.edu.fpt.entity.CourseSection;
-import vn.edu.fpt.entity.Lesson;
-import vn.edu.fpt.exception.CourseNotFoundException;
-import vn.edu.fpt.service.AzureBlobService;
-import vn.edu.fpt.service.CourseService;
-import vn.edu.fpt.service.LessonService;
-import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.entity.*;
+import vn.edu.fpt.service.*;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.*;
-
-import java.util.Iterator;
+import vn.edu.fpt.util.SecurityUtils;
 import java.util.List;
-import java.util.Set;
 import java.util.ArrayList;
-import vn.edu.fpt.entity.LessonMaterial;
+import java.util.Map;
 
 @Controller
+@RequiredArgsConstructor
 public class ListLessonCourseController {
 
-    @Autowired
-    CourseService courseService;
-
-    @Autowired
-    LessonService lessonService;
-
-    @Autowired
-    AzureBlobService azureBlobService;
+    private final CourseService courseService;
+    private final LessonService lessonService;
+    private final LessonProgressService lessonProgressService;
+    private final EnrollmentService enrollmentService;
+    private final CourseSectionService courseSectionService;
+    private final DtoMapper dtoMapper;
 
     @Transactional
     @GetMapping("/course/{courseId}")
     public String listSection(@PathVariable Integer courseId) {
-        Course course = courseService.findById(courseId)
-                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        User user = SecurityUtils.getCurrentUser();
 
-        if (course.getSections() == null || course.getSections().isEmpty()) {
-            throw new CourseNotFoundException("Khóa học không có section nào");
-        }
+        Course course = courseService.findById(courseId);
 
-        Iterator<CourseSection> iterator = course.getSections().iterator();
-        CourseSection courseSection = iterator.next();
+        Integer lessonIdFinalCompleted = lessonService.findLessonIdFinalCompletedByCourseIdAndUserId(course.getId(), user.getId());
 
-        if (courseSection.getLessons() == null || courseSection.getLessons().isEmpty()) {
-            throw new CourseNotFoundException("Section không có bài học nào");
-        }
+        Integer sectionId = lessonService.findSectionIdByLessonId(lessonIdFinalCompleted);
 
-        Integer firstLessonId = courseSection.getLessons().iterator().next().getId();
-        return String.format("redirect:/course/%d/section/%d/lesson/%d", courseId, courseSection.getId(), firstLessonId);
+        return String.format("redirect:/course/%d/section/%d/lesson/%d", courseId, sectionId, lessonIdFinalCompleted);
     }
 
     @Transactional
     @GetMapping("/course/{courseId}/section/{sectionId}/lesson/{lessonId}")
     public String viewLesson(Model model, @PathVariable Integer courseId, @PathVariable Integer sectionId, @PathVariable Integer lessonId) {
-        Course course = courseService.findById(courseId)
-                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        User user = SecurityUtils.getCurrentUser();
+        Course course = courseService.findByIdWithSectionsAndLessons(courseId);
 
-        Lesson lesson = lessonService.findByIdWithMaterials(lessonId)
-                .orElseThrow(() -> new CourseNotFoundException("Bài học không tìm thấy"));
+        Lesson lesson = lessonService.findByIdWithMaterials(lessonId);
 
-        CourseDto courseDto = DtoMapper.INSTANCE.toCourseDto(course);
-        LessonDto lessonDto = DtoMapper.INSTANCE.toLessonDto(lesson);
+        CourseDto courseDto = dtoMapper.toCourseDto(course);
+        LessonDto lessonDto = dtoMapper.toLessonDto(lesson);
         List<LessonMaterialDto> materialDtos = new ArrayList<>();
         for (LessonMaterial m : lesson.getMaterials()) {
-            materialDtos.add(DtoMapper.INSTANCE.toLessonMaterialDto(m));
+            materialDtos.add(dtoMapper.toLessonMaterialDto(m));
         }
+        String thumbnailUrl = courseService.getThumbnailUrl(course);
+        Integer totalNumberOfLesson = lessonService.findNumberOfLessonByCourseId(courseId);
+        Enrollment enrollment = enrollmentService.findEnrollmentByCourseIdAndUserId(courseId, user.getId());
+        Integer totalNumberOfLessonCompleted = lessonProgressService.findNumberOfLessonCompletedByEnrollment(enrollment);
+        Boolean lessonProgressStatus = lessonProgressService.findStatusByLessonId(lessonId);
 
+        List<Integer> completedLessonIds = lessonService.getCompletedLessonIdsByCourseIdAndUserId(courseId, user.getId());
+
+        Map<Integer, Boolean> sectionCompletedMap = courseSectionService.getSectionCompletedMap(courseDto.getSections(), completedLessonIds);
+
+        // nếu next lesson bằng null tức là người học đã hoàn thành hết khóa học, không có bài học tiếp theo
+        Lesson nextLesson = lessonService.findNextLessonByCurrentLesson(lesson, totalNumberOfLesson, totalNumberOfLessonCompleted);
+
+        model.addAttribute("nextLesson", nextLesson);
+        model.addAttribute("currentSectionId", sectionId);
+        model.addAttribute("sectionCompletedMap", sectionCompletedMap);
+        model.addAttribute("completedLessonIds", completedLessonIds);
+        model.addAttribute("lessonProgressStatus", lessonProgressStatus);
+        model.addAttribute("totalNumberOfLesson", totalNumberOfLesson);
+        model.addAttribute("totalNumberOfLessonCompleted", totalNumberOfLessonCompleted);
         model.addAttribute("course", courseDto);
         model.addAttribute("courseSections", courseDto.getSections());
         model.addAttribute("lesson", lessonDto);
         model.addAttribute("materials", materialDtos);
-
-        String thumbnailUrl = course.getThumbnailUrl();
-        if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
-            model.addAttribute("posterUrl", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + thumbnailUrl);
-        }
-
+        model.addAttribute("posterUrl", thumbnailUrl);
         return "learning/learning";
     }
 
     @GetMapping("/lesson/{lessonId}")
     @ResponseBody
     public String lessonView(@PathVariable("lessonId") Integer lessonId) {
-        try {
-            Lesson lesson = lessonService.findById(lessonId).orElse(null);
-            if (lesson == null || lesson.getVideoUrl() == null || lesson.getVideoUrl().trim().isEmpty()) {
-                return "https://www.w3schools.com/html/mov_bbb.mp4";
-            }
-            return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
-        } catch (Exception e) {
-            // Fallback sang video test công cộng nếu Azure bị lỗi ở local dev
-            return "https://www.w3schools.com/html/mov_bbb.mp4";
-        }
+       return lessonService.findLessonUrl(lessonId);
     }
+
+    @GetMapping("/lesson-completed/{lessonId}")
+    @ResponseBody
+    public void updateLessonProgress(@PathVariable("lessonId") Integer lessonId) {
+        User user = SecurityUtils.getCurrentUser();
+        Integer sectionId = lessonService.findSectionIdByLessonId(lessonId);
+        Integer courseId = courseSectionService.findCourseIdBySectionId(sectionId);
+        Enrollment enrollment = enrollmentService.findEnrollmentByCourseIdAndUserId(courseId, user.getId());
+        lessonProgressService.saveLessonProgressByEnrollmentAndLessonId(enrollment, lessonId);
+        enrollmentService.updateEnrollmentProgressPercent(enrollment, courseId, sectionId);
+    }
+
+
 }

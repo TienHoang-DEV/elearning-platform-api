@@ -191,11 +191,62 @@ body {
 .value-text strong { display: block; font-size: 0.85rem; margin-bottom: 2px; }
 .value-text p { font-size: 0.75rem; opacity: 0.8; }
 
-.error-message{
-    display:block;
-    margin-top:6px;
-    font-size:13px;
-    color:#ef4444;
+/* --- THIẾT KẾ THÔNG BÁO LỖI CAO CẤP --- */
+
+/* 1. Định dạng lại container chứa input để quản lý vị trí lỗi */
+.input-group {
+    position: relative; /* Giúp định vị thông báo lỗi nếu cần thiết */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 2. Style cho thông báo lỗi */
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #ef4444; /* Màu đỏ mềm mại của Tailwind */
+    animation: fadeInError 0.25s ease-out; /* Hiệu ứng xuất hiện mượt */
+}
+
+/* Tự động thêm icon chấm than trước text lỗi bằng CSS mà không cần sửa HTML */
+.error-message::before {
+    content: "\f06a"; /* Icon circle-exclamation của Font Awesome */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 0.85rem;
+}
+
+/* 3. Hiệu ứng đổi màu viền Ô Input khi có lỗi đi kèm */
+/* Thymeleaf khi có lỗi ở field nào sẽ sinh ra cấu trúc tương tự, ta tận dụng để đổi màu input */
+.input-group:has(.error-message) input {
+    border-color: #fca5a5; /* Viền đỏ nhạt */
+    background-color: #fef2f2; /* Nền hồng siêu nhạt */
+}
+
+.input-group:has(.error-message) input:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08); /* Sương mờ màu đỏ khi focus */
+}
+
+/* Hiệu ứng đổi màu luôn cả icon trong ô input nếu có lỗi */
+.input-group:has(.error-message) .input-with-icon i {
+    color: #ef4444;
+}
+
+/* Animation xuất hiện mượt mà */
+@keyframes fadeInError {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .register-split-left {

@@ -1,5 +1,5 @@
-﻿<!DOCTYPE html>
-<html lang="vi">
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,31 +25,31 @@
             <nav class="sidebar-nav">
                 <ul>
                     <li class="active">
-                        <a href="dashboard.html">
+                        <a th:href="@{/manager/dashboard}">
                             <i class="ph ph-squares-four"></i>
                             <span>Tổng quan</span>
                         </a>
                     </li>
                     <li>
-                        <a href="../approval-instructor/instructor-list.html">
+                        <a th:href="@{/manager/instructor/list}">
                             <i class="ph ph-users"></i>
                             <span>Phê duyệt giảng viên</span>
                         </a>
                     </li>
                     <li>
-                        <a href="../approval-course/course-list.html">
+                        <a th:href="@{/manager/course/list}">
                             <i class="ph ph-book-open"></i>
                             <span>Phê duyệt khóa học</span>
                         </a>
                     </li>
                     <li>
-                        <a href="../revenue/revenue-list.html">
+                        <a th:href="@{/manager/revenue/list}">
                             <i class="ph ph-currency-circle-dollar"></i>
                             <span>Doanh thu</span>
                         </a>
                     </li>
                     <li>
-                        <a href="../feedback-report/feedback-report-list.html">
+                        <a th:href="@{/manager/feedback-report/list}">
                             <i class="ph ph-chat-circle-dots"></i>
                             <span>Phản hồi</span>
                         </a>
@@ -81,46 +81,54 @@
                     <!-- Card 1 -->
                     <div class="stat-card">
                         <div class="stat-header">
-                            <h3>Tổng Doanh Thu</h3>
-                            <div class="icon-wrapper bg-blue-light">
-                                <i class="ph ph-currency-dollar text-blue"></i>
+                            <div class="icon-wrapper">
+                                <i class="ph ph-users"></i>
                             </div>
+                            <span class="stat-title">GIẢNG VIÊN</span>
                         </div>
-                        <div class="stat-value">$45,231</div>
-                        <div class="stat-change text-gray">+20.1% so với tháng trước</div>
+                        <div class="stat-body">
+                            <span class="stat-label">Chờ phê duyệt</span>
+                            <div class="stat-value" th:text="${pendingInstructors}">12</div>
+                        </div>
                     </div>
                     <!-- Card 2 -->
                     <div class="stat-card">
                         <div class="stat-header">
-                            <h3>Tổng Giảng Viên</h3>
-                            <div class="icon-wrapper bg-blue-light">
-                                <i class="ph ph-users text-blue"></i>
+                            <div class="icon-wrapper">
+                                <i class="ph ph-book-open"></i>
                             </div>
+                            <span class="stat-title">KHÓA HỌC</span>
                         </div>
-                        <div class="stat-value">124</div>
-                        <div class="stat-change text-gray">+4 trong tuần này</div>
+                        <div class="stat-body">
+                            <span class="stat-label">Chờ phê duyệt</span>
+                            <div class="stat-value" th:text="${pendingCourses}">8</div>
+                        </div>
                     </div>
                     <!-- Card 3 -->
                     <div class="stat-card">
                         <div class="stat-header">
-                            <h3>Khóa Học Hoạt Động</h3>
-                            <div class="icon-wrapper bg-blue-light">
-                                <i class="ph ph-book-open text-blue"></i>
+                            <div class="icon-wrapper">
+                                <i class="ph ph-chat-centered-text"></i>
                             </div>
+                            <span class="stat-title">PHẢN HỒI</span>
                         </div>
-                        <div class="stat-value">842</div>
-                        <div class="stat-change text-gray">+12 trong tháng này</div>
+                        <div class="stat-body">
+                            <span class="stat-label">Chưa xử lý</span>
+                            <div class="stat-value" th:text="${pendingFeedbacks}">15</div>
+                        </div>
                     </div>
                     <!-- Card 4 -->
                     <div class="stat-card">
                         <div class="stat-header">
-                            <h3>Tổng số học viên</h3>
-                            <div class="icon-wrapper bg-blue-light">
-                                <i class="ph ph-graduation-cap text-blue"></i>
+                            <div class="icon-wrapper">
+                                <i class="ph ph-currency-dollar"></i>
                             </div>
+                            <span class="stat-title">DOANH THU</span>
                         </div>
-                        <div class="stat-value">2,450</div>
-                        <div class="stat-change text-gray">+150 trong tháng này</div>
+                        <div class="stat-body">
+                            <span class="stat-label">Tháng này</span>
+                            <div class="stat-value" th:text="${monthlyRevenue}">45.2M</div>
+                        </div>
                     </div>
                 </div>
 
@@ -134,7 +142,13 @@
             </main>
         </div>
     </div>
-    
+
+    <!-- Pass dynamic chart data from Spring Boot to JavaScript -->
+    <script th:inline="javascript">
+        window.chartLabels = [[${chartLabels}]];
+        window.chartData = [[${chartData}]];
+    </script>
+
     <!-- Custom JS -->
     <script src="../../../static/js/manager/dashboard.js" th:src="@{/js/manager/dashboard.js}"></script>
 </body>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đã xảy ra lỗi - Elearning Platform</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Cabinet+Grotesk:wght@700;800;900&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #3b82f6;
+            --primary-purple: #8b5cf6;
+            --primary-pink: #ec4899;
+            --primary-cyan: #06b6d4;
+            --glass-bg: rgba(255, 255, 255, 0.88);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-main: #0f172a;
+            --text-muted: #475569;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f8fafc;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-y: auto;
+            margin: 0;
+            padding: 3rem 1rem;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* Vibrant Dynamic Mesh Background */
+        .mesh-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .mesh-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.45;
+            mix-blend-mode: multiply;
+            will-change: transform;
+        }
+
+        .orb-blue {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, rgba(59, 130, 246, 0) 70%);
+            top: -10%;
+            left: -10%;
+        }
+
+        .orb-purple {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.5) 0%, rgba(139, 92, 246, 0) 70%);
+            bottom: -20%;
+            right: -10%;
+        }
+
+        .orb-pink {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.45) 0%, rgba(236, 72, 153, 0) 70%);
+            top: 30%;
+            right: 15%;
+        }
+
+        .orb-cyan {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.4) 0%, rgba(6, 182, 212, 0) 70%);
+            bottom: 20%;
+            left: 15%;
+        }
+
+        /* Floating elements container */
+        .decor-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Colorful Floating objects */
+        .floating-object {
+            position: absolute;
+            width: 75px;
+            height: 75px;
+            will-change: transform;
+            pointer-events: auto;
+            cursor: pointer;
+            filter: drop-shadow(0 15px 20px rgba(59, 130, 246, 0.15));
+            transition: filter 0.3s ease;
+        }
+        
+        .floating-object:hover {
+            filter: drop-shadow(0 20px 30px rgba(236, 72, 153, 0.35)) brightness(1.1);
+        }
+
+        /* Glassmorphism Card with Neon Border */
+        .error-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 2px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 4rem 3.5rem;
+            max-width: 680px;
+            width: 90%;
+            box-shadow: 0 35px 70px -15px rgba(59, 130, 246, 0.15), 
+                        inset 0 1px 1px rgba(255, 255, 255, 0.8);
+            z-index: 10;
+            position: relative;
+            margin: auto;
+        }
+
+        /* Gradient Borders / Highlights */
+        .error-card::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 34px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899, #06b6d4);
+            z-index: -1;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .error-title {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-weight: 900;
+            font-size: 7.5rem;
+            line-height: 0.9;
+            background: linear-gradient(135deg, #2563eb 0%, #8b5cf6 30%, #ec4899 70%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -0.04em;
+        }
+
+        .error-subtitle {
+            font-weight: 800;
+            font-size: 1.85rem;
+            color: #0f172a;
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .error-message {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Colorful Buttons */
+        .btn-custom-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 0.95rem 2.4rem;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+            transition: all 0.35s ease;
+        }
+
+        .btn-custom-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(236, 72, 153, 0.5);
+            color: #ffffff;
+        }
+
+        .btn-custom-secondary {
+            background: #ffffff;
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            color: var(--primary-blue);
+            font-weight: 700;
+            padding: 0.95rem 2.4rem;
+            border-radius: 14px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.02);
+            transition: all 0.35s ease;
+        }
+
+        .btn-custom-secondary:hover {
+            background: #f8fafc;
+            border-color: var(--primary-pink);
+            color: var(--primary-pink);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(236, 72, 153, 0.15);
+        }
+
+        /* SVG Center Illustration */
+        .svg-container {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 2.2rem;
+            position: relative;
+        }
+
+        .svg-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, rgba(139, 92, 246, 0) 70%);
+            filter: blur(20px);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        /* Details collapsible panel */
+        .details-wrapper {
+            margin-top: 2rem;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #f8fafc;
+            border: 2px solid rgba(139, 92, 246, 0.12);
+            display: none;
+            opacity: 0;
+            height: 0;
+            text-align: left;
+        }
+
+        .details-header {
+            padding: 0.9rem 1.4rem;
+            background: rgba(139, 92, 246, 0.05);
+            border-bottom: 2px solid rgba(139, 92, 246, 0.1);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary-purple);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .details-body {
+            padding: 1.4rem;
+            max-height: 320px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.78rem;
+            line-height: 1.7;
+            text-align: left;
+            white-space: pre-wrap;
+            word-break: break-all;
+            background: #1e1e2e;
+            color: #f8f8f2;
+        }
+
+        .details-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        .details-body::-webkit-scrollbar-track {
+            background: #2d2d3f;
+        }
+        .details-body::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.5);
+            border-radius: 3px;
+        }
+
+        .btn-toggle-details {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn-toggle-details:hover {
+            color: var(--primary-pink);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Dynamic Morphing Mesh Background -->
+    <div class="mesh-background">
+        <div class="mesh-orb orb-blue" id="orbBlue"></div>
+        <div class="mesh-orb orb-purple" id="orbPurple"></div>
+        <div class="mesh-orb orb-pink" id="orbPink"></div>
+        <div class="mesh-orb orb-cyan" id="orbCyan"></div>
+    </div>
+
+    <!-- Interactive Colorful Background Elements -->
+    <div class="decor-container">
+        <!-- Floating graduation hat -->
+        <svg class="floating-object" id="itemHat" style="top: 12%; left: 8%;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 10L12 5L2 10L12 15L22 10Z" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 12V17C6 18.1046 8.68629 19 12 19C15.3137 19 18 18.1046 18 17V12" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21.5 10.5V16" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+
+        <!-- Floating open book -->
+        <svg class="floating-object" id="itemBook" style="top: 18%; right: 10%;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 3H8C9.10457 3 10 3.89543 10 5V21C10 19.8954 9.10457 19 8 19H2V3Z" stroke="#ec4899" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M22 3H16C14.8954 3 14 3.89543 14 5V21C14 19.8954 14.8954 19 16 19H22V3Z" stroke="#06b6d4" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+
+        <!-- Floating lightbulb -->
+        <svg class="floating-object" id="itemBulb" style="bottom: 16%; left: 12%;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18H15M10 21H14M15 15C16.8565 13.785 18 11.637 18 9C18 5.68629 15.3137 3 12 3C8.68629 3 6 5.68629 6 9C6 11.637 7.14348 13.785 9 15" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+
+        <!-- Floating code bracket -->
+        <svg class="floating-object" id="itemCode" style="bottom: 20%; right: 8%;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 18L22 12L16 6" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 6L2 12L8 18" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 4L10 20" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+
+        <!-- Floating trophy -->
+        <svg class="floating-object" id="itemTrophy" style="top: 45%; left: 5%;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 9H4.5C3.67157 9 3 8.32843 3 7.5V6.5C3 5.67157 3.67157 5 4.5 5H6" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M18 9H19.5C20.3284 9 21 8.32843 21 7.5V6.5C21 5.67157 20.3284 5 19.5 5H18" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 5H18V10C18 13.3137 15.3137 16 12 16C8.68629 16 6 13.3137 6 10V5Z" stroke="#8b5cf6" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M12 16V20M9 20H15" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+
+    <!-- Error Card -->
+    <div class="error-card text-center shadow-lg">
+        
+        <!-- SVG Graphic -->
+        <div class="svg-container">
+            <div class="svg-glow" id="svgGlow"></div>
+            <svg id="errorSvg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Outer shield circle -->
+                <circle cx="50" cy="50" r="44" stroke="url(#paint0_linear)" stroke-width="4" stroke-dasharray="8 8" />
+                <!-- Dynamic danger triangle -->
+                <path id="dangerTriangle" d="M50 20L80 72H20L50 20Z" fill="url(#paint1_linear)" />
+                <!-- Exclamation sign -->
+                <path id="exclamation" d="M50 38V54M50 60H50.01" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" />
+                <!-- Gradients -->
+                <defs>
+                    <linearGradient id="paint0_linear" x1="6" y1="6" x2="94" y2="94" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#3b82f6" />
+                        <stop offset="0.5" stop-color="#8b5cf6" />
+                        <stop offset="1" stop-color="#ec4899" />
+                    </linearGradient>
+                    <linearGradient id="paint1_linear" x1="20" y1="46" x2="80" y2="46" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#ec4899" />
+                        <stop offset="1" stop-color="#8b5cf6" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+
+        <!-- Error Texts -->
+        <h1 class="error-title" th:text="${status != null ? status : '500'}">500</h1>
+        
+        <h2 class="error-subtitle">
+            <span th:text="${error != null ? error : 'Đã xảy ra sự cố hệ thống'}">Đã xảy ra sự cố hệ thống</span>
+        </h2>
+        
+        <p class="error-message">
+            <span th:text="${message != null ? message : 'Máy chủ gặp lỗi bất ngờ khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.'}">Máy chủ gặp lỗi bất ngờ khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.</span>
+        </p>
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <button onclick="window.location.reload();" class="btn-custom-primary shadow-sm" id="btnRetry">
+                <i class="bi bi-arrow-clockwise me-2"></i>Thử lại
+            </button>
+            <button onclick="window.history.back();" class="btn-custom-secondary" id="btnBack">
+                <i class="bi bi-arrow-left me-2"></i>Trở lại trang trước
+            </button>
+            <a href="/home" class="btn-custom-secondary" id="btnHome">
+                <i class="bi bi-house-door me-2"></i>Quay lại Trang chủ
+            </a>
+        </div>
+
+        <!-- Collapsible error details (for developers/debug) -->
+        <div th:if="${trace != null}">
+            <button class="btn-toggle-details" id="toggleDetailsBtn">
+                <i class="bi bi-chevron-down" id="chevronIcon"></i> Xem chi tiết kỹ thuật
+            </button>
+
+            <div class="details-wrapper" id="detailsWrapper">
+                <div class="details-header">
+                    <span>STACK TRACE</span>
+                    <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" onclick="navigator.clipboard.writeText(document.getElementById('stacktraceContent').innerText); alert('Đã sao chép stack trace!');">
+                        <i class="bi bi-copy"></i> Sao chép
+                    </button>
+                </div>
+                <div class="details-body" id="stacktraceContent" th:text="${trace}">
+                    java.lang.NullPointerException: Cannot invoke "vn.edu.fpt.entity.User.getId()" because "user" is null
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GSAP CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Setup GSAP utility mappings
+            // Map mouse coordinates to custom range using gsap.utils.mapRange
+            const mapX = gsap.utils.mapRange(0, window.innerWidth, -60, 60);
+            const mapY = gsap.utils.mapRange(0, window.innerHeight, -60, 60);
+
+            // Reusable random function for mesh background using gsap.utils.random
+            const randomVal = gsap.utils.random(-120, 120, true);
+            const randomScale = gsap.utils.random(0.8, 1.4, true);
+            const randomDur = gsap.utils.random(6, 10, true);
+
+            // 1. Morphing Mesh Background Animation
+            gsap.to("#orbBlue", {
+                x: () => randomVal(),
+                y: () => randomVal(),
+                scale: () => randomScale(),
+                duration: () => randomDur(),
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+            gsap.to("#orbPurple", {
+                x: () => randomVal(),
+                y: () => randomVal(),
+                scale: () => randomScale(),
+                duration: () => randomDur(),
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+            gsap.to("#orbPink", {
+                x: () => randomVal(),
+                y: () => randomVal(),
+                scale: () => randomScale(),
+                duration: () => randomDur(),
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+            gsap.to("#orbCyan", {
+                x: () => randomVal(),
+                y: () => randomVal(),
+                scale: () => randomScale(),
+                duration: () => randomDur(),
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+
+            // 2. Initial entrance animations for card and main objects
+            const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+            timeline.from(".error-card", {
+                y: 100,
+                autoAlpha: 0,
+                duration: 1.4
+            })
+            .from("#errorSvg circle", {
+                strokeDashoffset: 100,
+                duration: 1.5,
+                ease: "power2.inOut"
+            }, "-=1.0")
+            .from("#dangerTriangle", {
+                scale: 0,
+                transformOrigin: "50% 50%",
+                duration: 1,
+                ease: "back.out(1.5)"
+            }, "-=1.0")
+            .from("#exclamation", {
+                y: -30,
+                autoAlpha: 0,
+                duration: 0.8,
+                ease: "bounce.out"
+            }, "-=0.5")
+            .from(".error-title", {
+                y: 30,
+                autoAlpha: 0,
+                duration: 0.8
+            }, "-=0.6")
+            .from(".error-subtitle", {
+                y: 20,
+                autoAlpha: 0,
+                duration: 0.8
+            }, "-=0.6")
+            .from(".error-message", {
+                y: 15,
+                autoAlpha: 0,
+                duration: 0.8
+            }, "-=0.6")
+            .from(["#btnRetry", "#btnHome", "#toggleDetailsBtn"], {
+                y: 10,
+                autoAlpha: 0,
+                stagger: 0.15,
+                duration: 0.6
+            }, "-=0.5");
+
+            // Entrance for floating background icons
+            gsap.from(".floating-object", {
+                scale: 0,
+                opacity: 0,
+                stagger: 0.2,
+                duration: 1.2,
+                ease: "back.out(1.7)",
+                delay: 0.5
+            });
+
+            // 3. Individual drifting float loops for the background objects
+            const items = [
+                { id: "#itemHat", xRange: 25, yRange: 35, rot: 20, dur: 5.5 },
+                { id: "#itemBook", xRange: -30, yRange: 30, rot: -25, dur: 7 },
+                { id: "#itemBulb", xRange: 35, yRange: -25, rot: 30, dur: 7.5 },
+                { id: "#itemCode", xRange: -25, yRange: -35, rot: -20, dur: 6 },
+                { id: "#itemTrophy", xRange: 30, yRange: 20, rot: 15, dur: 6.5 }
+            ];
+
+            items.forEach(item => {
+                gsap.to(item.id, {
+                    x: `+=${item.xRange}`,
+                    duration: item.dur,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+                
+                gsap.to(item.id, {
+                    y: `+=${item.yRange}`,
+                    duration: item.dur * 1.2,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+
+                gsap.to(item.id, {
+                    rotation: item.rot,
+                    duration: item.dur * 1.5,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+            });
+
+            // 4. Mouse parallax effect using gsap.utils.mapRange and clamp
+            window.addEventListener("mousemove", (e) => {
+                const offsetX = mapX(e.clientX);
+                const offsetY = mapY(e.clientY);
+
+                gsap.to("#itemHat", { x: offsetX * -0.8, y: offsetY * -0.8, duration: 1.2, ease: "power2.out", overwrite: "auto" });
+                gsap.to("#itemBook", { x: offsetX * 1.0, y: offsetY * -0.6, duration: 1.5, ease: "power2.out", overwrite: "auto" });
+                gsap.to("#itemBulb", { x: offsetX * -0.6, y: offsetY * 1.0, duration: 1.4, ease: "power2.out", overwrite: "auto" });
+                gsap.to("#itemCode", { x: offsetX * 0.8, y: offsetY * 0.8, duration: 1.6, ease: "power2.out", overwrite: "auto" });
+                gsap.to("#itemTrophy", { x: offsetX * -1.0, y: offsetY * -0.4, duration: 1.3, ease: "power2.out", overwrite: "auto" });
+                
+                // Card tilting (clamped rotation)
+                const tiltX = gsap.utils.clamp(-8, 8, offsetY * 0.15);
+                const tiltY = gsap.utils.clamp(-8, 8, offsetX * -0.15);
+                gsap.to(".error-card", {
+                    rotationX: tiltX,
+                    rotationY: tiltY,
+                    duration: 1,
+                    ease: "power2.out"
+                });
+            });
+
+            // 5. Click fun interaction for floating objects using gsap.utils.random
+            document.querySelectorAll(".floating-object").forEach(el => {
+                el.addEventListener("click", () => {
+                    // Pick a random vibrant color from the palette
+                    const randomColor = gsap.utils.random(["#3b82f6", "#8b5cf6", "#ec4899", "#06b6d4"]);
+
+                    gsap.to(el, {
+                        scale: 1.35,
+                        rotation: "+=360",
+                        duration: 0.8,
+                        ease: "back.out(1.6)",
+                        onComplete: () => {
+                            gsap.to(el, { scale: 1, duration: 0.3 });
+                        }
+                    });
+
+                    // Dynamic stroke color morphing
+                    gsap.to(el.querySelectorAll("path"), {
+                        stroke: randomColor,
+                        duration: 0.5,
+                        stagger: 0.05
+                    });
+                });
+            });
+
+            // 6. SVG central animations
+            gsap.to("#errorSvg circle", {
+                rotation: 360,
+                transformOrigin: "50% 50%",
+                duration: 25,
+                repeat: -1,
+                ease: "none"
+            });
+
+            gsap.to("#dangerTriangle", {
+                y: "-=6",
+                duration: 2,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+            
+            gsap.to("#svgGlow", {
+                scale: 1.2,
+                opacity: 0.25,
+                duration: 2,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+
+            // 7. Smooth details panel toggle
+            const toggleBtn = document.getElementById("toggleDetailsBtn");
+            const detailsWrapper = document.getElementById("detailsWrapper");
+            const chevronIcon = document.getElementById("chevronIcon");
+            let isExpanded = false;
+
+            if (toggleBtn && detailsWrapper) {
+                toggleBtn.addEventListener("click", () => {
+                    isExpanded = !isExpanded;
+                    if (isExpanded) {
+                        gsap.set(detailsWrapper, { display: "block" });
+                        gsap.to(detailsWrapper, {
+                            height: "auto",
+                            autoAlpha: 1,
+                            duration: 0.6,
+                            ease: "power3.out"
+                        });
+                        gsap.to(chevronIcon, { rotation: 180, duration: 0.3 });
+                    } else {
+                        gsap.to(detailsWrapper, {
+                            height: 0,
+                            autoAlpha: 0,
+                            duration: 0.4,
+                            ease: "power3.in",
+                            onComplete: () => {
+                                gsap.set(detailsWrapper, { display: "none" });
+                            }
+                        });
+                        gsap.to(chevronIcon, { rotation: 0, duration: 0.3 });
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -22,16 +22,11 @@ import java.util.Set;
 @SuperBuilder
 @Entity
 @Table(name = "users")
-public class User extends BaseEntity{
+public class User extends BaseEntity {
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
-    private Set<Role> roles = new HashSet<>();
+    private Set<UserRole> userRoles = new HashSet<>();
 
     @NotBlank
     @Size(min = 2, max = 50)
@@ -43,6 +38,7 @@ public class User extends BaseEntity{
     @Column(columnDefinition = "Nvarchar(255)", nullable = false)
     private String lastName;
 
+
     @Email
     @NotBlank
     @Column(length= 255, nullable = false, unique = true)
@@ -51,7 +47,7 @@ public class User extends BaseEntity{
     @Column(length = 20, unique = true, nullable = true)
     private String phone;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)",nullable = true)
+    @Column(columnDefinition = "NVARCHAR(MAX)", nullable = true)
     private String bio;
 
     @Column(length = 255, nullable = true)
@@ -77,6 +73,45 @@ public class User extends BaseEntity{
     @Builder.Default
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<Enrollment> enrollments = new HashSet<>();
+
+
+    public Set<Role> getRoles() {
+        Set<Role> roles = new HashSet<>();
+        if (userRoles == null) {
+            return roles;
+        }
+        for (UserRole userRole : userRoles) {
+            roles.add(userRole.getRole());
+        }
+        return roles;
+    }
+
+    public void addUserRole(Role role) {
+        if (userRoles == null) {
+            userRoles = new HashSet<>();
+        }
+        boolean exists = false;
+        for (UserRole userRole : userRoles) {
+            Role currentRole = userRole.getRole();
+            if (currentRole == role) {
+                exists = true;
+                break;
+            }
+            if (currentRole.getId() != null
+                    && role.getId() != null
+                    && currentRole.getId().equals(role.getId())) {
+                exists = true;
+                break;
+            }
+        }
+        if (!exists) {
+            UserRole userRole = UserRole.builder()
+                    .user(this)
+                    .role(role)
+                    .build();
+            userRoles.add(userRole);
+        }
+    }
 
     public void addCourse(Course course) {
         courses.add(course);

@@ -1,13 +1,10 @@
 package vn.edu.fpt.controller;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import vn.edu.fpt.enums.CategoryStatus;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.CategoryRepository;
@@ -22,7 +19,6 @@ import java.util.stream.Collectors;
 
 @Controller
 public class CourseController {
-
 
     @Autowired
     private CourseRepository courseRepository;

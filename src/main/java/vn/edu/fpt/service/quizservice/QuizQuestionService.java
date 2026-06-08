@@ -1,4 +1,4 @@
-package vn.edu.fpt.service;
+package vn.edu.fpt.service.quizservice;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

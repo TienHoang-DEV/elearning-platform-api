@@ -27,4 +27,6 @@ public interface InstructorRequestRepository extends JpaRepository<InstructorReq
             @Param("keyword") String keyword,
             @Param("status") InstructorRequestStatus status,
             Pageable pageable);
+
+    long countByStatus(InstructorRequestStatus status);
 }

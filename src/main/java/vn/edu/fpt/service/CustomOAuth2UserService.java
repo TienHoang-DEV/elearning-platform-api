@@ -75,7 +75,7 @@ public class CustomOAuth2UserService
 
             user.setStatus("ACTIVE");
 
-            user.getRoles().add(role);
+            user.addUserRole(role);
 
             userRepository.save(user);
 
@@ -95,6 +95,6 @@ public class CustomOAuth2UserService
             }
         }
 
-        return oAuth2User;
+        return new vn.edu.fpt.security.CustomOAuth2User(oAuth2User, user);
     }
 }
