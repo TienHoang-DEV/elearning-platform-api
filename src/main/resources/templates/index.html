@@ -27,7 +27,7 @@
         <div class="container d-flex justify-content-between align-items-center">
 
             <!-- Logo Section -->
-            <a class="header-logo d-flex align-items-center gap-2" th:href="@{/}">
+            <a class="header-logo d-flex align-items-center gap-2" th:href="@{/static}">
                 <div class="logo-icon-box d-flex align-items-center justify-content-center bg-primary rounded text-white">
                     <i data-lucide="zap" style="width: 20px; height: 20px; fill: currentColor;"></i>
                 </div>
@@ -55,7 +55,7 @@
             <!-- Header Auth -->
             <div class="header-auth d-flex align-items-center gap-2">
                 <!-- Cart Icon with badge (matching home log in styles) -->
-                <a th:href="@{/cart}" class="btn btn-link position-relative text-muted p-2 rounded-circle" id="cart-utility-btn" aria-label="Giỏ hàng" style="margin-right: 8px;">
+                <a th:href="@{/templates/cart}" class="btn btn-link position-relative text-muted p-2 rounded-circle" id="cart-utility-btn" aria-label="Giỏ hàng" style="margin-right: 8px;">
                     <i data-lucide="shopping-cart" style="width: 20px; height: 20px; color: var(--text-muted);"></i>
                     <span class="badge rounded-circle bg-danger border border-white cart-count-badge" id="cart-badge-count" style="font-size: 9px; padding: 3px 6px;" th:text="${cartSize ?: 0}">2</span>
                 </a>

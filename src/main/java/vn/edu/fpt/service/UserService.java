@@ -27,38 +27,52 @@ public class UserService {
         this.validation = validation;
     }
 
-    public Optional<User> findByEmail(String email){
+    public Optional<User> findByEmail(String email) {
         return repository.findByEmail(email);
     }
-    public List<User> findAll() { return repository.findAll(); }
-    public User findById(Integer id) { return repository.findById(id).orElseThrow( () -> new RuntimeException("Not found"));}
-    public User save(User entity) { return repository.save(entity); }
-    public void deleteById(Integer id) { repository.deleteById(id); }
-    public boolean existsById(Integer id) { return repository.existsById(id); }
+
+    public List<User> findAll() {
+        return repository.findAll();
+    }
 
 
+    public User findById(Integer id) {
+        return repository.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+    }
+
+    public User save(User entity) {
+        return repository.save(entity);
+    }
+
+    public void deleteById(Integer id) {
+        repository.deleteById(id);
+    }
+
+    public boolean existsById(Integer id) {
+        return repository.existsById(id);
+    }
 
 
-    public void updateProfileInstuctor(String email, String firstname, String lastname, String bio, String phone, MultipartFile file){
-           User user = repository.findByEmail(email).orElseThrow();
-           if(firstname != null && !firstname.isEmpty() && lastname != null && !lastname.isEmpty()){
-               user.setFirstName(firstname);
-               user.setLastName(lastname);
-           }
-           if(bio != null && !bio.isEmpty()){
-               user.setBio(bio);
-           }
+    public void updateProfileInstuctor(String email, String firstname, String lastname, String bio, String phone, MultipartFile file) {
+        User user = repository.findByEmail(email).orElseThrow();
+        if (firstname != null && !firstname.isEmpty() && lastname != null && !lastname.isEmpty()) {
+            user.setFirstName(firstname);
+            user.setLastName(lastname);
+        }
+        if (bio != null && !bio.isEmpty()) {
+            user.setBio(bio);
+        }
 
-           if(validation.isValidPhone(phone)){
-               user.setPhone(phone);
-           }
+        if (validation.isValidPhone(phone)) {
+            user.setPhone(phone);
+        }
 
-           if(file != null && !file.isEmpty()){
-               String url = azureBlobService.saveFile(file, "user-avatars");
-               user.setAvatarUrl(url);
-           }
+        if (file != null && !file.isEmpty()) {
+            String url = azureBlobService.saveFile(file, "user-avatars");
+            user.setAvatarUrl(url);
+        }
 
-           user.setUpdatedAt(LocalDateTime.now());
-           repository.save(user);
+        user.setUpdatedAt(LocalDateTime.now());
+        repository.save(user);
     }
 }
