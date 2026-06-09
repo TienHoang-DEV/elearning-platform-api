@@ -1,5 +1,7 @@
 package vn.edu.fpt.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,6 +31,15 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
                                     where c.id = :id
             """)
     Optional<Course> findByIdWithEnrollmentAndLessonProgress(@Param("id") Integer courseId);
+
+    @Query("SELECT c FROM Course c " +
+           "LEFT JOIN FETCH c.instructor i " +
+           "WHERE (:status IS NULL OR :status = '' OR c.status = :status) " +
+           "AND (:keyword IS NULL OR :keyword = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Course> searchAndFilter(
+            @Param("keyword") String keyword,
+            @Param("status") String status,
+            Pageable pageable);
 
     long countByStatus(String status);
 }
