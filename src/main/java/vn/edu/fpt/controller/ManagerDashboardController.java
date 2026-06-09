@@ -32,11 +32,6 @@ public class ManagerDashboardController {
         return "manager/dashboard/dashboard";
     }
 
-    @GetMapping("/course/list")
-    public String courseList() {
-        return "manager/approval-course/course-list";
-    }
-
     @GetMapping("/revenue/list")
     public String revenueList() {
         return "manager/revenue/revenue-list";
