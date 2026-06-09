@@ -7,6 +7,7 @@ import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.CourseLevel;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.CourseDto;
@@ -244,5 +245,9 @@ public class CourseService {
         }
 
         return repository.findByInstructorAndStatus(user, status);
+    }
+
+    public Course findByCourseIdAndUserId(Integer courseId, Integer userId) {
+        return repository.findByCourseIdAndUserId(courseId, userId).orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
     }
 }
