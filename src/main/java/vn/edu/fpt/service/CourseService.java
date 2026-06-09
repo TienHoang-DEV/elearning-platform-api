@@ -2,8 +2,11 @@ package vn.edu.fpt.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.Course;
-import vn.edu.fpt.exception.CourseNotFoundException;
+import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.mapper.DtoMapper;
@@ -11,19 +14,24 @@ import vn.edu.fpt.dto.CourseDto;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.util.AppConstants;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class CourseService {
     private final CourseRepository repository;
     private final DtoMapper dtoMapper;
+    private final CategoryService categoryService;
+    private final AzureBlobService azureBlobService;
 
-    public CourseService(CourseRepository courseRepository, DtoMapper dtoMapper) {
+    public CourseService(CourseRepository courseRepository, DtoMapper dtoMapper, CategoryService categoryService, AzureBlobService azureBlobService) {
         this.repository = courseRepository;
         this.dtoMapper = dtoMapper;
+        this.categoryService = categoryService;
+        this.azureBlobService = azureBlobService;
     }
 
     public List<CourseDto> getCoursesBySearch(String search) {
@@ -166,7 +174,6 @@ public class CourseService {
         return repository.findByIdWithEnrollmentAndLessonProgress(courseId).orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học với id " + courseId));
     }
 
-
     public Course findById(Integer courseId) {
         return repository.findById(courseId).orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id " + courseId));
     }
@@ -179,4 +186,68 @@ public class CourseService {
         return null;
     }
 
+    @Transactional
+    public Course save(User instructor, String title, String shortdesc, String desc, String outcome, String requirement, CourseLevel level, Integer categoryId, MultipartFile file, BigDecimal price) {
+        if(instructor == null){
+            throw new RuntimeException("User do not have");
+        }
+        if(title == null || title.isEmpty()){
+            throw new RuntimeException("Title can not null. Please try again");
+        }
+        if(shortdesc == null || shortdesc.isEmpty()){
+            throw new RuntimeException("Short can not null. Please try again");
+        }
+        if(desc == null || desc.isEmpty()){
+            throw new RuntimeException("Description can not null. Please try again");
+        }
+        if(outcome == null || outcome.isEmpty()){
+            throw new RuntimeException(("Outcome can not null. Please try again"));
+        }
+        if(requirement == null || requirement.isEmpty()){
+            throw new RuntimeException("Requirement can not null. Please try again");
+        }
+
+        if(level == null){
+            throw new RuntimeException(("Level can not null. Please try again"));
+        }
+
+        Category category = categoryService.findByIdAndStatus(categoryId, "ACTIVE");
+        if(file == null || file.isEmpty()){
+            throw new RuntimeException("File can not null. Please try again");
+        }
+        if(price == null){
+            throw new RuntimeException("price can not null");
+        }if(price.compareTo(BigDecimal.ZERO) < 0){
+            throw new RuntimeException("Price have to >= 0");
+        }
+        String url = azureBlobService.saveFile(file, "user-avatars");
+        Course course = new Course();
+        course.setTitle(title);
+        course.setShort_desc(shortdesc);
+        course.setRequirement(requirement);
+        course.setOutcome(outcome);
+        course.setThumbnailUrl(url);
+        course.setCategory(category);
+        course.setCreatedAt(LocalDateTime.now());
+        course.setStatus("DRAFT");
+        course.setPrice(price);
+        course.setInstructor(instructor);
+
+        return repository.save(course);
+    }
+
+    public List<Course> findByInstructorAndStatus(User user, String status){
+        if(user == null){
+            throw new RuntimeException("User not found");
+        }
+        if(status == null || status.isEmpty()){
+            throw new RuntimeException("Status can not null");
+        }
+
+        return repository.findByInstructorAndStatus(user, status);
+    }
+
+    public Course findByCourseIdAndUserId(Integer courseId, Integer userId) {
+        return repository.findByCourseIdAndUserId(courseId, userId).orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
+    }
 }

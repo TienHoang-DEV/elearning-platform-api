@@ -108,14 +108,18 @@ public class CourseController {
         }
         model.addAttribute("cartSize", cartSize);
 
-        // Phân trang danh sách khóa học (4 khóa học/trang)
+        // --- PHÂN TRANG DANH SÁCH KHÓA HỌC (4 khóa học/trang) ---
+        // 1. Lấy tổng số lượng khóa học sau khi lọc
         int totalCourses = filteredCourses.size();
         int itemsPerPage = 4;
+        
+        // 2. Tính toán tổng số trang cần thiết (làm tròn lên)
         int totalPages = (int) Math.ceil((double) totalCourses / itemsPerPage);
         if (totalPages < 1) {
             totalPages = 1;
         }
 
+        // 3. Ràng buộc trang hiện tại không vượt quá giới hạn hợp lệ
         if (page > totalPages) {
             page = totalPages;
         }
@@ -123,14 +127,17 @@ public class CourseController {
             page = 1;
         }
 
+        // 4. Tính chỉ số bắt đầu và kết thúc của trang hiện tại để cắt danh sách
         int startIndex = (page - 1) * itemsPerPage;
         int endIndex = Math.min(startIndex + itemsPerPage, totalCourses);
 
+        // 5. Cắt danh sách tổng thành danh sách con của trang hiện tại
         List<CourseDto> pagedCourses = new java.util.ArrayList<>();
         if (startIndex < totalCourses) {
             pagedCourses = filteredCourses.subList(startIndex, endIndex);
         }
 
+        // 6. Đưa dữ liệu trang hiện tại và các thuộc tính phân trang vào Model để render ra UI
         model.addAttribute("courses", pagedCourses);
         model.addAttribute("search", search);
         model.addAttribute("categoryId", categoryId);

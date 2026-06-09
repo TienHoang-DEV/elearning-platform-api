@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- =====================================================
+     FRAGMENT: sidebar
+     Dùng: th:replace="~{fragments/sidebar :: sidebar(activePage='profile')}"
+===================================================== -->
+<aside th:fragment="sidebar(activePage)" class="sidebar">
+    <div class="sidebar-logo">
+        <span class="logo-text">✈ LEARNING HUB</span>
+    </div>
+
+    <div class="sidebar-user">
+        <div class="sidebar-user-avatar">
+            <span th:text="${#strings.substring(instructor?.lastname, 0, 1) ?: 'T'}">T</span>
+        </div>
+        <div class="sidebar-user-info">
+            <div class="sidebar-user-name" th:text="${instructor?.lastname ?: 'Giảng Viên'}"></div>
+            <div class="sidebar-user-email" th:text="${instructor?.email ?: 'email@gmail.com'}"></div>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a th:href="@{/instructor/profile}"
+           th:classappend="${activePage == 'profile'} ? 'active' : ''">
+            <span class="nav-icon">👤</span> Thông Tin Của Tôi
+        </a>
+        <a th:href="@{/instructor/stats}"
+           th:classappend="${activePage == 'stats'} ? 'active' : ''">
+            <span class="nav-icon">📊</span> Thống Kê
+        </a>
+        <a th:href="@{/instructor/courses}"
+           th:classappend="${activePage == 'courses'} ? 'active' : ''">
+            <span class="nav-icon">📚</span> Khóa Học
+        </a>
+        <a th:href="@{/instructor/materials}"
+           th:classappend="${activePage == 'materials'} ? 'active' : ''">
+            <span class="nav-icon">🗂️</span> Thư Viện Tài Liệu
+        </a>
+        <a th:href="@{/instructor/messages}"
+           th:classappend="${activePage == 'messages'} ? 'active' : ''">
+            <span class="nav-icon">💬</span> Tin Nhắn
+        </a>
+        <a th:href="@{/instructor/payment}"
+           th:classappend="${activePage == 'payment'} ? 'active' : ''">
+            <span class="nav-icon">💳</span> Thanh Toán
+        </a>
+        <a th:href="@{/instructor/ads}"
+           th:classappend="${activePage == 'ads'} ? 'active' : ''">
+            <span class="nav-icon">📢</span> Quảng Cáo
+        </a>
+        <a th:href="@{/instructor/orders}" style="margin-top:auto;">
+            <span class="nav-icon">🛒</span> Đơn Mua Khóa Học
+        </a>
+        <a th:href="@{/instructor/debt}">
+            <span class="nav-icon">🔒</span> Khóa Nợ
+        </a>
+        <a th:href="@{/logout}" class="nav-logout">
+            <span class="nav-icon">🚪</span> Đăng Xuất
+        </a>
+    </nav>
+</aside>
+</html>

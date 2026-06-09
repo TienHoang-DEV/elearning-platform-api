@@ -181,7 +181,7 @@ public class StudentProfileController {
                 
         List<CourseDto> recommendedCourses = new java.util.ArrayList<>();
         for (Course c : courseRepository.findAll()) {
-            if (!enrolledCourseIds.contains(c.getId())) {
+            if (!enrolledCourseIds.contains(c.getId()) && "PUBLISHED".equals(c.getStatus())) {
                 recommendedCourses.add(dtoMapper.toCourseDto(c));
             }
         }

@@ -98,3 +98,46 @@
         font-size: 32px;
     }
 }
+
+/* Custom Toast Styles (Pure CSS + dynamic show class) */
+.custom-toast {
+    background-color: #d1e7dd; 
+    border: 1px solid #a3cfbb; 
+    border-left: 5px solid #0f5132;
+    border-radius: 8px;
+    width: 350px;
+    
+    /* Initially hidden */
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    visibility: hidden;
+    
+    /* Smooth transition using cubic-bezier for a spring effect */
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.custom-toast.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    visibility: visible;
+}
+
+.toast-success-icon {
+    color: #0f5132; 
+    width: 24px; 
+    height: 24px;
+}
+
+.custom-toast .toast-title {
+    color: #0f5132;
+}
+
+.custom-toast .toast-message {
+    color: #0f5132; 
+    font-weight: 500;
+}
+
+#toast-close-btn {
+    filter: invert(20%) sepia(20%) saturate(1000%) hue-rotate(90deg) brightness(30%);
+}
+

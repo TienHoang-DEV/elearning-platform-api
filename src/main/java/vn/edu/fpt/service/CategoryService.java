@@ -1,8 +1,10 @@
 package vn.edu.fpt.service;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.Category;
+import vn.edu.fpt.enums.CategoryStatus;
 import vn.edu.fpt.repository.CategoryRepository;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.CategoryDto;
@@ -35,17 +37,16 @@ public class CategoryService {
         return repository.findAll();
     }
 
-    public List<Category> findByStatus(String status){
-        return repository.findByStatus(status);
+    @Query()
+    public List<Category> findByParentIsNullAndStatus(String status){
+        return repository.findByParentIsNullAndStatus(status);
+    };
+
+    public Category findByIdAndStatus(Integer id, String status) {
+        return repository.findByIdAndStatus(id, status)
+                .orElseThrow(() -> new RuntimeException("Category not found or inactive"));
     }
 
-    public Optional<Category> findById(Integer id) {
-        return repository.findById(id);
-    }
-
-    public Category save(Category entity) {
-        return repository.save(entity);
-    }
 
     public void deleteById(Integer id) {
         repository.deleteById(id);
@@ -54,4 +55,10 @@ public class CategoryService {
     public boolean existsById(Integer id) {
         return repository.existsById(id);
     }
+
+    public Category save(Category entity) {
+        return repository.save(entity);
+    }
+
+
 }
