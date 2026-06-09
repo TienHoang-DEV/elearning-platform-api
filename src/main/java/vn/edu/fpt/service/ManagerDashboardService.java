@@ -54,36 +54,33 @@ public class ManagerDashboardService {
                 .withHour(0).withMinute(0).withSecond(0).withNano(0);//set ngày đầu tiên vd: 01/06/2026 00:00:00
         BigDecimal monthlyRevenue = paymentRepository.sumAmountByStatusAndPaidAtAfter(PaymentStatus.SUCCESS, startOfMonth);
         dto.setMonthlyRevenue(formatRevenue(monthlyRevenue));
-        // --- Chuẩn bị dữ liệu cho biểu đồ (12 tháng gần nhất) ---
-        List<String> chartLabels = new ArrayList<>();// nhãn: "Tháng X"
+        // --- Chuẩn bị dữ liệu cho biểu đồ (12 tháng trong năm hiện tại) ---
+        List<String> chartLabels = new ArrayList<>();// nhãn: "Tháng 1" -> "Tháng 12"
         List<BigDecimal> chartData = new ArrayList<>();// giá trị doanh thu tương ứng
-        java.time.YearMonth currentMonth = java.time.YearMonth.now();//lấy tháng hiện tại
-        // Khởi tạo 12 nhãn và set mặc định giá trị = 0
-        for (int i = 11; i >= 0; i--) {
-            java.time.YearMonth m = currentMonth.minusMonths(i);
-            chartLabels.add("Tháng " + m.getMonthValue());
+        int currentYear = LocalDateTime.now().getYear();
+
+        // Khởi tạo 12 nhãn từ Tháng 1 đến Tháng 12 và set mặc định giá trị = 0
+        for (int i = 1; i <= 12; i++) {
+            chartLabels.add("Tháng " + i);
             chartData.add(BigDecimal.ZERO);
         }
-        // Xác định mốc 12 tháng trước (bắt đầu tháng)
-        LocalDateTime twelveMonthsAgo = LocalDateTime.now()
-                .minusMonths(11)
-                .with(TemporalAdjusters.firstDayOfMonth())
+
+        // Xác định mốc đầu năm hiện tại (01/01/năm hiện tại 00:00:00)
+        LocalDateTime startOfYear = LocalDateTime.now()
+                .with(TemporalAdjusters.firstDayOfYear())
                 .withHour(0).withMinute(0).withSecond(0).withNano(0);
-        // Lấy danh sách doanh thu theo tháng
-        List<MonthlyRevenueDTO> rawChartData = paymentRepository.getMonthlyRevenue(PaymentStatus.SUCCESS, twelveMonthsAgo);
-        // Duyệt dữ liệu thô và gán giá trị vào đúng vị trí trong chartData
+
+        // Lấy danh sách doanh thu theo tháng từ đầu năm hiện tại
+        List<MonthlyRevenueDTO> rawChartData = paymentRepository.getMonthlyRevenue(PaymentStatus.SUCCESS, startOfYear);
+
+        // Duyệt dữ liệu thô và gán giá trị vào đúng vị trí trong chartData (chỉ cho năm hiện tại)
         for (MonthlyRevenueDTO row : rawChartData) {
             int year = row.getYear();
             int month = row.getMonth();
             BigDecimal amount = row.getRevenue();
-            // Tìm vị trí tương ứng trong mảng 12 tháng đã khởi tạo phía trên
-            for (int i = 0; i < 12; i++) {
-                java.time.YearMonth m = currentMonth.minusMonths(11 - i);
-                // Nếu cùng năm và cùng tháng thì set giá trị vào chartData
-                if (m.getYear() == year && m.getMonthValue() == month) {
-                    chartData.set(i, amount);
-                    break;
-                }
+
+            if (year == currentYear && month >= 1 && month <= 12) {
+                chartData.set(month - 1, amount);
             }
         }
 
