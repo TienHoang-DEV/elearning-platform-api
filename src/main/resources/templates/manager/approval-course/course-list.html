@@ -69,9 +69,9 @@
                         <img th:src="${course.thumbnailPath}" class="course-image" alt="Course Thumbnail">
                         <div class="course-body">
                             <div class="course-meta">
-                                <span th:if="${course.status == 'PENDING'}" class="badge badge-warning">PENDING</span>
-                                <span th:if="${course.status == 'PUBLISHED'}" class="badge badge-success">PUBLISHED</span>
-                                <span th:if="${course.status == 'REJECTED'}" class="badge badge-danger">REJECTED</span>
+                                <span th:if="${course.status == 'PENDING'}" class="badge badge-warning">Đang chờ duyệt</span>
+                                <span th:if="${course.status == 'PUBLISHED'}" class="badge badge-success">Đã duyệt</span>
+                                <span th:if="${course.status == 'REJECTED'}" class="badge badge-danger">Từ chối</span>
                                 
                                 <span class="course-price" th:text="${course.price != null ? #numbers.formatDecimal(course.price, 0, 'POINT', 0, 'COMMA') + ' đ' : 'Miễn phí'}">$49.99</span>
                             </div>

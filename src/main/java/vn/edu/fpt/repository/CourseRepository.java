@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.User;
-
 import vn.edu.fpt.enums.CourseStatus;
 
 import java.util.List;
@@ -20,7 +19,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     //Luu khoá học
     Course save(Course course);
     // Tìm danh sách các khóa học theo trạng thái
-    List<Course> findByStatus(String status);
+    List<Course> findByStatus(CourseStatus status);
 
 
     //Kiểm tra không title trùng
@@ -28,7 +27,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
 
 
-    long countByStatus(String status);
+    long countByStatus(CourseStatus status);
 
     // Tìm các khóa học có tên chứa từ khóa tìm kiếm (không phân biệt hoa thường)
     List<Course> findByTitleContainingIgnoreCase(String title);
@@ -47,7 +46,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             """)
     Optional<Course> findByIdWithEnrollmentAndLessonProgress(@Param("id") Integer courseId);
 
-    List<Course> findByInstructorAndStatus(User user, String status);
+    List<Course> findByInstructorAndStatus(User user, CourseStatus status);
 
     @Query("""
             select c from Course c join c.enrollments e where e.user.id = :userId and c.id = :courseId
@@ -65,4 +64,6 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     Course findCourseById(Integer id);
 }
+
+
 

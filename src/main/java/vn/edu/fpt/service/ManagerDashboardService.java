@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.ManagerDashboardDTO;
 import vn.edu.fpt.dto.MonthlyRevenueDTO;
+import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.enums.InstructorRequestStatus;
 import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.repository.CourseRepository;
@@ -43,7 +44,7 @@ public class ManagerDashboardService {
         long pendingInstructors = instructorRequestRepository.countByStatus(InstructorRequestStatus.PENDING);
         dto.setPendingInstructors(pendingInstructors);
         //Đếm số lượng khóa học đang ở trạng thái "PENDING"
-        long pendingCourses = courseRepository.countByStatus("PENDING");
+        long pendingCourses = courseRepository.countByStatus(CourseStatus.PENDING);
         dto.setPendingCourses(pendingCourses);
         //Đếm số lượng phản hồi/chủ đề đang ở trạng thái "PENDING"
         long pendingFeedbacks = feedbackReportRepository.countByStatus("PENDING");
