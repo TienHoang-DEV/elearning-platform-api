@@ -11,7 +11,7 @@ import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.InstructorRequestStatus;
 import vn.edu.fpt.exception.BadRequestException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
-import vn.edu.fpt.mapper.InstructorRequestMapper;
+import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.InstructorRequestRepository;
 import vn.edu.fpt.repository.RoleRepository;
 import vn.edu.fpt.util.AppConstants;
@@ -28,18 +28,18 @@ public class InstructorRequestService {
 
     private final InstructorRequestRepository repository;
     private final RoleRepository roleRepository;
-    private final InstructorRequestMapper mapper;
+    private final DtoMapper dtoMapper;
     private final AzureBlobService azureBlobService;
 
 
     public InstructorRequestService(InstructorRequestRepository repository,
                                     RoleRepository roleRepository,
-                                    InstructorRequestMapper mapper,
-                                    AzureBlobService azureBlobService
-                                    ) {
+                                    DtoMapper dtoMapper,
+                                    AzureBlobService azureBlobService) {
+
         this.repository = repository;
         this.roleRepository = roleRepository;
-        this.mapper = mapper;
+        this.dtoMapper = dtoMapper;
         this.azureBlobService = azureBlobService;
 
     }
@@ -80,14 +80,14 @@ public class InstructorRequestService {
         if (statusStr != null && !statusStr.isBlank()) {
             status = InstructorRequestStatus.valueOf(statusStr.toUpperCase());
         }
-        return repository.searchAndFilter(keyword, status, pageable).map(mapper::toDto);
+        return repository.searchAndFilter(keyword, status, pageable).map(dtoMapper::toInstructorRequestDto);
     }
 
     /**
      * Lấy chi tiết một yêu cầu dưới dạng DTO.
      */
     public Optional<InstructorRequestDTO> findDtoById(Integer id) {
-        return repository.findById(id).map(mapper::toDto);
+        return repository.findById(id).map(dtoMapper::toInstructorRequestDto);
     }
 
     public InstructorRequestDTO reviewRequest(Integer id, InstructorRequestStatus newStatus, String rejectionReason) {
@@ -103,7 +103,7 @@ public class InstructorRequestService {
             request.setRejectionReason(null);
             roleRepository.findByName("instructor")
                     .ifPresent(role -> request.getUser().getRoles().add(role));
-            return mapper.toDto(repository.save(request));
+            return dtoMapper.toInstructorRequestDto(repository.save(request));
         }
 
         if (newStatus == InstructorRequestStatus.REJECTED) {
@@ -112,9 +112,8 @@ public class InstructorRequestService {
             }
             request.setStatus(InstructorRequestStatus.REJECTED);
             request.setRejectionReason(rejectionReason.trim());
-            return mapper.toDto(repository.save(request));
+            return dtoMapper.toInstructorRequestDto(repository.save(request));
         }
-
         throw new BadRequestException("Trạng thái xét duyệt không hợp lệ.");
     }
 

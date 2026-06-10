@@ -35,11 +35,11 @@
                     </li>
                 </ul>
             </nav>
-            <div class="sidebar-footer" style="padding: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; margin-top: auto;">
-                <div class="avatar" style="width: 40px; height: 40px; border-radius: 50%; background-color: var(--primary-blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; flex-shrink: 0;">M</div>
-                <div class="profile-info" style="overflow: hidden;">
-                    <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-main); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">Quản trị viên</div>
-                    <div style="font-size: 0.8rem; color: var(--text-gray); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">admin@system.com</div>
+            <div class="sidebar-footer">
+                <div class="avatar footer-avatar">M</div>
+                <div class="profile-info">
+                    <div class="profile-name">Quản trị viên</div>
+                    <div class="profile-email">admin@system.com</div>
                 </div>
             </div>
         </aside>
@@ -47,50 +47,78 @@
         <div class="main-wrapper">
 
             <main class="content">
-                <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <form th:action="@{/manager/course/list}" method="get" class="page-header page-header-flex">
                     <div>
                         <h1>Phê duyệt Khóa học</h1>
                         <p>Xem xét, phê duyệt và quản lý các khóa học trên nền tảng.</p>
                     </div>
                     <div class="header-actions">
-                        <input type="text" placeholder="Tìm kiếm khóa học..." class="search-input">
-                        <select class="search-input" style="cursor: pointer; color: var(--text-main); font-family: inherit;">
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="PENDING">Đang chờ duyệt</option>
-                            <option value="APPROVED">Đã duyệt</option>
+                        <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm khóa học..." class="search-input">
+                        <select name="status" class="search-input search-select" onchange="this.form.submit()">
+                            <option value="" th:selected="${status == null or status == ''}">Tất cả trạng thái</option>
+                            <option value="PENDING" th:selected="${status == 'PENDING'}">Đang chờ duyệt</option>
+                            <option value="PUBLISHED" th:selected="${status == 'PUBLISHED'}">Đã duyệt</option>
+                            <option value="REJECTED" th:selected="${status == 'REJECTED'}">Từ chối</option>
                         </select>
+                        <button type="submit" class="hidden-btn">Search</button>
+                    </div>
+                </form>
+
+                <div class="course-grid">
+                    <div class="course-card" th:each="course : ${coursePage.content}">
+                        <img th:src="${course.thumbnailPath}" class="course-image" alt="Course Thumbnail">
+                        <div class="course-body">
+                            <div class="course-meta">
+                                <span th:if="${course.status == 'PENDING'}" class="badge badge-warning">PENDING</span>
+                                <span th:if="${course.status == 'PUBLISHED'}" class="badge badge-success">PUBLISHED</span>
+                                <span th:if="${course.status == 'REJECTED'}" class="badge badge-danger">REJECTED</span>
+                                
+                                <span class="course-price" th:text="${course.price != null ? #numbers.formatDecimal(course.price, 0, 'POINT', 0, 'COMMA') + ' đ' : 'Miễn phí'}">$49.99</span>
+                            </div>
+                            <div class="course-title" th:text="${course.title}">Các Mẫu React Nâng Cao</div>
+                            <div class="course-instructor" th:text="${course.instructor != null ? course.instructor.firstName + ' ' + course.instructor.lastName : 'Không rõ'}">Michael Chang</div>
+                        </div>
+                        <div class="course-footer">
+                            <div class="actions">
+                                <i class="ph ph-eye"></i>
+                                <a th:href="@{/manager/course/detail/{id}(id=${course.id})}" class="action-link">Xem Chi Tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div th:if="${coursePage.empty}" class="empty-grid-message">
+                        Không tìm thấy khóa học nào.
                     </div>
                 </div>
-                <div class="course-grid">
-                    <div class="course-card">
-                        <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=400&auto=format&fit=crop" class="course-image" alt="Course">
-                        <div class="course-body">
-                            <div class="course-meta">
-                                <span class="badge badge-success">APPROVED</span>
-                                <span class="course-price">$49.99</span>
-                            </div>
-                            <div class="course-title">Các Mẫu React Nâng Cao</div>
-                            <div class="course-instructor">Michael Chang</div>
-                        </div>
-                        <div class="course-footer">
-                            <div class="course-rating">★ 4.8</div>
-                            <div class="actions"><i class="ph ph-eye"></i><a href="#" class="action-link">Xem Chi Tiết</a></div>
-                        </div>
-                    </div>
-                    <div class="course-card">
-                        <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?q=80&w=400&auto=format&fit=crop" class="course-image" alt="Course">
-                        <div class="course-body">
-                            <div class="course-meta">
-                                <span class="badge badge-warning">PENDING</span>
-                                <span class="course-price">$89.99</span>
-                            </div>
-                            <div class="course-title">Nhập môn Học Máy</div>
-                            <div class="course-instructor">Tiến sĩ Eleanor Vance</div>
-                        </div>
-                        <div class="course-footer">
-                            <div class="course-rating" style="color:var(--text-gray);">Chưa có đánh giá</div>
-                            <div class="actions"><i class="ph ph-eye"></i><a href="#" class="action-link">Xem Chi Tiết</a></div>
-                        </div>
+
+                <!-- ══════════ PAGINATION ══════════ -->
+                <div class="pagination-circle-container" th:if="${coursePage.totalPages > 1}">
+                    <div class="pagination-circle-buttons">
+                        <!-- Previous -->
+                        <a th:if="${coursePage.hasPrevious()}"
+                            th:href="@{/manager/course/list(keyword=${keyword}, status=${status}, page=${coursePage.number - 1}, size=${coursePage.size})}"
+                            class="page-circle-btn">
+                            <i class="ph ph-caret-left"></i>
+                        </a>
+                        <span th:unless="${coursePage.hasPrevious()}" class="page-circle-btn disabled">
+                            <i class="ph ph-caret-left"></i>
+                        </span>
+
+                        <!-- Page numbers -->
+                        <a th:each="i : ${#numbers.sequence(0, coursePage.totalPages - 1)}"
+                            th:href="@{/manager/course/list(keyword=${keyword}, status=${status}, page=${i}, size=${coursePage.size})}"
+                            th:class="${coursePage.number == i ? 'page-circle-btn active' : 'page-circle-btn'}"
+                            th:text="${i + 1}">1</a>
+
+                        <!-- Next -->
+                        <a th:if="${coursePage.hasNext()}"
+                            th:href="@{/manager/course/list(keyword=${keyword}, status=${status}, page=${coursePage.number + 1}, size=${coursePage.size})}"
+                            class="page-circle-btn">
+                            <i class="ph ph-caret-right"></i>
+                        </a>
+                        <span th:unless="${coursePage.hasNext()}" class="page-circle-btn disabled">
+                            <i class="ph ph-caret-right"></i>
+                        </span>
                     </div>
                 </div>
             </main>

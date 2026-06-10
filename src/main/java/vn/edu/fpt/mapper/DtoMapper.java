@@ -53,4 +53,10 @@ public interface DtoMapper {
     OrderDto toOrderDto(Order order);
     OrderItemDto toOrderItemDto(OrderItem orderItem);
     LessonMaterialDto toLessonMaterialDto(LessonMaterial lessonMaterial);
+    @Mapping(target = "fullName",
+            expression = "java(request.getUser().getFirstName() + \" \" + request.getUser().getLastName())")
+    @Mapping(target = "email",     source = "user.email")
+    @Mapping(target = "avatarUrl", source = "user.avatarUrl")
+    @Mapping(target = "bio",       source = "user.bio")
+    InstructorRequestDTO toInstructorRequestDto(InstructorRequest request);
 }

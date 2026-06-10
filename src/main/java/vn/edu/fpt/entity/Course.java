@@ -3,6 +3,7 @@ package vn.edu.fpt.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import vn.edu.fpt.enums.CourseStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -42,8 +43,8 @@ public class Course extends BaseEntity {
     @Column(length = 20)
     private String level;
 
-    @Column(length = 20)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private CourseStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "approved_by")

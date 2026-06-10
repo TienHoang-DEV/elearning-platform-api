@@ -1,31 +1,32 @@
 package vn.edu.fpt.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.CourseCreateDto;
 import vn.edu.fpt.entity.Category;
 import org.springframework.web.multipart.MultipartFile;
-import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.Course;
-import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.exception.CourseNotFoundException;
+import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.CategoryRepository;
-import vn.edu.fpt.entity.User;
+
 import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.mapper.DtoMapper;
-import vn.edu.fpt.exception.ResourceNotFoundException;
+
 import vn.edu.fpt.repository.CourseRepository;
-import vn.edu.fpt.mapper.DtoMapper;
+
 import vn.edu.fpt.dto.CourseDto;
-import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.util.AppConstants;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 @Transactional
@@ -36,12 +37,21 @@ public class CourseService {
     private final AzureBlobService azureBlobService;
     private final CategoryService categoryService;
 
-    public CourseService(CourseService repository, CourseRepository courseRepository, DtoMapper dtoMapper, CategoryRepository categoryRepository, AzureBlobService azureBlobService, CategoryService categoryService) {
+
+    public CourseService(CourseRepository courseRepository, DtoMapper dtoMapper, CategoryRepository categoryRepository, AzureBlobService azureBlobService, CategoryService categoryService) {
         this.categoryService = categoryService;
         this.repository = courseRepository;
         this.dtoMapper = dtoMapper;
         this.categoryRepository = categoryRepository;
         this.azureBlobService = azureBlobService;
+    }
+
+    // ben manager duyet khoa hoc
+    public Page<CourseDto> searchAndFilter(String keyword, String statusStr, Pageable pageable) {
+        CourseStatus status =
+                (statusStr == null || statusStr.isEmpty()) ? null : CourseStatus.valueOf(statusStr);
+        return repository.searchAndFilter(keyword, status, pageable)
+                .map(dtoMapper::toCourseDto);
     }
 
     public Course save(User user, CourseCreateDto courseCreateDto) {
@@ -68,7 +78,7 @@ public class CourseService {
         course.setPrice(courseCreateDto.getPrice());
         course.setThumbnailUrl(thumbnailUrl);
         course.setLevel(courseCreateDto.getLevel());
-        course.setStatus(CourseStatus.DRAFT.toString());
+        course.setStatus(CourseStatus.DRAFT);
         course.setCreatedAt(LocalDateTime.now());
         course.setInstructor(user);
         return repository.save(course);
@@ -180,6 +190,7 @@ public class CourseService {
                 return Integer.compare(id2, id1);
             }
         });
+
         return filteredCourses;
     }
 
@@ -211,17 +222,20 @@ public class CourseService {
     }
 
     public Course findByIdWithEnrollmentAndLessonProgress(Integer courseId) {
-        return repository.findByIdWithEnrollmentAndLessonProgress(courseId).orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học với id " + courseId));
+        return repository.findByIdWithEnrollmentAndLessonProgress(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học với id " + courseId));
     }
 
     public Course findById(Integer courseId) {
-        return repository.findById(courseId).orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id " + courseId));
+        return repository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id " + courseId));
     }
 
     public String getThumbnailUrl(Course course) {
         String thumbnailUrl = course.getThumbnailUrl();
         if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
-            return AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + thumbnailUrl;
+            return AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS
+                    + "/" + thumbnailUrl;
         }
         return null;
     }
@@ -263,13 +277,10 @@ public class CourseService {
         String url = azureBlobService.saveFile(file, "user-avatars");
         Course course = new Course();
         course.setTitle(title);
-        course.setShort_desc(shortdesc);
-        course.setRequirement(requirement);
-        course.setOutcome(outcome);
         course.setThumbnailUrl(url);
         course.setCategory(category);
         course.setCreatedAt(LocalDateTime.now());
-        course.setStatus("DRAFT");
+        course.setStatus(CourseStatus.DRAFT);
         course.setPrice(price);
         course.setInstructor(instructor);
 
