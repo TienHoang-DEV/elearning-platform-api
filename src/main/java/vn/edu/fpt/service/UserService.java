@@ -2,7 +2,6 @@ package vn.edu.fpt.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -61,10 +60,10 @@ public class UserService {
 
     public void updateProfileInstuctor(User user, ProfileDto profileDto) {
 
-            User tmp = repository.findUserByPhone(profileDto.getPhone());
-            if (tmp != null && !tmp.getId().equals(user.getId())) {
-                throw new UserValidationException("phone","Số điện thoại này đã được sử dụng.");
-            }
+        User tmp = repository.findUserByPhone(profileDto.getPhone());
+        if (tmp != null && !tmp.getId().equals(user.getId())) {
+            throw new UserValidationException("phone","Số điện thoại này đã được sử dụng.");
+        }
 
 
         if (profileDto.getFile() != null && !profileDto.getFile().isEmpty()) {

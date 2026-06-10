@@ -23,6 +23,9 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     boolean existsByInstructorAndTitle(User instructor, String title);
 
 
+
+    long countByStatus(String status);
+
     // Tìm các khóa học có tên chứa từ khóa tìm kiếm (không phân biệt hoa thường)
     List<Course> findByTitleContainingIgnoreCase(String title);
 
@@ -40,5 +43,13 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             """)
     Optional<Course> findByIdWithEnrollmentAndLessonProgress(@Param("id") Integer courseId);
 
-    long countByStatus(String status);
+    Course findCourseById(Integer id);
+
+    List<Course> findByInstructorAndStatus(User user, String status);
+
+    @Query("""
+            select c from Course c join c.enrollments e where e.user.id = :userId and c.id = :courseId
+            """)
+    Optional<Course> findByCourseIdAndUserId(@Param("courseId") Integer courseId, @Param("userId") Integer userId);
+
 }
