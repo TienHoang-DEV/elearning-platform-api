@@ -9,13 +9,13 @@
 <body>
 
 <!-- SIDEBAR -->
-<div th:replace="~{fragments/sidebar :: sidebar(activePage='courses')}"></div>
+<div th:replace="~{instructor_course/sidebar :: sidebar(activePage='courses')}"></div>
 
 <!-- MAIN -->
 <main class="main-content">
     <div class="page-header">
-        <h1><span class="icon">📚</span> Khóa Học</h1>
-        <a th:href="@{/instructor/courses/create}" class="btn btn-primary">+ Tạo Khóa Học Mới</a>
+        <h1><span class="icon"></span> Khóa Học</h1>
+        <a th:href="@{/instructorcourse/create}" class="btn btn-primary">+ Tạo Khóa Học Mới</a>
     </div>
 
     <div class="card">
@@ -44,20 +44,22 @@
                         <th>Thao Tác</th>
                     </tr>
                     </thead>
-                    <tbody th:if="${courses != null and not #lists.isEmpty(courses)}">
+                    <tbody>
+<!--                    <tbody th:if="${courses != null and not #lists.isEmpty(courses)}">-->
                     <tr th:each="course : ${courses}">
-                        <td th:text="${course.id}">KH001</td>
-                        <td th:text="${course.title}">Tên khóa học</td>
-                        <td th:text="${#temporals.format(course.updatedAt,'dd/MM/yyyy')}">01/01/2025</td>
-                        <td th:text="${#numbers.formatInteger(course.originalPrice,0,'COMMA')}">500,000</td>
-                        <td th:text="${#numbers.formatInteger(course.salePrice,0,'COMMA')}">399,000</td>
+                        <td>KH001</td>
+                        <td>Tên khóa học</td>
+                        <td>01/01/2025</td>
+                        <td>500,000</td>
+                        <td>399,000</td>
                         <td>
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${courseRequest.id})}"
                                class="btn btn-sm btn-outline">✏️ Sửa</a>
                         </td>
                     </tr>
                     </tbody>
-                    <tbody th:if="${courses == null or #lists.isEmpty(courses)}">
+                    <tbody>
+<!--                    <tbody th:if="${courses == null or #lists.isEmpty(courses)}">-->
                     <tr><td colspan="6" class="table-empty">Không có dữ liệu</td></tr>
                     </tbody>
                 </table>
@@ -73,13 +75,15 @@
                         <th>Mã Khóa Học</th><th>Tên Khóa Học</th><th>Ngày Gửi</th><th>Thao Tác</th>
                     </tr>
                     </thead>
-                    <tbody th:if="${pendingCourses != null and not #lists.isEmpty(pendingCourses)}">
+                    <!--Dùng cho List Pending-->
+                    <tbody >
+<!--                    <tbody th:if="${pendingCourses != null and not #lists.isEmpty(pendingCourses)}">-->
                     <tr th:each="course : ${pendingCourses}">
                         <td th:text="${course.id}"></td>
                         <td th:text="${course.title}"></td>
                         <td th:text="${#temporals.format(course.updatedAt,'dd/MM/yyyy')}"></td>
                         <td>
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${courseRequest.id})}"
                                class="btn btn-sm btn-outline">✏️ Sửa</a>
                         </td>
                     </tr>
@@ -106,7 +110,7 @@
                         <td th:text="${course.title}"></td>
                         <td th:text="${#temporals.format(course.updatedAt,'dd/MM/yyyy')}"></td>
                         <td>
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${courseRequest.id})}"
                                class="btn btn-sm btn-outline">✏️ Tiếp Tục</a>
                         </td>
                     </tr>
@@ -133,7 +137,7 @@
                         <td th:text="${course.title}"></td>
                         <td th:text="${course.rejectReason ?: '—'}"></td>
                         <td>
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${courseRequest.id})}"
                                class="btn btn-sm btn-outline">✏️ Chỉnh Sửa Lại</a>
                         </td>
                     </tr>
@@ -152,6 +156,6 @@
     </div>
 </main>
 
-<script th:src="@{/js/instructor_course.js}"></script>
+<script th:src="@{/js/course_instructor.js}"></script>
 </body>
 </html>

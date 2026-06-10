@@ -9,6 +9,7 @@ import vn.edu.fpt.repository.CategoryRepository;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.CategoryDto;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,10 +38,29 @@ public class CategoryService {
         return repository.findAll();
     }
 
-    @Query()
-    public List<Category> findByParentIsNullAndStatus(String status){
-        return repository.findByParentIsNullAndStatus(status);
-    };
+   /////List of parent Category
+    public List<CategoryDto> findByParentIsNullAndStatus( String status){
+        List<Category> categoryList =  repository.findByParentIsNullAndStatus(status);
+        List<CategoryDto> dto = new ArrayList<>();
+        for(Category ca : categoryList){
+            dto.add(dtoMapper.toCategoryDto(ca));
+        }
+
+        return dto;
+    }
+
+    ////List of Child Category
+    public List<CategoryDto> findByParentIsNotNulAndStatus(String status){
+        List<Category> categoryDtoList = repository.findByParentIsNotNullAndStatus(status);
+        List<CategoryDto> dto = new ArrayList<>();
+        for(Category c : categoryDtoList){
+            dto.add(dtoMapper.toCategoryDto(c));
+        }
+
+        return dto;
+    }
+
+
 
     public Category findByIdAndStatus(Integer id, String status) {
         return repository.findByIdAndStatus(id, status)

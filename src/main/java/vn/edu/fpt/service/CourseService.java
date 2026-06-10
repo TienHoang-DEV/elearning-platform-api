@@ -2,38 +2,47 @@ package vn.edu.fpt.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+import vn.edu.fpt.dto.CourseCreateDto;
 import vn.edu.fpt.entity.Category;
+import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.entity.User;
-import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.exception.ResourceNotFoundException;
-import vn.edu.fpt.repository.CourseRepository;
+import vn.edu.fpt.repository.CategoryRepository;
+
+import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.mapper.DtoMapper;
+
+import vn.edu.fpt.repository.CourseRepository;
+
 import vn.edu.fpt.dto.CourseDto;
 import vn.edu.fpt.util.AppConstants;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 @Transactional
 public class CourseService {
-    private final CourseRepository repository;
+    private CourseRepository repository;
     private final DtoMapper dtoMapper;
-    private final CategoryService categoryService;
+    private final CategoryRepository categoryRepository;
     private final AzureBlobService azureBlobService;
+    private final CategoryService categoryService;
 
-    public CourseService(CourseRepository courseRepository, DtoMapper dtoMapper, CategoryService categoryService, AzureBlobService azureBlobService) {
+
+    public CourseService(CourseRepository courseRepository, DtoMapper dtoMapper, CategoryRepository categoryRepository, AzureBlobService azureBlobService, CategoryService categoryService) {
+        this.categoryService = categoryService;
         this.repository = courseRepository;
         this.dtoMapper = dtoMapper;
-        this.categoryService = categoryService;
+        this.categoryRepository = categoryRepository;
         this.azureBlobService = azureBlobService;
     }
 
@@ -43,6 +52,36 @@ public class CourseService {
                 (statusStr == null || statusStr.isEmpty()) ? null : CourseStatus.valueOf(statusStr);
         return repository.searchAndFilter(keyword, status, pageable)
                 .map(dtoMapper::toCourseDto);
+    }
+
+    public Course save(User user, CourseCreateDto courseCreateDto) {
+
+        if (repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
+            throw new RuntimeException("Bạn đã có khoá học với tiêu đề này rồi");
+        }
+
+        if (courseCreateDto.getTitle().length() < 3) {
+            throw new RuntimeException("Tiêu đề khoá học với số lượng kí tự lớn hơn 3");
+        }
+
+        String thumbnailUrl = null;
+        if (courseCreateDto.getThumbnailFile() != null && !courseCreateDto.getThumbnailFile().isEmpty()) {
+            thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), "course-thumbnails");
+        }
+
+        Category category = categoryRepository.findById(courseCreateDto.getCategoryId()).orElseThrow(() -> new RuntimeException("Category không tồn tại"));
+
+        Course course = new Course();
+        course.setTitle(courseCreateDto.getTitle());
+        course.setDescription(courseCreateDto.getDescription());
+        course.setCategory(category);
+        course.setPrice(courseCreateDto.getPrice());
+        course.setThumbnailUrl(thumbnailUrl);
+        course.setLevel(courseCreateDto.getLevel());
+        course.setStatus(CourseStatus.DRAFT);
+        course.setCreatedAt(LocalDateTime.now());
+        course.setInstructor(user);
+        return repository.save(course);
     }
 
     public List<CourseDto> getCoursesBySearch(String search) {
@@ -155,6 +194,7 @@ public class CourseService {
         return filteredCourses;
     }
 
+
     public CourseDto getCourseDetail(Integer id) {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
@@ -237,9 +277,6 @@ public class CourseService {
         String url = azureBlobService.saveFile(file, "user-avatars");
         Course course = new Course();
         course.setTitle(title);
-        course.setShort_desc(shortdesc);
-        course.setRequirement(requirement);
-        course.setOutcome(outcome);
         course.setThumbnailUrl(url);
         course.setCategory(category);
         course.setCreatedAt(LocalDateTime.now());
@@ -264,4 +301,8 @@ public class CourseService {
     public Course findByCourseIdAndUserId(Integer courseId, Integer userId) {
         return repository.findByCourseIdAndUserId(courseId, userId).orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
     }
+
+
+
+
 }

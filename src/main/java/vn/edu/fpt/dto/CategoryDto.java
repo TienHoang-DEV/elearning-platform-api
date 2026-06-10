@@ -13,6 +13,7 @@ public class CategoryDto {
     private String name;
     private String description;
     private String status;
+    private Integer parentId;
     private Set<CategoryDto> children;
     private Integer courseCount;
 }

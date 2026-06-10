@@ -12,5 +12,11 @@ import java.util.Optional;
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
     List<Category> findByParentIsNullAndStatus(String status);
 
+
+    List<Category> findByParentIsNotNullAndStatus(String status);
+
+
     Optional<Category> findByIdAndStatus(Integer id, String status);
+
+
 }

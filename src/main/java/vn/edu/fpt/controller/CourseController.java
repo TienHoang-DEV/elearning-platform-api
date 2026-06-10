@@ -112,7 +112,7 @@ public class CourseController {
         // 1. Lấy tổng số lượng khóa học sau khi lọc
         int totalCourses = filteredCourses.size();
         int itemsPerPage = 4;
-        
+
         // 2. Tính toán tổng số trang cần thiết (làm tròn lên)
         int totalPages = (int) Math.ceil((double) totalCourses / itemsPerPage);
         if (totalPages < 1) {

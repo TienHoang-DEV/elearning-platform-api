@@ -16,8 +16,17 @@ import java.util.Optional;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Integer> {
+
+    //Luu khoá học
+    Course save(Course course);
     // Tìm danh sách các khóa học theo trạng thái
     List<Course> findByStatus(String status);
+
+
+    //Kiểm tra không title trùng
+    boolean existsByInstructorAndTitle(User instructor, String title);
+
+
 
     long countByStatus(String status);
 

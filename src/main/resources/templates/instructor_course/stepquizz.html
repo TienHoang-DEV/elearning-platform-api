@@ -66,9 +66,9 @@
 
     <!-- Nút điều hướng -->
     <div class="gap-row" style="margin-top:16px;">
-        <a th:href="@{/instructor/courses/{id}/edit/curriculum(id=${course.id})}"
+        <a th:href="@{/instructor/courses/{id}/edit/curriculum(id=${courseRequest.id})}"
            class="btn btn-outline">← Quay Lại</a>
-        <a th:href="@{/instructor/courses/{id}/edit/publish(id=${course.id})}"
+        <a th:href="@{/instructor/courses/{id}/edit/publish(id=${courseRequest.id})}"
            class="btn btn-primary">Tiếp Theo →</a>
     </div>
 
