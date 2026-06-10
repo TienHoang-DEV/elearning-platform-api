@@ -9,6 +9,9 @@ import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
 import vn.edu.fpt.entity.*;
 
+import java.util.List;
+import java.util.Set;
+
 @Mapper(componentModel = "spring")
 public interface DtoMapper {
 
@@ -26,6 +29,8 @@ public interface DtoMapper {
     CategoryDto toCategoryDto(Category category);
 
     QuizDTO toQuizDto(Quiz quiz);
+
+    Set<QuizDTO> toQuizDtos(Set<Quiz> quizzes);
 
     QuizQuestionDTO toQuizQuestionDto(QuizQuestion quizQuestion);
 

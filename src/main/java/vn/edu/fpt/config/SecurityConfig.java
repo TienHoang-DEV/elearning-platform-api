@@ -45,8 +45,7 @@ public class SecurityConfig {
             DaoAuthenticationProvider authenticationProvider,
             CustomOAuth2UserService oAuth2UserService) throws Exception {
 
-        http
-                .csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.disable())
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.sameOrigin())
                 )
@@ -63,7 +62,8 @@ public class SecurityConfig {
                                 "/images/**", "/oauth2/**",
                                 "/forgot-password",
                                 "/reset-password",
-                                "/password-reset-success"
+                                "/password-reset-success",
+                                "/home"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

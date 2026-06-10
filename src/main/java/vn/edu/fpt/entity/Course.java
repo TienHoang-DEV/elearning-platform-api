@@ -31,6 +31,15 @@ public class Course extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(255)", nullable = false)
     private String title;
 
+    @Column(columnDefinition = "NVARCHAR(255) DEFAULT ''", nullable = false)
+    private String short_desc;
+
+    @Column(columnDefinition = "NVARCHAR(255)")
+    private String outcome;
+
+    @Column(columnDefinition = "NVARCHAR(255)")
+    private String requirement;
+
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
@@ -131,11 +140,13 @@ public class Course extends BaseEntity {
         return count;
     }
 
+    // Đếm số lượng feedback đạt mức đánh giá sao tương ứng (star)
     public int getStarCount(int star) {
         if (feedbacks == null) {
             return 0;
         }
         int count = 0;
+        // Duyệt qua tất cả feedbacks để lọc ra các đánh giá khớp số sao
         for (Feedback fb : feedbacks) {
             if (fb.getRating() != null && fb.getRating() == star) {
                 count++;
@@ -144,12 +155,16 @@ public class Course extends BaseEntity {
         return count;
     }
 
+    // Tính tỷ lệ phần trăm của số đánh giá sao tương ứng so với tổng số đánh giá
     public double getStarPercentage(int star) {
-        int total = getRatingCount();
+        int total = getRatingCount(); // Tổng số lượt đánh giá
         if (total == 0) {
             return 0.0;
         }
+        // Công thức: (Số lượng đánh giá X sao * 100) / Tổng số đánh giá
         double pct = (double) getStarCount(star) * 100.0 / total;
+        
+        // Làm tròn đến 1 chữ số sau phần thập phân (Ví dụ: 75.4)
         return Math.round(pct * 10.0) / 10.0;
     }
 

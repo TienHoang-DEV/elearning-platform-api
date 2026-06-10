@@ -84,13 +84,18 @@ public class LessonService {
 
     public String findLessonUrl(Integer lessonId) {
         try {
+            // 1. Tìm thông tin bài giảng theo ID trong Database
             Lesson lesson = this.findById(lessonId).orElse(null);
+            
+            // 2. Nếu không tìm thấy hoặc videoUrl trống -> Trả về link video test mặc định (W3Schools)
             if (lesson == null || lesson.getVideoUrl() == null || lesson.getVideoUrl().trim().isEmpty()) {
                 return "https://www.w3schools.com/html/mov_bbb.mp4";
             }
+            
+            // 3. Nếu hợp lệ -> Gọi AzureBlobService để ký sinh khóa bảo mật SAS URL từ Azure Container
             return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
         } catch (Exception e) {
-            // Fallback sang video test công cộng nếu Azure bị lỗi ở local dev
+            // Fallback sang video test công cộng nếu Azure gặp lỗi kết nối ở localhost phát triển
             return "https://www.w3schools.com/html/mov_bbb.mp4";
         }
     }

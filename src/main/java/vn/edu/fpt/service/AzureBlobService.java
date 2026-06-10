@@ -67,11 +67,18 @@ public class AzureBlobService {
     }
 
     public String generateSasUrl(String containerName, String blobName) {
+        // 1. Kết nối tới file cụ thể (Blob Client) trên Azure Container
         BlobClient blobClient = getBlobClient(containerName, blobName);
+        
+        // 2. Thiết lập cấu hình mã Token truy cập tạm thời (SAS - Shared Access Signature)
         BlobServiceSasSignatureValues sasValues = new BlobServiceSasSignatureValues(
+                // Thời gian hết hạn của link (link xem video tự động vô hiệu hóa sau số giờ định nghĩa trước)
                 OffsetDateTime.now().plusHours(AppConstants.SAS_EXPIRATION_HOURS),
+                // Chỉ cấp quyền ĐỌC (Read) video
                 new BlobSasPermission().setReadPermission(true)
         );
+        
+        // 3. Ghép URL gốc của file video với chuỗi ký tên SAS Token bảo mật và trả về
         return blobClient.getBlobUrl() + "?" + blobClient.generateSas(sasValues);
     }
 

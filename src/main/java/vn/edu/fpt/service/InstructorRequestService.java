@@ -4,16 +4,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.dto.InstructorRequestDTO;
 import vn.edu.fpt.entity.InstructorRequest;
+import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.InstructorRequestStatus;
 import vn.edu.fpt.exception.BadRequestException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.InstructorRequestRepository;
 import vn.edu.fpt.repository.RoleRepository;
+import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.util.SecurityUtils;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,13 +29,19 @@ public class InstructorRequestService {
     private final InstructorRequestRepository repository;
     private final RoleRepository roleRepository;
     private final DtoMapper dtoMapper;
+    private final AzureBlobService azureBlobService;
+
 
     public InstructorRequestService(InstructorRequestRepository repository,
                                     RoleRepository roleRepository,
-                                    DtoMapper dtoMapper) {
+                                    DtoMapper dtoMapper,
+                                    AzureBlobService azureBlobService) {
+
         this.repository = repository;
         this.roleRepository = roleRepository;
         this.dtoMapper = dtoMapper;
+        this.azureBlobService = azureBlobService;
+
     }
 
     // ─────────────────────────────────────────────
@@ -104,5 +115,58 @@ public class InstructorRequestService {
             return dtoMapper.toInstructorRequestDto(repository.save(request));
         }
         throw new BadRequestException("Trạng thái xét duyệt không hợp lệ.");
+    }
+
+    //--Xử lý up load file
+
+
+    public void submitRequest(
+            InstructorRequestDTO dto,
+            MultipartFile cvFile,
+            MultipartFile idFront,
+            MultipartFile idBack,
+            MultipartFile certificateFiles
+    ) {
+
+        User currentUser = SecurityUtils.getCurrentUser();
+
+        // Upload CV
+        String cvUrl = azureBlobService.saveFile(
+                cvFile,
+                AppConstants.AZURE_STORAGE_CONTAINER_INSTRUCTOR_CVS
+        );
+
+        // Upload CCCD mặt trước
+        String frontUrl = azureBlobService.saveFile(
+                idFront,
+                AppConstants.AZURE_STORAGE_CONTAINER_INSTRUCTOR_CVS
+        );
+
+        // Upload CCCD mặt sau
+        String backUrl = azureBlobService.saveFile(
+                idBack,
+                AppConstants.AZURE_STORAGE_CONTAINER_INSTRUCTOR_CVS
+        );
+
+        String certificateUrl = azureBlobService.saveFile(certificateFiles,
+                AppConstants.AZURE_STORAGE_CONTAINER_INSTRUCTOR_CVS);
+
+        // Tạo request
+        InstructorRequest request = new InstructorRequest();
+
+        request.setUser(currentUser);
+        request.setDescription(dto.getDescription());
+        request.setBio(dto.getBio());
+
+        request.setCvUrl(cvUrl);
+        request.setNationalIdCardFront(frontUrl);
+        request.setNationalIdCardBack(backUrl);
+        request.setCertificateUrl(certificateUrl);
+
+        request.setStatus(InstructorRequestStatus.PENDING);
+
+        repository.save(request);
+
+
     }
 }

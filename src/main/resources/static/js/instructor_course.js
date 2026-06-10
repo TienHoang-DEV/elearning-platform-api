@@ -28,10 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const m = document.getElementById(id);
         if (m) m.classList.add('open');
     }
+
     function closeModal(id) {
         const m = document.getElementById(id);
         if (m) m.classList.remove('open');
     }
+
     document.querySelectorAll('[data-open-modal]').forEach(btn => {
         btn.addEventListener('click', () => openModal(btn.dataset.openModal));
     });
@@ -64,8 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const avatarPreview = document.getElementById('avatarPreview');
     const sidebarAvatar = document.getElementById('sidebarAvatar');
     const profilePreviewAvatar = document.getElementById('profilePreviewAvatar');
-
-
 
 
     if (avatarInput) {
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========== COURSE CREATION WIZARD ==========
     let currentStep = 1;
     const totalSteps = 5;
-    const stepNames = ['GIỚI THIỆU KHÓA HỌC', 'CHƯƠNG TRÌNH GIẢNG DẠY', 'GIÁ KHÓA HỌC', 'CÂU HỎI ÔN TẬP', 'XUẤT BẢN'];
+    const stepNames = ['GIỚI THIỆU KHÓA HỌC', 'GIÁ KHOÁ HỌC', 'CHƯƠNG TRÌNH GIẢNG DẠY', 'CÂU HỎI ÔN TẬP', 'XUẤT BẢN'];
 
     function updateWizard() {
         document.querySelectorAll('.wizard-step').forEach((step, i) => {
@@ -169,10 +169,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevBtn = document.getElementById('stepPrevBtn');
     const nextBtn = document.getElementById('stepNextBtn');
 
-    if (prevBtn) prevBtn.addEventListener('click', () => { if (currentStep > 1) { currentStep--; updateWizard(); } });
+    if (prevBtn) prevBtn.addEventListener('click', () => {
+        if (currentStep > 1) {
+            currentStep--;
+            updateWizard();
+        }
+    });
     if (nextBtn) nextBtn.addEventListener('click', () => {
-        if (currentStep < totalSteps) { currentStep++; updateWizard(); }
-        else { alert('🎉 Khóa học đã hoàn thành!'); }
+        if (currentStep < totalSteps) {
+            currentStep++;
+            updateWizard();
+        } else {
+            alert('🎉 Khóa học đã hoàn thành!');
+        }
     });
 
     // ========== COURSE PREVIEW ==========
@@ -277,6 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     let lessonCount = 0;
+
     function addLessonToSection(sId, name, isFree) {
         lessonCount++;
         const list = document.getElementById('lessons-' + sId);
@@ -393,13 +403,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!question) return alert('Nhập câu hỏi!');
             addQuizItem(question, answers, correctIdx);
             ['quizQuestion', 'quizA', 'quizB', 'quizC', 'quizD'].forEach(id => {
-                const el = document.getElementById(id); if (el) el.value = '';
+                const el = document.getElementById(id);
+                if (el) el.value = '';
             });
             closeModal('modal-add-quiz');
         });
     }
 
     let quizCount = 0;
+
     function addQuizItem(question, answers, correctIdx) {
         if (!quizList) return;
         quizCount++;
@@ -452,3 +464,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // Pre-add sample section
     addSection('Giới thiệu về guitar điện');
 });
+
+document.getElementById('courseForm').addEventListener('submit', function () {
+    const priceInput = document.getElementById('priceInput');
+    
+    let hiddenPrice = document.getElementById('hiddenPriceInput');
+    if (!hiddenPrice) {
+        hiddenPrice = document.createElement('input');
+        hiddenPrice.type = 'hidden';
+        hiddenPrice.name = 'price';
+        hiddenPrice.id = 'hiddenPriceInput';
+        this.appendChild(hiddenPrice);
+    }
+
+    if (!priceInput.value) {
+        priceInput.value = 0;
+        hiddenPrice.value = 0;
+    } else {
+        hiddenPrice.value = parseInt(priceInput.value);
+        priceInput.value = parseInt(priceInput.value);
+    }
+});
+
