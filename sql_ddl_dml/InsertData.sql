@@ -1,3 +1,5 @@
+USE ElearningPlatform
+
 -- =========================
 -- ROLES SAMPLE DATA
 -- =========================
