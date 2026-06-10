@@ -1,3 +1,6 @@
+USE ElearningPlatform;
+GO
+
 -- =========================
 -- ROLES SAMPLE DATA
 -- =========================
@@ -80,6 +83,27 @@ VALUES
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
  'avatar.jpg',
  NULL,
+ 'ACTIVE'),
+
+(N'Nguyễn', N'Tuấn', 'learner3@elearning.com', '0904000003',
+ NULL,
+ '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
+ 'avatar.jpg',
+ NULL,
+ 'ACTIVE'),
+
+(N'Lê', N'Hương', 'learner4@elearning.com', '0904000004',
+ NULL,
+ '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
+ 'avatar.jpg',
+ NULL,
+ 'ACTIVE'),
+
+(N'Phạm', N'Vy', 'learner5@elearning.com', '0904000005',
+ NULL,
+ '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
+ 'avatar.jpg',
+ NULL,
  'ACTIVE');
 
  -- =========================
@@ -102,7 +126,10 @@ VALUES
 
 -- Learner
 (7, 4),
-(8, 4);
+(8, 4),
+(9, 4),
+(10, 4),
+(11, 4);
 
 -- =========================
 -- CATEGORY
@@ -256,6 +283,214 @@ VALUES
     'PUBLISHED',
     4,
     GETDATE()
+),
+
+-- HTML (ID = 4)
+(
+    5,
+    4,
+    N'HTML5 & CSS3 Cơ Bản Cho Người Mới',
+    N'Khóa học nền tảng thiết kế giao diện web với HTML5 và CSS3.',
+    'fptthumbnail.jpg',
+    190000,
+    'BEGINNER',
+    'PUBLISHED',
+    3,
+    GETDATE()
+),
+(
+    6,
+    4,
+    N'Thiết Kế Web Landing Page Với HTML5',
+    N'Lập trình và hoàn thiện giao diện landing page chuyên nghiệp.',
+    'fptthumbnail.jpg',
+    350000,
+    'INTERMEDIATE',
+    'PUBLISHED',
+    4,
+    GETDATE()
+),
+
+-- CSS (ID = 5)
+(
+    5,
+    5,
+    N'Tailwind CSS Từ Zero Đến Hero',
+    N'Sử dụng Tailwind CSS để thiết kế nhanh các giao diện hiện đại.',
+    'fptthumbnail.jpg',
+    250000,
+    'BEGINNER',
+    'PUBLISHED',
+    3,
+    GETDATE()
+),
+(
+    6,
+    5,
+    N'Responsive Web Design Với Flexbox & Grid',
+    N'Làm chủ bố cục Responsive với CSS Flexbox và CSS Grid.',
+    'fptthumbnail.jpg',
+    450000,
+    'INTERMEDIATE',
+    'PUBLISHED',
+    4,
+    GETDATE()
+),
+
+-- React (ID = 6)
+(
+    5,
+    6,
+    N'React Native - Lập Trình Di Động Thực Chiến',
+    N'Xây dựng ứng dụng di động đa nền tảng Android/iOS bằng React Native.',
+    'fptthumbnail.jpg',
+    890000,
+    'ADVANCED',
+    'PUBLISHED',
+    3,
+    GETDATE()
+),
+(
+    6,
+    6,
+    N'Next.js 14 - Tối Ưu Hóa Ứng Dụng React',
+    N'Xây dựng ứng dụng Server-side Rendering với Next.js 14 mới nhất.',
+    'fptthumbnail.jpg',
+    1150000,
+    'ADVANCED',
+    'PUBLISHED',
+    4,
+    GETDATE()
+),
+
+-- Node.js (ID = 7)
+(
+    5,
+    7,
+    N'Node.js RESTful API & NestJS nâng cao',
+    N'Thiết kế kiến trúc hệ thống chuyên nghiệp với NestJS và Node.js.',
+    'fptthumbnail.jpg',
+    1290000,
+    'ADVANCED',
+    'PUBLISHED',
+    3,
+    GETDATE()
+),
+(
+    6,
+    7,
+    N'Lập Trình Backend Thực Chiến Với Node.js & MongoDB',
+    N'Kết nối Express, Node.js với cơ sở dữ liệu MongoDB NoSQL.',
+    'fptthumbnail.jpg',
+    490000,
+    'INTERMEDIATE',
+    'PUBLISHED',
+    4,
+    GETDATE()
+),
+
+-- Python (ID = 8)
+(
+    5,
+    8,
+    N'Phân Tích Dữ Liệu Với Python, Pandas & NumPy',
+    N'Sử dụng thư viện Pandas và NumPy để xử lý và phân tích số liệu.',
+    'fptthumbnail.jpg',
+    750000,
+    'INTERMEDIATE',
+    'PUBLISHED',
+    3,
+    GETDATE()
+),
+(
+    6,
+    8,
+    N'Django & Python - Xây Dựng Website Tin Tức',
+    N'Tạo dự án Website tin tức hoàn thiện bằng Python & Django Framework.',
+    'fptthumbnail.jpg',
+    590000,
+    'INTERMEDIATE',
+    'PUBLISHED',
+    4,
+    GETDATE()
+),
+
+-- Java (ID = 9)
+(
+    5,
+    9,
+    N'Lập Trình Hướng Đối Tượng Java Core Cơ Bản',
+    N'Học 4 tính chất OOP cơ bản trong Java: Kế thừa, Đa hình, Đóng gói, Trừu tượng.',
+    'fptthumbnail.jpg',
+    150000,
+    'BEGINNER',
+    'PUBLISHED',
+    3,
+    GETDATE()
+),
+(
+    6,
+    9,
+    N'Microservices Với Spring Boot & Spring Cloud',
+    N'Xây dựng hệ thống phân tán chịu tải cao bằng Microservices.',
+    'fptthumbnail.jpg',
+    1490000,
+    'ADVANCED',
+    'PUBLISHED',
+    4,
+    GETDATE()
+),
+
+-- Swift (ID = 10)
+(
+    5,
+    10,
+    N'iOS Development Swift & Xcode Thực Hành',
+    N'Tự làm ứng dụng iOS đầu tiên sử dụng Storyboard, AutoLayout và Xcode.',
+    'fptthumbnail.jpg',
+    650000,
+    'BEGINNER',
+    'PUBLISHED',
+    3,
+    GETDATE()
+),
+(
+    6,
+    10,
+    N'Cấu Trúc Dữ Liệu & Giải Thuật Bằng Swift',
+    N'Cải thiện tư duy thuật toán khi thiết kế logic trên iOS.',
+    'fptthumbnail.jpg',
+    990000,
+    'ADVANCED',
+    'PUBLISHED',
+    4,
+    GETDATE()
+),
+
+-- SwiftUI (ID = 11)
+(
+    5,
+    11,
+    N'SwiftUI Animation - Chuyển Động Đẹp Mắt',
+    N'Tạo các chuyển cảnh, chuyển động mượt mà bằng SwiftUI Animation.',
+    'fptthumbnail.jpg',
+    550000,
+    'ADVANCED',
+    'PUBLISHED',
+    3,
+    GETDATE()
+),
+(
+    6,
+    11,
+    N'Xây Dựng Clone App iOS Với SwiftUI & Firebase',
+    N'Clone ứng dụng mạng xã hội nổi tiếng sử dụng SwiftUI và Realtime Database.',
+    'fptthumbnail.jpg',
+    1090000,
+    'INTERMEDIATE',
+    'PUBLISHED',
+    4,
+    GETDATE()
 );
 
 -- =========================
@@ -318,6 +553,102 @@ VALUES
 (8, N'Chương 2: Spring Data JPA', 2),
 (8, N'Chương 3: Spring Security', 3);
 
+-- Course 9: HTML5 & CSS3 Cơ Bản Cho Người Mới
+INSERT INTO course_sections (course_id, title, position) VALUES
+(9, N'Chương 1: Giới thiệu HTML5', 1),
+(9, N'Chương 2: Thẻ và Bố cục cơ bản', 2),
+(9, N'Chương 3: Kết hợp CSS3 cơ bản', 3);
+
+-- Course 10: Thiết Kế Web Landing Page Với HTML5
+INSERT INTO course_sections (course_id, title, position) VALUES
+(10, N'Chương 1: Lập kế hoạch Landing Page', 1),
+(10, N'Chương 2: Cấu trúc HTML & Layout', 2),
+(10, N'Chương 3: Hoàn thiện Landing Page', 3);
+
+-- Course 11: Tailwind CSS Từ Zero Đến Hero
+INSERT INTO course_sections (course_id, title, position) VALUES
+(11, N'Chương 1: Setup Tailwind CSS', 1),
+(11, N'Chương 2: Tailwind Utility Classes', 2),
+(11, N'Chương 3: Responsive & Customization', 3);
+
+-- Course 12: Responsive Web Design Với Flexbox & Grid
+INSERT INTO course_sections (course_id, title, position) VALUES
+(12, N'Chương 1: Tư duy Responsive', 1),
+(12, N'Chương 2: Flexbox Layout', 2),
+(12, N'Chương 3: Grid Layout chuyên sâu', 3);
+
+-- Course 13: React Native - Lập Trình Di Động Thực Chiến
+INSERT INTO course_sections (course_id, title, position) VALUES
+(13, N'Chương 1: Khởi động dự án React Native', 1),
+(13, N'Chương 2: Core Components & Navigation', 2),
+(13, N'Chương 3: API & State Management', 3);
+
+-- Course 14: Next.js 14 - Tối Ưu Hóa Ứng Dụng React
+INSERT INTO course_sections (course_id, title, position) VALUES
+(14, N'Chương 1: App Router & Routing', 1),
+(14, N'Chương 2: Server & Client Components', 2),
+(14, N'Chương 3: Data Fetching & Caching', 3);
+
+-- Course 15: Node.js RESTful API & NestJS nâng cao
+INSERT INTO course_sections (course_id, title, position) VALUES
+(15, N'Chương 1: Kiến trúc NestJS', 1),
+(15, N'Chương 2: Controllers & Providers', 2),
+(15, N'Chương 3: Authentication & Security', 3);
+
+-- Course 16: Lập Trình Backend Thực Chiến Với Node.js & MongoDB
+INSERT INTO course_sections (course_id, title, position) VALUES
+(16, N'Chương 1: Cơ sở dữ liệu NoSQL MongoDB', 1),
+(16, N'Chương 2: Mongoose ODM trong Express', 2),
+(16, N'Chương 3: CRUD & Middlewares', 3);
+
+-- Course 17: Phân Tích Dữ Liệu Với Python, Pandas & NumPy
+INSERT INTO course_sections (course_id, title, position) VALUES
+(17, N'Chương 1: Giới thiệu NumPy', 1),
+(17, N'Chương 2: Pandas DataFrames', 2),
+(17, N'Chương 3: Trực quan hóa dữ liệu', 3);
+
+-- Course 18: Django & Python - Xây Dựng Website Tin Tức
+INSERT INTO course_sections (course_id, title, position) VALUES
+(18, N'Chương 1: Cấu trúc Django Project', 1),
+(18, N'Chương 2: Models & Django Admin', 2),
+(18, N'Chương 3: Views, Templates & URL routing', 3);
+
+-- Course 19: Lập Trình Hướng Đối Tượng Java Core Cơ Bản
+INSERT INTO course_sections (course_id, title, position) VALUES
+(19, N'Chương 1: Cú pháp cơ bản Java', 1),
+(19, N'Chương 2: Lớp và Đối tượng', 2),
+(19, N'Chương 3: Tính chất OOP cơ bản', 3);
+
+-- Course 20: Microservices Với Spring Boot & Spring Cloud
+INSERT INTO course_sections (course_id, title, position) VALUES
+(20, N'Chương 1: Kiến trúc Microservices', 1),
+(20, N'Chương 2: Service Discovery & Gateway', 2),
+(20, N'Chương 3: Distributed Tracing & Config', 3);
+
+-- Course 21: iOS Development Swift & Xcode Thực Hành
+INSERT INTO course_sections (course_id, title, position) VALUES
+(21, N'Chương 1: Giao diện Xcode', 1),
+(21, N'Chương 2: Storyboard & AutoLayout', 2),
+(21, N'Chương 3: ViewControllers & Lifecycle', 3);
+
+-- Course 22: Cấu Trúc Dữ Liệu & Giải Thuật Bằng Swift
+INSERT INTO course_sections (course_id, title, position) VALUES
+(22, N'Chương 1: Các cấu trúc dữ liệu cơ bản', 1),
+(22, N'Chương 2: Thuật toán Sắp xếp & Tìm kiếm', 2),
+(22, N'Chương 3: Cây & Đồ thị trong Swift', 3);
+
+-- Course 23: SwiftUI Animation - Chuyển Động Đẹp Mắt
+INSERT INTO course_sections (course_id, title, position) VALUES
+(23, N'Chương 1: Animatable Properties', 1),
+(23, N'Chương 2: Transitions & Spring Animations', 2),
+(23, N'Chương 3: Custom Animations nâng cao', 3);
+
+-- Course 24: Xây Dựng Clone App iOS Với SwiftUI & Firebase
+INSERT INTO course_sections (course_id, title, position) VALUES
+(24, N'Chương 1: Cấu hình Firebase SDK', 1),
+(24, N'Chương 2: Đăng nhập & Đăng ký', 2),
+(24, N'Chương 3: Realtime Database & Storage', 3);
+
 -- =========================
 -- LESSONS SAMPLE DATA
 -- Mỗi section có 3 bài học
@@ -325,7 +656,7 @@ VALUES
 
 DECLARE @sectionId INT = 1;
 
-WHILE @sectionId <= 24
+WHILE @sectionId <= 72
 BEGIN
 
     INSERT INTO lessons (
@@ -378,7 +709,7 @@ END
 
 DECLARE @lessonId INT = 1;
 
-WHILE @lessonId <= 72
+WHILE @lessonId <= 216
 BEGIN
 
     INSERT INTO quizzes (
@@ -693,3 +1024,176 @@ VALUES
 (24, N'Spring Security', 1),
 (24, N'Spring Data JPA', 1),
 (24, N'Laravel', 0);
+
+-- =========================
+-- FEEDBACKS SAMPLE DATA
+-- =========================
+INSERT INTO feedbacks (user_id, course_id, rating, comment, status, created_at)
+VALUES
+-- Course 1 (Java Core): 5, 4, 3, 5, 4
+(7, 1, 5, N'Khóa học Java Core rất hay và chi tiết, phù hợp cho người mới bắt đầu.', 'VISIBLE', GETDATE()),
+(8, 1, 4, N'Nội dung rất ổn, tuy nhiên một số bài tập cuối chương hơi khó.', 'VISIBLE', GETDATE()),
+(9, 1, 3, N'Khóa học bình thường, phần giải thích OOP hơi nhanh quá.', 'VISIBLE', GETDATE()),
+(10, 1, 5, N'Giảng viên nhiệt tình, hỗ trợ Q&A rất nhanh.', 'VISIBLE', GETDATE()),
+(11, 1, 4, N'Tài liệu đầy đủ, video chất lượng cao.', 'VISIBLE', GETDATE()),
+
+-- Course 2 (ReactJS): 5, 5, 4, 4, 5
+(7, 2, 5, N'ReactJS thực chiến đỉnh cao, học xong làm được dự án ngay.', 'VISIBLE', GETDATE()),
+(8, 2, 5, N'Khóa học quá tuyệt vời, đặc biệt là phần Redux Toolkit.', 'VISIBLE', GETDATE()),
+(9, 2, 4, N'Nội dung cập nhật mới, thực hành nhiều.', 'VISIBLE', GETDATE()),
+(10, 2, 4, N'Tốt, nhưng nên nói sâu hơn về Performance Optimization.', 'VISIBLE', GETDATE()),
+(11, 2, 5, N'Giảng viên có kiến thức thực tế sâu rộng, giải thích rất dễ thấm.', 'VISIBLE', GETDATE()),
+
+-- Course 3 (CSS): 3, 2, 4, 3, 2
+(7, 3, 3, N'Nội dung CSS cơ bản thì tốt nhưng phần Flexbox giảng hơi rối.', 'VISIBLE', GETDATE()),
+(8, 3, 2, N'Khóa học hơi ngắn, thiếu bài tập thực tế về Grid Layout.', 'VISIBLE', GETDATE()),
+(9, 3, 4, N'Responsive Design được giải thích khá ổn.', 'VISIBLE', GETDATE()),
+(10, 3, 3, N'Tạm được, chưa xứng đáng lắm với giá tiền.', 'VISIBLE', GETDATE()),
+(11, 3, 2, N'Nói hơi lan man và slide chuẩn bị hơi sơ sài.', 'VISIBLE', GETDATE()),
+
+-- Course 4 (Node.js): 4, 4, 3, 4, 5
+(7, 4, 4, N'Học làm API với Express rất thực chiến, cấu trúc thư mục chuẩn.', 'VISIBLE', GETDATE()),
+(8, 4, 4, N'Rất hay, code chạy mượt mà không lỗi.', 'VISIBLE', GETDATE()),
+(9, 4, 3, N'Nội dung cơ bản tốt nhưng phần Middleware giảng hơi khó hiểu.', 'VISIBLE', GETDATE()),
+(10, 4, 4, N'Tài liệu tham khảo đầy đủ, có github repo kèm theo.', 'VISIBLE', GETDATE()),
+(11, 4, 5, N'Khóa học xuất sắc, giảng viên có giọng nói rất cuốn hút.', 'VISIBLE', GETDATE()),
+
+-- Course 5 (Python): 5, 4, 5, 4, 3
+(7, 5, 5, N'Python cơ bản rất dễ học qua khóa này, ví dụ thực tế phong phú.', 'VISIBLE', GETDATE()),
+(8, 5, 4, N'Thích hợp cho người bắt đầu từ con số 0.', 'VISIBLE', GETDATE()),
+(9, 5, 5, N'Rất thích phần giải thích về OOP trong Python.', 'VISIBLE', GETDATE()),
+(10, 5, 4, N'Bài tập thực hành phong phú giúp củng cố kiến thức.', 'VISIBLE', GETDATE()),
+(11, 5, 3, N'Video hơi dài và tốc độ giảng hơi chậm.', 'VISIBLE', GETDATE()),
+
+-- Course 6 (Swift): 2, 1, 3, 2, 1
+(7, 6, 2, N'Nội dung Swift này cũ quá rồi, nhiều cú pháp không còn đúng ở Xcode mới.', 'VISIBLE', GETDATE()),
+(8, 6, 1, N'Không nên mua, giảng viên không cập nhật nội dung mới.', 'VISIBLE', GETDATE()),
+(9, 6, 3, N'Tạm được nếu tự tìm tòi sửa lỗi cú pháp thêm.', 'VISIBLE', GETDATE()),
+(10, 6, 2, N'Giọng giảng viên đều đều nghe buồn ngủ quá.', 'VISIBLE', GETDATE()),
+(11, 6, 1, N'Quá tệ, support cực kỳ chậm hoặc không thèm trả lời.', 'VISIBLE', GETDATE()),
+
+-- Course 7 (SwiftUI): 5, 5, 5, 4, 5
+(7, 7, 5, N'SwiftUI quá đẹp, giảng viên thiết kế giao diện đỉnh cao.', 'VISIBLE', GETDATE()),
+(8, 7, 5, N'Best course về SwiftUI trên nền tảng này!', 'VISIBLE', GETDATE()),
+(9, 7, 5, N'Học xong tự tin code UI cho iOS luôn.', 'VISIBLE', GETDATE()),
+(10, 7, 4, N'Cần bổ dung thêm phần kết nối API.', 'VISIBLE', GETDATE()),
+(11, 7, 5, N'Tài nguyên hình ảnh và source code kèm theo rất xịn.', 'VISIBLE', GETDATE()),
+
+-- Course 8 (Spring Boot REST API): 4, 3, 4, 5, 4
+(7, 8, 4, N'Kiến trúc Spring Boot chuẩn chỉnh, học được nhiều best practice.', 'VISIBLE', GETDATE()),
+(8, 8, 3, N'Phần Spring Security cấu hình hơi phức tạp và giảng hơi nhanh.', 'VISIBLE', GETDATE()),
+(9, 8, 4, N'Học backend Java thì nên học khóa này.', 'VISIBLE', GETDATE()),
+(10, 8, 5, N'Tuyệt vời, deploy lên Azure chạy mượt mà.', 'VISIBLE', GETDATE()),
+(11, 8, 4, N'Rất đáng tiền, giảng viên giải đáp thắc mắc chi tiết.', 'VISIBLE', GETDATE()),
+
+-- Course 9 (HTML5 & CSS3): 5, 4, 4, 5, 3
+(7, 9, 5, N'Nhập môn Web không thể bỏ qua khóa này, rất dễ hiểu.', 'VISIBLE', GETDATE()),
+(8, 9, 4, N'Nền tảng vững chắc để học tiếp Front-End.', 'VISIBLE', GETDATE()),
+(9, 9, 4, N'Bài tập làm web đơn giản khá thú vị.', 'VISIBLE', GETDATE()),
+(10, 9, 5, N'Thích cách giảng viên truyền đạt kiến thức.', 'VISIBLE', GETDATE()),
+(11, 9, 3, N'Hơi cơ bản, mong có thêm phần nâng cao.', 'VISIBLE', GETDATE()),
+
+-- Course 10 (Web Landing Page): 3, 2, 3, 4, 2
+(7, 10, 3, N'Khóa học trung bình, giao diện mẫu chưa được đẹp lắm.', 'VISIBLE', GETDATE()),
+(8, 10, 2, N'Thiếu phần tối ưu SEO cho Landing Page.', 'VISIBLE', GETDATE()),
+(9, 10, 3, N'Tạm ổn để làm quen với layout.', 'VISIBLE', GETDATE()),
+(10, 10, 4, N'Hướng dẫn từng bước khá dễ đi theo.', 'VISIBLE', GETDATE()),
+(11, 10, 2, N'Không học được nhiều kỹ thuật mới, toàn copy code.', 'VISIBLE', GETDATE()),
+
+-- Course 11 (Tailwind CSS): 5, 5, 4, 5, 5
+(7, 11, 5, N'Học xong bỏ luôn CSS thuần, viết Tailwind siêu nhanh.', 'VISIBLE', GETDATE()),
+(8, 11, 5, N'Cấu trúc và cách sử dụng class rất trực quan.', 'VISIBLE', GETDATE()),
+(9, 11, 4, N'Giải thích cặn kẽ cách custom config Tailwind.', 'VISIBLE', GETDATE()),
+(10, 11, 5, N'Tuyệt vời, tiết kiệm bao nhiêu thời gian làm UI.', 'VISIBLE', GETDATE()),
+(11, 11, 5, N'Giảng viên giải thích rất hay, ví dụ sinh động.', 'VISIBLE', GETDATE()),
+
+-- Course 12 (Responsive Web Design): 4, 3, 5, 4, 4
+(7, 12, 4, N'Hiểu sâu sắc về Media Query và cách chia cột.', 'VISIBLE', GETDATE()),
+(8, 12, 3, N'Phần Grid hơi phức tạp, cần xem lại nhiều lần.', 'VISIBLE', GETDATE()),
+(9, 12, 5, N'Responsive chạy hoàn hảo trên cả mobile và tablet.', 'VISIBLE', GETDATE()),
+(10, 12, 4, N'Khóa học bổ ích cho các Web Designer.', 'VISIBLE', GETDATE()),
+(11, 12, 4, N'Code mẫu sạch và dễ áp dụng vào dự án thực tế.', 'VISIBLE', GETDATE()),
+
+-- Course 13 (React Native): 2, 2, 3, 1, 2
+(7, 13, 2, N'Config môi trường Android/iOS quá phức tạp và nhiều lỗi.', 'VISIBLE', GETDATE()),
+(8, 13, 2, N'Giảng viên code lỗi liên tục trong video làm mất thời gian.', 'VISIBLE', GETDATE()),
+(9, 13, 3, N'Nội dung tạm chấp nhận được nếu chịu khó search StackOverflow.', 'VISIBLE', GETDATE()),
+(10, 13, 1, N'Không chạy được code mẫu trên phiên bản React Native mới.', 'VISIBLE', GETDATE()),
+(11, 13, 2, N'Nói lắp bắp và giải thích kiến thức không rõ ràng.', 'VISIBLE', GETDATE()),
+
+-- Course 14 (Next.js 14): 5, 4, 5, 5, 4
+(7, 14, 5, N'NextJS 14 App Router giảng cực kỳ dễ hiểu, quá hay.', 'VISIBLE', GETDATE()),
+(8, 14, 4, N'Server Component và Client Component phân biệt rất rõ ràng.', 'VISIBLE', GETDATE()),
+(9, 14, 5, N'SEO và Performance cải thiện rõ rệt sau khi áp dụng.', 'VISIBLE', GETDATE()),
+(10, 14, 5, N'Khóa học chất lượng cao nhất về Next.js hiện tại.', 'VISIBLE', GETDATE()),
+(11, 14, 4, N'Tài liệu hướng dẫn siêu chi tiết, code mẫu chuẩn.', 'VISIBLE', GETDATE()),
+
+-- Course 15 (Node.js RESTful & NestJS): 4, 5, 4, 3, 5
+(7, 15, 4, N'Kiến trúc NestJS sạch sẽ, chuẩn doanh nghiệp.', 'VISIBLE', GETDATE()),
+(8, 15, 5, N'Khóa học nâng cao chất lượng, áp dụng được ngay vào công việc.', 'VISIBLE', GETDATE()),
+(9, 15, 4, N'Giải thích rõ về Dependency Injection.', 'VISIBLE', GETDATE()),
+(10, 15, 3, N'Phần microservices giảng hơi sơ sài.', 'VISIBLE', GETDATE()),
+(11, 15, 5, N'Thích cách giảng viên thiết kế DB và bảo mật JWT.', 'VISIBLE', GETDATE()),
+
+-- Course 16 (Node.js & MongoDB): 3, 3, 4, 3, 2
+(7, 16, 3, N'Học MongoDB cơ bản ổn, nhưng phần Aggregation giảng chưa sâu.', 'VISIBLE', GETDATE()),
+(8, 16, 3, N'Slide bài giảng hơi sơ sài, chủ yếu là live code.', 'VISIBLE', GETDATE()),
+(9, 16, 4, N'Kết nối Express với MongoDB dễ dàng theo hướng dẫn.', 'VISIBLE', GETDATE()),
+(10, 16, 3, N'Nội dung ở mức trung bình, có thể tìm thấy free trên mạng.', 'VISIBLE', GETDATE()),
+(11, 16, 2, N'Nhiều đoạn code bị lỗi thời do thư viện cập nhật.', 'VISIBLE', GETDATE()),
+
+-- Course 17 (Pandas & NumPy): 5, 5, 4, 5, 4
+(7, 17, 5, N'Tuyệt vời cho AI và Data Science path, NumPy/Pandas rất trực quan.', 'VISIBLE', GETDATE()),
+(8, 17, 5, N'Thao tác dữ liệu cực kỳ nhanh gọn sau khóa này.', 'VISIBLE', GETDATE()),
+(9, 17, 4, N'Nhiều bài tập thực hành phân tích file CSV thực tế.', 'VISIBLE', GETDATE()),
+(10, 17, 5, N'Giảng viên giải thích toán học đằng sau rất dễ hiểu.', 'VISIBLE', GETDATE()),
+(11, 17, 4, N'Tài liệu Jupyter Notebook đi kèm rất tiện tra cứu.', 'VISIBLE', GETDATE()),
+
+-- Course 18 (Django & Python): 4, 4, 3, 4, 3
+(7, 18, 4, N'Xây dựng web với Django nhanh chóng, admin panel quá xịn.', 'VISIBLE', GETDATE()),
+(8, 18, 4, N'Học được cách làm hệ thống phân quyền và CMT.', 'VISIBLE', GETDATE()),
+(9, 18, 3, N'Tốc độ nói của giảng viên hơi nhanh ở phần Template.', 'VISIBLE', GETDATE()),
+(10, 18, 4, N'Hướng dẫn Deploy lên Heroku rất chi tiết.', 'VISIBLE', GETDATE()),
+(11, 18, 3, N'Nội dung tạm ổn, có thể bổ sung thêm REST Framework.', 'VISIBLE', GETDATE()),
+
+-- Course 19 (OOP Java Core): 1, 2, 1, 3, 2
+(7, 19, 1, N'Khóa học chán quá, giảng viên chỉ đọc slide.', 'VISIBLE', GETDATE()),
+(8, 19, 2, N'Bài tập OOP quá đơn điệu, không thực tế.', 'VISIBLE', GETDATE()),
+(9, 19, 1, N'Microphone của giảng viên bị rè, nghe rất khó chịu.', 'VISIBLE', GETDATE()),
+(10, 19, 3, N'Nội dung cơ bản ở mức tạm chấp nhận được.', 'VISIBLE', GETDATE()),
+(11, 19, 2, N'Giải thích phần Đa hình rất mơ hồ và khó hiểu.', 'VISIBLE', GETDATE()),
+
+-- Course 20 (Microservices): 5, 5, 5, 4, 5
+(7, 20, 5, N'Kiến trúc đỉnh cao, Eureka, Gateway, Config Server đầy đủ.', 'VISIBLE', GETDATE()),
+(8, 20, 5, N'Khóa học chất lượng nhất về Microservices bằng Java.', 'VISIBLE', GETDATE()),
+(9, 20, 5, N'Rất thực chiến, có phần Docker hóa các service.', 'VISIBLE', GETDATE()),
+(10, 20, 4, N'Cần thêm phần Kubernetes nữa thì hoàn hảo.', 'VISIBLE', GETDATE()),
+(11, 20, 5, N'Thầy dạy cực kỳ tâm huyết, hỗ trợ group chat nhiệt tình.', 'VISIBLE', GETDATE()),
+
+-- Course 21 (iOS Swift & Xcode): 4, 4, 5, 4, 3
+(7, 21, 4, N'Làm quen Xcode nhanh chóng, tạo được app đầu tiên sau vài giờ.', 'VISIBLE', GETDATE()),
+(8, 21, 4, N'Rất thích hợp cho người mới chuyển sang lập trình iOS.', 'VISIBLE', GETDATE()),
+(9, 21, 5, N'Tư duy chia Layout bằng AutoLayout rất dễ thấm.', 'VISIBLE', GETDATE()),
+(10, 21, 4, N'Bài giảng trực quan, hình ảnh đẹp.', 'VISIBLE', GETDATE()),
+(11, 21, 3, N'Nên bổ sung thêm phần UIKit nâng cao.', 'VISIBLE', GETDATE()),
+
+-- Course 22 (Data Structures Swift): 3, 3, 4, 3, 4
+(7, 22, 3, N'Cấu trúc dữ liệu bằng Swift giảng ở mức vừa phải.', 'VISIBLE', GETDATE()),
+(8, 22, 3, N'Nhiều phần giải thuật viết code hơi phức tạp hóa vấn đề.', 'VISIBLE', GETDATE()),
+(9, 22, 4, N'Giúp cải thiện tư duy thuật toán khi làm iOS.', 'VISIBLE', GETDATE()),
+(10, 22, 3, N'Tạm được, chưa có nhiều ví dụ nâng cao.', 'VISIBLE', GETDATE()),
+(11, 22, 4, N'Slide đẹp, hình ảnh minh họa thuật toán dễ hiểu.', 'VISIBLE', GETDATE()),
+
+-- Course 23 (SwiftUI Animation): 5, 5, 4, 4, 5
+(7, 23, 5, N'Animation trong SwiftUI quá ảo diệu, dạy rất chi tiết.', 'VISIBLE', GETDATE()),
+(8, 23, 5, N'Học xong làm được hiệu ứng chuyển động mượt mà.', 'VISIBLE', GETDATE()),
+(9, 23, 4, N'Cung cấp nhiều ý tưởng thiết kế UI độc đáo.', 'VISIBLE', GETDATE()),
+(10, 23, 4, N'Rất hay, mong giảng viên làm thêm phần Transition nâng cao.', 'VISIBLE', GETDATE()),
+(11, 23, 5, N'Không thể chê được điểm nào, video HD siêu nét.', 'VISIBLE', GETDATE()),
+
+-- Course 24 (Clone App & Firebase): 2, 3, 2, 3, 1
+(7, 24, 2, N'Cấu hình Firebase iOS quá khó khăn và lỗi liên tục.', 'VISIBLE', GETDATE()),
+(8, 24, 3, N'Khóa học hơi vội vàng ở phần xử lý Realtime Database.', 'VISIBLE', GETDATE()),
+(9, 24, 2, N'Nhiều đoạn code bị lỗi do Firebase update SDK mới.', 'VISIBLE', GETDATE()),
+(10, 24, 3, N'Ở mức trung bình, xem để biết luồng đăng nhập.', 'VISIBLE', GETDATE()),
+(11, 24, 1, N'Không được hỗ trợ khi hỏi bài, code lỗi không chạy được.', 'VISIBLE', GETDATE());
