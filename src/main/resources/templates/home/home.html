@@ -79,7 +79,7 @@
                     <button class="btn d-flex align-items-center gap-2 p-1 border-0 bg-transparent dropdown-toggle no-caret"
                             type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-avatar-wrapper position-relative">
-                            <img th:src="${currentUser.avatarUrl != null ? currentUser.avatarUrl : '/images/avatar.png'}"
+                            <img th:src="${currentUser.getFullAvatarUrl() != null ? currentUser.getFullAvatarUrl() : '/images/avatar.png'}"
                                  alt="User Avatar" class="rounded-circle header-user-avatar">
                             <span class="user-online-badge"></span>
                         </div>
