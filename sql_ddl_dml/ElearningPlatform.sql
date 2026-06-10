@@ -349,7 +349,7 @@ CREATE TABLE lessons (
                          title NVARCHAR(255) NOT NULL,
     -- Tên bài học (ví dụ: 'Bài 1: Giới thiệu ngôn ngữ C')
 
-                         video_url VARCHAR(500) NULL,
+                         video_url NVARCHAR(500) NULL,
     -- URL video bài học (lưu link từ Azure Blob Storage)
 
                          duration_seconds INT NULL CHECK (duration_seconds > 0),
