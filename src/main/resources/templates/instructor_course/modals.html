@@ -15,7 +15,7 @@
                 <h3>➕ Thêm Chương Mới</h3>
                 <button class="modal-close" data-close-modal="modal-add-section">✕</button>
             </div>
-            <form th:action="@{/instructor/courses/{id}/sections(id=${course.id})}" method="POST">
+            <form th:action="@{/instructor/courses/{id}/sections(id=${courseRequest.id})}" method="POST">
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Tên Chương <span class="required">*</span></label>
@@ -173,7 +173,7 @@
                 <h3>❓ Thêm Câu Hỏi Trắc Nghiệm</h3>
                 <button class="modal-close" data-close-modal="modal-add-quiz">✕</button>
             </div>
-            <form th:action="@{/instructor/courses/{id}/quizzes(id=${course.id})}" method="POST">
+            <form th:action="@{/instructor/courses/{id}/quizzes(id=${courseRequest.id})}" method="POST">
                 <div class="modal-body">
                     <div class="form-group" style="margin-bottom:14px;">
                         <label>Tiêu Đề Câu Hỏi <span class="required">*</span></label>

@@ -56,12 +56,6 @@ public class UserService {
         return repository.existsById(id);
     }
 
-    public User getCurrentUser() {
-        String email = authService.getCurrentEmail();
-
-        return repository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-
-    }
 
 
     public void updateProfileInstuctor(User user, ProfileDto profileDto) {
