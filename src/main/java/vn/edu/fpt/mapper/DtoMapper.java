@@ -56,6 +56,7 @@ public interface DtoMapper {
     @Mapping(target = "fullName",
             expression = "java(request.getUser().getFirstName() + \" \" + request.getUser().getLastName())")
     @Mapping(target = "email",     source = "user.email")
+    @Mapping(target = "phone",     source = "user.phone")
 
     InstructorRequestDTO toInstructorRequestDto(InstructorRequest request);
 }

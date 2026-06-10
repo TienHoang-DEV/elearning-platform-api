@@ -15,6 +15,7 @@ public class InstructorRequestDTO {
     private Integer id;
     private String fullName;
     private String email;
+    private String phone;
     private String bio;
     private String cvUrl;
     private String description;
