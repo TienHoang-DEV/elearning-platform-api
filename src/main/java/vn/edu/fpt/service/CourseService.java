@@ -243,7 +243,7 @@ public class CourseService {
         course.setThumbnailUrl(url);
         course.setCategory(category);
         course.setCreatedAt(LocalDateTime.now());
-        course.setStatus("DRAFT");
+        course.setStatus(CourseStatus.DRAFT);
         course.setPrice(price);
         course.setInstructor(instructor);
 
