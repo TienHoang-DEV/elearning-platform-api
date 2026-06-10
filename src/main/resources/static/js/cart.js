@@ -3,12 +3,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
-    
+
     // Khôi phục trạng thái lửng lơ (indeterminate) cho checkbox từ thuộc tính server truyền xuống
     document.querySelectorAll('[data-indeterminate="true"]').forEach(cb => {
         cb.indeterminate = true;
     });
-    
+
     initializeCheckboxes();
     initializeRemoveButtons();
     initializeInstructorVouchers();
@@ -79,7 +79,7 @@ function initializeRemoveButtons() {
         btn.addEventListener("click", () => {
             const cartItemId = btn.getAttribute("data-item-id");
             if (!cartItemId) return;
-            
+
             btn.disabled = true;
             fetch(`/api/cart/remove?cartItemId=${cartItemId}`, { method: 'POST' })
                 .then(r => r.json())
@@ -109,7 +109,7 @@ function initializeInstructorVouchers() {
             const input = document.getElementById(`voucher-input-${instructorId}`);
             if (!input) return;
             const code = input.value.trim();
-            
+
             btn.disabled = true;
             fetch(`/api/cart/apply-voucher?instructorId=${instructorId}&code=${encodeURIComponent(code)}`, { method: 'POST' })
                 .then(r => r.json())
