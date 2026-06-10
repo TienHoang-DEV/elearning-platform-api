@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.util.AppConstants;
 
 import java.util.Collection;
 import java.util.List;
