@@ -353,7 +353,7 @@ BEGIN
     (
         @sectionId,
         N'Bài 2',
-        'Lập trình C - 03. Cách xuất dữ liệu ra màn hình lập trình C - Hàm printf - Tự học lập trình C.mp4',
+        N'Lập trình C - 03. Cách xuất dữ liệu ra màn hình lập trình C - Hàm printf - Tự học lập trình C.mp4',
         720,
         2,
         1,
@@ -363,7 +363,7 @@ BEGIN
     (
         @sectionId,
         N'Bài 3',
-        'Lập trình C - 04. Cách nhập dữ liệu từ bàn phím trong lập trình C - Tự học lập trình C.mp4',
+        N'Lập trình C - 04. Cách nhập dữ liệu từ bàn phím trong lập trình C - Tự học lập trình C.mp4',
         840,
         3,
         1,
