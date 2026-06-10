@@ -294,8 +294,8 @@ public class CourseService {
         if(status == null || status.isEmpty()){
             throw new RuntimeException("Status can not null");
         }
-
-        return repository.findByInstructorAndStatus(user, status);
+        CourseStatus courseStatus = CourseStatus.valueOf(status);
+        return repository.findByInstructorAndStatus(user, courseStatus);
     }
 
     public Course findByCourseIdAndUserId(Integer courseId, Integer userId) {

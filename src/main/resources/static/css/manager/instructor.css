@@ -1428,3 +1428,99 @@ body {
     padding: 0 2px;
     user-select: none;
 }
+
+/* CCCD Styles */
+.cccd-images-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .cccd-images-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.cccd-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    background-color: var(--bg-light);
+    text-align: center;
+}
+
+.cccd-card-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    color: var(--text-main);
+}
+
+.cccd-card img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    object-fit: contain;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease;
+}
+
+.cccd-card img:hover {
+    transform: scale(1.02);
+}
+
+.cccd-empty-placeholder {
+    font-style: italic;
+    color: var(--text-gray);
+    padding: 40px 0;
+}
+
+/* Additional Cleanups */
+.detail-header-container h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.detail-header-container p {
+    color: var(--text-gray);
+    font-size: 0.95rem;
+}
+
+.profile-details .badge {
+    margin-top: 5px;
+}
+
+.doc-group .intro-text {
+    padding: 15px;
+    font-style: italic;
+    color: var(--text-gray);
+}
+
+.action-card-status-container {
+    text-align: center;
+    padding: 15px 0;
+}
+
+.action-card-status-badge {
+    font-size: 1rem;
+    padding: 8px 16px;
+    display: inline-block;
+}
+
+.action-card-footer {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.action-card-info-text {
+    font-size: 0.78rem;
+    color: var(--text-gray);
+    line-height: 1.5;
+}
+
+.action-card-info-text i {
+    color: var(--primary-blue);
+}
