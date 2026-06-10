@@ -1,11 +1,15 @@
 package vn.edu.fpt.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.User;
+
+import vn.edu.fpt.enums.CourseStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,9 +37,6 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
                                     where c.id = :id
             """)
     Optional<Course> findByIdWithEnrollmentAndLessonProgress(@Param("id") Integer courseId);
-
-    Course findCourseById(Integer id);
-
     List<Course> findByInstructorAndStatus(User user, String status);
 
     @Query("""
@@ -43,4 +44,14 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             """)
     Optional<Course> findByCourseIdAndUserId(@Param("courseId") Integer courseId, @Param("userId") Integer userId);
 
-}
+    @Query("SELECT c FROM Course c " +
+           "LEFT JOIN FETCH c.instructor i " +
+           "WHERE (:status IS NULL OR :status = '' OR c.status = :status) " +
+           "AND (:keyword IS NULL OR :keyword = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Course> searchAndFilter(
+            @Param("keyword") String keyword,
+            @Param("status") CourseStatus status,
+            Pageable pageable);
+    Course findCourseById(Integer id);
+
+
