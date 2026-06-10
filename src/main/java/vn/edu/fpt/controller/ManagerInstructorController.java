@@ -40,7 +40,7 @@ public class ManagerInstructorController {
             @RequestParam(defaultValue = "8") int size,
             Model model) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<InstructorRequestDTO> requestPage = instructorRequestService.searchAndFilter(keyword, status, pageable);
 
         model.addAttribute("requestPage", requestPage);

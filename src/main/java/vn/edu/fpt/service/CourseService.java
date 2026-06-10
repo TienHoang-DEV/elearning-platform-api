@@ -1,17 +1,20 @@
 package vn.edu.fpt.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.Course;
+import vn.edu.fpt.enums.CourseStatus;
+import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.CourseDto;
-import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.util.AppConstants;
 
 import java.math.BigDecimal;
@@ -34,6 +37,14 @@ public class CourseService {
         this.azureBlobService = azureBlobService;
     }
 
+    // ben manager duyet khoa hoc
+    public Page<CourseDto> searchAndFilter(String keyword, String statusStr, Pageable pageable) {
+        CourseStatus status =
+                (statusStr == null || statusStr.isEmpty()) ? null : CourseStatus.valueOf(statusStr);
+        return repository.searchAndFilter(keyword, status, pageable)
+                .map(dtoMapper::toCourseDto);
+    }
+
     public List<CourseDto> getCoursesBySearch(String search) {
         List<Course> courses;
         if (search != null && !search.trim().isEmpty()) {
@@ -54,20 +65,20 @@ public class CourseService {
             List<Integer> ratings,
             List<String> prices,
             String sort) {
-        
+
         List<CourseDto> allCourses = getCoursesBySearch(search);
         List<CourseDto> filteredCourses = new java.util.ArrayList<>();
-        
+
         // 1. Duyệt qua từng khóa học để lọc (Dùng vòng lặp for thay thế Stream)
         for (CourseDto course : allCourses) {
-            
+
             // Lọc theo danh mục
             if (categoryId != null) {
                 if (course.getCategory() == null || !course.getCategory().getId().equals(categoryId)) {
                     continue; // Bỏ qua khóa học này, chuyển sang khóa học tiếp theo
                 }
             }
-            
+
             // Lọc theo số sao đánh giá
             if (ratings != null && !ratings.isEmpty()) {
                 boolean matchRating = false;
@@ -89,7 +100,7 @@ public class CourseService {
                     continue; // Bỏ qua khóa học này vì không khớp đánh giá sao
                 }
             }
-            
+
             // Lọc theo khoảng giá
             if (prices != null && !prices.isEmpty()) {
                 boolean matchPrice = false;
@@ -113,11 +124,11 @@ public class CourseService {
                     continue; // Bỏ qua khóa học này vì không khớp khoảng giá
                 }
             }
-            
+
             // Nếu vượt qua tất cả các bộ lọc ở trên, thêm khóa học vào danh sách kết quả
             filteredCourses.add(course);
         }
-        
+
         // 2. Sắp xếp danh sách kết quả (Dùng list.sort truyền thống)
         filteredCourses.sort((c1, c2) -> {
             if ("rating".equals(sort)) {
@@ -133,14 +144,14 @@ public class CourseService {
                 double p1 = c1.getPrice() != null ? c1.getPrice().doubleValue() : 0.0;
                 double p2 = c2.getPrice() != null ? c2.getPrice().doubleValue() : 0.0;
                 return Double.compare(p2, p1);
-            } else { 
+            } else {
                 // "newest" hoặc mặc định: Khóa học mới nhất xếp trước (theo ID giảm dần)
                 int id1 = c1.getId() != null ? c1.getId() : 0;
                 int id2 = c2.getId() != null ? c2.getId() : 0;
                 return Integer.compare(id2, id1);
             }
         });
-        
+
         return filteredCourses;
     }
 
@@ -171,17 +182,20 @@ public class CourseService {
     }
 
     public Course findByIdWithEnrollmentAndLessonProgress(Integer courseId) {
-        return repository.findByIdWithEnrollmentAndLessonProgress(courseId).orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học với id " + courseId));
+        return repository.findByIdWithEnrollmentAndLessonProgress(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học với id " + courseId));
     }
 
     public Course findById(Integer courseId) {
-        return repository.findById(courseId).orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id " + courseId));
+        return repository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id " + courseId));
     }
 
     public String getThumbnailUrl(Course course) {
         String thumbnailUrl = course.getThumbnailUrl();
         if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
-            return AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + thumbnailUrl;
+            return AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS
+                    + "/" + thumbnailUrl;
         }
         return null;
     }
