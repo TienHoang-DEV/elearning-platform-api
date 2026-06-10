@@ -32,7 +32,7 @@ public class CourseService {
     public Page<CourseDto> searchAndFilter(String keyword, String statusStr, Pageable pageable) {
         CourseStatus status =
                 (statusStr == null || statusStr.isEmpty()) ? null : CourseStatus.valueOf(statusStr);
-        return repository.searchAndFilter(keyword, statusStr, pageable)
+        return repository.searchAndFilter(keyword, status, pageable)
                 .map(dtoMapper::toCourseDto);
     }
 

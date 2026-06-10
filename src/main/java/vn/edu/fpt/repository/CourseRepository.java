@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.edu.fpt.entity.Course;
+import vn.edu.fpt.enums.CourseStatus;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +40,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
            "AND (:keyword IS NULL OR :keyword = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Course> searchAndFilter(
             @Param("keyword") String keyword,
-            @Param("status") String status,
+            @Param("status") CourseStatus status,
             Pageable pageable);
 
     long countByStatus(String status);
