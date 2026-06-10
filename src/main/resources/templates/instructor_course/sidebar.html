@@ -20,42 +20,42 @@
     </div>
 
     <nav class="sidebar-nav">
-        <a th:href="@{/instructor/profile}"
+        <a th:href="@{/instructor/sidebar}"
            th:classappend="${activePage == 'profile'} ? 'active' : ''">
-            <span class="nav-icon">👤</span> Thông Tin Của Tôi
+            <span class="nav-icon"></span> Thông Tin Của Tôi
         </a>
         <a th:href="@{/instructor/stats}"
            th:classappend="${activePage == 'stats'} ? 'active' : ''">
-            <span class="nav-icon">📊</span> Thống Kê
+            <span class="nav-icon"></span> Thống Kê
         </a>
-        <a th:href="@{/instructor/courses}"
+        <a th:href="@{/instructorcourse/course}"
            th:classappend="${activePage == 'courses'} ? 'active' : ''">
-            <span class="nav-icon">📚</span> Khóa Học
+            <span class="nav-icon"></span> Khóa Học
         </a>
         <a th:href="@{/instructor/materials}"
            th:classappend="${activePage == 'materials'} ? 'active' : ''">
-            <span class="nav-icon">🗂️</span> Thư Viện Tài Liệu
+            <span class="nav-icon"></span> Thư Viện Tài Liệu
         </a>
         <a th:href="@{/instructor/messages}"
            th:classappend="${activePage == 'messages'} ? 'active' : ''">
-            <span class="nav-icon">💬</span> Tin Nhắn
+            <span class="nav-icon"></span> Tin Nhắn
         </a>
         <a th:href="@{/instructor/payment}"
            th:classappend="${activePage == 'payment'} ? 'active' : ''">
-            <span class="nav-icon">💳</span> Thanh Toán
+            <span class="nav-icon"></span> Thanh Toán
         </a>
         <a th:href="@{/instructor/ads}"
            th:classappend="${activePage == 'ads'} ? 'active' : ''">
-            <span class="nav-icon">📢</span> Quảng Cáo
+            <span class="nav-icon"></span> Quảng Cáo
         </a>
         <a th:href="@{/instructor/orders}" style="margin-top:auto;">
-            <span class="nav-icon">🛒</span> Đơn Mua Khóa Học
+            <span class="nav-icon"></span> Đơn Mua Khóa Học
         </a>
         <a th:href="@{/instructor/debt}">
-            <span class="nav-icon">🔒</span> Khóa Nợ
+            <span class="nav-icon"></span> Khóa Nợ
         </a>
         <a th:href="@{/logout}" class="nav-logout">
-            <span class="nav-icon">🚪</span> Đăng Xuất
+            <span class="nav-icon"></span> Đăng Xuất
         </a>
     </nav>
 </aside>

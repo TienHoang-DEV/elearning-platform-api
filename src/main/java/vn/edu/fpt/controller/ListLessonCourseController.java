@@ -45,7 +45,7 @@ public class ListLessonCourseController {
     @GetMapping("/course/{courseId}/section/{sectionId}/lesson/{lessonId}")
     public String viewLesson(Model model, @PathVariable Integer courseId, @PathVariable Integer sectionId, @PathVariable Integer lessonId) {
         User user = SecurityUtils.getCurrentUser();
-        Course course = courseService.findByIdWithSectionsAndLessons(courseId);
+        Course course = courseService.findById(courseId);
 
         Lesson lesson = lessonService.findByIdWithMaterials(lessonId);
 
@@ -55,7 +55,7 @@ public class ListLessonCourseController {
         for (LessonMaterial m : lesson.getMaterials()) {
             materialDtos.add(dtoMapper.toLessonMaterialDto(m));
         }
-        String thumbnailUrl = courseService.getThumbnailUrl(course);
+//        String thumbnailUrl = courseService.(course);
         Integer totalNumberOfLesson = lessonService.findNumberOfLessonByCourseId(courseId);
         Enrollment enrollment = enrollmentService.findEnrollmentByCourseIdAndUserId(courseId, user.getId());
         Integer totalNumberOfLessonCompleted = lessonProgressService.findNumberOfLessonCompletedByEnrollment(enrollment);
@@ -79,7 +79,7 @@ public class ListLessonCourseController {
         model.addAttribute("courseSections", courseDto.getSections());
         model.addAttribute("lesson", lessonDto);
         model.addAttribute("materials", materialDtos);
-        model.addAttribute("posterUrl", thumbnailUrl);
+//        model.addAttribute("posterUrl", thumbnailUrl);
         return "learning/learning";
     }
 

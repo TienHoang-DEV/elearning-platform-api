@@ -3,6 +3,8 @@
    File: instructor_course.js
 ===================================================== */
 
+
+
 document.addEventListener('DOMContentLoaded', function () {
 
     /* =====================================================

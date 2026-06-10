@@ -19,6 +19,7 @@ import vn.edu.fpt.security.CustomUserDetails;
 import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.UserService;
 import vn.edu.fpt.mapper.DtoMapper;
+import vn.edu.fpt.util.SecurityUtils;
 
 @RequestMapping("/instructor")
 @Controller
@@ -34,9 +35,8 @@ public class InstructorProfileController {
 
     @GetMapping("/sidebar")
     public String Sidebar(Model model) {
-        User user = userService.getCurrentUser();
-        ProfileDto profileDto = new ProfileDto();
-        profileDto.setFirstname(user.getFirstName());
+        User user = SecurityUtils.getCurrentUser();
+        ProfileDto profileDto = new ProfileDto();profileDto.setFirstname(user.getFirstName());
         profileDto.setLastname(user.getLastName());
         profileDto.setBio(user.getBio());
         profileDto.setAvatar_url(user.getAvatarUrl());
@@ -59,7 +59,7 @@ public class InstructorProfileController {
         }
         try {
 
-            User tmp = userService.getCurrentUser();
+            User tmp = SecurityUtils.getCurrentUser();
             userService.updateProfileInstuctor(tmp, profileDto);
             redirectAttributes.addFlashAttribute("success", "Thay đổi thành công!!!");
             return "redirect:/instructor/sidebar";

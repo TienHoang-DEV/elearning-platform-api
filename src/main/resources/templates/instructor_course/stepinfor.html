@@ -6,7 +6,7 @@
     th:replace="~{course-editor/step-info :: content}"
 -->
 <div th:fragment="content">
-  <form th:action="@{/instructor/courses/{id}/edit/info(id=${course.id})}"
+  <form th:action="@{/instructorcourse/save}"
         method="POST" enctype="multipart/form-data" id="courseInfoForm">
 
     <div class="card">
@@ -16,19 +16,19 @@
       <div class="form-group" style="margin-bottom:16px;">
         <label>Tiêu Đề Khóa Học <span class="required">*</span></label>
         <input type="text" name="title" class="form-control" id="courseTitleInput"
-               th:value="${course?.title}"
+               th:value="${courseRequest?.title}"
                placeholder="Tiêu đề từ 8 đến 60 ký tự" required/>
         <div class="form-hint">Tối đa 60 ký tự</div>
       </div>
 
       <!-- Giới thiệu ngắn -->
-      <div class="form-group" style="margin-bottom:16px;">
-        <label>Giới Thiệu Ngắn</label>
-        <textarea name="shortDesc" class="form-control" id="courseShortInput" rows="2"
-                  placeholder="Mô tả 1–2 câu về khóa học..."
-                  th:text="${course?.shortDesc}"></textarea>
-        <div class="form-hint">Từ 8 đến 500 ký tự</div>
-      </div>
+<!--      <div class="form-group" style="margin-bottom:16px;">-->
+<!--        <label>Giới Thiệu Ngắn</label>-->
+<!--        <textarea name="shortDesc" class="form-control" id="courseShortInput" rows="2"-->
+<!--                  placeholder="Mô tả 1–2 câu về khóa học..."-->
+<!--                  th:text="${course?.shortDesc}"></textarea>-->
+<!--        <div class="form-hint">Từ 8 đến 500 ký tự</div>-->
+<!--      </div>-->
 
       <!-- Mô tả đầy đủ -->
       <div class="form-group" style="margin-bottom:16px;">
@@ -43,37 +43,9 @@
           <button data-cmd="removeFormat" type="button">✕</button>
         </div>
         <div class="rich-editor" id="courseDescEditor" contenteditable="true"
-             th:utext="${course?.description}"
+             th:utext="${courseRequest?.description}"
              data-placeholder="Nhập mô tả đầy đủ cho khóa học..."></div>
         <input type="hidden" name="description" id="descHidden"/>
-      </div>
-
-      <!-- Outcomes & Requirements -->
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Học Viên Đạt Được Gì?</label>
-          <div class="rich-toolbar">
-            <button data-cmd="bold" type="button"><b>B</b></button>
-            <button data-cmd="insertUnorderedList" type="button">• List</button>
-          </div>
-          <div class="rich-editor" id="outcomeEditor" contenteditable="true"
-               th:utext="${course?.outcomes}"
-               style="min-height:70px;"
-               data-placeholder="Mô tả những gì học viên sẽ đạt được..."></div>
-          <input type="hidden" name="outcomes" id="outcomeHidden"/>
-        </div>
-        <div class="form-group">
-          <label>Yêu Cầu Về Khóa Học</label>
-          <div class="rich-toolbar">
-            <button data-cmd="bold" type="button"><b>B</b></button>
-            <button data-cmd="insertUnorderedList" type="button">• List</button>
-          </div>
-          <div class="rich-editor" id="requirementEditor" contenteditable="true"
-               th:utext="${course?.requirements}"
-               style="min-height:70px;"
-               data-placeholder="Nhập yêu cầu về khóa học..."></div>
-          <input type="hidden" name="requirements" id="requirementHidden"/>
-        </div>
       </div>
 
       <!-- Level & Category -->
@@ -84,7 +56,6 @@
             <option value="">Chọn Trình Độ</option>
             <option th:each="l : ${courselevels}"
                     th:value="${l}"
-                    th:selected="${course?.level == l}"
                     th:text="${{
                                     BEGINNER:'Người mới bắt đầu',
                                     INTERMEDIATE:'Trung cấp',
@@ -94,25 +65,53 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Danh Mục Khóa Học</label>
-          <select name="categoryId" class="form-control">
+          <label>Danh Mục Chính Khóa Học</label>
+          <select name="parentCategory" class="form-control" id="parentCategory">
             <option value="">Chọn Danh Mục</option>
-            <option th:each="c : ${categories}"
+            <option th:each="ca : ${categoryparents}"
+                    th:value="${ca.id}"
+                    th:text="${ca.name}">
+
+            </option>
+          </select>
+          <label>Danh Mục Phụ Khóa Học</label>
+          <select name="categoryId" class="form-control" id="categoryId">
+            <option value="">Chọn Danh Mục</option>
+            <option th:each="c : ${categorychilds}"
                     th:value="${c.id}"
                     th:text="${c.name}"
-                    th:selected="${course?.category?.id == c.id}">
+                    th:attr="data-parent-id=${c.parentId}">
             </option>
           </select>
         </div>
       </div>
 
+      <!-- Giá khóa học -->
+      <div class="form-group" style="margin-top:16px;">
+        <label>Giá Khóa Học</label>
+        <input type="number"
+               name="price"
+               class="form-control"
+               th:value="${courseRequest?.price}"
+               placeholder="Nhập giá khóa học (VNĐ)"
+               min="0"/>
+        <div class="form-hint">Nhập 0 nếu khóa học miễn phí</div>
+      </div>
+
+
       <!-- Thumbnail -->
       <div class="form-group" style="margin-top:16px;">
         <label>Hình Thu Nhỏ Của Khóa Học</label>
-        <div th:if="${course?.thumbnailUrl != null}" style="margin-bottom:8px;">
-          <img th:src="${course.thumbnailUrl}" style="max-height:120px;border-radius:8px;" alt="Thumbnail"/>
+
+        <!-- Ảnh đã có từ DB -->
+        <div th:if="${courseRequest?.thumbnailFile != null}" style="margin-bottom:8px;">
+          <img th:src="${courseRequest.thumbnailFile}"
+               style="width:320px; height:180px; object-fit:cover; border-radius:8px; display:block;"
+               alt="Thumbnail"/>
         </div>
-        <div class="file-upload-area" onclick="document.getElementById('thumbnailInput').click()">
+
+        <div class="file-upload-area" onclick="document.getElementById('thumbnailInput').click()"
+             style="max-width:320px;">
           <div class="upload-icon">🖼️</div>
           <p>Nhấn để chọn ảnh thumbnail (16:9 khuyến nghị)</p>
           <p style="font-size:.75rem;margin-top:4px;color:#aaa;">JPG, PNG – Tối đa 5MB</p>
@@ -130,9 +129,9 @@
         <div class="preview-panel-body">
           <div class="course-preview-banner" id="courseBanner">
             <h2 id="previewCourseTitle"
-                th:text="${course?.title ?: 'Tiêu đề khóa học sẽ hiện ở đây'}"></h2>
-            <p id="previewCourseShort"
-               th:text="${course?.shortDesc ?: 'Mô tả ngắn về khóa học...'}"></p>
+                th:text="${courseRequest?.title ?: 'Tiêu đề khóa học sẽ hiện ở đây'}"></h2>
+<!--            <p id="previewCourseShort"-->
+<!--               th:text="${courseRequest?.shortDesc ?: 'Mô tả ngắn về khóa học...'}"></p>-->
           </div>
         </div>
       </div>
@@ -144,12 +143,66 @@
       <button type="submit" class="btn btn-primary btn-lg">💾 Lưu & Tiếp Theo →</button>
     </div>
   </form>
+  <p th:if="${error}" th:text="${error}" class="text-danger"></p>
+  <p th:if="${success}" th:text="${success}"></p>
+
 
   <script>
-    document.getElementById('courseInfoForm').addEventListener('submit', function () {
-      document.getElementById('descHidden').value = document.getElementById('courseDescEditor').innerHTML;
-      document.getElementById('outcomeHidden').value = document.getElementById('outcomeEditor').innerHTML;
-      document.getElementById('requirementHidden').value = document.getElementById('requirementEditor').innerHTML;
+    document.addEventListener("DOMContentLoaded", function () {
+
+      const form = document.getElementById('courseInfoForm');
+      const editor = document.getElementById('courseDescEditor');
+
+      if (form && editor) {
+        form.addEventListener('submit', function () {
+          document.getElementById('descHidden').value = editor.innerHTML;
+        });
+      }
+
+      // Ẩn category con
+      document.querySelectorAll('#categoryId option[data-parent-id]')
+              .forEach(opt => opt.hidden = true);
+
+      const parent = document.getElementById('parentCategory');
+      const child = document.getElementById('categoryId');
+
+      if (parent && child) {
+        parent.addEventListener('change', function () {
+          const parentId = this.value;
+
+          child.value = '';
+
+          document.querySelectorAll('#categoryId option[data-parent-id]')
+                  .forEach(opt => {
+                    opt.hidden = opt.getAttribute('data-parent-id') !== parentId;
+                  });
+        });
+      }
+
+      // thumbnail preview
+      const thumbnailInput = document.getElementById('thumbnailInput');
+
+      if (thumbnailInput) {
+        thumbnailInput.addEventListener('change', function () {
+          const file = this.files[0];
+          if (!file) return;
+
+          let preview = document.getElementById('thumbnailPreview');
+
+          if (!preview) {
+            preview = document.createElement('img');
+            preview.id = 'thumbnailPreview';
+            preview.style.cssText =
+                    'width:320px;height:180px;object-fit:cover;border-radius:8px;display:block;margin-bottom:8px;';
+
+            const uploadArea = document.querySelector('.file-upload-area');
+            uploadArea.parentNode.insertBefore(preview, uploadArea);
+          }
+
+          preview.src = URL.createObjectURL(file);
+        });
+      }
+
     });
   </script>
 </div>

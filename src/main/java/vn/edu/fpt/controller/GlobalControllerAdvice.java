@@ -56,12 +56,4 @@ public class GlobalControllerAdvice {
         return 0;
     }
 
-    @ModelAttribute("categories")
-    public List<Category> list(){
-        return categoryService.findByParentIsNullAndStatus("ACTIVE");
-    }
-    @ModelAttribute("courselevels")
-    public CourseLevel[] lisCourseLevels(){
-        return CourseLevel.values();
-    }
 }

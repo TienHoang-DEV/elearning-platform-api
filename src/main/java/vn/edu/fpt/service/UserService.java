@@ -2,6 +2,7 @@ package vn.edu.fpt.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,8 +33,8 @@ public class UserService {
         this.authService = authService;
     }
 
-    public User findByEmail(String email) {
-        return repository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with email" + email));
+    public Optional<User> findByEmail(String email) {
+        return repository.findByEmail(email);
     }
 
     public List<User> findAll() {
@@ -56,12 +57,6 @@ public class UserService {
         return repository.existsById(id);
     }
 
-    public User getCurrentUser() {
-        String email = authService.getCurrentEmail();
-
-        return repository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        
-    }
 
 
     public void updateProfileInstuctor(User user, ProfileDto profileDto) {
