@@ -53,8 +53,8 @@
                         <i class="ph ph-arrow-left"></i>
                     </a>
                     <div>
-                        <h1 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 5px;">Chi tiết Giảng viên</h1>
-                        <p style="color: var(--text-gray); font-size: 0.95rem;">Xem xét đơn đăng ký và hồ sơ.</p>
+                        <h1>Chi tiết Giảng viên</h1>
+                        <p>Xem xét đơn đăng ký và hồ sơ.</p>
                     </div>
                 </div>
 
@@ -71,8 +71,6 @@
                 <div class="detail-card">
                     <!-- Profile Header Section -->
                     <div class="profile-section">
-                        <img th:src="${request.avatarUrl != null ? request.avatarUrl : '/images/default-avatar.png'}"
-                            alt="Avatar" class="profile-avatar-large">
                         <div class="profile-details">
                             <div class="profile-name-lg" th:text="${request.fullName}">Tiến sĩ Eleanor Vance</div>
                             <div class="profile-title-sub"
@@ -89,8 +87,7 @@
 
                             <span
                                 th:class="${'badge badge-' + (request.status.name() == 'PENDING' ? 'warning' : request.status.name() == 'APPROVED' ? 'success' : 'danger')}"
-                                th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : 'Từ chối'}"
-                                style="margin-top: 5px;">PENDING</span>
+                                th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : 'Từ chối'}">PENDING</span>
                         </div>
                     </div>
 
@@ -122,8 +119,7 @@
                                 </div>
                                 <a th:href="${request.cvUrl}" target="_blank" class="doc-link">Xem</a>
                             </div>
-                            <div th:if="${request.cvUrl == null || request.cvUrl.isEmpty()}" class="intro-text"
-                                style="padding: 15px; font-style: italic; color: var(--text-gray);">
+                            <div th:if="${request.cvUrl == null || request.cvUrl.isEmpty()}" class="intro-text">
                                 Không có tệp CV được tải lên.
                             </div>
                         </div>
@@ -144,7 +140,7 @@
                                 <a th:href="${request.certificateUrl}" target="_blank" class="doc-link">Xem</a>
                             </div>
                             <div th:if="${request.certificateUrl == null || request.certificateUrl.isEmpty()}"
-                                class="intro-text" style="padding: 15px; font-style: italic; color: var(--text-gray);">
+                                class="intro-text">
                                 Không có chứng chỉ được tải lên.
                             </div>
                         </div>
@@ -152,6 +148,39 @@
                             class="rejection-box">
                             <div class="rejection-box-title"><i class="ph ph-warning"></i> Lý do từ chối</div>
                             <div class="rejection-box-body" th:text="${request.rejectionReason}">Lý do...</div>
+                        </div>
+                    </div>
+
+                    <!-- CCCD Section -->
+                    <div class="detail-section">
+                        <div class="detail-section-title">
+                            <i class="ph ph-identification-card"></i> Ảnh thẻ Căn cước công dân (CCCD)
+                        </div>
+                        <div class="cccd-images-grid">
+                            <!-- Mặt trước -->
+                            <div class="cccd-card">
+                                <div class="cccd-card-title">Mặt trước CCCD</div>
+                                <div th:if="${request.nationalIdCardFront != null && !request.nationalIdCardFront.isEmpty()}">
+                                    <a th:href="${request.nationalIdCardFront}" target="_blank">
+                                        <img th:src="${request.nationalIdCardFront}" alt="Mặt trước CCCD">
+                                    </a>
+                                </div>
+                                <div th:if="${request.nationalIdCardFront == null || request.nationalIdCardFront.isEmpty()}" class="cccd-empty-placeholder">
+                                    Chưa tải lên mặt trước
+                                </div>
+                            </div>
+                            <!-- Mặt sau -->
+                            <div class="cccd-card">
+                                <div class="cccd-card-title">Mặt sau CCCD</div>
+                                <div th:if="${request.nationalIdCardBack != null && !request.nationalIdCardBack.isEmpty()}">
+                                    <a th:href="${request.nationalIdCardBack}" target="_blank">
+                                        <img th:src="${request.nationalIdCardBack}" alt="Mặt sau CCCD">
+                                    </a>
+                                </div>
+                                <div th:if="${request.nationalIdCardBack == null || request.nationalIdCardBack.isEmpty()}" class="cccd-empty-placeholder">
+                                    Chưa tải lên mặt sau
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

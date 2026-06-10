@@ -2,13 +2,11 @@ package vn.edu.fpt.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.enums.InstructorRequestStatus;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -24,13 +22,9 @@ public class InstructorRequestDTO {
     private String rejectionReason;
     private InstructorRequestStatus status;
     private LocalDateTime createdAt;
-    private String nationalIdCartFront;
-    private String nationalIdCartBack;
-
-
-
-
-
+    private String certificateUrl;
+    private String nationalIdCardFront;
+    private String nationalIdCardBack;
 
     /**
      * Trích tên file gốc từ URL blob.
@@ -40,12 +34,13 @@ public class InstructorRequestDTO {
         return extractOriginalName(cvUrl);
     }
 
-//    public String getCertificateOriginalName() {
-//        return extractOriginalName(certificateUrl);
-//    }
+    public String getCertificateOriginalName() {
+        return extractOriginalName(certificateUrl);
+    }
 
     private static String extractOriginalName(String url) {
-        if (url == null || url.isEmpty()) return null;
+        if (url == null || url.isEmpty())
+            return null;
         // Lấy phần sau dấu '/' cuối cùng
         String blobName = url.contains("/") ? url.substring(url.lastIndexOf('/') + 1) : url;
         // Bỏ query string (SAS token) nếu có
