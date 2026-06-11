@@ -1077,3 +1077,29 @@ VALUES (8, 1400000, 0, 'PAID', 'TEST_METHOD', DATEADD(hour, -4, GETDATE()));
 SET @OrderId = SCOPE_IDENTITY();
 INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
 VALUES (@OrderId, 'TX_JUN_02', 'TEST_GATEWAY', 'G_JUN_02', 1400000, 'SUCCESS', DATEADD(hour, -4, GETDATE()), DATEADD(hour, -4, GETDATE()));
+
+
+-- =========================
+-- LESSON MATERIALS
+-- Lessons 1 -> 9
+-- =========================
+
+INSERT INTO lesson_materials
+(
+    instructor_id,
+    lesson_id,
+    file_name,
+    file_url,
+    file_type,
+    file_size
+)
+VALUES
+    (5, 1, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 2, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 3, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 4, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 5, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 6, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 7, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 8, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 9, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576);

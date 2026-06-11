@@ -52,8 +52,8 @@
                         Quiz: Kiểu dữ liệu và biến</h2>
                 </div>
 
-                <div class="quiz-badges">
-                    <span class="quiz-points">Số điểm cần để qua: <strong th:text="${quiz.passScorePercent}">70</strong></span>
+                <div class="quiz-badges" th:if="${quiz.passScorePercent != null}">
+                    <span class="quiz-points">Phần trăm điểm đạt tối thiểu: <strong th:text="${quiz.passScorePercent + '%'}"></strong></span>
                     <span class="quiz-points quiz-points-soft">Số câu: <strong
                             th:text="${quiz.questionCount != null ? quiz.questionCount : 0}">0</strong></span>
                 </div>
