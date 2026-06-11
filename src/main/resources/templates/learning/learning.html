@@ -262,8 +262,7 @@
                                 </div>
                                 <div class="lesson-document-stat">
                                     <span class="lesson-document-stat-label">Dung lượng</span>
-                                    <span class="lesson-document-stat-value"
-                                          th:text="${material.fileSize != null ? material.fileSize + ' bytes' : '—'}">—</span>
+                                    <span th:text="${material.fileSize != null ? #numbers.formatDecimal(material.fileSize / 1024.0, 1, 2) + ' KB' : '—'}">—</span>
                                 </div>
                                 <div class="lesson-document-stat">
                                     <span class="lesson-document-stat-label">Upload lúc</span>
