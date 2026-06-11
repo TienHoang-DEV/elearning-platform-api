@@ -291,6 +291,8 @@
     const expiredAtStr = [[${payment != null ? payment.expiredAt : null}]];
     const gatewayOrderCode = [[${payment != null ? payment.gatewayOrderCode : null}]];
     const paymentUrl = [[${payment != null ? payment.paymentUrl : null}]];
+    const payOsAccountNumber = [[${payOsAccountNumber}]];
+    const payOsDescription = [[${payOsDescription}]];
 </script>
 
 <script>
@@ -323,12 +325,16 @@ function initializeCheckoutDetails() {
         document.getElementById('qrAmount').textContent = formatCurrency(amount);
     }
 
-    // Cập nhật mã nội dung chuyển khoản
-    if (gatewayOrderCode) {
+    // Cập nhật mã nội dung chuyển khoản và số tài khoản ảo động từ PayOS
+    if (payOsDescription) {
+        document.getElementById('transferContent').textContent = payOsDescription;
+    } else if (gatewayOrderCode) {
         document.getElementById('transferContent').textContent = "EDULEARN" + gatewayOrderCode;
-        
-        // Vì PayOS trả về một số tài khoản ảo động dựa trên mã đơn hàng,
-        // Để thuận tiện, ta sẽ hiển thị Số tài khoản chính là gatewayOrderCode hoặc hiển thị liên kết để họ truy cập nếu chuyển khoản tay
+    }
+
+    if (payOsAccountNumber) {
+        document.getElementById('stk').textContent = payOsAccountNumber;
+    } else if (gatewayOrderCode) {
         document.getElementById('stk').textContent = gatewayOrderCode;
     }
 

@@ -81,6 +81,8 @@ public class PayOsService {
                     .gatewayOrderCode(String.valueOf(orderCode))
                     .paymentUrl(response.getCheckoutUrl())
                     .qrCodeUrl(response.getQrCode())
+                    .accountNumber(response.getAccountNumber())
+                    .description(response.getDescription())
                     .expiredAt(LocalDateTime.now().plusMinutes(15))
                     .webhookReceived(false)
                     .build();
@@ -102,6 +104,8 @@ public class PayOsService {
         response.setQrCode("https://api.payos.vn/mock/qr/" + UUID.randomUUID());
         response.setOrderCode(orderCode);
         response.setAmount(amount);
+        response.setAccountNumber("1234567890123");
+        response.setDescription("EDULEARN" + orderCode);
 
         log.info("✅ Mock PayOS Response Generated");
         return response;

@@ -12,6 +12,7 @@ import vn.edu.fpt.entity.Payment;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.repository.PaymentRepository;
 import vn.edu.fpt.util.SecurityUtils;
+import vn.payos.PayOS;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class PageController {
 
     private final PaymentRepository paymentRepository;
+    private final PayOS payOS;
 
     /**
      * GET /payment - Display payment page with QR code
@@ -52,6 +54,10 @@ public class PageController {
                             .collect(Collectors.groupingBy(item -> item.getCourse().getInstructor()));
                     model.addAttribute("itemsByInstructor", itemsByInstructor);
                 }
+
+                // Pass account number and description from DB first (saved at creation time)
+                model.addAttribute("payOsAccountNumber", payment.getAccountNumber());
+                model.addAttribute("payOsDescription", payment.getDescription());
             }
         }
 
