@@ -139,28 +139,17 @@ function initializeInstructorVouchers() {
     });
 }
 
-// 4. Logic thanh toán (Checkout)
+// 4. Logic thanh toán (Checkout) - Redirect to Payment Page
 function initializeCheckoutButton() {
     const checkoutBtn = document.getElementById("btn-checkout");
     if (checkoutBtn) {
         checkoutBtn.addEventListener("click", () => {
             checkoutBtn.disabled = true;
-            fetch("/api/cart/checkout", { method: "POST" })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        window.location.reload();
-                    } else {
-                        checkoutBtn.disabled = false;
-                        alert(data.message || "Thanh toán thất bại.");
-                    }
-                })
-                .catch(err => {
-                    checkoutBtn.disabled = false;
-                    console.error("Checkout error:", err);
-                    alert("Có lỗi xảy ra khi xử lý thanh toán.");
-                });
+            
+            // Simply redirect to payment page
+            // Payment page will call the API to create order & generate QR
+            window.location.href = "/payment";
         });
     }
 }
+
