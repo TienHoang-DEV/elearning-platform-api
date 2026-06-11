@@ -9,7 +9,7 @@ import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
 import vn.edu.fpt.entity.*;
 
-import java.util.List;
+
 import java.util.Set;
 
 @Mapper(componentModel = "spring")
@@ -56,7 +56,7 @@ public interface DtoMapper {
     @Mapping(target = "fullName",
             expression = "java(request.getUser().getFirstName() + \" \" + request.getUser().getLastName())")
     @Mapping(target = "email",     source = "user.email")
-    @Mapping(target = "avatarUrl", source = "user.avatarUrl")
-    @Mapping(target = "bio",       source = "user.bio")
+    @Mapping(target = "phone",     source = "user.phone")
+
     InstructorRequestDTO toInstructorRequestDto(InstructorRequest request);
 }

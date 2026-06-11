@@ -58,7 +58,7 @@
                       placeholder="Nhập lý do từ chối để giảng viên biết cách cải thiện..."
                       maxlength="500"
                       required></textarea>
-            <p class="modal-hint"><i class="ph ph-info"></i> Tối đa 500 ký tự. Bắt buộc phải điền.</p>
+            <p class="modal-hint"><i class="ph ph-info"></i>Bắt buộc phải điền.</p>
             <div class="modal-actions">
                 <a th:href="@{/manager/instructor/edit/{id}(id=${request.id})}" class="modal-btn modal-btn-cancel">
                     <i class="ph ph-x"></i> Hủy bỏ
@@ -99,8 +99,8 @@
             <div class="detail-header-container">
                 <a th:href="@{/manager/instructor/list}" class="back-btn"><i class="ph ph-arrow-left"></i></a>
                 <div>
-                    <h1 style="font-size:1.75rem;font-weight:600;margin-bottom:5px;">Xét duyệt Giảng viên</h1>
-                    <p style="color:var(--text-gray);font-size:0.95rem;">Xem xét hồ sơ và phê duyệt hoặc từ chối đơn đăng ký.</p>
+                    <h1>Xét duyệt Giảng viên</h1>
+                    <p>Xem xét hồ sơ và phê duyệt hoặc từ chối đơn đăng ký.</p>
                 </div>
             </div>
             <!-- Split 7:3 -->
@@ -110,20 +110,18 @@
                 <div class="detail-card">
                     <!-- Profile header -->
                     <div class="profile-section">
-                        <img th:src="${request.avatarUrl != null ? request.avatarUrl : '/images/default-avatar.png'}"
-                             alt="Avatar" class="profile-avatar-large">
                         <div class="profile-details">
                             <div class="profile-name-lg" th:text="${request.fullName}">Nguyễn Văn A</div>
                             <div class="profile-title-sub" th:text="${request.bio != null ? request.bio : 'Ứng viên Giảng viên'}">Bio</div>
                             <div class="profile-meta-info">
                                 <span class="meta-item"><i class="ph ph-envelope"></i> <span th:text="${request.email}">email</span></span>
+                                <span class="meta-item"><i class="ph ph-phone"></i> <span th:text="${request.phone != null ? request.phone : 'N/A'}">phone</span></span>
                                 <span class="meta-item"><i class="ph ph-calendar"></i>
                                     <span th:text="${request.createdAt != null ? #temporals.format(request.createdAt,'dd/MM/yyyy HH:mm') : ''}">01/06/2026</span>
                                 </span>
                             </div>
                             <span th:class="${'badge badge-' + (request.status.name()=='PENDING'?'warning':request.status.name()=='APPROVED'?'success':'danger')}"
-                                  th:text="${request.status.name()=='PENDING'?'Đang chờ duyệt':request.status.name()=='APPROVED'?'Đã duyệt':'Từ chối'}"
-                                  style="margin-top:5px;">PENDING</span>
+                                  th:text="${request.status.name()=='PENDING'?'Đang chờ duyệt':request.status.name()=='APPROVED'?'Đã duyệt':'Từ chối'}">PENDING</span>
                         </div>
                     </div>
 
@@ -144,7 +142,7 @@
                                 </div>
                                 <a th:href="${request.cvUrl}" target="_blank" class="doc-link">Xem PDF</a>
                             </div>
-                            <div th:if="${request.cvUrl == null || request.cvUrl.isEmpty()}" class="intro-text" style="padding:15px;font-style:italic;color:var(--text-gray);">Không có tệp CV.</div>
+                            <div th:if="${request.cvUrl == null || request.cvUrl.isEmpty()}" class="intro-text doc-empty-msg">Không có tệp CV.</div>
                         </div>
                         <div class="doc-group">
                             <div class="detail-section-title"><i class="ph ph-certificate"></i> Chứng chỉ</div>
@@ -155,7 +153,7 @@
                                 </div>
                                 <a th:href="${request.certificateUrl}" target="_blank" class="doc-link">Xem tài liệu</a>
                             </div>
-                            <div th:if="${request.certificateUrl == null || request.certificateUrl.isEmpty()}" class="intro-text" style="padding:15px;font-style:italic;color:var(--text-gray);">Không có chứng chỉ.</div>
+                            <div th:if="${request.certificateUrl == null || request.certificateUrl.isEmpty()}" class="intro-text doc-empty-msg">Không có chứng chỉ.</div>
                         </div>
                     </div>
 
@@ -163,6 +161,39 @@
                     <div th:if="${request.status.name()=='REJECTED' && request.rejectionReason != null}" class="rejection-box">
                         <div class="rejection-box-title"><i class="ph ph-warning"></i> Lý do từ chối</div>
                         <div class="rejection-box-body" th:text="${request.rejectionReason}">Lý do...</div>
+                    </div>
+
+                    <!-- CCCD Section -->
+                    <div class="detail-section">
+                        <div class="detail-section-title">
+                            <i class="ph ph-identification-card"></i> Ảnh thẻ Căn cước công dân (CCCD)
+                        </div>
+                        <div class="cccd-images-grid">
+                            <!-- Mặt trước -->
+                            <div class="cccd-card">
+                                <div class="cccd-card-title">Mặt trước CCCD</div>
+                                <div th:if="${request.nationalIdCardFront != null && !request.nationalIdCardFront.isEmpty()}">
+                                    <a th:href="${request.nationalIdCardFront}" target="_blank">
+                                        <img th:src="${request.nationalIdCardFront}" alt="Mặt trước CCCD">
+                                    </a>
+                                </div>
+                                <div th:if="${request.nationalIdCardFront == null || request.nationalIdCardFront.isEmpty()}" class="cccd-empty-placeholder">
+                                    Chưa tải lên mặt trước
+                                </div>
+                            </div>
+                            <!-- Mặt sau -->
+                            <div class="cccd-card">
+                                <div class="cccd-card-title">Mặt sau CCCD</div>
+                                <div th:if="${request.nationalIdCardBack != null && !request.nationalIdCardBack.isEmpty()}">
+                                    <a th:href="${request.nationalIdCardBack}" target="_blank">
+                                        <img th:src="${request.nationalIdCardBack}" alt="Mặt sau CCCD">
+                                    </a>
+                                </div>
+                                <div th:if="${request.nationalIdCardBack == null || request.nationalIdCardBack.isEmpty()}" class="cccd-empty-placeholder">
+                                    Chưa tải lên mặt sau
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -183,17 +214,16 @@
                             </a>
                         </div>
 
-                        <div th:unless="${request.status.name() == 'PENDING'}" style="text-align: center; padding: 15px 0;">
-                            <span th:class="${'badge badge-' + (request.status.name() == 'APPROVED' ? 'success' : request.status.name() == 'REJECTED' ? 'danger' : 'dark')}"
-                                  th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : request.status.name() == 'REJECTED' ? 'Từ chối' : 'Bị chặn'}"
-                                  style="font-size: 1rem; padding: 8px 16px; display: inline-block;">
+                        <div th:unless="${request.status.name() == 'PENDING'}" class="action-card-status-container">
+                            <span th:class="${'badge action-card-status-badge badge-' + (request.status.name() == 'APPROVED' ? 'success' : request.status.name() == 'REJECTED' ? 'danger' : 'dark')}"
+                                  th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : request.status.name() == 'REJECTED' ? 'Từ chối' : 'Bị chặn'}">
                                 Đang chờ duyệt
                             </span>
                         </div>
 
-                        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-color);">
-                            <p style="font-size:0.78rem;color:var(--text-gray);line-height:1.5;">
-                                <i class="ph ph-info" style="color:var(--primary-blue);"></i>
+                        <div class="action-card-footer">
+                            <p class="action-card-info-text">
+                                <i class="ph ph-info"></i>
                                 Phê duyệt cấp quyền <strong>Giảng viên</strong>. Từ chối bắt buộc nhập lý do.
                             </p>
                         </div>
