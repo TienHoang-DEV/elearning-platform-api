@@ -5,14 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.fpt.entity.Order;
-import vn.edu.fpt.entity.Payment;
+import vn.edu.fpt.entity.*;
+import vn.edu.fpt.enums.OrderStatus;
 import vn.edu.fpt.enums.PaymentStatus;
-import vn.edu.fpt.repository.PaymentRepository;
+import vn.edu.fpt.repository.*;
 import vn.payos.PayOS;
 import vn.payos.exception.PayOSException;
 import vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest;
 import vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse;
+import vn.payos.model.webhooks.WebhookData;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,6 +27,9 @@ public class PayOsService {
 
     private final PayOS payOS;
     private final PaymentRepository paymentRepository;
+    private final OrderRepository orderRepository;
+    private final CartRepository cartRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     @Value("${payos.dev-mode:false}")
     private boolean devMode;
@@ -44,7 +48,7 @@ public class PayOsService {
             CreatePaymentLinkRequest request = CreatePaymentLinkRequest.builder()
                     .orderCode(orderCode)
                     .amount(amountVND)
-                    .description("Thanh toan khoa hoc Learning Hub - Order #" + order.getId())
+                    .description("Thanh toan don hang #" + order.getId())
                     .returnUrl(returnUrl)
                     .cancelUrl(cancelUrl)
                     .buyerName(order.getUser().getFirstName() + " " + order.getUser().getLastName())
@@ -104,14 +108,121 @@ public class PayOsService {
     }
 
     /**
+     * Complete payment: update statuses, enroll user, and clear cart
+     */
+    public void completePayment(Payment payment) {
+        if (payment.getStatus() == PaymentStatus.PAID) {
+            return;
+        }
+
+        log.info("Completing payment ID: {}, Gateway Order Code: {}", payment.getId(), payment.getGatewayOrderCode());
+        payment.setStatus(PaymentStatus.PAID);
+        payment.setPaidAt(LocalDateTime.now());
+        paymentRepository.save(payment);
+
+        Order order = payment.getOrder();
+        if (order != null) {
+            order.setStatus(OrderStatus.COMPLETED);
+            orderRepository.save(order);
+
+            User user = order.getUser();
+            if (user != null) {
+                // Enroll user and clear items from cart
+                Cart cart = cartRepository.findByUser(user).orElse(null);
+
+                for (OrderItem item : order.getItems()) {
+                    Course course = item.getCourse();
+                    if (course != null) {
+                        // Create enrollment if not exists
+                        boolean alreadyEnrolled = enrollmentRepository.existsByUserAndCourse(user, course);
+                        if (!alreadyEnrolled) {
+                            Enrollment enrollment = Enrollment.builder()
+                                    .user(user)
+                                    .course(course)
+                                    .progressPercent(BigDecimal.ZERO)
+                                    .build();
+                            enrollmentRepository.save(enrollment);
+                            log.info("Enrolled user {} to course {}", user.getEmail(), course.getTitle());
+                        }
+
+                        // Remove from cart
+                        if (cart != null && cart.getItems() != null) {
+                            cart.getItems().removeIf(ci -> ci.getCourse().getId().equals(course.getId()));
+                        }
+                    }
+                }
+
+                if (cart != null) {
+                    // Also clean up coupons that are no longer valid
+                    java.util.Set<User> remainingInstructors = cart.getItems().stream()
+                            .map(item -> item.getCourse().getInstructor())
+                            .collect(java.util.stream.Collectors.toSet());
+
+                    cart.getInstructorCoupons().removeIf(cic -> !remainingInstructors.contains(cic.getInstructor()));
+                    cartRepository.save(cart);
+                }
+            }
+        }
+    }
+
+    /**
+     * Cancel payment
+     */
+    public void cancelPayment(Payment payment) {
+        if (payment.getStatus() == PaymentStatus.CANCELLED) {
+            return;
+        }
+        log.info("Cancelling payment ID: {}", payment.getId());
+        payment.setStatus(PaymentStatus.CANCELLED);
+        paymentRepository.save(payment);
+
+        Order order = payment.getOrder();
+        if (order != null) {
+            order.setStatus(OrderStatus.CANCELLED);
+            orderRepository.save(order);
+        }
+    }
+
+    /**
+     * Expire payment
+     */
+    public void expirePayment(Payment payment) {
+        if (payment.getStatus() == PaymentStatus.EXPIRED) {
+            return;
+        }
+        log.info("Expiring payment ID: {}", payment.getId());
+        payment.setStatus(PaymentStatus.EXPIRED);
+        paymentRepository.save(payment);
+
+        Order order = payment.getOrder();
+        if (order != null) {
+            order.setStatus(OrderStatus.EXPIRED);
+            orderRepository.save(order);
+        }
+    }
+
+    /**
      * Process PayOS webhook callback
      */
-    public void processWebhookCallback(Object webhook) {
+    public void processWebhookCallback(WebhookData webhookData) {
         try {
-            log.info("Processing PayOS webhook");
+            log.info("Processing PayOS webhook for order code: {}", webhookData.getOrderCode());
 
-            // Find payment and update status
-            // Implementation depends on actual webhook structure
+            String gatewayOrderCode = String.valueOf(webhookData.getOrderCode());
+            Payment payment = paymentRepository.findByGatewayOrderCode(gatewayOrderCode)
+                    .orElseThrow(() -> new RuntimeException("Payment not found for code: " + gatewayOrderCode));
+
+            payment.setWebhookReceived(true);
+            payment.setWebhookReceivedAt(LocalDateTime.now());
+            paymentRepository.save(payment);
+
+            // PayOS sends webhook with description containing status or data.status
+            // Let's print webhook details for debugging
+            log.info("Webhook Data Status: {}", webhookData.toString());
+
+            // By default, webhook trigger implies payment success
+            completePayment(payment);
+
             log.info("Webhook processed successfully");
 
         } catch (Exception e) {

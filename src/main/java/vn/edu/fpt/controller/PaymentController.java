@@ -5,20 +5,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import vn.edu.fpt.dto.payos.PayOsWebhookDTO;
-import vn.edu.fpt.entity.Order;
-import vn.edu.fpt.entity.Payment;
-import vn.edu.fpt.entity.User;
+import vn.edu.fpt.entity.*;
 import vn.edu.fpt.enums.OrderStatus;
+import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.repository.PaymentRepository;
 import vn.edu.fpt.service.CartService;
 import vn.edu.fpt.service.OrderService;
 import vn.edu.fpt.service.PayOsService;
 import vn.edu.fpt.util.SecurityUtils;
+import vn.payos.PayOS;
+import vn.payos.model.webhooks.Webhook;
+import vn.payos.model.webhooks.WebhookData;
+import vn.payos.model.v2.paymentRequests.PaymentLink;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -30,6 +34,7 @@ public class PaymentController {
     private final OrderService orderService;
     private final PayOsService payOsService;
     private final PaymentRepository paymentRepository;
+    private final PayOS payOS;
 
     /**
      * Initiate payment checkout from cart
@@ -49,9 +54,17 @@ public class PaymentController {
             log.info("Checkout initiated by user: {}", user.getEmail());
 
             // Get cart
-            var cart = cartService.getOrCreateCartForUser(user);
+            Cart cart = cartService.getOrCreateCartForUser(user);
             if (cart.getItems() == null || cart.getItems().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Giỏ hàng trống"));
+            }
+
+            List<CartItem> selectedItems = cart.getItems().stream()
+                    .filter(CartItem::isSelected)
+                    .collect(Collectors.toList());
+
+            if (selectedItems.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Vui lòng chọn ít nhất một khóa học để thanh toán"));
             }
 
             // Get cart details with total calculation
@@ -74,16 +87,74 @@ public class PaymentController {
                     .paymentMethod("PAYOS")
                     .build();
 
+            // Create OrderItems from selected cart items
+            for (CartItem item : selectedItems) {
+                Course course = item.getCourse();
+                
+                // Find if there is an applied coupon for this instructor
+                CartInstructorCoupon appliedCoupon = cart.getInstructorCoupons().stream()
+                        .filter(cic -> cic.getInstructor().getId().equals(course.getInstructor().getId()))
+                        .findFirst()
+                        .orElse(null);
+                
+                Coupon coupon = (appliedCoupon != null) ? appliedCoupon.getCoupon() : null;
+                
+                // Calculate prices
+                long coursePrice = course.getPrice().longValue();
+                long courseDiscount = Math.round(coursePrice * 0.3);
+                long instItemDiscount = 0;
+                
+                if (coupon != null) {
+                    long instSubtotal = cart.getItems().stream()
+                            .filter(ci -> ci.isSelected() && ci.getCourse().getInstructor().getId().equals(course.getInstructor().getId()))
+                            .mapToLong(ci -> ci.getCourse().getPrice().longValue())
+                            .sum();
+                    long instCourseDiscounts = Math.round(instSubtotal * 0.3);
+                    long instSubtotalAfterDiscount = instSubtotal - instCourseDiscounts;
+                    
+                    long instDiscountAmount = 0;
+                    if ("PERCENT".equalsIgnoreCase(coupon.getDiscountType())) {
+                        double rate = coupon.getDiscountValue().doubleValue() / 100.0;
+                        instDiscountAmount = Math.round(instSubtotalAfterDiscount * rate);
+                    } else if ("FIXED".equalsIgnoreCase(coupon.getDiscountType())) {
+                        instDiscountAmount = coupon.getDiscountValue().longValue();
+                        if (instDiscountAmount > instSubtotalAfterDiscount) {
+                            instDiscountAmount = instSubtotalAfterDiscount;
+                        }
+                    }
+                    
+                    long itemSubtotalAfterDiscount = coursePrice - courseDiscount;
+                    if (instSubtotalAfterDiscount > 0) {
+                        instItemDiscount = Math.round((double) itemSubtotalAfterDiscount / instSubtotalAfterDiscount * instDiscountAmount);
+                    }
+                }
+                
+                long itemTotalDiscount = courseDiscount + instItemDiscount;
+                long finalPrice = coursePrice - itemTotalDiscount;
+                if (finalPrice < 0) {
+                    finalPrice = 0;
+                }
+                
+                OrderItem orderItem = OrderItem.builder()
+                        .order(order)
+                        .course(course)
+                        .coupon(coupon)
+                        .priceSnapshot(BigDecimal.valueOf(coursePrice))
+                        .discountAmount(BigDecimal.valueOf(itemTotalDiscount))
+                        .finalPrice(BigDecimal.valueOf(finalPrice))
+                        .courseTitleSnapshot(course.getTitle())
+                        .build();
+                
+                order.addItem(orderItem);
+            }
+
             order = orderService.save(order);
 
             // Call PayOS to generate QR code
-            String returnUrl = "http://localhost:8080/payment/success";
-            String cancelUrl = "http://localhost:8080/payment/cancel";
+            String returnUrl = "https://learninghubswp391.eastasia.cloudapp.azure.com/payment/success";
+            String cancelUrl = "https://learninghubswp391.eastasia.cloudapp.azure.com/payment/cancel";
 
             Payment payment = payOsService.createPaymentOrder(order, returnUrl, cancelUrl);
-
-            // Clear selected items from cart
-            cartService.checkoutCart(user);
 
             // Response with payment info
             Map<String, Object> response = new HashMap<>();
@@ -116,6 +187,26 @@ public class PaymentController {
             Payment payment = paymentRepository.findById(paymentId)
                     .orElseThrow(() -> new RuntimeException("Payment not found"));
 
+            // If pending, check direct with PayOS to see if status has changed
+            if (payment.getStatus() == PaymentStatus.PENDING) {
+                try {
+                    long orderCode = Long.parseLong(payment.getGatewayOrderCode());
+                    PaymentLink info = payOS.paymentRequests().get(orderCode);
+                    log.info("Direct PayOS status check for orderCode {}: {}", orderCode, info.getStatus());
+                    
+                    String payOsStatus = info.getStatus() != null ? info.getStatus().toString() : "";
+                    if ("PAID".equalsIgnoreCase(payOsStatus)) {
+                        payOsService.completePayment(payment);
+                    } else if ("CANCELLED".equalsIgnoreCase(payOsStatus)) {
+                        payOsService.cancelPayment(payment);
+                    } else if ("EXPIRED".equalsIgnoreCase(payOsStatus)) {
+                        payOsService.expirePayment(payment);
+                    }
+                } catch (Exception e) {
+                    log.warn("Could not query PayOS status directly for payment id: {}, error: {}", paymentId, e.getMessage());
+                }
+            }
+
             Map<String, Object> response = new HashMap<>();
             response.put("id", payment.getId());
             response.put("status", payment.getStatus());
@@ -138,12 +229,15 @@ public class PaymentController {
      * POST /api/payments/webhook
      */
     @PostMapping("/webhook")
-    public ResponseEntity<?> handleWebhook(@RequestBody PayOsWebhookDTO webhook) {
+    public ResponseEntity<?> handleWebhook(@RequestBody Webhook webhook) {
         try {
-            log.info("Received PayOS webhook for order: {}", webhook.getData().getOrderCode());
+            log.info("Received PayOS webhook with signature: {}", webhook.getSignature());
 
-            // Process webhook (verify signature & update status)
-            payOsService.processWebhookCallback(webhook);
+            // Verify webhook data using PayOS SDK
+            WebhookData verifiedData = payOS.webhooks().verify(webhook);
+            
+            // Process verified webhook data
+            payOsService.processWebhookCallback(verifiedData);
 
             // Return success response
             return ResponseEntity.ok(Map.of("success", true));

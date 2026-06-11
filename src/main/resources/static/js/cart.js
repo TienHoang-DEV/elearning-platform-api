@@ -143,12 +143,30 @@ function initializeInstructorVouchers() {
 function initializeCheckoutButton() {
     const checkoutBtn = document.getElementById("btn-checkout");
     if (checkoutBtn) {
-        checkoutBtn.addEventListener("click", () => {
+        checkoutBtn.addEventListener("click", async () => {
             checkoutBtn.disabled = true;
             
-            // Simply redirect to payment page
-            // Payment page will call the API to create order & generate QR
-            window.location.href = "/payment";
+            try {
+                const response = await fetch('/api/payments/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Có lỗi xảy ra khi tạo đơn hàng.');
+                }
+
+                const data = await response.json();
+                // Redirect to payment page with payment ID
+                window.location.href = `/payment?id=${data.id}`;
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert(error.message);
+                checkoutBtn.disabled = false;
+            }
         });
     }
 }
