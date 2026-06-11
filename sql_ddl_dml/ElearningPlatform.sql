@@ -583,6 +583,9 @@ CREATE TABLE coupons (
                          code VARCHAR(100) UNIQUE NOT NULL,
     -- Mã code coupon (ví dụ: 'SUMMER50', 'NEWYEAR2024'), phải unique
 
+    title VARCHAR(200) NOT NULL,
+    -- tên mã
+
                          discount_type VARCHAR(20)
                              CHECK (discount_type IN ('PERCENT', 'FIXED')),
     -- Loại giảm giá: percent (giảm theo %), fixed (giảm số tiền cố định)
