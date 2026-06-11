@@ -15,6 +15,7 @@ import java.util.Set;
 @Mapper(componentModel = "spring")
 public interface DtoMapper {
 
+    @Mapping(target = "avatarUrl", expression = "java(user.getFullAvatarUrl())")
     UserDto toUserDto(User user);
 
     @Mapping(target = "averageRating", expression = "java(course.getAverageRating())")

@@ -36,10 +36,13 @@
                 </ul>
             </nav>
             <div class="sidebar-footer">
-                <div class="avatar footer-avatar">M</div>
+                <div class="avatar footer-avatar" style="display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; background-color: var(--primary-blue); color: white;">
+                    <img th:if="${currentUser != null and currentUser.avatarUrl != null}" th:src="${currentUser.avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;" />
+                    <span th:if="${currentUser == null or currentUser.avatarUrl == null}" th:text="${currentUser != null and currentUser.firstName != null and !currentUser.firstName.isEmpty() ? #strings.substring(currentUser.firstName, 0, 1).toUpperCase() : 'M'}">M</span>
+                </div>
                 <div class="profile-info">
-                    <div class="profile-name">Quản trị viên</div>
-                    <div class="profile-email">admin@system.com</div>
+                    <div class="profile-name" th:text="${currentUser != null ? (currentUser.lastName + ' ' + currentUser.firstName) : 'Quản trị viên'}">Quản trị viên</div>
+                    <div class="profile-email" th:text="${currentUser != null ? currentUser.email : 'admin@system.com'}">admin@system.com</div>
                 </div>
             </div>
         </aside>
@@ -77,6 +80,9 @@
                             </div>
                             <div class="course-title" th:text="${course.title}">Các Mẫu React Nâng Cao</div>
                             <div class="course-instructor" th:text="${course.instructor != null ? course.instructor.firstName + ' ' + course.instructor.lastName : 'Không rõ'}">Michael Chang</div>
+                            <div class="course-category" style="display: flex; align-items: center; gap: 4px; font-size: 0.85rem; color: var(--text-gray); margin-top: 6px;">
+                                <span th:text="${course.category != null ? course.category.name : 'Chưa phân loại'}">Danh mục</span>
+                            </div>
                         </div>
                         <div class="course-footer">
                             <div class="actions">
