@@ -220,7 +220,7 @@ public class CourseService {
     public Course findByIdWithSectionsAndLessons(Integer id) {
         return repository.findByIdWithSectionsAndLessons(id).orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
     }
-    
+
 
     public void deleteById(Integer id) {
         repository.deleteById(id);
