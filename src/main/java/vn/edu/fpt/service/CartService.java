@@ -20,6 +20,7 @@ public class CartService {
     private final EnrollmentRepository enrollmentRepository;
     private final DtoMapper dtoMapper;
     private final CouponRepository couponRepository;
+    private final OrderRepository orderRepository;
 
     public CartService(CartRepository cartRepository,
                        CartItemService cartItemService,
@@ -27,7 +28,8 @@ public class CartService {
                        UserRepository userRepository,
                        EnrollmentRepository enrollmentRepository,
                        DtoMapper dtoMapper,
-                       CouponRepository couponRepository) {
+                       CouponRepository couponRepository,
+                       OrderRepository orderRepository) {
         this.repository = cartRepository;
         this.cartItemService = cartItemService;
         this.courseRepository = courseRepository;
@@ -35,6 +37,7 @@ public class CartService {
         this.enrollmentRepository = enrollmentRepository;
         this.dtoMapper = dtoMapper;
         this.couponRepository = couponRepository;
+        this.orderRepository = orderRepository;
     }
 
     public Cart getOrCreateCartForUser(User user) {
@@ -82,10 +85,13 @@ public class CartService {
             UserDto instructorDto = entry.getKey();
             List<CartItemDto> itemsList = entry.getValue();
 
-            CartInstructorCoupon appliedCoupon = cart.getInstructorCoupons().stream()
-                    .filter(cic -> cic.getInstructor().getId().equals(instructorDto.getId()))
-                    .findFirst()
-                    .orElse(null);
+            CartInstructorCoupon appliedCoupon = null;
+            for (CartInstructorCoupon cic : cart.getInstructorCoupons()) {
+                if (cic.getInstructor() != null && cic.getInstructor().getId().equals(instructorDto.getId())) {
+                    appliedCoupon = cic;
+                    break;
+                }
+            }
 
             long instSubtotal = 0;
             long instCourseDiscounts = 0;
@@ -143,8 +149,20 @@ public class CartService {
         long total = subtotal - courseDiscounts - instructorDiscounts;
         if (total < 0) total = 0;
 
-        boolean allSelected = cart.getItems().isEmpty() ? false : cart.getItems().stream().allMatch(CartItem::isSelected);
-        boolean noneSelected = cart.getItems().stream().noneMatch(CartItem::isSelected);
+        boolean allSelected = true;
+        boolean noneSelected = true;
+
+        if (cart.getItems().isEmpty()) {
+            allSelected = false;
+        } else {
+            for (CartItem item : cart.getItems()) {
+                if (item.isSelected()) {
+                    noneSelected = false;
+                } else {
+                    allSelected = false;
+                }
+            }
+        }
         String globalCheckboxState = allSelected ? "checked" : (noneSelected ? "unchecked" : "indeterminate");
 
         return CartPageDetailsDto.builder()
@@ -225,8 +243,14 @@ public class CartService {
 
         String trimmedCode = code.trim();
         if (trimmedCode.isEmpty()) {
-            // Xóa voucher của giảng viên này nếu nhập trống
-            cart.getInstructorCoupons().removeIf(cic -> cic.getInstructor().getId().equals(instructorId));
+            // Xóa voucher của giảng viên này nếu nhập trống bằng Iterator truyền thống
+            java.util.Iterator<CartInstructorCoupon> iterator = cart.getInstructorCoupons().iterator();
+            while (iterator.hasNext()) {
+                CartInstructorCoupon cic = iterator.next();
+                if (cic.getInstructor() != null && cic.getInstructor().getId().equals(instructorId)) {
+                    iterator.remove();
+                }
+            }
             save(cart);
             response.put("success", true);
             response.put("message", "Đã gỡ bỏ mã giảm giá.");
@@ -252,17 +276,29 @@ public class CartService {
         }
 
         // Kiểm tra xem người dùng có chọn ít nhất một khóa học của giảng viên này không
-        boolean hasSelectedCourse = cart.getItems().stream()
-                .anyMatch(item -> item.isSelected() 
-                        && item.getCourse().getInstructor() != null 
-                        && item.getCourse().getInstructor().getId().equals(instructorId));
+        boolean hasSelectedCourse = false;
+        for (CartItem item : cart.getItems()) {
+            if (item.isSelected()
+                    && item.getCourse() != null
+                    && item.getCourse().getInstructor() != null
+                    && item.getCourse().getInstructor().getId().equals(instructorId)) {
+                hasSelectedCourse = true;
+                break;
+            }
+        }
 
         if (!hasSelectedCourse) {
             throw new IllegalArgumentException("Vui lòng tích chọn ít nhất một khóa học của giảng viên này để áp dụng mã!");
         }
 
-        // Lưu coupon vào Cart
-        cart.getInstructorCoupons().removeIf(cic -> cic.getInstructor().getId().equals(instructorId));
+        // Lưu coupon vào Cart: Trước tiên loại bỏ coupon cũ của giảng viên này bằng Iterator truyền thống
+        java.util.Iterator<CartInstructorCoupon> iterator = cart.getInstructorCoupons().iterator();
+        while (iterator.hasNext()) {
+            CartInstructorCoupon cic = iterator.next();
+            if (cic.getInstructor() != null && cic.getInstructor().getId().equals(instructorId)) {
+                iterator.remove();
+            }
+        }
 
         CartInstructorCoupon newCic = CartInstructorCoupon.builder()
                 .cart(cart)
@@ -288,9 +324,12 @@ public class CartService {
             return response;
         }
 
-        List<CartItem> selectedItems = items.stream()
-                .filter(CartItem::isSelected)
-                .collect(Collectors.toList());
+        List<CartItem> selectedItems = new ArrayList<>();
+        for (CartItem item : items) {
+            if (item.isSelected()) {
+                selectedItems.add(item);
+            }
+        }
 
         if (selectedItems.isEmpty()) {
             response.put("success", false);
@@ -298,6 +337,122 @@ public class CartService {
             return response;
         }
 
+        // Group selected items by instructor for coupon calculations
+        Map<User, List<CartItem>> itemsByInstructor = new HashMap<>();
+        for (CartItem item : selectedItems) {
+            Course course = item.getCourse();
+            if (course != null && course.getInstructor() != null) {
+                User instructor = course.getInstructor();
+                if (!itemsByInstructor.containsKey(instructor)) {
+                    itemsByInstructor.put(instructor, new ArrayList<>());
+                }
+                itemsByInstructor.get(instructor).add(item);
+            }
+        }
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        java.math.BigDecimal orderSubtotal = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal orderTotalDiscount = java.math.BigDecimal.ZERO;
+
+        for (Map.Entry<User, List<CartItem>> entry : itemsByInstructor.entrySet()) {
+            User instructor = entry.getKey();
+            List<CartItem> itemList = entry.getValue();
+
+            // Find coupon for this instructor
+            CartInstructorCoupon appliedCic = null;
+            for (CartInstructorCoupon cic : cart.getInstructorCoupons()) {
+                if (cic.getInstructor() != null && cic.getInstructor().getId().equals(instructor.getId())) {
+                    appliedCic = cic;
+                    break;
+                }
+            }
+
+            Coupon coupon = (appliedCic != null) ? appliedCic.getCoupon() : null;
+
+            // Calculate base values
+            long instSubtotal = 0;
+            long instCourseDiscounts = 0;
+            for (CartItem item : itemList) {
+                long price = item.getCourse().getPrice().longValue();
+                long courseDiscount = Math.round(price * 0.3); // 30% default discount
+                instSubtotal += price;
+                instCourseDiscounts += courseDiscount;
+            }
+
+            long instSubtotalAfterDiscount = instSubtotal - instCourseDiscounts;
+            long voucherDiscount = 0;
+            if (coupon != null) {
+                if ("PERCENT".equalsIgnoreCase(coupon.getDiscountType())) {
+                    double rate = coupon.getDiscountValue().doubleValue() / 100.0;
+                    voucherDiscount = Math.round(instSubtotalAfterDiscount * rate);
+                } else if ("FIXED".equalsIgnoreCase(coupon.getDiscountType())) {
+                    voucherDiscount = coupon.getDiscountValue().longValue();
+                    if (voucherDiscount > instSubtotalAfterDiscount) {
+                        voucherDiscount = instSubtotalAfterDiscount;
+                    }
+                }
+            }
+
+            // Distribute voucher discount across items
+            long remainingVoucherDiscount = voucherDiscount;
+            for (int i = 0; i < itemList.size(); i++) {
+                CartItem item = itemList.get(i);
+                long price = item.getCourse().getPrice().longValue();
+                long baseCourseDiscount = Math.round(price * 0.3);
+                long itemSubtotalAfterBase = price - baseCourseDiscount;
+
+                long distributedVoucherDiscount = 0;
+                if (coupon != null && instSubtotalAfterDiscount > 0) {
+                    if (i == itemList.size() - 1) {
+                        distributedVoucherDiscount = remainingVoucherDiscount;
+                    } else {
+                        distributedVoucherDiscount = Math.round((double) voucherDiscount * itemSubtotalAfterBase / instSubtotalAfterDiscount);
+                        remainingVoucherDiscount -= distributedVoucherDiscount;
+                    }
+                }
+
+                long totalItemDiscount = baseCourseDiscount + distributedVoucherDiscount;
+                long finalPrice = price - totalItemDiscount;
+                if (finalPrice < 0) {
+                    finalPrice = 0;
+                }
+
+                OrderItem orderItem = OrderItem.builder()
+                        .coupon(coupon)
+                        .priceSnapshot(item.getCourse().getPrice())
+                        .discountAmount(java.math.BigDecimal.valueOf(totalItemDiscount))
+                        .finalPrice(java.math.BigDecimal.valueOf(finalPrice))
+                        .courseTitleSnapshot(item.getCourse().getTitle())
+                        .course(item.getCourse())
+                        .build();
+
+                orderItems.add(orderItem);
+                orderSubtotal = orderSubtotal.add(item.getCourse().getPrice());
+                orderTotalDiscount = orderTotalDiscount.add(java.math.BigDecimal.valueOf(totalItemDiscount));
+            }
+        }
+
+        java.math.BigDecimal orderTotalAmount = orderSubtotal.subtract(orderTotalDiscount);
+        if (orderTotalAmount.compareTo(java.math.BigDecimal.ZERO) < 0) {
+            orderTotalAmount = java.math.BigDecimal.ZERO;
+        }
+
+        // Create and save the Order
+        Order order = Order.builder()
+                .user(user)
+                .totalAmount(orderTotalAmount)
+                .discountAmount(orderTotalDiscount)
+                .status("paid")
+                .paymentMethod("ATM / Internet Banking")
+                .build();
+
+        for (OrderItem oi : orderItems) {
+            order.addItem(oi);
+        }
+
+        orderRepository.save(order);
+
+        // Process enrollments and remove from cart
         for (CartItem item : selectedItems) {
             Course course = item.getCourse();
             boolean alreadyEnrolled = enrollmentRepository.existsByUserAndCourse(user, course);
@@ -313,7 +468,7 @@ public class CartService {
             cartItemService.deleteById(item.getId());
         }
 
-        // Xóa các applied coupons của các giảng viên không còn khóa học nào của họ trong giỏ hàng
+        // Clean up applied coupons
         Set<User> remainingInstructors = cart.getItems().stream()
                 .map(item -> item.getCourse().getInstructor())
                 .collect(Collectors.toSet());

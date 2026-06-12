@@ -8,7 +8,7 @@ import vn.edu.fpt.entity.Enrollment;
 import vn.edu.fpt.entity.Order;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.repository.UserRepository;
-import vn.edu.fpt.repository.OrderRepository;
+import vn.edu.fpt.service.OrderService;
 import vn.edu.fpt.repository.EnrollmentRepository;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.enums.CourseStatus;
@@ -27,18 +27,18 @@ import java.util.stream.Collectors;
 public class StudentProfileController {
 
     private final UserRepository userRepository;
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private final EnrollmentRepository enrollmentRepository;
     private final CourseRepository courseRepository;
     private final DtoMapper dtoMapper;
 
     public StudentProfileController(UserRepository userRepository,
-                                    OrderRepository orderRepository,
+                                    OrderService orderService,
                                     EnrollmentRepository enrollmentRepository,
                                     CourseRepository courseRepository,
                                     DtoMapper dtoMapper) {
         this.userRepository = userRepository;
-        this.orderRepository = orderRepository;
+        this.orderService = orderService;
         this.enrollmentRepository = enrollmentRepository;
         this.courseRepository = courseRepository;
         this.dtoMapper = dtoMapper;
@@ -155,12 +155,7 @@ public class StudentProfileController {
     @GetMapping("/student/purchase-history")
     public String showPurchaseHistory(Model model) {
         User user = getSessionUser();
-        List<Order> orders = orderRepository.findByUser(user);
-        
-        List<OrderDto> orderDtos = new java.util.ArrayList<>();
-        for (Order order : orders) {
-            orderDtos.add(dtoMapper.toOrderDto(order));
-        }
+        List<OrderDto> orderDtos = orderService.getPurchaseHistory(user);
         
         model.addAttribute("currentUser", dtoMapper.toUserDto(user));
         model.addAttribute("orders", orderDtos);
