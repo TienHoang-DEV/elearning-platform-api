@@ -23,6 +23,9 @@ public class Coupon extends BaseEntity {
     @Column(length = 100, nullable = false, unique = true)
     private String code;
 
+    @Column(length = 150, nullable = false, unique = true)
+    private String title;
+
     @Column(name = "discount_type", length = 20)
     private String discountType;
 

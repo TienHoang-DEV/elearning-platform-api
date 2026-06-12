@@ -24,7 +24,7 @@ public class Lesson extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(255)", nullable = false)
     private String title;
 
-    @Column(name = "video_url", length = 500)
+    @Column(name = "video_url", columnDefinition = "NVARCHAR(500)")
     private String videoUrl;
 
     @Column(name = "duration_seconds")

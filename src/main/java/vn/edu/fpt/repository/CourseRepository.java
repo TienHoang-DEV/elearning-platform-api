@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.User;
-
 import vn.edu.fpt.enums.CourseStatus;
 
 import java.util.List;
@@ -65,4 +64,6 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     Course findCourseById(Integer id);
 }
+
+
 

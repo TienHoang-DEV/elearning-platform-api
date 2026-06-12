@@ -1,0 +1,346 @@
+/* =========================================================
+   LEARNING HUB — MANAGEMENT & COUPON SPECIAL STYLES (LIGHT MODE)
+   ========================================================= */
+
+:root {
+    --sidebar-bg: #ffffff;
+    --sidebar-border: #e2e8f0;
+    --sidebar-text: #64748b;
+    --sidebar-text-hover: #1e293b;
+    --sidebar-menu-hover: #f1f5f9;
+}
+
+.bg-coupon-page {
+    background-color: #f8fafc;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- Bố Cục Khung Admin --- */
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Sidebar */
+.admin-sidebar {
+    width: 280px;
+    background: var(--sidebar-bg) !important;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--sidebar-border);
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+}
+
+/* LOGO MÀU XANH DƯƠNG ĐỒNG BỘ TRANG CHỦ */
+.admin-sidebar .sidebar-logo-custom .logo-fa-layers {
+    color: #1a56db !important;
+    text-shadow: 0 2px 8px rgba(26, 86, 219, 0.15);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.admin-sidebar .sidebar-logo-custom .logo-text {
+    color: #1a56db !important;
+    font-weight: 800;
+    transition: all 0.25s ease;
+}
+
+.admin-sidebar .sidebar-logo-custom:hover .logo-fa-layers {
+    color: #2563eb !important;
+    transform: rotate(-8deg) scale(1.08);
+}
+
+.admin-sidebar .sidebar-logo-custom:hover .logo-text {
+    color: #2563eb !important;
+}
+
+.sidebar-brand {
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--sidebar-border);
+}
+
+/* =========================================================
+   SIDEBAR USER DROPDOWN LIST STYLES (ĐÃ SỬA LỖI)
+   ========================================================= */
+
+.sidebar-user-dropdown {
+    border-bottom: 1px solid var(--sidebar-border);
+    margin-bottom: 20px;
+}
+
+/* Ép avatar phải bo tròn tuyệt đối 50% */
+.sidebar-avatar {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 50% !important; /* Đảm bảo tròn trịa */
+    object-fit: cover !important;
+    border: 2px solid rgba(26, 86, 219, 0.2);
+    display: block;
+}
+
+/* Khu vực Brief bao quanh */
+.sidebar-user-brief {
+    padding: 20px 0;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+/* Xoay mũi tên mượt mà */
+.sidebar-user-dropdown .show ~ .dropdown-arrow-icon,
+.sidebar-user-brief[aria-expanded="true"] .dropdown-arrow-icon {
+    transform: rotate(180deg);
+    color: #1a56db !important;
+}
+
+/* ĐÃ SỬA: Sửa lỗi giật hiệu ứng bằng cách bỏ translateY, chỉ dùng mờ tỏ opacity */
+.custom-user-dropdown-menu {
+    width: 100% !important;
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    margin-top: 4px !important; /* Tạo khoảng cách nhỏ hợp lý với avatar */
+    box-shadow: 0 10px 25px rgba(30, 41, 59, 0.08) !important;
+    animation: dropdownFadeInOnly 0.2s ease-out; /* Đổi sang animation mới */
+}
+
+/* Các mục bên trong menu */
+.custom-user-dropdown-menu .dropdown-item {
+    color: #475569 !important;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+.custom-user-dropdown-menu .dropdown-item i,
+.custom-user-dropdown-menu .dropdown-item svg {
+    color: #94a3b8;
+    transition: all 0.15s ease;
+}
+
+/* Hover mượt mà */
+.custom-user-dropdown-menu .dropdown-item:hover {
+    background-color: rgba(26, 86, 219, 0.06) !important;
+    color: #1a56db !important;
+}
+
+.custom-user-dropdown-menu .dropdown-item:hover i,
+.custom-user-dropdown-menu .dropdown-item:hover svg {
+    color: #1a56db !important;
+}
+
+/* Mục đăng xuất nguy hiểm */
+.custom-user-dropdown-menu .dropdown-item.text-danger:hover {
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+}
+.custom-user-dropdown-menu .dropdown-item.text-danger:hover i,
+.custom-user-dropdown-menu .dropdown-item.text-danger:hover svg {
+    color: #dc2626 !important;
+}
+
+/* Animation mới: Chỉ thay đổi độ mờ (Opacity) để không đá nhau với Bootstrap */
+@keyframes dropdownFadeInOnly {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Menu Điều Hướng */
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-grow: 1;
+}
+.menu-category {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 16px 0 6px 12px;
+}
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+.menu-item i, .menu-item svg {
+    width: 18px;
+    height: 18px;
+    color: #94a3b8;
+}
+.menu-item:hover {
+    color: var(--sidebar-text-hover) !important;
+    background-color: var(--sidebar-menu-hover);
+}
+.menu-item:hover i, .menu-item:hover svg {
+    color: #1a56db;
+}
+.menu-item.active {
+    color: #1a56db !important;
+    background-color: rgba(26, 86, 219, 0.08) !important;
+    font-weight: 600;
+}
+.menu-item.active i, .menu-item.active svg {
+    color: #1a56db !important;
+}
+
+/* THIẾT KẾ NÚT VỀ TRANG CHỦ */
+.sidebar-footer {
+    padding-top: 20px;
+    border-top: 1px solid var(--sidebar-border);
+}
+.btn-back-home {
+    background: #1a56db !important;
+    color: #ffffff !important;
+    border-radius: 30px !important;
+    border: none !important;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+.btn-back-home:hover {
+    background: #1e40af !important;
+    box-shadow: 0 8px 20px rgba(26, 86, 219, 0.3) !important;
+    transform: translateY(-2px);
+}
+
+/* Khu vực nội dung chính */
+.admin-main-content {
+    margin-left: 280px;
+    flex-grow: 1;
+    padding: 40px 60px;
+    width: calc(100% - 280px);
+}
+
+/* --- ĐÃ SỬA: PHÓNG TO KHUNG CHỨA FORM CÂN BẰNG TUYỆT ĐỐI --- */
+.coupon-form-card {
+    background: #ffffff !important;
+    border: 1px solid var(--sidebar-border) !important;
+    border-radius: 16px !important;
+    padding: 48px !important;
+    max-width: 100% !important; /* Thay đổi từ 900px thành 100% để căn đều góc cạnh */
+    margin: 0 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.015) !important;
+}
+
+/* Banner Trang Trí Tự Động Sinh Mã */
+.auto-gen-banner {
+    background-color: rgba(26, 86, 219, 0.04);
+    border-left: 4px solid #1a56db;
+}
+.banner-icon-box {
+    background: #ffffff;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+}
+.banner-icon-box svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Form input */
+.coupon-form-input {
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    color: #334155;
+}
+.coupon-form-input:focus {
+    border-color: #1a56db !important;
+    box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.15) !important;
+    background-color: #fff !important;
+}
+
+/* --- Responsive --- */
+@media (max-width: 1199.98px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+    }
+    .admin-main-content {
+        margin-left: 0;
+        padding: 24px;
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   VALIDATION & FEEDBACK STYLES (CUSTOM)
+   ========================================================= */
+
+/* Khi ô nhập liệu có lỗi backend trả về */
+.coupon-form-input.is-invalid-custom {
+    border-color: #ef4444 !important; /* Đỏ mờ cao cấp tinh tế */
+    background-color: #fef2f2 !important; /* Nền hồng cực nhẹ tránh chói mắt */
+}
+
+.coupon-form-input.is-invalid-custom:focus {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15) !important; /* Viền sáng đỏ nhạt */
+}
+
+/* Khối hiển thị câu chữ báo lỗi bên dưới */
+.invalid-feedback-custom {
+    display: flex;
+    align-items: center;
+    color: #dc2626; /* Tông màu đỏ sẫm sang trọng */
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 6px;
+    padding-left: 2px;
+    animation: slideDownError 0.2s ease-out;
+}
+
+/* Thêm icon tam giác cảnh báo trước dòng chữ lỗi */
+.invalid-feedback-custom::before {
+    content: "\f071"; /* Mã icon warning của FontAwesome */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    margin-right: 6px;
+    font-size: 11px;
+    color: #ef4444;
+}
+
+/* Hiệu ứng trượt nhẹ khi lỗi xuất hiện */
+@keyframes slideDownError {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   CUSTOM SWEETALERT2 FOR LEARNING HUB
+   ========================================================= */
+.premium-popup-border {
+    border-radius: 16px !important;
+    padding: 2rem !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+.swal2-styled.swal2-confirm:focus {
+    box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.2) !important;
+}

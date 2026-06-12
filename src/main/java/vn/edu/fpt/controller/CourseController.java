@@ -95,6 +95,7 @@ public class CourseController {
         model.addAttribute("parentCategories", categoryDtos);
 
         User user = getSessionUser();
+        
         java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
         model.addAttribute("enrolledCourseIds", enrolledCourseIds);
 

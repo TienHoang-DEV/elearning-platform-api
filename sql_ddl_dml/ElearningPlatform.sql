@@ -349,7 +349,7 @@ CREATE TABLE lessons (
                          title NVARCHAR(255) NOT NULL,
     -- Tên bài học (ví dụ: 'Bài 1: Giới thiệu ngôn ngữ C')
 
-                         video_url VARCHAR(500) NULL,
+                         video_url NVARCHAR(500) NULL,
     -- URL video bài học (lưu link từ Azure Blob Storage)
 
                          duration_seconds INT NULL CHECK (duration_seconds > 0),
@@ -582,6 +582,9 @@ CREATE TABLE coupons (
 
                          code VARCHAR(100) UNIQUE NOT NULL,
     -- Mã code coupon (ví dụ: 'SUMMER50', 'NEWYEAR2024'), phải unique
+
+    title VARCHAR(200) NOT NULL,
+    -- tên mã
 
                          discount_type VARCHAR(20)
                              CHECK (discount_type IN ('PERCENT', 'FIXED')),

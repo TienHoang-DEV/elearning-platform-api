@@ -294,7 +294,7 @@ public class CourseService {
         if(status == null){
             throw new RuntimeException("Status can not null");
         }
-
+ 
         return repository.findByInstructorAndStatus(user, status);
     }
 

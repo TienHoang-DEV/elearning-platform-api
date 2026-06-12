@@ -682,7 +682,7 @@ BEGIN
     (
         @sectionId,
         N'Bài 2',
-        'Lập trình C - 03. Cách xuất dữ liệu ra màn hình lập trình C - Hàm printf - Tự học lập trình C.mp4',
+        N'Lập trình C - 03. Cách xuất dữ liệu ra màn hình lập trình C - Hàm printf - Tự học lập trình C.mp4',
         720,
         2,
         1,
@@ -692,7 +692,7 @@ BEGIN
     (
         @sectionId,
         N'Bài 3',
-        'Lập trình C - 04. Cách nhập dữ liệu từ bàn phím trong lập trình C - Tự học lập trình C.mp4',
+        N'Lập trình C - 04. Cách nhập dữ liệu từ bàn phím trong lập trình C - Tự học lập trình C.mp4',
         840,
         3,
         1,
@@ -1025,6 +1025,7 @@ VALUES
 (24, N'Spring Data JPA', 1),
 (24, N'Laravel', 0);
 
+
 -- =========================
 -- FEEDBACKS SAMPLE DATA
 -- =========================
@@ -1197,3 +1198,386 @@ VALUES
 (9, 24, 2, N'Nhiều đoạn code bị lỗi do Firebase update SDK mới.', 'VISIBLE', GETDATE()),
 (10, 24, 3, N'Ở mức trung bình, xem để biết luồng đăng nhập.', 'VISIBLE', GETDATE()),
 (11, 24, 1, N'Không được hỗ trợ khi hỏi bài, code lỗi không chạy được.', 'VISIBLE', GETDATE());
+
+
+-- =========================================================================
+-- INSTRUCTOR REQUESTS & DASHBOARD TEST DATA (FOR PAGINATION & CHARTS TESTING)
+-- =========================================================================
+
+-- 1. KHAI BÁO CÁC BIẾN ĐỂ LƯU ID CỦA USER
+DECLARE @UserId1 INT, @UserId2 INT, @UserId3 INT, @UserId4 INT, @UserId5 INT, @UserId6 INT, @UserId7 INT, @UserId8 INT, @UserId9 INT, @UserId10 INT;
+DECLARE @PasswordHash VARCHAR(255) = '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy';
+
+-- USER 1
+IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'learner_test1@elearning.com')
+BEGIN
+    INSERT INTO users (first_name, last_name, email, phone, bio, password_hash, avatar_url, google_id, status, created_at)
+    VALUES (N'Nguyễn Văn', N'Tiến', 'learner_test1@elearning.com', '0905000001', N'Đam mê dạy học lập trình C++.', @PasswordHash, 'https://fptcontainer.blob.core.windows.net/avatars/avatar_test1.jpg', NULL, 'ACTIVE', DATEADD(hour, -12, GETDATE()));
+    SET @UserId1 = SCOPE_IDENTITY();
+END
+ELSE BEGIN SELECT @UserId1 = id FROM users WHERE email = 'learner_test1@elearning.com'; END
+
+-- USER 2
+IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'learner_test2@elearning.com')
+BEGIN
+    INSERT INTO users (first_name, last_name, email, phone, bio, password_hash, avatar_url, google_id, status, created_at)
+    VALUES (N'Trần Thị', N'Quỳnh', 'learner_test2@elearning.com', '0905000002', N'Giảng viên tiếng Anh có 2 năm kinh nghiệm.', @PasswordHash, 'https://fptcontainer.blob.core.windows.net/avatars/avatar_test2.jpg', NULL, 'ACTIVE', DATEADD(day, -2, GETDATE()));
+    SET @UserId2 = SCOPE_IDENTITY();
+END
+ELSE BEGIN SELECT @UserId2 = id FROM users WHERE email = 'learner_test2@elearning.com'; END
+
+-- USER 3
+IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'learner_test3@elearning.com')
+BEGIN
+    INSERT INTO users (first_name, last_name, email, phone, bio, password_hash, avatar_url, google_id, status, created_at)
+    VALUES (N'Phạm Minh', N'Hoàng', 'learner_test3@elearning.com', '0905000003', N'Kỹ sư phần mềm mong muốn chia sẻ kiến thức React Native.', @PasswordHash, 'https://fptcontainer.blob.core.windows.net/avatars/avatar_test3.jpg', NULL, 'ACTIVE', DATEADD(day, -3, GETDATE()));
+    SET @UserId3 = SCOPE_IDENTITY();
+END
+ELSE BEGIN SELECT @UserId3 = id FROM users WHERE email = 'learner_test3@elearning.com'; END
+
+-- USER 4
+IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'learner_test4@elearning.com')
+BEGIN
+    INSERT INTO users (first_name, last_name, email, phone, bio, password_hash, avatar_url, google_id, status, created_at)
+    VALUES (N'Hoàng Gia', N'Bảo', 'learner_test4@elearning.com', '0905000004', N'Chuyên gia UI/UX Designer.', @PasswordHash, 'https://fptcontainer.blob.core.windows.net/avatars/avatar_test4.jpg', NULL, 'ACTIVE', DATEADD(hour, -2, GETDATE()));
+    SET @UserId4 = SCOPE_IDENTITY();
+END
+ELSE BEGIN SELECT @UserId4 = id FROM users WHERE email = 'learner_test4@elearning.com'; END
+
+-- USER 5
+IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'learner_test5@elearning.com')
+BEGIN
+    INSERT INTO users (first_name, last_name, email, phone, bio, password_hash, avatar_url, google_id, status, created_at)
+    VALUES (N'Lê Minh', N'Khánh', 'learner_test5@elearning.com', '0905000005', N'Fullstack Developer.', @PasswordHash, 'https://fptcontainer.blob.core.windows.net/avatars/avatar_test1.jpg', NULL, 'ACTIVE', DATEADD(hour, -14, GETDATE()));
+    SET @UserId5 = SCOPE_IDENTITY();
+END
+ELSE BEGIN SELECT @UserId5 = id FROM users WHERE email = 'learner_test5@elearning.com'; END
+
+-- USER 6
+IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'learner_test6@elearning.com')
+BEGIN
+    INSERT INTO users (first_name, last_name, email, phone, bio, password_hash, avatar_url, google_id, status, created_at)
+    VALUES (N'Phan Thanh', N'Hà', 'learner_test6@elearning.com', '0905000006', N'Data Analyst.', @PasswordHash, 'https://fptcontainer.blob.core.windows.net/avatars/avatar_test2.jpg', NULL, 'ACTIVE', DATEADD(hour, -16, GETDATE()));
+    SET @UserId6 = SCOPE_IDENTITY();
+END
+ELSE BEGIN SELECT @UserId6 = id FROM users WHERE email = 'learner_test6@elearning.com'; END
+
+-- USER 7
+IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'learner_test7@elearning.com')
+BEGIN
+    INSERT INTO users (first_name, last_name, email, phone, bio, password_hash, avatar_url, google_id, status, created_at)
+    VALUES (N'Đặng Quốc', N'Bảo', 'learner_test7@elearning.com', '0905000007', N'DevOps Engineer.', @PasswordHash, 'https://fptcontainer.blob.core.windows.net/avatars/avatar_test3.jpg', NULL, 'ACTIVE', DATEADD(hour, -18, GETDATE()));
+    SET @UserId7 = SCOPE_IDENTITY();
+END
+ELSE BEGIN SELECT @UserId7 = id FROM users WHERE email = 'learner_test7@elearning.com'; END
+
+-- USER 8
+IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'learner_test8@elearning.com')
+BEGIN
+    INSERT INTO users (first_name, last_name, email, phone, bio, password_hash, avatar_url, google_id, status, created_at)
+    VALUES (N'Bùi Minh', N'Tuấn', 'learner_test8@elearning.com', '0905000008', N'Backend developer.', @PasswordHash, 'https://fptcontainer.blob.core.windows.net/avatars/avatar_test4.jpg', NULL, 'ACTIVE', DATEADD(hour, -20, GETDATE()));
+    SET @UserId8 = SCOPE_IDENTITY();
+END
+ELSE BEGIN SELECT @UserId8 = id FROM users WHERE email = 'learner_test8@elearning.com'; END
+
+-- USER 9
+IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'learner_test9@elearning.com')
+BEGIN
+    INSERT INTO users (first_name, last_name, email, phone, bio, password_hash, avatar_url, google_id, status, created_at)
+    VALUES (N'Vũ Thị', N'Lan', 'learner_test9@elearning.com', '0905000009', N'Tester.', @PasswordHash, 'https://fptcontainer.blob.core.windows.net/avatars/avatar_test1.jpg', NULL, 'ACTIVE', DATEADD(hour, -22, GETDATE()));
+    SET @UserId9 = SCOPE_IDENTITY();
+END
+ELSE BEGIN SELECT @UserId9 = id FROM users WHERE email = 'learner_test9@elearning.com'; END
+
+-- USER 10
+IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'learner_test10@elearning.com')
+BEGIN
+    INSERT INTO users (first_name, last_name, email, phone, bio, password_hash, avatar_url, google_id, status, created_at)
+    VALUES (N'Đỗ Hoàng', N'Anh', 'learner_test10@elearning.com', '0905000010', N'AI Engineer.', @PasswordHash, 'https://fptcontainer.blob.core.windows.net/avatars/avatar_test2.jpg', NULL, 'ACTIVE', DATEADD(hour, -24, GETDATE()));
+    SET @UserId10 = SCOPE_IDENTITY();
+END
+ELSE BEGIN SELECT @UserId10 = id FROM users WHERE email = 'learner_test10@elearning.com'; END
+
+
+-- -------------------------------------------------------------
+-- 2. GÁN VAI TRÒ HỌC VIÊN (ROLE_ID = 4) NẾU CHƯA CÓ
+-- -------------------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = @UserId1 AND role_id = 4) INSERT INTO user_roles (user_id, role_id) VALUES (@UserId1, 4);
+IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = @UserId2 AND role_id = 4) INSERT INTO user_roles (user_id, role_id) VALUES (@UserId2, 4);
+IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = @UserId3 AND role_id = 4) INSERT INTO user_roles (user_id, role_id) VALUES (@UserId3, 4);
+IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = @UserId4 AND role_id = 4) INSERT INTO user_roles (user_id, role_id) VALUES (@UserId4, 4);
+IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = @UserId5 AND role_id = 4) INSERT INTO user_roles (user_id, role_id) VALUES (@UserId5, 4);
+IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = @UserId6 AND role_id = 4) INSERT INTO user_roles (user_id, role_id) VALUES (@UserId6, 4);
+IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = @UserId7 AND role_id = 4) INSERT INTO user_roles (user_id, role_id) VALUES (@UserId7, 4);
+IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = @UserId8 AND role_id = 4) INSERT INTO user_roles (user_id, role_id) VALUES (@UserId8, 4);
+IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = @UserId9 AND role_id = 4) INSERT INTO user_roles (user_id, role_id) VALUES (@UserId9, 4);
+IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = @UserId10 AND role_id = 4) INSERT INTO user_roles (user_id, role_id) VALUES (@UserId10, 4);
+
+
+-- -------------------------------------------------------------
+-- 3. XÓA CÁC YÊU CẦU CŨ CỦA CÁC USER NÀY
+-- -------------------------------------------------------------
+DELETE FROM instructor_requests WHERE user_id IN (@UserId1, @UserId2, @UserId3, @UserId4, @UserId5, @UserId6, @UserId7, @UserId8, @UserId9, @UserId10);
+
+
+-- -------------------------------------------------------------
+-- 4. THÊM MỚI CÁC YÊU CẦU LÀM GIẢNG VIÊN (INSTRUCTOR REQUESTS)
+-- -------------------------------------------------------------
+INSERT INTO instructor_requests (
+    user_id, cv_url, national_id_card_front, national_id_card_back, description, bio, certificate_url, rejection_reason, status, reviewed_by, created_at, updated_at
+)
+VALUES
+-- Yêu cầu 1: PENDING
+(
+    @UserId1, 
+    'https://fptcontainer.blob.core.windows.net/cvs/9_NguyenVanTien_CV.pdf', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/9_front.jpg', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/9_back.jpg', 
+    N'Tôi muốn tham gia giảng dạy các khóa học cấu trúc dữ liệu và giải thuật bằng ngôn ngữ C++ cho người mới bắt đầu.', 
+    N'Kỹ sư lập trình C++ tại FPT Software', 
+    'https://fptcontainer.blob.core.windows.net/certificates/9_IELTS_Certificate.pdf', 
+    NULL, 
+    'PENDING', 
+    NULL, 
+    DATEADD(hour, -12, GETDATE()), 
+    NULL
+),
+
+-- Yêu cầu 2: APPROVED (Duyệt bởi manager 1 - ID: 3)
+(
+    @UserId2, 
+    'https://fptcontainer.blob.core.windows.net/cvs/10_TranThiQuynh_CV.pdf', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/10_front.jpg', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/10_back.jpg', 
+    N'Tôi mong muốn xây dựng các khoá học tiếng Anh giao tiếp và chuẩn bị cho bài thi IELTS.', 
+    N'Giảng viên tiếng Anh tại trung tâm Anh ngữ lớn', 
+    'https://fptcontainer.blob.core.windows.net/certificates/10_TOEFL_Certificate.pdf', 
+    NULL, 
+    'APPROVED', 
+    3, 
+    DATEADD(day, -2, GETDATE()), 
+    DATEADD(day, -1, GETDATE())
+),
+
+-- Yêu cầu 3: REJECTED (Từ chối bởi manager 2 - ID: 4)
+(
+    @UserId3, 
+    'https://fptcontainer.blob.core.windows.net/cvs/11_PhamMinhHoang_CV.pdf', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/11_front.jpg', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/11_back.jpg', 
+    N'Muốn xuất bản khoá học lập trình React Native thực chiến.', 
+    N'Senior Mobile Developer tại công ty công nghệ', 
+    'https://fptcontainer.blob.core.windows.net/certificates/11_Cert.pdf', 
+    N'Ảnh chụp CCCD bị mờ, không nhìn rõ thông tin cá nhân. Vui lòng tải lên ảnh chụp rõ nét hơn.', 
+    'REJECTED', 
+    4, 
+    DATEADD(day, -3, GETDATE()), 
+    DATEADD(day, -2, GETDATE())
+),
+
+-- Yêu cầu 4: PENDING
+(
+    @UserId4, 
+    'https://fptcontainer.blob.core.windows.net/cvs/12_HoangGiaBao_CV.pdf', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/12_front.jpg', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/12_back.jpg', 
+    N'Giảng dạy các kiến thức thiết kế giao diện Figma chuyên sâu cho Web & App.', 
+    N'UI/UX Design Lead', 
+    'https://fptcontainer.blob.core.windows.net/certificates/12_DesignCert.pdf', 
+    NULL, 
+    'PENDING', 
+    NULL, 
+    DATEADD(hour, -2, GETDATE()), 
+    NULL
+),
+
+-- Yêu cầu 5: PENDING
+(
+    @UserId5, 
+    'https://fptcontainer.blob.core.windows.net/cvs/test_cv_5.pdf', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/test_front_5.jpg', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/test_back_5.jpg', 
+    N'Giảng dạy lập trình Javascript từ Zero đến Hero.', 
+    N'Fullstack Developer', 
+    'https://fptcontainer.blob.core.windows.net/certificates/test_cert_5.pdf', 
+    NULL, 
+    'PENDING', 
+    NULL, 
+    DATEADD(hour, -14, GETDATE()), 
+    NULL
+),
+
+-- Yêu cầu 6: PENDING
+(
+    @UserId6, 
+    'https://fptcontainer.blob.core.windows.net/cvs/test_cv_6.pdf', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/test_front_6.jpg', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/test_back_6.jpg', 
+    N'Giảng dạy các kiến thức phân tích dữ liệu cơ bản.', 
+    N'Data Analyst', 
+    'https://fptcontainer.blob.core.windows.net/certificates/test_cert_6.pdf', 
+    NULL, 
+    'PENDING', 
+    NULL, 
+    DATEADD(hour, -16, GETDATE()), 
+    NULL
+),
+
+-- Yêu cầu 7: PENDING
+(
+    @UserId7, 
+    'https://fptcontainer.blob.core.windows.net/cvs/test_cv_7.pdf', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/test_front_7.jpg', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/test_back_7.jpg', 
+    N'Giảng dạy DevOps và CI/CD thực chiến.', 
+    N'DevOps Engineer', 
+    'https://fptcontainer.blob.core.windows.net/certificates/test_cert_7.pdf', 
+    NULL, 
+    'PENDING', 
+    NULL, 
+    DATEADD(hour, -18, GETDATE()), 
+    NULL
+),
+
+-- Yêu cầu 8: PENDING
+(
+    @UserId8, 
+    'https://fptcontainer.blob.core.windows.net/cvs/test_cv_8.pdf', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/test_front_8.jpg', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/test_back_8.jpg', 
+    N'Xây dựng các hệ thống backend chịu tải cao.', 
+    N'Backend Developer', 
+    'https://fptcontainer.blob.core.windows.net/certificates/test_cert_8.pdf', 
+    NULL, 
+    'PENDING', 
+    NULL, 
+    DATEADD(hour, -20, GETDATE()), 
+    NULL
+),
+
+-- Yêu cầu 9: PENDING
+(
+    @UserId9, 
+    'https://fptcontainer.blob.core.windows.net/cvs/test_cv_9.pdf', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/test_front_9.jpg', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/test_back_9.jpg', 
+    N'Kiểm thử phần mềm tự động với Selenium.', 
+    N'Senior QA/QC', 
+    'https://fptcontainer.blob.core.windows.net/certificates/test_cert_9.pdf', 
+    NULL, 
+    'PENDING', 
+    NULL, 
+    DATEADD(hour, -22, GETDATE()), 
+    NULL
+),
+
+-- Yêu cầu 10: PENDING
+(
+    @UserId10, 
+    'https://fptcontainer.blob.core.windows.net/cvs/test_cv_10.pdf', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/test_front_10.jpg', 
+    'https://fptcontainer.blob.core.windows.net/national-ids/test_back_10.jpg', 
+    N'Giảng dạy cơ bản Machine Learning và Deep Learning.', 
+    N'AI Engineer', 
+    'https://fptcontainer.blob.core.windows.net/certificates/test_cert_10.pdf', 
+    NULL, 
+    'PENDING', 
+    NULL, 
+    DATEADD(hour, -24, GETDATE()), 
+    NULL
+);
+
+
+-- =========================================================================
+-- 5. DỮ LIỆU TEST DASHBOARD MẪU (KHÓA HỌC CHỜ DUYỆT, BÁO CÁO VI PHẠM, BIỂU ĐỒ)
+-- =========================================================================
+
+DELETE FROM feedback_reports WHERE reason IN (N'Bình luận thô tục, xúc phạm giảng viên', N'Spam nội dung quảng cáo');
+DELETE FROM feedbacks WHERE comment IN (N'Khoá học rất hay, nhưng bài 3 video hơi mờ.', N'Quá tệ, giảng viên nói tục tĩu.', N'Giảng viên lười trả lời câu hỏi, khoá học cũ kỹ.');
+DELETE FROM courses WHERE title IN (N'Lập trình Java Web với Spring Boot', N'Thiết kế giao diện nâng cao với Figma');
+DELETE FROM payments WHERE gateway = 'TEST_GATEWAY';
+DELETE FROM orders WHERE payment_method = 'TEST_METHOD';
+
+-- Tạo các khóa học chờ phê duyệt (PENDING COURSES)
+INSERT INTO courses (instructor_id, category_id, title, description, thumbnail_url, price, level, status, approved_by, approved_at, created_at)
+VALUES 
+(5, 9, N'Lập trình Java Web với Spring Boot', N'Học Spring MVC, JPA, Security và xây dựng Restful API hoàn chỉnh.', 'fptthumbnail.jpg', 899000, 'ADVANCED', 'PENDING', NULL, NULL, DATEADD(hour, -5, GETDATE())),
+(6, 5, N'Thiết kế giao diện nâng cao với Figma', N'Làm chủ Figma, AutoLayout, Component, Variable và Design System.', 'fptthumbnail.jpg', 399000, 'INTERMEDIATE', 'PENDING', NULL, NULL, DATEADD(hour, -1, GETDATE()));
+
+-- Tạo feedback & báo cáo vi phạm
+DECLARE @FeedbackId1 INT, @FeedbackId2 INT, @FeedbackId3 INT;
+
+INSERT INTO feedbacks (user_id, course_id, rating, comment, status, created_at)
+VALUES (7, 1, 4, N'Khoá học rất hay, nhưng bài 3 video hơi mờ.', 'VISIBLE', GETDATE());
+SET @FeedbackId1 = SCOPE_IDENTITY();
+
+INSERT INTO feedbacks (user_id, course_id, rating, comment, status, created_at)
+VALUES (8, 2, 1, N'Quá tệ, giảng viên nói tục tĩu.', 'VISIBLE', GETDATE());
+SET @FeedbackId2 = SCOPE_IDENTITY();
+
+INSERT INTO feedbacks (user_id, course_id, rating, comment, status, created_at)
+VALUES (7, 3, 2, N'Giảng viên lười trả lời câu hỏi, khoá học cũ kỹ.', 'VISIBLE', GETDATE());
+SET @FeedbackId3 = SCOPE_IDENTITY();
+
+INSERT INTO feedback_reports (feedback_id, reporter_id, reason, status, resolved_by, created_at)
+VALUES 
+(@FeedbackId2, 7, N'Bình luận thô tục, xúc phạm giảng viên', 'PENDING', NULL, DATEADD(hour, -3, GETDATE())),
+(@FeedbackId3, 8, N'Spam nội dung quảng cáo', 'PENDING', NULL, DATEADD(hour, -1, GETDATE()));
+
+-- Đơn hàng & thanh toán mẫu (năm 2026)
+DECLARE @OrderId INT;
+
+-- Tháng 1/2026: Doanh thu 500,000 đ
+INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
+VALUES (7, 500000, 0, 'PAID', 'TEST_METHOD', '2026-01-15 10:00:00');
+SET @OrderId = SCOPE_IDENTITY();
+INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
+VALUES (@OrderId, 'TX_JAN_01', 'TEST_GATEWAY', 'G_JAN_01', 500000, 'SUCCESS', '2026-01-15 10:05:00', '2026-01-15 10:00:00');
+
+-- Tháng 2/2026: Doanh thu 1,200,000 đ
+INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
+VALUES (8, 1200000, 0, 'PAID', 'TEST_METHOD', '2026-02-18 14:00:00');
+SET @OrderId = SCOPE_IDENTITY();
+INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
+VALUES (@OrderId, 'TX_FEB_01', 'TEST_GATEWAY', 'G_FEB_01', 1200000, 'SUCCESS', '2026-02-18 14:05:00', '2026-02-18 14:00:00');
+
+-- Tháng 3/2026: Doanh thu 800,000 đ
+INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
+VALUES (7, 800000, 0, 'PAID', 'TEST_METHOD', '2026-03-10 09:00:00');
+SET @OrderId = SCOPE_IDENTITY();
+INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
+VALUES (@OrderId, 'TX_MAR_01', 'TEST_GATEWAY', 'G_MAR_01', 800000, 'SUCCESS', '2026-03-10 09:05:00', '2026-03-10 09:00:00');
+
+-- Tháng 4/2026: Doanh thu 1,500,000 đ
+INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
+VALUES (8, 1500000, 0, 'PAID', 'TEST_METHOD', '2026-04-22 16:30:00');
+SET @OrderId = SCOPE_IDENTITY();
+INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
+VALUES (@OrderId, 'TX_APR_01', 'TEST_GATEWAY', 'G_APR_01', 1500000, 'SUCCESS', '2026-04-22 16:35:00', '2026-04-22 16:30:00');
+
+-- Tháng 5/2026: Doanh thu 2,100,000 đ
+INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
+VALUES (7, 1000000, 0, 'PAID', 'TEST_METHOD', '2026-05-05 11:00:00');
+SET @OrderId = SCOPE_IDENTITY();
+INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
+VALUES (@OrderId, 'TX_MAY_01', 'TEST_GATEWAY', 'G_MAY_01', 1000000, 'SUCCESS', '2026-05-05 11:05:00', '2026-05-05 11:00:00');
+
+INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
+VALUES (8, 1100000, 0, 'PAID', 'TEST_METHOD', '2026-05-20 15:00:00');
+SET @OrderId = SCOPE_IDENTITY();
+INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
+VALUES (@OrderId, 'TX_MAY_02', 'TEST_GATEWAY', 'G_MAY_02', 1100000, 'SUCCESS', '2026-05-20 15:05:00', '2026-05-20 15:00:00');
+
+-- Tháng 6/2026 (Tháng hiện tại): Doanh thu 3,400,000 đ
+INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
+VALUES (7, 2000000, 0, 'PAID', 'TEST_METHOD', DATEADD(day, -5, GETDATE()));
+SET @OrderId = SCOPE_IDENTITY();
+INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
+VALUES (@OrderId, 'TX_JUN_01', 'TEST_GATEWAY', 'G_JUN_01', 2000000, 'SUCCESS', DATEADD(day, -5, GETDATE()), DATEADD(day, -5, GETDATE()));
+
+INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
+VALUES (8, 1400000, 0, 'PAID', 'TEST_METHOD', DATEADD(hour, -4, GETDATE()));
+SET @OrderId = SCOPE_IDENTITY();
+INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
+VALUES (@OrderId, 'TX_JUN_02', 'TEST_GATEWAY', 'G_JUN_02', 1400000, 'SUCCESS', DATEADD(hour, -4, GETDATE()), DATEADD(hour, -4, GETDATE()));
+
