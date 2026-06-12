@@ -44,25 +44,26 @@
                         <th>Thao Tác</th>
                     </tr>
                     </thead>
-                    <tbody>
-<!--                    <tbody th:if="${courses != null and not #lists.isEmpty(courses)}">-->
-                    <tr th:each="course : ${courses}">
-                        <td>KH001</td>
-                        <td>Tên khóa học</td>
-                        <td>01/01/2025</td>
-                        <td>500,000</td>
-                        <td>399,000</td>
+                    <tbody th:if="${listpublished != null and not #lists.isEmpty(listpublished)}">
+                    <tr th:each="course : ${listpublished}">
+                        <td th:text="${course.id}">KH001</td>
+                        <td th:text="${course.title}">Tên khóa học</td>
+                        <td th:text="${#temporals.format(course.createAt, 'dd-MM-yyyy')}">01/01/2025</td>
+                        <td th:text="${course.price}">500,000</td>
+                        <td th:text="${course.price}">399,000</td>
                         <td>
                             <a th:href="@{/instructor/courses/{id}/edit(id=${courseRequest.id})}"
-                               class="btn btn-sm btn-outline">✏️ Sửa</a>
+                               class="btn btn-sm btn-outline">Xem Chi Tiết</a>
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${courseRequest.id})}"
+                               class="btn btn-sm btn-outline">Chỉnh Sửa</a>
                         </td>
                     </tr>
                     </tbody>
-                    <tbody>
-<!--                    <tbody th:if="${courses == null or #lists.isEmpty(courses)}">-->
+                    <tbody th:if="${listpublished == null and #lists.isEmpty(listpublished)}">
                     <tr><td colspan="6" class="table-empty">Không có dữ liệu</td></tr>
                     </tbody>
                 </table>
+                <div th:replace="~{instructor_course/pagination :: pagination(${publishedPage}, 'pagePublished', 'all')}"></div>
             </div>
         </div>
 
@@ -75,16 +76,18 @@
                         <th>Mã Khóa Học</th><th>Tên Khóa Học</th><th>Ngày Gửi</th><th>Thao Tác</th>
                     </tr>
                     </thead>
-                    <!--Dùng cho List Pending-->
-                    <tbody >
-<!--                    <tbody th:if="${pendingCourses != null and not #lists.isEmpty(pendingCourses)}">-->
-                    <tr th:each="course : ${pendingCourses}">
+
+                   <tbody th:if="${listpending != null and not #lists.isEmpty(listpending)}">
+                    <tr th:each="course : ${listpending}">
                         <td th:text="${course.id}"></td>
                         <td th:text="${course.title}"></td>
                         <td th:text="${#temporals.format(course.updatedAt,'dd/MM/yyyy')}"></td>
                         <td>
+                            <a th:href="@{/instructor/courses/{id}/view(id=${courseRequest.id})}"
+                               class="btn btn-sm btn-outline">Xem Chi Tiết</a>
+
                             <a th:href="@{/instructor/courses/{id}/edit(id=${courseRequest.id})}"
-                               class="btn btn-sm btn-outline">✏️ Sửa</a>
+                               class="btn btn-sm btn-outline">Thu Hồi Yêu Cầu</a>
                         </td>
                     </tr>
                     </tbody>
@@ -92,6 +95,7 @@
                     <tr><td colspan="4" class="table-empty">Không có khóa học đang chờ duyệt</td></tr>
                     </tbody>
                 </table>
+                <div th:replace="~{instructor_course/pagination :: pagination(${pendingPage}, 'pagePending', 'pending')}"></div>
             </div>
         </div>
 
@@ -99,26 +103,35 @@
         <div class="tab-content" data-tab-group="courses" data-tab="draft" style="display:none;">
             <div class="table-wrap">
                 <table>
+
                     <thead>
                     <tr>
                         <th>Mã Khóa Học</th><th>Tên Khóa Học</th><th>Lần Sửa Cuối</th><th>Thao Tác</th>
                     </tr>
                     </thead>
-                    <tbody th:if="${draftCourses != null and not #lists.isEmpty(draftCourses)}">
-                    <tr th:each="course : ${draftCourses}">
+                    <tbody th:if="${listdraft != null and not #lists.isEmpty(listdraft)}">
+                    <tr th:each="course : ${listdraft}">
                         <td th:text="${course.id}"></td>
                         <td th:text="${course.title}"></td>
                         <td th:text="${#temporals.format(course.updatedAt,'dd/MM/yyyy')}"></td>
                         <td>
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${courseRequest.id})}"
-                               class="btn btn-sm btn-outline">✏️ Tiếp Tục</a>
+                            <a th:href="@{/instructor/courses/{id}/view(id=${course.id})}"
+                               class="btn btn-sm btn-outline">Xem</a>
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                               class="btn btn-sm btn-outline">Chỉnh Sửa</a>
+                            <a th:href="@{/instructor/courses/{id}/request(id=${course.id})}"
+                               class="btn btn-sm btn-outline">Gửi Duyệt</a>
+                            <a th:href="@{/instructor/courses/{id}/delete(id=${course.id})}"
+                               class="btn btn-sm btn-outline">Xoá</a>
+
                         </td>
                     </tr>
                     </tbody>
-                    <tbody th:if="${draftCourses == null or #lists.isEmpty(draftCourses)}">
+                    <tbody th:if="${listdraft == null or #lists.isEmpty(listdraft)}">
                     <tr><td colspan="4" class="table-empty">Không có khóa học nháp</td></tr>
                     </tbody>
                 </table>
+                <div th:replace="~{instructor_course/pagination :: pagination(${draftPage}, 'pageDraft', 'draft')}"></div>
             </div>
         </div>
 
@@ -131,27 +144,56 @@
                         <th>Mã</th><th>Tên Khóa Học</th><th>Lý Do Từ Chối</th><th>Thao Tác</th>
                     </tr>
                     </thead>
-                    <tbody th:if="${rejectedCourses != null and not #lists.isEmpty(rejectedCourses)}">
-                    <tr th:each="course : ${rejectedCourses}">
+                    <tbody th:if="${listrejected != null and not #lists.isEmpty(listrejected)}">
+                    <tr th:each="course : ${listrejected}">
                         <td th:text="${course.id}"></td>
                         <td th:text="${course.title}"></td>
                         <td th:text="${course.rejectReason ?: '—'}"></td>
                         <td>
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${courseRequest.id})}"
-                               class="btn btn-sm btn-outline">✏️ Chỉnh Sửa Lại</a>
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                               class="btn btn-sm btn-outline">Xem Chi Tiết</a>
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                               class="btn btn-sm btn-outline">Chỉnh Sửa Lại</a>
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                               class="btn btn-sm btn-outline">Xem Lí Do Từ Chối</a>
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                               class="btn btn-sm btn-outline">Gửi Lại</a>
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                               class="btn btn-sm btn-outline">Xoá</a>
                         </td>
                     </tr>
                     </tbody>
-                    <tbody th:if="${rejectedCourses == null or #lists.isEmpty(rejectedCourses)}">
+                    <tbody th:if="${listrejected == null or #lists.isEmpty(listrejected)}">
                     <tr><td colspan="4" class="table-empty">Không có khóa học bị từ chối</td></tr>
                     </tbody>
                 </table>
+                <div th:replace="~{instructor_course/pagination :: pagination(${rejectedPage}, 'pageRejected', 'rejected')}"></div>
             </div>
         </div>
 
         <!-- Tab: Ẩn -->
         <div class="tab-content" data-tab-group="courses" data-tab="hidden" style="display:none;">
-            <div class="table-empty" style="padding:32px;">Không có khóa học ẩn</div>
+            <div class="table-empty" style="padding:32px;">
+                <table>
+                    <thead>
+                      <th>Mã</th>
+                      <th>Tên Khoá Học</th>
+                      <th>Thao Tác</th>
+                    </thead>
+                    <tbody th:if="${listhidden != null and not #lists.isEmpty(listhidden)}">
+                    <tr th:each="course: ${listhidden}">
+                        <th th:value="${course.id}"></th>
+                        <th th:text="${course.title}"></th>
+                        <th th:text="${#temporals.format(course.updateAt, 'dd-MM-yyyy')}"></th>
+
+                        <th>
+                            <a th:href="">Chỉnh sửa lại</a>
+                        </th>
+                    </tr>
+                    </tbody>
+                </table>
+                <div th:replace="~{instructor_course/pagination :: pagination(${hiddenPage}, 'pageHidden', 'hidden')}"></div>
+            </div>
         </div>
     </div>
 </main>

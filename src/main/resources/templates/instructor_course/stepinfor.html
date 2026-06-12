@@ -7,8 +7,8 @@
 -->
 <div th:fragment="content">
   <form th:action="@{/instructorcourse/save}"
-        method="POST" enctype="multipart/form-data" id="courseInfoForm">
-
+        method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${courseRequest}">
+      <input type="hidden" th:field="*{id}">
     <div class="card">
       <div class="card-title">📝 Giới Thiệu Khóa Học</div>
 
@@ -16,21 +16,15 @@
       <div class="form-group" style="margin-bottom:16px;">
         <label>Tiêu Đề Khóa Học <span class="required">*</span></label>
         <input type="text" name="title" class="form-control" id="courseTitleInput"
-               th:value="${courseRequest?.title}"
+               th:field="*{title}"
                placeholder="Tiêu đề từ 8 đến 60 ký tự" required/>
         <div class="form-hint">Tối đa 60 ký tự</div>
+        <p class="text-danger"
+           th:if="${#fields.hasErrors('title')}"
+           th:errors="*{title}">
+        </p>
       </div>
 
-      <!-- Giới thiệu ngắn -->
-<!--      <div class="form-group" style="margin-bottom:16px;">-->
-<!--        <label>Giới Thiệu Ngắn</label>-->
-<!--        <textarea name="shortDesc" class="form-control" id="courseShortInput" rows="2"-->
-<!--                  placeholder="Mô tả 1–2 câu về khóa học..."-->
-<!--                  th:text="${course?.shortDesc}"></textarea>-->
-<!--        <div class="form-hint">Từ 8 đến 500 ký tự</div>-->
-<!--      </div>-->
-
-      <!-- Mô tả đầy đủ -->
       <div class="form-group" style="margin-bottom:16px;">
         <label>Mô Tả Khóa Học</label>
         <div class="rich-toolbar">
@@ -43,9 +37,13 @@
           <button data-cmd="removeFormat" type="button">✕</button>
         </div>
         <div class="rich-editor" id="courseDescEditor" contenteditable="true"
-             th:utext="${courseRequest?.description}"
+             th:utext="*{description}"
              data-placeholder="Nhập mô tả đầy đủ cho khóa học..."></div>
-        <input type="hidden" name="description" id="descHidden"/>
+        <input type="hidden" th:field="*{description}" id="descHidden"/>
+        <p
+          class="text-danger"
+          th:if="${#fields.hasErrors('description')}"
+          th:errors="*{description}"></p>
       </div>
 
       <!-- Level & Category -->
@@ -56,6 +54,7 @@
             <option value="">Chọn Trình Độ</option>
             <option th:each="l : ${courselevels}"
                     th:value="${l}"
+                    th:selected="${l == courseRequest.level}"
                     th:text="${{
                                     BEGINNER:'Người mới bắt đầu',
                                     INTERMEDIATE:'Trung cấp',
@@ -63,6 +62,9 @@
                                 }[l.name()]}">
             </option>
           </select>
+           <p class="text-danger"
+              th:if="${#fields.hasErrors('level')}"
+              th:errors="*{level}"></p>
         </div>
         <div class="form-group">
           <label>Danh Mục Chính Khóa Học</label>
@@ -75,7 +77,7 @@
             </option>
           </select>
           <label>Danh Mục Phụ Khóa Học</label>
-          <select name="categoryId" class="form-control" id="categoryId">
+          <select th:field="*{categoryId}" class="form-control" id="categoryId">
             <option value="">Chọn Danh Mục</option>
             <option th:each="c : ${categorychilds}"
                     th:value="${c.id}"
@@ -83,6 +85,9 @@
                     th:attr="data-parent-id=${c.parentId}">
             </option>
           </select>
+          <p class="text-danger"
+             th:if="${#fields.hasErrors('categoryId')}"
+             th:errors="*{categoryId}"></p>
         </div>
       </div>
 
@@ -90,12 +95,14 @@
       <div class="form-group" style="margin-top:16px;">
         <label>Giá Khóa Học</label>
         <input type="number"
-               name="price"
                class="form-control"
-               th:value="${courseRequest?.price}"
+               th:field="*{price}"
                placeholder="Nhập giá khóa học (VNĐ)"
                min="0"/>
         <div class="form-hint">Nhập 0 nếu khóa học miễn phí</div>
+        <p class="text-danger"
+           th:if="${#fields.hasErrors('price')}"
+           th:errors="*{price}"></p>
       </div>
 
 
@@ -103,48 +110,47 @@
       <div class="form-group" style="margin-top:16px;">
         <label>Hình Thu Nhỏ Của Khóa Học</label>
 
-        <!-- Ảnh đã có từ DB -->
-        <div th:if="${courseRequest?.thumbnailFile != null}" style="margin-bottom:8px;">
-          <img th:src="${courseRequest.thumbnailFile}"
-               style="width:320px; height:180px; object-fit:cover; border-radius:8px; display:block;"
-               alt="Thumbnail"/>
-        </div>
+        <div class="thumbnail-upload" onclick="document.getElementById('thumbnailInput').click()">
 
-        <div class="file-upload-area" onclick="document.getElementById('thumbnailInput').click()"
-             style="max-width:320px;">
-          <div class="upload-icon">🖼️</div>
-          <p>Nhấn để chọn ảnh thumbnail (16:9 khuyến nghị)</p>
-          <p style="font-size:.75rem;margin-top:4px;color:#aaa;">JPG, PNG – Tối đa 5MB</p>
-          <span class="choose-btn">Chọn Ảnh</span>
-        </div>
-        <input type="file" id="thumbnailInput" name="thumbnailFile" accept="image/*" style="display:none;"/>
-      </div>
-    </div>
+           <img id="thumbnailPreview"
+                src=""
+                th:src="${courseRequest?.thumbnailFile}"
+                th:style="${courseRequest?.thumbnailFile == null} ? 'display:none;' : ''"
+                alt="Thumbnail Preview"/>
 
-    <!-- Xem trước -->
-    <div class="card">
-      <div class="card-title">👁 Xem Trước Giới Thiệu Khóa Học</div>
-      <div class="preview-panel">
-        <div class="preview-panel-header">👁 XEM TRƯỚC</div>
-        <div class="preview-panel-body">
-          <div class="course-preview-banner" id="courseBanner">
-            <h2 id="previewCourseTitle"
-                th:text="${courseRequest?.title ?: 'Tiêu đề khóa học sẽ hiện ở đây'}"></h2>
-<!--            <p id="previewCourseShort"-->
-<!--               th:text="${courseRequest?.shortDesc ?: 'Mô tả ngắn về khóa học...'}"></p>-->
+          <div id="uploadPlaceholder"
+               th:style="${courseRequest?.thumbnailFile != null} ? 'display:none;' : ''">
+            <div class="upload-icon"></div>
+            <p>Nhấn để chọn ảnh thumbnail</p>
+            <small>Khuyến nghị tỉ lệ 16:9</small>
+          </div>
+
+          <div class="overlay">
+            <span>📷 Thay đổi ảnh</span>
           </div>
         </div>
+
+        <input type="file"
+               id="thumbnailInput"
+               name="thumbnailFile"
+               accept="image/*"
+               style="display:none;">
+        <p
+                class="text-danger"
+                th:if="${#fields.hasErrors('thumbnailFile')}"
+        th:errors="*{thumbnailFile}"></p>
       </div>
     </div>
+
 
     <!-- Nút Lưu -->
     <div style="text-align:right;margin-top:16px;">
-      <a th:href="@{/instructor/courses}" class="btn btn-outline">Hủy</a>
-      <button type="submit" class="btn btn-primary btn-lg">💾 Lưu & Tiếp Theo →</button>
+      <button type="submit" class="btn btn-primary btn-lg" name="trangthai" value="save">Lưu Thay Đổi</button>
+      <button type="submit" class="btn btn-primary btn-lg" name="trangthai" value="save_continue">Lưu & Tiếp Theo</button>
     </div>
+    <div th:if="${success}" class="success-msg">✓ Cập nhật thành công</div>
   </form>
-  <p th:if="${error}" th:text="${error}" class="text-danger"></p>
-  <p th:if="${success}" th:text="${success}"></p>
+
 
 
   <script>
@@ -180,28 +186,23 @@
       }
 
       // thumbnail preview
-      const thumbnailInput = document.getElementById('thumbnailInput');
+      document.getElementById("thumbnailInput")
+              .addEventListener("change", function (event) {
 
-      if (thumbnailInput) {
-        thumbnailInput.addEventListener('change', function () {
-          const file = this.files[0];
-          if (!file) return;
+                const file = event.target.files[0];
 
-          let preview = document.getElementById('thumbnailPreview');
+                if (file) {
+                  const reader = new FileReader();
 
-          if (!preview) {
-            preview = document.createElement('img');
-            preview.id = 'thumbnailPreview';
-            preview.style.cssText =
-                    'width:320px;height:180px;object-fit:cover;border-radius:8px;display:block;margin-bottom:8px;';
+                  reader.onload = function (e) {
+                    document.getElementById("thumbnailPreview").src = e.target.result;
+                    document.getElementById("thumbnailPreview").style.display = "block";
+                    document.getElementById("uploadPlaceholder").style.display = "none";
+                  };
 
-            const uploadArea = document.querySelector('.file-upload-area');
-            uploadArea.parentNode.insertBefore(preview, uploadArea);
-          }
-
-          preview.src = URL.createObjectURL(file);
-        });
-      }
+                  reader.readAsDataURL(file);
+                }
+              });
 
     });
   </script>

@@ -27,6 +27,9 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     boolean existsByInstructorAndTitle(User instructor, String title);
 
 
+    //Phân trang khoá học của mỗi instructor
+    Page<Course> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus);
+
 
     long countByStatus(String status);
 
@@ -47,7 +50,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             """)
     Optional<Course> findByIdWithEnrollmentAndLessonProgress(@Param("id") Integer courseId);
 
-    List<Course> findByInstructorAndStatus(User user, String status);
+    List<Course> findByInstructorAndStatus(User user, CourseStatus status);
 
     @Query("""
             select c from Course c join c.enrollments e where e.user.id = :userId and c.id = :courseId

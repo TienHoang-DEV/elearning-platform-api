@@ -814,6 +814,59 @@ tbody tr:last-child td { border-bottom: none; }
     border-radius: 0 0 var(--radius) var(--radius);
 }
 
+.thumbnail-upload {
+    position: relative;
+    width: 360px;
+    height: 200px;
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #f9fafb;
+    transition: all 0.3s ease;
+}
+
+.thumbnail-upload:hover {
+    border-color: #2563eb;
+}
+
+.thumbnail-upload img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#uploadPlaceholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #6b7280;
+}
+
+.upload-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-weight: 600;
+}
+
+.thumbnail-upload:hover .overlay {
+    opacity: 1;
+}
+
 /* =====================================================
    RESPONSIVE
 ===================================================== */
