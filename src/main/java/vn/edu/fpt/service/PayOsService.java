@@ -106,11 +106,11 @@ public class PayOsService {
             }
             if (bankName == null || bankName.isEmpty()) {
                 log.warn("Bank name is null or empty from PayOS, using default");
-                bankName = "MB Bank";
+                bankName = AppConstants.BANK_NAME;
             }
             if (accountHolder == null || accountHolder.isEmpty()) {
                 log.warn("Account holder is null or empty from PayOS, using default");
-                accountHolder = "CONG TY CO PHAN PAYOS";
+                accountHolder = AppConstants.ACCOUNT_HOLDER;
             }
             if (accountNumber == null || accountNumber.isEmpty()) {
                 log.warn("Account number is null or empty from PayOS, using default");

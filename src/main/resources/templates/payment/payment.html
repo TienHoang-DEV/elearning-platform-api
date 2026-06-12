@@ -201,8 +201,12 @@
 
                 <!-- QR code -->
                 <div class="qr-box">
-                    <div id="qrCodeContainer" class="qr-svg-wrap" style="display: flex; justify-content: center; align-items: center;"></div>
-                    <div class="qr-logo-overlay">PayOS</div>
+                    <div class="qr-container-wrapper">
+                        <div id="qrCodeContainer" class="qr-svg-wrap" style="display: flex; justify-content: center; align-items: center;"></div>
+                        <div class="qr-logo-overlay">
+                            <img id="paymentLogoImg" src="" alt="Payment Gateway Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                    </div>
                     <div class="qr-amount" id="qrAmount">0 ₫</div>
                     <div class="qr-amount-label">Số tiền cần thanh toán</div>
                     <div class="qr-expire">⏱ Hết hạn sau: <span id="expireTimer" style="font-weight:800">15:00</span>
@@ -213,26 +217,32 @@
                 <p class="bank-info-title">Thông tin chuyển khoản</p>
 
                 <div class="bank-row">
-                    <span class="blabel">Ngân hàng</span>
-                    <span class="bvalue" id="bankName">Chờ tải...</span>
+                    <div class="bank-row-content">
+                        <span class="blabel">Ngân hàng</span>
+                        <span class="bvalue" id="bankName">Chờ tải...</span>
+                    </div>
                 </div>
 
                 <div class="bank-row">
-                    <span class="blabel">Chủ tài khoản</span>
-                    <span class="bvalue" id="accountHolder">Chờ tải...</span>
+                    <div class="bank-row-content">
+                        <span class="blabel">Chủ tài khoản</span>
+                        <span class="bvalue" id="accountHolder">Chờ tải...</span>
+                    </div>
                 </div>
 
                 <div class="bank-row">
-                    <span class="blabel">Số tài khoản</span>
-                    <span class="bvalue" id="stk">Chờ tải...</span>
+                    <div class="bank-row-content">
+                        <span class="blabel">Số tài khoản</span>
+                        <span class="bvalue" id="stk">Chờ tải...</span>
+                    </div>
                     <button class="copy-btn" onclick="copyText(document.getElementById('stk').textContent.trim(), 'Số tài khoản')">Sao chép</button>
                 </div>
 
                 <!-- Transfer content -->
-                <div class="content-field">
-                    <div>
-                        <span class="cf-label">Nội dung chuyển khoản</span>
-                        <span class="cf-value" id="transferContent">Chờ tải...</span>
+                <div class="bank-row">
+                    <div class="bank-row-content">
+                        <span class="blabel">Nội dung chuyển khoản</span>
+                        <span class="bvalue transfer-value" id="transferContent" style="color: var(--blue-primary);">Chờ tải...</span>
                     </div>
                     <button class="copy-btn" onclick="copyText(document.getElementById('transferContent').textContent.trim(), 'Nội dung')">Sao chép</button>
                 </div>
@@ -306,6 +316,7 @@
     const payOsDescription = [[${payOsDescription}]] || '';
     const payOsBankName = [[${payOsBankName}]] || 'MB Bank';
     const payOsAccountHolder = [[${payOsAccountHolder}]] || 'CONG TY CO PHAN PAYOS';
+    const paymentGatewayLogo = [[${paymentGatewayLogo}]] || '/images/logo.png';
     
     console.log('Variables loaded successfully');
 </script>
@@ -331,6 +342,13 @@ function initializeCheckoutDetails() {
         alert('Không tìm thấy thông tin thanh toán. Vui lòng quay lại giỏ hàng.');
         window.location.href = '/cart';
         return;
+    }
+
+    // Set payment gateway logo
+    const logoImg = document.getElementById('paymentLogoImg');
+    if (logoImg && paymentGatewayLogo) {
+        logoImg.src = paymentGatewayLogo;
+        console.log('Payment gateway logo set to:', paymentGatewayLogo);
     }
 
     // Cập nhật QR code

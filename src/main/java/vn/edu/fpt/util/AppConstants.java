@@ -17,5 +17,9 @@ public final class AppConstants {
 
     public static final String OFFICE_VIEWER_BASE_URL = "https://view.officeapps.live.com/op/embed.aspx?src=";
     public static final int PAYMENT_EXPIRATION_MINUTES = 15;
+
+    public static final String ACCOUNT_HOLDER = "DO HOAN THANH";
+
+    public static final String BANK_NAME = "MB BANK";
 }
 

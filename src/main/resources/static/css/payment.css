@@ -171,6 +171,12 @@ body {
 }
 
 /* Real-looking QR using SVG pattern */
+.qr-container-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
 .qr-svg-wrap {
     background: #fff;
     border-radius: 8px;
@@ -179,18 +185,32 @@ body {
     margin-bottom: 12px;
     position: relative;
 }
-.qr-svg-wrap svg { display: block; }
+
+.qr-svg-wrap svg { 
+    display: block; 
+}
+
 .qr-logo-overlay {
     position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%,-50%);
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
     background: #fff;
     border-radius: 6px;
     padding: 4px;
-    width: 36px; height: 36px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .55rem; font-weight: 800; color: #1A73E8;
+    width: 36px; 
+    height: 36px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
     border: 2px solid #E3F0FF;
+    z-index: 10;
+}
+
+.qr-logo-overlay img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
 }
 
 .qr-amount {
@@ -215,42 +235,100 @@ body {
     text-transform: uppercase; color: var(--gray-muted);
     margin-bottom: 12px;
 }
+
 .bank-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 9px 12px;
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+    padding: 12px 14px;
     background: var(--gray-bg);
     border-radius: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-size: .8rem;
+    gap: 10px;
 }
-.bank-row .blabel { color: var(--gray-muted); }
-.bank-row .bvalue { font-weight: 700; color: var(--text-dark); }
-.bank-row .copy-btn {
-    background: none; border: 1px solid var(--blue-accent);
-    color: var(--blue-accent); border-radius: 6px;
-    padding: 2px 8px; font-size: .7rem; font-weight: 600; cursor: pointer;
-    transition: .15s;
-}
-.bank-row .copy-btn:hover { background: var(--blue-accent); color: #fff; }
 
+.bank-row-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.bank-row .blabel { 
+    color: var(--gray-muted); 
+    font-size: .75rem;
+    margin-bottom: 4px;
+}
+
+.bank-row .bvalue { 
+    font-weight: 700; 
+    color: var(--text-dark);
+    word-break: break-all;
+}
+
+.bank-row .copy-btn {
+    background: none; 
+    border: 1px solid var(--blue-accent);
+    color: var(--blue-accent); 
+    border-radius: 6px;
+    padding: 5px 12px; 
+    font-size: .7rem; 
+    font-weight: 600; 
+    cursor: pointer;
+    transition: .15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.bank-row .copy-btn:hover { 
+    background: var(--blue-accent); 
+    color: #fff; 
+}
+
+/* Legacy content-field for backward compatibility */
 .content-field {
     background: #EDF4FF;
     border: 1.5px dashed var(--blue-accent);
     border-radius: 8px;
     padding: 10px 14px;
     margin-bottom: 16px;
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
     font-size: .8rem;
 }
-.content-field .cf-label { color: var(--gray-muted); font-size: .7rem; display: block; margin-bottom: 2px; }
-.content-field .cf-value { font-weight: 700; color: var(--blue-primary); }
-.content-field .copy-btn {
-    background: none; border: 1px solid var(--blue-accent);
-    color: var(--blue-accent); border-radius: 6px;
-    padding: 3px 10px; font-size: .7rem; font-weight: 600; cursor: pointer;
-    flex-shrink: 0; margin-left: 10px; transition: .15s;
+
+.content-field .cf-label { 
+    color: var(--gray-muted); 
+    font-size: .7rem; 
+    display: block; 
+    margin-bottom: 2px; 
 }
-.content-field .copy-btn:hover { background: var(--blue-accent); color: #fff; }
+
+.content-field .cf-value { 
+    font-weight: 700; 
+    color: var(--blue-primary); 
+}
+
+.content-field .copy-btn {
+    background: none; 
+    border: 1px solid var(--blue-accent);
+    color: var(--blue-accent); 
+    border-radius: 6px;
+    padding: 3px 10px; 
+    font-size: .7rem; 
+    font-weight: 600; 
+    cursor: pointer;
+    flex-shrink: 0; 
+    margin-left: 10px; 
+    transition: .15s;
+}
+
+.content-field .copy-btn:hover { 
+    background: var(--blue-accent); 
+    color: #fff; 
+}
 
 .security-note {
     display: flex; align-items: center; gap: 6px;
@@ -260,26 +338,70 @@ body {
 .security-note .icon { color: var(--green-ok); }
 
 /* timer circle */
-.timer-ring { width: 44px; height: 44px; position: relative; flex-shrink: 0; }
-.timer-ring svg { transform: rotate(-90deg); }
-.timer-ring circle { fill: none; stroke-width: 4; }
-.timer-ring .bg { stroke: #E3F0FF; }
-.timer-ring .fg { stroke: var(--blue-accent); stroke-dasharray: 119; stroke-dashoffset: 30; stroke-linecap: round; }
+.timer-ring { 
+    width: 44px; 
+    height: 44px; 
+    position: relative; 
+    flex-shrink: 0; 
+}
+
+.timer-ring svg { 
+    transform: rotate(-90deg); 
+}
+
+.timer-ring circle { 
+    fill: none; 
+    stroke-width: 4; 
+}
+
+.timer-ring .bg { 
+    stroke: #E3F0FF; 
+}
+
+.timer-ring .fg { 
+    stroke: var(--blue-accent); 
+    stroke-dasharray: 119; 
+    stroke-dashoffset: 30; 
+    stroke-linecap: round; 
+}
+
 .timer-text {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .6rem; font-weight: 800; color: var(--blue-primary);
+    position: absolute; 
+    inset: 0;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: .75rem;
+    font-weight: 800; 
+    color: var(--blue-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.3px;
 }
 
 /* countdown bar */
 .countdown-wrap {
-    display: flex; align-items: center; gap: 12px;
-    background: #EDF4FF; border-radius: 10px;
-    padding: 10px 14px; margin-bottom: 20px;
+    display: flex; 
+    align-items: center; 
+    gap: 12px;
+    background: #EDF4FF; 
+    border-radius: 10px;
+    padding: 10px 14px; 
+    margin-bottom: 20px;
 }
-.countdown-info { font-size: .78rem; }
-.countdown-info strong { color: var(--text-dark); display: block; font-size: .82rem; }
-.countdown-info span { color: var(--gray-muted); }
+
+.countdown-info { 
+    font-size: .78rem; 
+}
+
+.countdown-info strong { 
+    color: var(--text-dark); 
+    display: block; 
+    font-size: .82rem; 
+}
+
+.countdown-info span { 
+    color: var(--gray-muted); 
+}
 
 /* toast */
 .toast-copy {

@@ -19,10 +19,10 @@ import vn.payos.model.webhooks.WebhookData;
 import vn.payos.model.v2.paymentRequests.PaymentLink;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -59,9 +59,12 @@ public class PaymentController {
                 return ResponseEntity.badRequest().body(Map.of("error", "Giỏ hàng trống"));
             }
 
-            List<CartItem> selectedItems = cart.getItems().stream()
-                    .filter(CartItem::isSelected)
-                    .collect(Collectors.toList());
+            List<CartItem> selectedItems = new ArrayList<>();
+            for (CartItem item : cart.getItems()) {
+                if (item.isSelected()) {
+                    selectedItems.add(item);
+                }
+            }
 
             if (selectedItems.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Vui lòng chọn ít nhất một khóa học để thanh toán"));

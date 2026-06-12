@@ -42,11 +42,25 @@ public class CartService {
                 .orElseGet(() -> repository.save(Cart.builder().user(user).build()));
     }
 
-    public List<Cart> findAll() { return repository.findAll(); }
-    public Optional<Cart> findById(Integer id) { return repository.findById(id); }
-    public Cart save(Cart entity) { return repository.save(entity); }
-    public void deleteById(Integer id) { repository.deleteById(id); }
-    public boolean existsById(Integer id) { return repository.existsById(id); }
+    public List<Cart> findAll() {
+        return repository.findAll();
+    }
+
+    public Optional<Cart> findById(Integer id) {
+        return repository.findById(id);
+    }
+
+    public Cart save(Cart entity) {
+        return repository.save(entity);
+    }
+
+    public void deleteById(Integer id) {
+        repository.deleteById(id);
+    }
+
+    public boolean existsById(Integer id) {
+        return repository.existsById(id);
+    }
 
     public CartPageDetailsDto getCartPageDetails(User user) {
         Cart cart = getOrCreateCartForUser(user);
@@ -203,7 +217,7 @@ public class CartService {
     public void toggleSelectInstructor(User user, Integer instructorId, Boolean selected) {
         Cart cart = getOrCreateCartForUser(user);
         for (CartItem item : cart.getItems()) {
-            if (item.getCourse() != null && item.getCourse().getInstructor() != null 
+            if (item.getCourse() != null && item.getCourse().getInstructor() != null
                     && item.getCourse().getInstructor().getId().equals(instructorId)) {
                 item.setSelected(selected);
                 cartItemService.save(item);
@@ -253,8 +267,8 @@ public class CartService {
 
         // Kiểm tra xem người dùng có chọn ít nhất một khóa học của giảng viên này không
         boolean hasSelectedCourse = cart.getItems().stream()
-                .anyMatch(item -> item.isSelected() 
-                        && item.getCourse().getInstructor() != null 
+                .anyMatch(item -> item.isSelected()
+                        && item.getCourse().getInstructor() != null
                         && item.getCourse().getInstructor().getId().equals(instructorId));
 
         if (!hasSelectedCourse) {
