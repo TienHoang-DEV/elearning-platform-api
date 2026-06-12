@@ -9,6 +9,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
         <link rel="stylesheet" th:href="@{/css/payment.css}">
         <link rel="stylesheet" th:href="@{/css/header.css}">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     </head>
 <body>
 
@@ -200,40 +201,8 @@
 
                 <!-- QR code -->
                 <div class="qr-box">
-                    <div class="qr-svg-wrap">
-                        <!-- Dynamic QR code from PayOS API -->
-                        <img id="qrCodeImage" src="" alt="QR Code PayOS" style="width: 180px; height: 180px; display: none;">
-                        <!-- SVG placeholder (shown while loading) -->
-                        <svg id="qrPlaceholder" width="180" height="180" viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Top-left finder -->
-                            <rect x="1" y="1" width="11" height="11" rx="1.5" fill="#1A2035"/>
-                            <rect x="2.5" y="2.5" width="8" height="8" rx=".8" fill="white"/>
-                            <rect x="3.5" y="3.5" width="6" height="6" rx=".5" fill="#1A2035"/>
-                            <!-- Top-right finder -->
-                            <rect x="33" y="1" width="11" height="11" rx="1.5" fill="#1A2035"/>
-                            <rect x="34.5" y="2.5" width="8" height="8" rx=".8" fill="white"/>
-                            <rect x="35.5" y="3.5" width="6" height="6" rx=".5" fill="#1A2035"/>
-                            <!-- Bottom-left finder -->
-                            <rect x="1" y="33" width="11" height="11" rx="1.5" fill="#1A2035"/>
-                            <rect x="2.5" y="34.5" width="8" height="8" rx=".8" fill="white"/>
-                            <rect x="3.5" y="35.5" width="6" height="6" rx=".5" fill="#1A2035"/>
-                            <!-- Data modules -->
-                            <rect x="14" y="1" width="2" height="2" fill="#1A2035"/>
-                            <rect x="17" y="1" width="2" height="2" fill="#1A2035"/>
-                            <rect x="20" y="1" width="2" height="2" fill="#1A2035"/>
-                            <rect x="14" y="4" width="2" height="2" fill="#1A2035"/>
-                            <rect x="20" y="4" width="2" height="2" fill="#1A2035"/>
-                            <rect x="17" y="7" width="2" height="2" fill="#1A2035"/>
-                            <rect x="20" y="7" width="2" height="2" fill="#1A2035"/>
-                            <rect x="14" y="10" width="2" height="2" fill="#1A2035"/>
-                            <rect x="1" y="14" width="2" height="2" fill="#1A2035"/>
-                            <rect x="4" y="14" width="2" height="2" fill="#1A2035"/>
-                            <rect x="7" y="14" width="2" height="2" fill="#1A2035"/>
-                            <rect x="10" y="14" width="2" height="2" fill="#1A2035"/>
-                            <rect x="14" y="14" width="2" height="2" fill="#1A2035"/>
-                        </svg>
-                        <div class="qr-logo-overlay">PayOS</div>
-                    </div>
+                    <div id="qrCodeContainer" class="qr-svg-wrap" style="display: flex; justify-content: center; align-items: center;"></div>
+                    <div class="qr-logo-overlay">PayOS</div>
                     <div class="qr-amount" id="qrAmount">0 ₫</div>
                     <div class="qr-amount-label">Số tiền cần thanh toán</div>
                     <div class="qr-expire">⏱ Hết hạn sau: <span id="expireTimer" style="font-weight:800">15:00</span>
@@ -245,12 +214,12 @@
 
                 <div class="bank-row">
                     <span class="blabel">Ngân hàng</span>
-                    <span class="bvalue">MB Bank</span>
+                    <span class="bvalue" id="bankName">Chờ tải...</span>
                 </div>
 
                 <div class="bank-row">
                     <span class="blabel">Chủ tài khoản</span>
-                    <span class="bvalue">CONG TY CO PHAN PAYOS</span>
+                    <span class="bvalue" id="accountHolder">Chờ tải...</span>
                 </div>
 
                 <div class="bank-row">
@@ -271,6 +240,12 @@
                 <div class="security-note">
                     <span class="icon">✔</span> Cam kết bảo mật thanh toán 100%
                 </div>
+
+                <div class="mt-3">
+                    <button id="cancelPaymentBtn" class="btn btn-outline-danger w-100 py-2 fw-semibold rounded-pill" onclick="cancelTransaction()">
+                        ❌ Hủy giao dịch thanh toán
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -286,13 +261,17 @@
 <!-- PayOS Checkout Script -->
 <script th:inline="javascript">
     const paymentId = [[${payment != null ? payment.id : null}]];
-    const qrCodeUrl = [[${payment != null ? payment.qrCodeUrl : null}]];
-    const amount = [[${payment != null ? payment.amount : null}]];
-    const expiredAtStr = [[${payment != null ? payment.expiredAt : null}]];
-    const gatewayOrderCode = [[${payment != null ? payment.gatewayOrderCode : null}]];
-    const paymentUrl = [[${payment != null ? payment.paymentUrl : null}]];
-    const payOsAccountNumber = [[${payOsAccountNumber}]];
-    const payOsDescription = [[${payOsDescription}]];
+    const qrCodeUrl = [[${payment != null ? payment.qrCodeUrl : null}]] || '';
+    const amount = [[${payment != null ? payment.amount : 0}]] || 0;
+    const expiredAtStr = [[${payment != null ? payment.expiredAt : null}]] || '';
+    const gatewayOrderCode = [[${payment != null ? payment.gatewayOrderCode : null}]] || '';
+    const paymentUrl = [[${payment != null ? payment.paymentUrl : null}]] || '';
+    const payOsAccountNumber = [[${payOsAccountNumber}]] || '';
+    const payOsDescription = [[${payOsDescription}]] || '';
+    const payOsBankName = [[${payOsBankName}]] || 'MB Bank';
+    const payOsAccountHolder = [[${payOsAccountHolder}]] || 'CONG TY CO PHAN PAYOS';
+    
+    console.log('Variables loaded successfully');
 </script>
 
 <script>
@@ -301,6 +280,17 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeCheckoutDetails() {
+    console.log('===== PAYMENT PAGE INITIALIZATION =====');
+    console.log('paymentId:', paymentId);
+    console.log('qrCodeUrl:', qrCodeUrl);
+    console.log('qrCodeUrl type:', typeof qrCodeUrl);
+    console.log('qrCodeUrl length:', qrCodeUrl ? qrCodeUrl.length : 'null/undefined');
+    console.log('amount:', amount);
+    console.log('gatewayOrderCode:', gatewayOrderCode);
+    console.log('payOsAccountNumber:', payOsAccountNumber);
+    console.log('payOsDescription:', payOsDescription);
+    console.log('=====================================');
+    
     if (!paymentId) {
         alert('Không tìm thấy thông tin thanh toán. Vui lòng quay lại giỏ hàng.');
         window.location.href = '/cart';
@@ -308,16 +298,47 @@ function initializeCheckoutDetails() {
     }
 
     // Cập nhật QR code
-    const qrImage = document.getElementById('qrCodeImage');
-    if (qrCodeUrl) {
-        if (qrCodeUrl.startsWith('http://') || qrCodeUrl.startsWith('https://')) {
-            qrImage.src = qrCodeUrl;
-        } else {
-            // Trường hợp là chuỗi mã VietQR thô, sử dụng API qrserver để tự sinh ảnh QR
-            qrImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(qrCodeUrl);
+    const qrContainer = document.getElementById('qrCodeContainer');
+    
+    console.log('QR Container found:', !!qrContainer);
+    console.log('QR Code URL value:', qrCodeUrl);
+    
+    if (qrCodeUrl && String(qrCodeUrl).trim() !== '' && String(qrCodeUrl) !== 'null') {
+        try {
+            // Simple approach: render QR using qrserver API as image
+            const canvas = document.createElement('canvas');
+            canvas.width = 180;
+            canvas.height = 180;
+            canvas.style.border = '1px solid #ddd';
+            
+            const img = document.createElement('img');
+            img.width = 180;
+            img.height = 180;
+            img.style.display = 'block';
+            
+            // Use direct qrserver API
+            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(String(qrCodeUrl));
+            console.log('QR Image URL:', qrUrl);
+            
+            img.onload = function() {
+                console.log('QR image loaded successfully');
+                qrContainer.innerHTML = '';
+                qrContainer.appendChild(img);
+            };
+            
+            img.onerror = function() {
+                console.error('Failed to load QR from qrserver');
+                qrContainer.innerHTML = '<p style="color:red; padding:20px;">Lỗi tải mã QR</p>';
+            };
+            
+            img.src = qrUrl;
+        } catch (error) {
+            console.error('Error rendering QR code:', error);
+            qrContainer.innerHTML = '<p style="color:red; padding:20px;">Lỗi tạo mã QR</p>';
         }
-        qrImage.style.display = 'block';
-        document.getElementById('qrPlaceholder').style.display = 'none';
+    } else {
+        console.warn('QR Code URL is empty or null');
+        qrContainer.innerHTML = '<p style="color:#999; padding:20px;">Chờ tải...</p>';
     }
 
     // Cập nhật số tiền
@@ -325,17 +346,29 @@ function initializeCheckoutDetails() {
         document.getElementById('qrAmount').textContent = formatCurrency(amount);
     }
 
-    // Cập nhật mã nội dung chuyển khoản và số tài khoản ảo động từ PayOS
-    if (payOsDescription) {
-        document.getElementById('transferContent').textContent = payOsDescription;
-    } else if (gatewayOrderCode) {
-        document.getElementById('transferContent').textContent = "EDULEARN" + gatewayOrderCode;
+    // Cập nhật thông tin ngân hàng, chủ tài khoản, số tài khoản và nội dung chuyển khoản
+    // Bank name
+    if (payOsBankName) {
+        document.getElementById('bankName').textContent = payOsBankName;
     }
 
+    // Account holder
+    if (payOsAccountHolder) {
+        document.getElementById('accountHolder').textContent = payOsAccountHolder;
+    }
+
+    // Account number
     if (payOsAccountNumber) {
         document.getElementById('stk').textContent = payOsAccountNumber;
     } else if (gatewayOrderCode) {
         document.getElementById('stk').textContent = gatewayOrderCode;
+    }
+
+    // Transfer content - use gateway order code as description
+    if (gatewayOrderCode) {
+        document.getElementById('transferContent').textContent = gatewayOrderCode;
+    } else if (payOsDescription) {
+        document.getElementById('transferContent').textContent = payOsDescription;
     }
 
     // Cập nhật countdown timer
@@ -420,6 +453,47 @@ function checkPaymentStatus() {
             console.error('Error checking payment status:', error);
         }
     }, 3000); // Check every 3 seconds
+}
+
+// Hủy giao dịch thanh toán thủ công
+async function cancelTransaction() {
+    if (!paymentId) return;
+    if (!confirm('Bạn có chắc chắn muốn hủy giao dịch thanh toán này không?')) {
+        return;
+    }
+
+    const cancelBtn = document.getElementById('cancelPaymentBtn');
+    if (cancelBtn) {
+        cancelBtn.disabled = true;
+        cancelBtn.textContent = 'Đang thực hiện hủy...';
+    }
+
+    try {
+        const response = await fetch(`/api/payments/${paymentId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+            alert('✔ Đã hủy giao dịch thành công. Quay lại giỏ hàng.');
+            window.location.href = '/cart';
+        } else {
+            alert('Lỗi: ' + (data.error || 'Không thể hủy giao dịch.'));
+            if (cancelBtn) {
+                cancelBtn.disabled = false;
+                cancelBtn.textContent = '❌ Hủy giao dịch thanh toán';
+            }
+        }
+    } catch (error) {
+        console.error('Error cancelling payment:', error);
+        alert('Lỗi kết nối hệ thống khi hủy giao dịch.');
+        if (cancelBtn) {
+            cancelBtn.disabled = false;
+            cancelBtn.textContent = '❌ Hủy giao dịch thanh toán';
+        }
+    }
 }
 </script>
 </body>

@@ -58,6 +58,8 @@ public class PageController {
                 // Pass account number and description from DB first (saved at creation time)
                 model.addAttribute("payOsAccountNumber", payment.getAccountNumber());
                 model.addAttribute("payOsDescription", payment.getDescription());
+                model.addAttribute("payOsBankName", payment.getBankName());
+                model.addAttribute("payOsAccountHolder", payment.getAccountHolder());
             }
         }
 

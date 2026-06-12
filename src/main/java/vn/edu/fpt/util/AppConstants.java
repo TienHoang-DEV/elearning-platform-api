@@ -16,5 +16,6 @@ public final class AppConstants {
     public static final String AZURE_STORAGE_CONTAINER_VIDEOS = "videos";
 
     public static final String OFFICE_VIEWER_BASE_URL = "https://view.officeapps.live.com/op/embed.aspx?src=";
+    public static final int PAYMENT_EXPIRATION_MINUTES = 15;
 }
 

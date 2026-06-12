@@ -116,6 +116,18 @@ public class Payment extends BaseEntity {
      */
     @Column(name = "description", length = 500)
     private String description;
+
+    /**
+     * Bank name from PayOS (e.g., MB Bank)
+     */
+    @Column(name = "bank_name", length = 100)
+    private String bankName;
+
+    /**
+     * Account holder name from PayOS
+     */
+    @Column(name = "account_holder", length = 255)
+    private String accountHolder;
 }
 
 

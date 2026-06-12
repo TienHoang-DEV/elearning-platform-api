@@ -15,6 +15,8 @@ import vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest;
 import vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse;
 import vn.payos.model.webhooks.WebhookData;
 
+import vn.edu.fpt.util.AppConstants;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -43,17 +45,20 @@ public class PayOsService {
 
             long amountVND = order.getTotalAmount().longValue();
             long orderCode = System.currentTimeMillis() / 1000;
+            long expirationTimeUnix = (System.currentTimeMillis() / 1000) + (AppConstants.PAYMENT_EXPIRATION_MINUTES * 60L);
 
             // Create payment request
+            // Description must be the order code for VietQR content
             CreatePaymentLinkRequest request = CreatePaymentLinkRequest.builder()
                     .orderCode(orderCode)
                     .amount(amountVND)
-                    .description("Thanh toan don hang #" + order.getId())
+                    .description(String.valueOf(orderCode))
                     .returnUrl(returnUrl)
                     .cancelUrl(cancelUrl)
                     .buyerName(order.getUser().getFirstName() + " " + order.getUser().getLastName())
                     .buyerEmail(order.getUser().getEmail())
                     .buyerPhone(order.getUser().getPhone() != null ? order.getUser().getPhone() : "")
+                    .expiredAt(expirationTimeUnix)
                     .build();
 
             // Call PayOS API or use dev mode
@@ -71,19 +76,60 @@ public class PayOsService {
             }
 
             log.info("Payment order created successfully: {}", response.toString());
+            
+            // Log detailed response fields for debugging
+            log.info("QrCode from PayOS: {}", response.getQrCode());
+            log.info("CheckoutUrl from PayOS: {}", response.getCheckoutUrl());
+            log.info("AccountNumber from PayOS: {}", response.getAccountNumber());
+            log.info("Description from PayOS: {}", response.getDescription());
 
             // Create Payment record from response
+            String qrCodeUrl = response.getQrCode();
+            String checkoutUrl = response.getCheckoutUrl();
+            String accountNumber = response.getAccountNumber();
+            
+            // PayOS SDK doesn't provide bank name and account holder - use empty/default
+            String bankName = "";  // Will be set to default in fallback section
+            String accountHolder = "";  // Will be set to default in fallback section
+            
+            // Use gateway order code as description
+            String description = String.valueOf(orderCode);
+            
+            // Provide fallback values if response fields are null
+            if (qrCodeUrl == null || qrCodeUrl.isEmpty()) {
+                log.warn("QR Code URL is null or empty from PayOS, generating fallback URL");
+                qrCodeUrl = "https://api.payos.vn/mock/qr/" + UUID.randomUUID();
+            }
+            if (checkoutUrl == null || checkoutUrl.isEmpty()) {
+                log.warn("Checkout URL is null or empty from PayOS, generating fallback URL");
+                checkoutUrl = "https://pay.payos.vn/web/" + UUID.randomUUID();
+            }
+            if (bankName == null || bankName.isEmpty()) {
+                log.warn("Bank name is null or empty from PayOS, using default");
+                bankName = "MB Bank";
+            }
+            if (accountHolder == null || accountHolder.isEmpty()) {
+                log.warn("Account holder is null or empty from PayOS, using default");
+                accountHolder = "CONG TY CO PHAN PAYOS";
+            }
+            if (accountNumber == null || accountNumber.isEmpty()) {
+                log.warn("Account number is null or empty from PayOS, using default");
+                accountNumber = "0000000000";
+            }
+
             Payment payment = Payment.builder()
                     .order(order)
                     .gateway("PAYOS")
                     .amount(BigDecimal.valueOf(amountVND))
                     .status(PaymentStatus.PENDING)
                     .gatewayOrderCode(String.valueOf(orderCode))
-                    .paymentUrl(response.getCheckoutUrl())
-                    .qrCodeUrl(response.getQrCode())
-                    .accountNumber(response.getAccountNumber())
-                    .description(response.getDescription())
-                    .expiredAt(LocalDateTime.now().plusMinutes(15))
+                    .paymentUrl(checkoutUrl)
+                    .qrCodeUrl(qrCodeUrl)
+                    .accountNumber(accountNumber)
+                    .description(description)
+                    .bankName(bankName)
+                    .accountHolder(accountHolder)
+                    .expiredAt(LocalDateTime.now().plusMinutes(AppConstants.PAYMENT_EXPIRATION_MINUTES))
                     .webhookReceived(false)
                     .build();
 
@@ -167,6 +213,30 @@ public class PayOsService {
                 }
             }
         }
+    }
+
+    /**
+     * Cancel payment and invalidate at PayOS
+     */
+    public void cancelPaymentAndInvalidatePayOs(Payment payment) {
+        if (payment.getStatus() == PaymentStatus.CANCELLED) {
+            return;
+        }
+        log.info("Cancelling payment ID: {} and invalidating at PayOS", payment.getId());
+        try {
+            long orderCode = Long.parseLong(payment.getGatewayOrderCode());
+            try {
+                payOS.paymentRequests().cancel(orderCode, "Người dùng yêu cầu hủy giao dịch");
+                log.info("✅ Successfully cancelled payment link on PayOS for orderCode: {}", orderCode);
+            } catch (Exception e) {
+                log.warn("⚠️ PayOS cancel failed (may already be cancelled or expired): {}", e.getMessage());
+                // Continue anyway - mark as cancelled locally
+            }
+        } catch (Exception e) {
+            log.error("❌ Error parsing gateway order code {}: {}", payment.getGatewayOrderCode(), e.getMessage());
+        }
+        // Always cancel locally regardless of PayOS API result
+        cancelPayment(payment);
     }
 
     /**

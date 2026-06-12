@@ -225,6 +225,31 @@ public class PaymentController {
     }
 
     /**
+     * Cancel payment manually by user request
+     * POST /api/payments/{paymentId}/cancel
+     */
+    @PostMapping("/{paymentId}/cancel")
+    public ResponseEntity<?> cancelPaymentManually(@PathVariable Integer paymentId) {
+        try {
+            Payment payment = paymentRepository.findById(paymentId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin thanh toán."));
+
+            User user = SecurityUtils.getCurrentUser();
+            if (user == null || !payment.getOrder().getUser().getId().equals(user.getId())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Không có quyền thực hiện hành động này."));
+            }
+
+            payOsService.cancelPaymentAndInvalidatePayOs(payment);
+            return ResponseEntity.ok(Map.of("success", true, "message", "Hủy giao dịch thành công."));
+        } catch (Exception e) {
+            log.error("Error cancelling payment manually", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi hủy giao dịch: " + e.getMessage()));
+        }
+    }
+
+    /**
      * Webhook endpoint for PayOS callbacks
      * POST /api/payments/webhook
      */
