@@ -778,7 +778,7 @@ CREATE TABLE payments (
                           id INT PRIMARY KEY IDENTITY(1,1),
     -- Mã định danh duy nhất của giao dịch thanh toán
 
-                          order_id INT NOT NULL UNIQUE,
+                          order_id INT NOT NULL,
     -- Mỗi đơn hàng chỉ có một giao dịch thanh toán
 
                           gateway VARCHAR(50) NOT NULL,
@@ -803,7 +803,8 @@ CREATE TABLE payments (
                                              'PENDING',
                                              'PAID',
                                              'FAILED',
-                                             'EXPIRED'
+                                             'EXPIRED',
+                                             'CANCELLED'
                                       )
                                   ),
     -- Trạng thái giao dịch

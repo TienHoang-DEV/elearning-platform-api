@@ -161,7 +161,7 @@ VALUES
     N'Java Core Từ Cơ Bản Đến Nâng Cao',
     N'Học Java từ cú pháp cơ bản, OOP, Collections đến xử lý ngoại lệ.',
     'fptthumbnail.jpg',
-    499000,
+    1000,
     'BEGINNER',
     'PUBLISHED',
     3,
@@ -174,7 +174,7 @@ VALUES
     N'ReactJS Thực Chiến',
     N'Xây dựng ứng dụng ReactJS sử dụng Hooks, Router và Redux Toolkit.',
     'fptthumbnail.jpg',
-    699000,
+    1000,
     'INTERMEDIATE',
     'PUBLISHED',
     3,
@@ -187,7 +187,7 @@ VALUES
     N'CSS Mastery',
     N'Flexbox, Grid, Animation và Responsive Design chuyên sâu.',
     'fptthumbnail.jpg',
-    299000,
+    5000,
     'BEGINNER',
     'PUBLISHED',
     3,
@@ -201,7 +201,7 @@ VALUES
     N'Node.js REST API Với Express',
     N'Thiết kế và xây dựng RESTful API bằng Node.js và Express.',
     'fptthumbnail.jpg',
-    599000,
+    10000,
     'INTERMEDIATE',
     'PUBLISHED',
     4,
@@ -214,7 +214,7 @@ VALUES
     N'Python Cho Người Mới Bắt Đầu',
     N'Học Python từ cơ bản đến lập trình hướng đối tượng.',
     'fptthumbnail.jpg',
-    399000,
+    2000,
     'BEGINNER',
     'PUBLISHED',
     4,
@@ -227,7 +227,7 @@ VALUES
     N'Swift Programming Fundamentals',
     N'Lập trình ứng dụng iOS bằng ngôn ngữ Swift.',
     'fptthumbnail.jpg',
-    799000,
+    1000,
     'BEGINNER',
     'PUBLISHED',
     4,
@@ -240,7 +240,7 @@ VALUES
     N'Xây Dựng Giao Diện Với SwiftUI',
     N'Thiết kế giao diện hiện đại trên iOS bằng SwiftUI.',
     'fptthumbnail.jpg',
-    899000,
+    1000,
     'INTERMEDIATE',
     'PUBLISHED',
     4,
@@ -253,7 +253,7 @@ VALUES
     N'Spring Boot REST API',
     N'Xây dựng hệ thống Backend với Spring Boot, JPA và Security.',
     'fptthumbnail.jpg',
-    999000,
+    1000,
     'ADVANCED',
     'PUBLISHED',
     4,
@@ -998,8 +998,8 @@ DELETE FROM orders WHERE payment_method = 'TEST_METHOD';
 -- Tạo các khóa học chờ phê duyệt (PENDING COURSES)
 INSERT INTO courses (instructor_id, category_id, title, description, thumbnail_url, price, level, status, approved_by, approved_at, created_at)
 VALUES 
-(5, 9, N'Lập trình Java Web với Spring Boot', N'Học Spring MVC, JPA, Security và xây dựng Restful API hoàn chỉnh.', 'fptthumbnail.jpg', 899000, 'ADVANCED', 'PENDING', NULL, NULL, DATEADD(hour, -5, GETDATE())),
-(6, 5, N'Thiết kế giao diện nâng cao với Figma', N'Làm chủ Figma, AutoLayout, Component, Variable và Design System.', 'fptthumbnail.jpg', 399000, 'INTERMEDIATE', 'PENDING', NULL, NULL, DATEADD(hour, -1, GETDATE()));
+(5, 9, N'Lập trình Java Web với Spring Boot', N'Học Spring MVC, JPA, Security và xây dựng Restful API hoàn chỉnh.', 'fptthumbnail.jpg', 1000, 'ADVANCED', 'PENDING', NULL, NULL, DATEADD(hour, -5, GETDATE())),
+(6, 5, N'Thiết kế giao diện nâng cao với Figma', N'Làm chủ Figma, AutoLayout, Component, Variable và Design System.', 'fptthumbnail.jpg', 1000, 'INTERMEDIATE', 'PENDING', NULL, NULL, DATEADD(hour, -1, GETDATE()));
 
 -- Tạo feedback & báo cáo vi phạm
 DECLARE @FeedbackId1 INT, @FeedbackId2 INT, @FeedbackId3 INT;

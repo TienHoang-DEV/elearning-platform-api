@@ -227,13 +227,13 @@ public class PayOsService {
             long orderCode = Long.parseLong(payment.getGatewayOrderCode());
             try {
                 payOS.paymentRequests().cancel(orderCode, "Người dùng yêu cầu hủy giao dịch");
-                log.info("✅ Successfully cancelled payment link on PayOS for orderCode: {}", orderCode);
+                log.info(" Successfully cancelled payment link on PayOS for orderCode: {}", orderCode);
             } catch (Exception e) {
-                log.warn("⚠️ PayOS cancel failed (may already be cancelled or expired): {}", e.getMessage());
+                log.warn(" PayOS cancel failed (may already be cancelled or expired): {}", e.getMessage());
                 // Continue anyway - mark as cancelled locally
             }
         } catch (Exception e) {
-            log.error("❌ Error parsing gateway order code {}: {}", payment.getGatewayOrderCode(), e.getMessage());
+            log.error(" Error parsing gateway order code {}: {}", payment.getGatewayOrderCode(), e.getMessage());
         }
         // Always cancel locally regardless of PayOS API result
         cancelPayment(payment);
