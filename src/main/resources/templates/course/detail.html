@@ -318,9 +318,9 @@
                         <ul class="nav nav-tabs border-bottom-0 gap-4" id="courseTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button
-                                    class="nav-link border-0 text-muted fw-semibold pb-2 px-1 bg-transparent active-indicator"
+                                    class="nav-link border-0 text-muted fw-semibold pb-2 px-1 bg-transparent active-indicator active"
                                     id="about-tab" data-bs-toggle="tab" data-bs-target="#about-tab-pane" type="button"
-                                    role="tab" aria-controls="about-tab-pane" aria-selected="false">Về Khóa Học</button>
+                                    role="tab" aria-controls="about-tab-pane" aria-selected="true">Về Khóa Học</button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button
@@ -331,9 +331,9 @@
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button
-                                    class="nav-link border-0 text-muted fw-semibold pb-2 px-1 bg-transparent active-indicator active"
+                                    class="nav-link border-0 text-muted fw-semibold pb-2 px-1 bg-transparent active-indicator"
                                     id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-tab-pane"
-                                    type="button" role="tab" aria-controls="reviews-tab-pane" aria-selected="true">Nhận
+                                    type="button" role="tab" aria-controls="reviews-tab-pane" aria-selected="false">Nhận
                                     Xét</button>
                             </li>
                         </ul>
@@ -343,8 +343,8 @@
                     <div class="tab-content bg-white border rounded-3 p-4 shadow-sm" id="courseTabContent">
 
                         <!-- Panel 1: About the course -->
-                        <div class="tab-pane fade" id="about-tab-pane" role="tabpanel" aria-labelledby="about-tab"
-                            tabindex="0">
+                        <div class="tab-pane fade show active" id="about-tab-pane" role="tabpanel"
+                            aria-labelledby="about-tab" tabindex="0">
                             <h3 class="panel-title fw-bold font-heading mb-3">Về Khóa Học</h3>
                             <p class="text-muted fs-7">Khóa học này sẽ hướng dẫn bạn từ các bước cơ bản nhất để làm quen
                                 với đàn guitar điện, cách chỉnh phím, sử dụng phơ (effects), amply, cho đến các kỹ thuật
@@ -421,14 +421,6 @@
                                                             th:text="'Thời lượng: ' + ${les.durationSeconds / 60} + ' phút'">10
                                                             phút</span>
                                                     </div>
-                                                    <a href="#"
-                                                        class="btn btn-link text-primary p-0 d-inline-flex align-items-center gap-2 fw-semibold fs-7 text-decoration-none btn-preview-trigger"
-                                                        data-bs-toggle="modal" data-bs-target="#videoModal"
-                                                        th:data-lesson-id="${les.id}"
-                                                        th:data-lesson-title="${les.title}">
-                                                        <i data-lucide="play-circle" style="width:16px;"></i> Xem bài
-                                                        giảng ngay
-                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
@@ -438,8 +430,8 @@
                         </div>
 
                         <!-- Panel 3: Reviews (Active) -->
-                        <div class="tab-pane fade show active" id="reviews-tab-pane" role="tabpanel"
-                            aria-labelledby="reviews-tab" tabindex="0">
+                        <div class="tab-pane fade" id="reviews-tab-pane" role="tabpanel" aria-labelledby="reviews-tab"
+                            tabindex="0">
                             <!-- Section Title -->
                             <div class="d-flex align-items-center gap-2 text-primary fw-bold mb-4">
                                 <i data-lucide="message-square"
@@ -757,14 +749,16 @@
 
     <!-- Bootstrap Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1100;">
-        <div class="toast align-items-center text-white bg-success border-0 rounded-3 shadow-lg" id="cartToast" role="alert" aria-live="assertive"
-            aria-atomic="true">
+        <div class="toast align-items-center text-white bg-success border-0 rounded-3 shadow-lg" id="cartToast"
+            role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body d-flex align-items-center gap-3 p-3">
                     <i data-lucide="check-circle" class="text-white" style="width: 24px; height: 24px;"></i>
                     <div class="toast-content flex-grow-1">
                         <p class="toast-title fw-bold text-white m-0 fs-7">Thành công!</p>
-                        <p class="toast-message text-white-50 m-0 fs-8" id="toast-message-text" style="color: rgba(255, 255, 255, 0.9) !important;">Đã thêm khóa học "Guitar điện cơ bản" vào giỏ hàng.</p>
+                        <p class="toast-message text-white-50 m-0 fs-8" id="toast-message-text"
+                            style="color: rgba(255, 255, 255, 0.9) !important;">Đã thêm khóa học "Guitar điện cơ bản"
+                            vào giỏ hàng.</p>
                     </div>
                 </div>
                 <button type="button" class="btn-close btn-close-white me-3 m-auto shadow-none" data-bs-dismiss="toast"
@@ -786,7 +780,7 @@
         // Hàm gọi API thêm khóa học vào giỏ hàng qua Fetch API (AJAX)
         function addToCart(btn, courseId) {
             btn.disabled = true; // Khóa nút bấm để chống spam click nhiều lần
-            
+
             // Gửi yêu cầu HTTP POST bất đồng bộ tới API /api/cart/add
             fetch('/api/cart/add?courseId=' + courseId, { method: 'POST' })
                 .then(res => res.json()) // Chuyển đổi phản hồi thô của server sang định dạng JSON
@@ -797,22 +791,22 @@
                         if (badge) {
                             badge.textContent = data.cartSize; // Cập nhật số lượng giỏ hàng trên Header
                         }
-                        
+
                         // Hiển thị Bootstrap Toast thông báo thay vì alert
                         const toastEl = document.getElementById('cartToast');
                         const messageEl = document.getElementById('toast-message-text');
                         if (toastEl && messageEl) {
                             messageEl.textContent = data.message; // Gán nội dung thông báo động từ server
-                            
+
                             const titleEl = toastEl.querySelector('.toast-title');
                             const iconEl = toastEl.querySelector('[data-lucide]');
                             const closeBtn = toastEl.querySelector('.btn-close');
-                            
+
                             if (data.newlyAdded) {
                                 // Giao diện màu xanh (Thành công)
                                 toastEl.classList.remove('bg-warning', 'text-dark');
                                 toastEl.classList.add('bg-success', 'text-white');
-                                
+
                                 if (titleEl) {
                                     titleEl.textContent = "Thành công!";
                                     titleEl.classList.remove('text-dark');
@@ -832,7 +826,7 @@
                                 // Giao diện màu vàng (Cảnh báo/Đã có trong giỏ)
                                 toastEl.classList.remove('bg-success', 'text-white');
                                 toastEl.classList.add('bg-warning', 'text-dark');
-                                
+
                                 if (titleEl) {
                                     titleEl.textContent = "Thông báo!";
                                     titleEl.classList.remove('text-white');
@@ -849,12 +843,12 @@
                                     closeBtn.classList.remove('btn-close-white');
                                 }
                             }
-                            
+
                             // Tạo lại icon Lucide nếu thuộc tính thay đổi
                             if (typeof lucide !== 'undefined') {
                                 lucide.createIcons();
                             }
-                            
+
                             const toast = new bootstrap.Toast(toastEl);
                             toast.show();
                         }

@@ -287,11 +287,11 @@ public class CourseService {
         return repository.save(course);
     }
 
-    public List<Course> findByInstructorAndStatus(User user, String status){
+    public List<Course> findByInstructorAndStatus(User user, CourseStatus status){
         if(user == null){
             throw new RuntimeException("User not found");
         }
-        if(status == null || status.isEmpty()){
+        if(status == null){
             throw new RuntimeException("Status can not null");
         }
 
