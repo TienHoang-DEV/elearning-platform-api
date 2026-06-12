@@ -7,12 +7,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="../../../static/css/manager/instructor.css" th:href="@{/css/manager/instructor.css}">
 </head>
 <body>
 
-<!-- ══════════ APPROVE MODAL (CSS :target) ══════════ -->
+<!-- ══════════ APPROVE MODAL ══════════ -->
 <div id="approve-modal" class="modal-overlay">
     <a th:href="@{/manager/instructor/edit/{id}(id=${request.id})}" class="modal-close-bg" aria-label="Đóng"></a>
     <div class="modal-box">
@@ -27,9 +28,9 @@
             <a th:href="@{/manager/instructor/edit/{id}(id=${request.id})}" class="modal-btn modal-btn-cancel">
                 <i class="ph ph-x"></i> Hủy bỏ
             </a>
-            <form th:action="@{/manager/instructor/edit/{id}(id=${request.id})}" method="post" style="flex:1">
+            <form th:action="@{/manager/instructor/edit/{id}(id=${request.id})}" method="post" class="flex-fill">
                 <input type="hidden" name="status" value="APPROVED">
-                <button type="submit" class="modal-btn modal-btn-approve" style="width:100%">
+                <button type="submit" class="modal-btn modal-btn-approve w-100">
                     <i class="ph ph-check"></i> Xác nhận Duyệt
                 </button>
             </form>
@@ -37,7 +38,7 @@
     </div>
 </div>
 
-<!-- ══════════ REJECT MODAL (CSS :target) ══════════ -->
+<!-- ══════════ REJECT MODAL ══════════ -->
 <div id="reject-modal" class="modal-overlay">
     <a th:href="@{/manager/instructor/edit/{id}(id=${request.id})}" class="modal-close-bg" aria-label="Đóng"></a>
     <div class="modal-box">
@@ -49,15 +50,9 @@
         </p>
         <form th:action="@{/manager/instructor/edit/{id}(id=${request.id})}" method="post">
             <input type="hidden" name="status" value="REJECTED">
-            <label class="modal-reason-label" for="rejectionReason">
-                Lý do từ chối <span>*</span>
-            </label>
-            <textarea id="rejectionReason"
-                      name="rejectionReason"
-                      class="modal-reason-textarea"
-                      placeholder="Nhập lý do từ chối để giảng viên biết cách cải thiện..."
-                      maxlength="500"
-                      required></textarea>
+            <label class="modal-reason-label" for="rejectionReason">Lý do từ chối <span>*</span></label>
+            <textarea id="rejectionReason" name="rejectionReason" class="modal-reason-textarea"
+                      placeholder="Nhập lý do từ chối..." maxlength="500" required></textarea>
             <p class="modal-hint"><i class="ph ph-info"></i>Bắt buộc phải điền.</p>
             <div class="modal-actions">
                 <a th:href="@{/manager/instructor/edit/{id}(id=${request.id})}" class="modal-btn modal-btn-cancel">
@@ -85,8 +80,8 @@
             </ul>
         </nav>
         <div class="sidebar-footer">
-            <div class="avatar footer-avatar" style="display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; background-color: var(--primary-blue); color: white;">
-                <img th:if="${currentUser != null and currentUser.avatarUrl != null}" th:src="${currentUser.avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;" />
+            <div class="avatar footer-avatar">
+                <img th:if="${currentUser != null and currentUser.avatarUrl != null}" th:src="${currentUser.avatarUrl}" alt="Avatar" class="w-100 h-100 object-fit-cover" />
                 <span th:if="${currentUser == null or currentUser.avatarUrl == null}" th:text="${currentUser != null and currentUser.firstName != null and !currentUser.firstName.isEmpty() ? #strings.substring(currentUser.firstName, 0, 1).toUpperCase() : 'M'}">M</span>
             </div>
             <div class="profile-info">
@@ -98,7 +93,6 @@
 
     <div class="main-wrapper">
         <main class="content">
-            <!-- Header -->
             <div class="detail-header-container">
                 <a th:href="@{/manager/instructor/list}" class="back-btn"><i class="ph ph-arrow-left"></i></a>
                 <div>
@@ -106,12 +100,9 @@
                     <p>Xem xét hồ sơ và phê duyệt hoặc từ chối đơn đăng ký.</p>
                 </div>
             </div>
-            <!-- Split 7:3 -->
             <div class="split-layout-container">
-
-                <!-- ═══ LEFT: Detail (70%) ═══ -->
+                <!-- LEFT: Detail -->
                 <div class="detail-card">
-                    <!-- Profile header -->
                     <div class="profile-section">
                         <div class="profile-details">
                             <div class="profile-name-lg" th:text="${request.fullName}">Nguyễn Văn A</div>
@@ -128,13 +119,11 @@
                         </div>
                     </div>
 
-                    <!-- Giới thiệu -->
                     <div class="detail-section">
                         <div class="detail-section-title"><i class="ph ph-user-circle"></i> Giới thiệu</div>
                         <div class="intro-text" th:text="${request.description != null ? request.description : 'Không có phần tự giới thiệu.'}">Nội dung...</div>
                     </div>
 
-                    <!-- Documents -->
                     <div class="documents-grid">
                         <div class="doc-group">
                             <div class="detail-section-title"><i class="ph ph-file-text"></i> Sơ yếu lý lịch</div>
@@ -160,19 +149,16 @@
                         </div>
                     </div>
 
-                    <!-- Rejection reason box (readonly, shown if REJECTED) -->
                     <div th:if="${request.status.name()=='REJECTED' && request.rejectionReason != null}" class="rejection-box">
                         <div class="rejection-box-title"><i class="ph ph-warning"></i> Lý do từ chối</div>
                         <div class="rejection-box-body" th:text="${request.rejectionReason}">Lý do...</div>
                     </div>
 
-                    <!-- CCCD Section -->
                     <div class="detail-section">
                         <div class="detail-section-title">
                             <i class="ph ph-identification-card"></i> Ảnh thẻ Căn cước công dân (CCCD)
                         </div>
                         <div class="cccd-images-grid">
-                            <!-- Mặt trước -->
                             <div class="cccd-card">
                                 <div class="cccd-card-title">Mặt trước CCCD</div>
                                 <div th:if="${request.nationalIdCardFront != null && !request.nationalIdCardFront.isEmpty()}">
@@ -180,11 +166,8 @@
                                         <img th:src="${request.nationalIdCardFront}" alt="Mặt trước CCCD">
                                     </a>
                                 </div>
-                                <div th:if="${request.nationalIdCardFront == null || request.nationalIdCardFront.isEmpty()}" class="cccd-empty-placeholder">
-                                    Chưa tải lên mặt trước
-                                </div>
+                                <div th:if="${request.nationalIdCardFront == null || request.nationalIdCardFront.isEmpty()}" class="cccd-empty-placeholder">Chưa tải lên mặt trước</div>
                             </div>
-                            <!-- Mặt sau -->
                             <div class="cccd-card">
                                 <div class="cccd-card-title">Mặt sau CCCD</div>
                                 <div th:if="${request.nationalIdCardBack != null && !request.nationalIdCardBack.isEmpty()}">
@@ -192,38 +175,30 @@
                                         <img th:src="${request.nationalIdCardBack}" alt="Mặt sau CCCD">
                                     </a>
                                 </div>
-                                <div th:if="${request.nationalIdCardBack == null || request.nationalIdCardBack.isEmpty()}" class="cccd-empty-placeholder">
-                                    Chưa tải lên mặt sau
-                                </div>
+                                <div th:if="${request.nationalIdCardBack == null || request.nationalIdCardBack.isEmpty()}" class="cccd-empty-placeholder">Chưa tải lên mặt sau</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ═══ RIGHT: Action Card (30%) ═══ -->
+                <!-- RIGHT: Action Card -->
                 <div>
                     <div class="action-card">
                         <div class="action-card-title"><i class="ph ph-shield-check"></i> Quyết định xét duyệt</div>
-
                         <div class="form-actions" th:if="${request.status.name() == 'PENDING'}">
-                            <!-- Approve trigger -->
                             <a href="#approve-modal" class="btn btn-block btn-approve-trigger">
                                 <i class="ph ph-check-circle"></i>&nbsp; Phê duyệt
                             </a>
-
-                            <!-- Reject trigger -->
                             <a href="#reject-modal" class="btn btn-block btn-reject-trigger">
                                 <i class="ph ph-x-circle"></i>&nbsp; Từ chối
                             </a>
                         </div>
-
                         <div th:unless="${request.status.name() == 'PENDING'}" class="action-card-status-container">
                             <span th:class="${'badge action-card-status-badge badge-' + (request.status.name() == 'APPROVED' ? 'success' : request.status.name() == 'REJECTED' ? 'danger' : 'dark')}"
-                                  th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : request.status.name() == 'REJECTED' ? 'Từ chối' : 'Bị chặn'}">
-                                Đang chờ duyệt
+                                  th:text="${request.status.name() == 'APPROVED' ? 'Đã duyệt' : request.status.name() == 'REJECTED' ? 'Từ chối' : 'Bị chặn'}">
+                                Đã duyệt
                             </span>
                         </div>
-
                         <div class="action-card-footer">
                             <p class="action-card-info-text">
                                 <i class="ph ph-info"></i>
@@ -232,11 +207,11 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </main>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
