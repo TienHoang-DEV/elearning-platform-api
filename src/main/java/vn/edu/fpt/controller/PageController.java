@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 public class PageController {
 
     private final PaymentRepository paymentRepository;
-    private final PayOS payOS;
 
     /**
      * GET /payment - Display payment page with QR code
@@ -64,23 +63,5 @@ public class PageController {
         }
 
         return "payment/payment";
-    }
-
-    /**
-     * GET /payment/success - Payment success callback
-     */
-    @GetMapping("/payment/success")
-    public String paymentSuccess() {
-        log.info("Payment success");
-        return "payment/success";
-    }
-
-    /**
-     * GET /payment/cancel - Payment cancel callback
-     */
-    @GetMapping("/payment/cancel")
-    public String paymentCancel() {
-        log.info("Payment cancelled");
-        return "payment/cancel";
     }
 }

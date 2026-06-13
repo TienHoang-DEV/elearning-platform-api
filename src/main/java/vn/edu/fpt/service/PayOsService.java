@@ -41,7 +41,7 @@ public class PayOsService {
      */
     public Payment createPaymentOrder(Order order, String returnUrl, String cancelUrl) {
         try {
-            log.info("Creating PayOS payment order for Order ID: {}", order.getId());
+            log.info("Creating {} payment order for Order ID: {}",AppConstants.PAYMENT_GATEWAY, order.getId());
 
             long amountVND = order.getTotalAmount().longValue();
             long orderCode = System.currentTimeMillis() / 1000;
@@ -64,24 +64,25 @@ public class PayOsService {
             // Call PayOS API or use dev mode
             CreatePaymentLinkResponse response;
             if (devMode) {
-                log.warn("⚠️ DEV MODE ENABLED - Using mock PayOS response");
+                log.warn("DEV MODE ENABLED - Using mock {} response", AppConstants.PAYMENT_GATEWAY);
                 response = createMockResponse(orderCode, amountVND);
             } else {
                 try {
                     response = payOS.paymentRequests().create(request);
                 } catch (PayOSException e) {
-                    log.error("PayOS API error: {}", e.getMessage());
-                    throw new RuntimeException("PayOS API call failed: " + e.getMessage());
+                    log.error("{} API error: {}",AppConstants.PAYMENT_GATEWAY, e.getMessage());
+                    throw new RuntimeException(AppConstants.PAYMENT_GATEWAY + " API call failed: " + e.getMessage());
                 }
             }
 
             log.info("Payment order created successfully: {}", response.toString());
+            log.info("Account name: {}", response.getAccountName());
             
             // Log detailed response fields for debugging
-            log.info("QrCode from PayOS: {}", response.getQrCode());
-            log.info("CheckoutUrl from PayOS: {}", response.getCheckoutUrl());
-            log.info("AccountNumber from PayOS: {}", response.getAccountNumber());
-            log.info("Description from PayOS: {}", response.getDescription());
+            log.info("QrCode from {}: {}",AppConstants.PAYMENT_GATEWAY, response.getQrCode());
+            log.info("CheckoutUrl from {}: {}",AppConstants.PAYMENT_GATEWAY,  response.getCheckoutUrl());
+            log.info("AccountNumber from {}: {}",AppConstants.PAYMENT_GATEWAY,  response.getAccountNumber());
+            log.info("Description from {}: {}",AppConstants.PAYMENT_GATEWAY,  response.getDescription());
 
             // Create Payment record from response
             String qrCodeUrl = response.getQrCode();
@@ -89,37 +90,32 @@ public class PayOsService {
             String accountNumber = response.getAccountNumber();
             
             // PayOS SDK doesn't provide bank name and account holder - use empty/default
-            String bankName = "";  // Will be set to default in fallback section
-            String accountHolder = "";  // Will be set to default in fallback section
+            String bankName = AppConstants.BANK_NAMES.get(response.getBin());  // Will be set to default in fallback section
+            String accountHolder = response.getAccountName();  // Will be set to default in fallback section
             
             // Use gateway order code as description
             String description = String.valueOf(orderCode);
             
             // Provide fallback values if response fields are null
             if (qrCodeUrl == null || qrCodeUrl.isEmpty()) {
-                log.warn("QR Code URL is null or empty from PayOS, generating fallback URL");
-                qrCodeUrl = "https://api.payos.vn/mock/qr/" + UUID.randomUUID();
+                log.warn("QR Code URL is null or empty from " + AppConstants.PAYMENT_GATEWAY);
             }
             if (checkoutUrl == null || checkoutUrl.isEmpty()) {
-                log.warn("Checkout URL is null or empty from PayOS, generating fallback URL");
-                checkoutUrl = "https://pay.payos.vn/web/" + UUID.randomUUID();
+                log.warn("Checkout URL is null or empty from " + AppConstants.PAYMENT_GATEWAY);
             }
             if (bankName == null || bankName.isEmpty()) {
-                log.warn("Bank name is null or empty from PayOS, using default");
-                bankName = AppConstants.BANK_NAME;
+                log.warn("Bank name is null or empty from " + AppConstants.PAYMENT_GATEWAY);
             }
             if (accountHolder == null || accountHolder.isEmpty()) {
-                log.warn("Account holder is null or empty from PayOS, using default");
-                accountHolder = AppConstants.ACCOUNT_HOLDER;
+                log.warn("Account holder is null or empty from " + AppConstants.PAYMENT_GATEWAY);
             }
             if (accountNumber == null || accountNumber.isEmpty()) {
-                log.warn("Account number is null or empty from PayOS, using default");
-                accountNumber = "0000000000";
+                log.warn("Account number is null or empty from " + AppConstants.PAYMENT_GATEWAY);
             }
 
             Payment payment = Payment.builder()
                     .order(order)
-                    .gateway("PAYOS")
+                    .gateway(AppConstants.PAYMENT_GATEWAY)
                     .amount(BigDecimal.valueOf(amountVND))
                     .status(PaymentStatus.PENDING)
                     .gatewayOrderCode(String.valueOf(orderCode))
