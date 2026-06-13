@@ -69,14 +69,7 @@ public class CourseController {
             }
         } catch (Exception ignored) {
         }
-        return userService.findByEmail("28tech@gmail.com")
-                .orElseGet(() -> {
-                    List<User> allUsers = userService.findAll();
-                    if (allUsers.isEmpty()) {
-                        throw new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!");
-                    }
-                    return allUsers.get(0);
-                });
+        return null;
     }
 
     @GetMapping("/courses")

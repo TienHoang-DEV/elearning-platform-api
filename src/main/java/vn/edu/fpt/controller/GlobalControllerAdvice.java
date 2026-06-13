@@ -44,9 +44,6 @@ public class GlobalControllerAdvice {
                     }
                 }
             }
-            if (user == null) {
-                user = userRepository.findByEmail("28tech@gmail.com").orElse(null);
-            }
             if (user != null) {
                 Cart cart = cartService.getOrCreateCartForUser(user);
                 return cartItemService.countItemsInCart(cart);

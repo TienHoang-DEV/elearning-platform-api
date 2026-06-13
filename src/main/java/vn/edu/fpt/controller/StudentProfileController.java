@@ -60,14 +60,7 @@ public class StudentProfileController {
             }
         } catch (Exception ignored) {
         }
-        return userRepository.findByEmail("28tech@gmail.com")
-                .orElseGet(() -> {
-                    List<User> allUsers = userRepository.findAll();
-                    if (allUsers.isEmpty()) {
-                        throw new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!");
-                    }
-                    return allUsers.get(0);
-                });
+        return null;
     }
 
     @GetMapping("/")
@@ -79,6 +72,9 @@ public class StudentProfileController {
     @GetMapping("/student/profile")
     public String showStudentProfile(Model model) {
         User user = getSessionUser();
+        if (user == null) {
+            return "redirect:/login_no";
+        }
         
         int enrollmentsCount = user.getEnrollments().size();
         long certificatesCount = 0;
@@ -112,6 +108,9 @@ public class StudentProfileController {
             @org.springframework.web.bind.annotation.RequestParam(value = "page", defaultValue = "1") int page,
             Model model) {
         User user = getSessionUser();
+        if (user == null) {
+            return "redirect:/login_no";
+        }
         List<Enrollment> enrollments = enrollmentRepository.findByUser(user);
         
         List<EnrollmentDto> enrollmentDtos = new java.util.ArrayList<>();
@@ -155,6 +154,9 @@ public class StudentProfileController {
     @GetMapping("/student/purchase-history")
     public String showPurchaseHistory(Model model) {
         User user = getSessionUser();
+        if (user == null) {
+            return "redirect:/login_no";
+        }
         List<OrderDto> orderDtos = orderService.getPurchaseHistory(user);
         
         model.addAttribute("currentUser", dtoMapper.toUserDto(user));
@@ -167,6 +169,9 @@ public class StudentProfileController {
     @GetMapping("/student/recommendations")
     public String showRecommendations(Model model) {
         User user = getSessionUser();
+        if (user == null) {
+            return "redirect:/login_no";
+        }
         
         Set<Integer> enrolledCourseIds = new java.util.HashSet<>();
         for (Enrollment e : user.getEnrollments()) {

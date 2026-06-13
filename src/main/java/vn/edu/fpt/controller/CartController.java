@@ -25,7 +25,7 @@ public class CartController {
         this.userRepository = userRepository;
     }
 
-    private User getMockUser() {
+    private User getAuthenticatedUser() {
         try {
             User currentUser = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
             if (currentUser != null) {
@@ -44,20 +44,16 @@ public class CartController {
             }
         } catch (Exception ignored) {
         }
-        return userRepository.findByEmail("28tech@gmail.com")
-                .orElseGet(() -> {
-                    List<User> allUsers = userRepository.findAll();
-                    if (allUsers.isEmpty()) {
-                        throw new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!");
-                    }
-                    return allUsers.get(0);
-                });
+        return null;
     }
 
     @org.springframework.transaction.annotation.Transactional
     @GetMapping("/cart")
     public String showCartPage(Model model) {
-        User user = getMockUser();
+        User user = getAuthenticatedUser();
+        if (user == null) {
+            return "redirect:/login_no";
+        }
         CartPageDetailsDto details = cartService.getCartPageDetails(user);
 
         model.addAttribute("cart", details.getCart());
@@ -81,7 +77,13 @@ public class CartController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> addCourseToCart(@RequestParam("courseId") Integer courseId) {
         try {
-            User user = getMockUser();
+            User user = getAuthenticatedUser();
+            if (user == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "Vui lòng đăng nhập để thực hiện.");
+                return ResponseEntity.status(401).body(response);
+            }
             Map<String, Object> response = cartService.addCourseToCart(user, courseId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -113,7 +115,12 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> getCartCount() {
         Map<String, Object> response = new HashMap<>();
         try {
-            User user = getMockUser();
+            User user = getAuthenticatedUser();
+            if (user == null) {
+                response.put("success", false);
+                response.put("cartSize", 0);
+                return ResponseEntity.ok(response);
+            }
             int cartSize = cartService.getCartCount(user);
             response.put("success", true);
             response.put("cartSize", cartSize);
@@ -129,7 +136,13 @@ public class CartController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> checkoutCart() {
         try {
-            User user = getMockUser();
+            User user = getAuthenticatedUser();
+            if (user == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "Vui lòng đăng nhập để thực hiện.");
+                return ResponseEntity.status(401).body(response);
+            }
             Map<String, Object> response = cartService.checkoutCart(user);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -162,7 +175,12 @@ public class CartController {
                                                                       @RequestParam("selected") Boolean selected) {
         Map<String, Object> response = new HashMap<>();
         try {
-            User user = getMockUser();
+            User user = getAuthenticatedUser();
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "Vui lòng đăng nhập.");
+                return ResponseEntity.status(401).body(response);
+            }
             cartService.toggleSelectInstructor(user, instructorId, selected);
             response.put("success", true);
             return ResponseEntity.ok(response);
@@ -178,7 +196,12 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> toggleSelectAll(@RequestParam("selected") Boolean selected) {
         Map<String, Object> response = new HashMap<>();
         try {
-            User user = getMockUser();
+            User user = getAuthenticatedUser();
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "Vui lòng đăng nhập.");
+                return ResponseEntity.status(401).body(response);
+            }
             cartService.toggleSelectAll(user, selected);
             response.put("success", true);
             return ResponseEntity.ok(response);
@@ -194,7 +217,13 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> applyVoucher(@RequestParam("instructorId") Integer instructorId,
                                                             @RequestParam("code") String code) {
         try {
-            User user = getMockUser();
+            User user = getAuthenticatedUser();
+            if (user == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "Vui lòng đăng nhập.");
+                return ResponseEntity.status(401).body(response);
+            }
             Map<String, Object> response = cartService.applyVoucher(user, instructorId, code);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
