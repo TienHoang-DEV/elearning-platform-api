@@ -161,7 +161,7 @@ VALUES
     N'Java Core Từ Cơ Bản Đến Nâng Cao',
     N'Học Java từ cú pháp cơ bản, OOP, Collections đến xử lý ngoại lệ.',
     'fptthumbnail.jpg',
-    499000,
+    1000,
     'BEGINNER',
     'PUBLISHED',
     3,
@@ -174,7 +174,7 @@ VALUES
     N'ReactJS Thực Chiến',
     N'Xây dựng ứng dụng ReactJS sử dụng Hooks, Router và Redux Toolkit.',
     'fptthumbnail.jpg',
-    699000,
+    1000,
     'INTERMEDIATE',
     'PUBLISHED',
     3,
@@ -187,7 +187,7 @@ VALUES
     N'CSS Mastery',
     N'Flexbox, Grid, Animation và Responsive Design chuyên sâu.',
     'fptthumbnail.jpg',
-    299000,
+    5000,
     'BEGINNER',
     'PUBLISHED',
     3,
@@ -201,7 +201,7 @@ VALUES
     N'Node.js REST API Với Express',
     N'Thiết kế và xây dựng RESTful API bằng Node.js và Express.',
     'fptthumbnail.jpg',
-    599000,
+    10000,
     'INTERMEDIATE',
     'PUBLISHED',
     4,
@@ -214,7 +214,7 @@ VALUES
     N'Python Cho Người Mới Bắt Đầu',
     N'Học Python từ cơ bản đến lập trình hướng đối tượng.',
     'fptthumbnail.jpg',
-    399000,
+    2000,
     'BEGINNER',
     'PUBLISHED',
     4,
@@ -227,7 +227,7 @@ VALUES
     N'Swift Programming Fundamentals',
     N'Lập trình ứng dụng iOS bằng ngôn ngữ Swift.',
     'fptthumbnail.jpg',
-    799000,
+    1000,
     'BEGINNER',
     'PUBLISHED',
     4,
@@ -240,7 +240,7 @@ VALUES
     N'Xây Dựng Giao Diện Với SwiftUI',
     N'Thiết kế giao diện hiện đại trên iOS bằng SwiftUI.',
     'fptthumbnail.jpg',
-    899000,
+    1000,
     'INTERMEDIATE',
     'PUBLISHED',
     4,
@@ -253,7 +253,7 @@ VALUES
     N'Spring Boot REST API',
     N'Xây dựng hệ thống Backend với Spring Boot, JPA và Security.',
     'fptthumbnail.jpg',
-    999000,
+    1000,
     'ADVANCED',
     'PUBLISHED',
     4,
@@ -998,8 +998,8 @@ DELETE FROM orders WHERE payment_method = 'TEST_METHOD';
 -- Tạo các khóa học chờ phê duyệt (PENDING COURSES)
 INSERT INTO courses (instructor_id, category_id, title, description, thumbnail_url, price, level, status, approved_by, approved_at, created_at)
 VALUES 
-(5, 9, N'Lập trình Java Web với Spring Boot', N'Học Spring MVC, JPA, Security và xây dựng Restful API hoàn chỉnh.', 'fptthumbnail.jpg', 899000, 'ADVANCED', 'PENDING', NULL, NULL, DATEADD(hour, -5, GETDATE())),
-(6, 5, N'Thiết kế giao diện nâng cao với Figma', N'Làm chủ Figma, AutoLayout, Component, Variable và Design System.', 'fptthumbnail.jpg', 399000, 'INTERMEDIATE', 'PENDING', NULL, NULL, DATEADD(hour, -1, GETDATE()));
+(5, 9, N'Lập trình Java Web với Spring Boot', N'Học Spring MVC, JPA, Security và xây dựng Restful API hoàn chỉnh.', 'fptthumbnail.jpg', 1000, 'ADVANCED', 'PENDING', NULL, NULL, DATEADD(hour, -5, GETDATE())),
+(6, 5, N'Thiết kế giao diện nâng cao với Figma', N'Làm chủ Figma, AutoLayout, Component, Variable và Design System.', 'fptthumbnail.jpg', 1000, 'INTERMEDIATE', 'PENDING', NULL, NULL, DATEADD(hour, -1, GETDATE()));
 
 -- Tạo feedback & báo cáo vi phạm
 DECLARE @FeedbackId1 INT, @FeedbackId2 INT, @FeedbackId3 INT;
@@ -1021,59 +1021,28 @@ VALUES
 (@FeedbackId2, 7, N'Bình luận thô tục, xúc phạm giảng viên', 'PENDING', NULL, DATEADD(hour, -3, GETDATE())),
 (@FeedbackId3, 8, N'Spam nội dung quảng cáo', 'PENDING', NULL, DATEADD(hour, -1, GETDATE()));
 
--- Đơn hàng & thanh toán mẫu (năm 2026)
-DECLARE @OrderId INT;
 
--- Tháng 1/2026: Doanh thu 500,000 đ
-INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
-VALUES (7, 500000, 0, 'PAID', 'TEST_METHOD', '2026-01-15 10:00:00');
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_JAN_01', 'TEST_GATEWAY', 'G_JAN_01', 500000, 'SUCCESS', '2026-01-15 10:05:00', '2026-01-15 10:00:00');
+-- =========================
+-- LESSON MATERIALS
+-- Lessons 1 -> 9
+-- =========================
 
--- Tháng 2/2026: Doanh thu 1,200,000 đ
-INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
-VALUES (8, 1200000, 0, 'PAID', 'TEST_METHOD', '2026-02-18 14:00:00');
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_FEB_01', 'TEST_GATEWAY', 'G_FEB_01', 1200000, 'SUCCESS', '2026-02-18 14:05:00', '2026-02-18 14:00:00');
-
--- Tháng 3/2026: Doanh thu 800,000 đ
-INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
-VALUES (7, 800000, 0, 'PAID', 'TEST_METHOD', '2026-03-10 09:00:00');
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_MAR_01', 'TEST_GATEWAY', 'G_MAR_01', 800000, 'SUCCESS', '2026-03-10 09:05:00', '2026-03-10 09:00:00');
-
--- Tháng 4/2026: Doanh thu 1,500,000 đ
-INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
-VALUES (8, 1500000, 0, 'PAID', 'TEST_METHOD', '2026-04-22 16:30:00');
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_APR_01', 'TEST_GATEWAY', 'G_APR_01', 1500000, 'SUCCESS', '2026-04-22 16:35:00', '2026-04-22 16:30:00');
-
--- Tháng 5/2026: Doanh thu 2,100,000 đ
-INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
-VALUES (7, 1000000, 0, 'PAID', 'TEST_METHOD', '2026-05-05 11:00:00');
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_MAY_01', 'TEST_GATEWAY', 'G_MAY_01', 1000000, 'SUCCESS', '2026-05-05 11:05:00', '2026-05-05 11:00:00');
-
-INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
-VALUES (8, 1100000, 0, 'PAID', 'TEST_METHOD', '2026-05-20 15:00:00');
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_MAY_02', 'TEST_GATEWAY', 'G_MAY_02', 1100000, 'SUCCESS', '2026-05-20 15:05:00', '2026-05-20 15:00:00');
-
--- Tháng 6/2026 (Tháng hiện tại): Doanh thu 3,400,000 đ
-INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
-VALUES (7, 2000000, 0, 'PAID', 'TEST_METHOD', DATEADD(day, -5, GETDATE()));
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_JUN_01', 'TEST_GATEWAY', 'G_JUN_01', 2000000, 'SUCCESS', DATEADD(day, -5, GETDATE()), DATEADD(day, -5, GETDATE()));
-
-INSERT INTO orders (user_id, total_amount, discount_amount, status, payment_method, created_at)
-VALUES (8, 1400000, 0, 'PAID', 'TEST_METHOD', DATEADD(hour, -4, GETDATE()));
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_JUN_02', 'TEST_GATEWAY', 'G_JUN_02', 1400000, 'SUCCESS', DATEADD(hour, -4, GETDATE()), DATEADD(hour, -4, GETDATE()));
+INSERT INTO lesson_materials
+(
+    instructor_id,
+    lesson_id,
+    file_name,
+    file_url,
+    file_type,
+    file_size
+)
+VALUES
+    (5, 1, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 2, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 3, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 4, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 5, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 6, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 7, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 8, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 9, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576);

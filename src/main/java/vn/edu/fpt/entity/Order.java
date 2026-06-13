@@ -3,6 +3,7 @@ package vn.edu.fpt.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import vn.edu.fpt.enums.OrderStatus;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -28,8 +29,10 @@ public class Order extends BaseEntity {
     @Column(name = "discount_amount", precision = 10, scale = 2)
     private BigDecimal discountAmount = BigDecimal.ZERO;
 
+
+    @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private String status;
+    private OrderStatus status;
 
     @Column(name = "payment_method", length = 50)
     private String paymentMethod;
