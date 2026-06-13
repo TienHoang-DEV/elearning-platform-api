@@ -114,8 +114,8 @@
                 <div class="profile-preview-info">
                     <h2 id="previewName"
                         th:text="${instructor != null ? instructor.firstname + ' ' + instructor.lastname : ''}"></h2>
-                    <span class="field-tag" id="previewField">Lĩnh vực</span>
-                    <p id="previewBio">Giới thiệu bản thân của bạn sẽ hiện ở đây...</p>
+<!--                    <span class="field-tag" id="previewField">Lĩnh vực</span>-->
+                    <p id="previewBio" th:text="${instructor?.bio ?: 'Giới thiệu bản thân của bạn sẽ hiện ở đây...' }">Giới thiệu bản thân của bạn sẽ hiện ở đây...</p>
                 </div>
             </div>
         </div>

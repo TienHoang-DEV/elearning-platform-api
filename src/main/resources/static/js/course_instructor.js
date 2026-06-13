@@ -102,24 +102,44 @@ function initSidebarNav() {
 }
 
 function initTabs() {
+    // === Xử lý click chuyển tab (giữ nguyên logic cũ) ===
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const group = this.dataset.tabGroup;
             const tab   = this.dataset.tab;
-
-            // Deactivate all buttons in group
-            document.querySelectorAll(`.tab-btn[data-tab-group="${group}"]`)
-                .forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-
-            // Show matching content, hide others
-            document.querySelectorAll(`.tab-content[data-tab-group="${group}"]`)
-                .forEach(c => {
-                    c.style.display = c.dataset.tab === tab ? '' : 'none';
-                });
+            activateTab(group, tab);
         });
     });
+
+    // === Khôi phục tab active dựa vào query param ?tab=... (dùng cho pagination reload) ===
+    const params = new URLSearchParams(window.location.search);
+    const activeTab = params.get('tab');
+
+    if (activeTab) {
+        // Tab nào có data-tab khớp với param sẽ được active,
+        // áp dụng cho tất cả tab-group có trên trang (an toàn nếu có nhiều group)
+        document.querySelectorAll(`.tab-btn[data-tab="${activeTab}"]`).forEach(btn => {
+            const group = btn.dataset.tabGroup;
+            activateTab(group, activeTab);
+        });
+    }
 }
+
+/**
+ * Active 1 tab cụ thể trong 1 group, ẩn các tab còn lại.
+ */
+function activateTab(group, tab) {
+    document.querySelectorAll(`.tab-btn[data-tab-group="${group}"]`)
+        .forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+
+    document.querySelectorAll(`.tab-content[data-tab-group="${group}"]`)
+        .forEach(c => {
+            c.style.display = c.dataset.tab === tab ? '' : 'none';
+        });
+}
+
+
+
 
 function initModals() {
     // Open modal via data-open-modal attribute

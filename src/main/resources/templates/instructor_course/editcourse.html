@@ -18,7 +18,7 @@
             <span class="icon">✏️</span>
             <span th:text="${courseRequest != null ? courseRequest.title : 'Tạo Khóa Học Mới'}">Khóa Học</span>
         </h1>
-        <a th:href="@{/instructor/courses}" class="btn btn-outline">← Quay lại danh sách</a>
+        <a th:href="@{/instructorcourse/courses}" class="btn btn-outline">← Quay lại danh sách</a>
     </div>
 
     <!-- Wizard Notice -->
@@ -28,45 +28,49 @@
 
     <!-- Wizard Steps -->
     <div class="wizard-steps">
-        <a th:href="@{/instructor/courses/{id}/edit/info(id=${courseRequest.id})}"
-           class="wizard-step" th:classappend="${activeStep == 'info'} ? 'active' : ''">
+<!--        <a th:href="@{/instructor/courses/{id}/edit/info(id=${courseRequest.id})}"-->
+<!--           class="wizard-step" th:classappend="${activeStep == 'info'} ? 'active' : ''">-->
+            <a th:href="${courseRequest.id != null}
+       ? @{/instructor/courses/{id}/edit/info(id=${courseRequest.id})}
+       : '#'"
+               class="wizard-step" th:classappend="${activeStep == 'info'} ? 'active' : ''">
             <div class="step-dot">1</div>
             <div class="step-label">GIỚI THIỆU<br/>KHÓA HỌC</div>
         </a>
-<!--        <a th:href="@{/instructor/courses/{id}/edit/pricing(id=${course.id})}"-->
-<!--           class="wizard-step" th:classappend="${activeStep == 'pricing'} ? 'active' : ''">-->
-<!--            <div class="step-dot">2</div>-->
-<!--            <div class="step-label">GIÁ KHÓA HỌC</div>-->
-<!--        </a>-->
         <a th:href="@{/instructor/courses/{id}/edit/curriculum(id=${courseRequest.id})}"
            class="wizard-step" th:classappend="${activeStep == 'curriculum'} ? 'active' : ''">
-            <div class="step-dot">3</div>
+            <div class="step-dot">2</div>
             <div class="step-label">CHƯƠNG TRÌNH<br/>GIẢNG DẠY</div>
         </a>
         <a th:href="@{/instructor/courses/{id}/edit/quiz(id=${courseRequest.id})}"
            class="wizard-step" th:classappend="${activeStep == 'quiz'} ? 'active' : ''">
-            <div class="step-dot">4</div>
+            <div class="step-dot">3</div>
             <div class="step-label">CÂU HỎI ÔN TẬP</div>
         </a>
         <a th:href="@{/instructor/courses/{id}/edit/publish(id=${courseRequest.id})}"
            class="wizard-step" th:classappend="${activeStep == 'publish'} ? 'active' : ''">
-            <div class="step-dot">5</div>
+            <div class="step-dot">4</div>
             <div class="step-label">XUẤT BẢN</div>
         </a>
     </div>
 
     <!-- Nội dung từng step sẽ được include riêng -->
     <!-- Ví dụ controller trả về fragment tương ứng với activeStep -->
-    <div th:replace="~{instructor_course/stepinfor :: content}"
-         th:if="${activeStep == 'info'}"></div>
-<!--    <div th:replace="~{instructor_course/steppricing :: content}"-->
-<!--         th:if="${activeStep == 'pricing'}"></div>-->
-    <div th:replace="~{instructor_course/stepcurriculum :: content}"
-         th:if="${activeStep == 'curriculum'}"></div>
-    <div th:replace="~{instructor_course/stepquizz :: content}"
-         th:if="${activeStep == 'quiz'}"></div>
+<!--    <div th:replace="~{instructor_course/stepinfor :: content}"-->
+<!--         th:if="${activeStep == 'info'}"></div>-->
+<!--    <div th:replace="~{instructor_course/stepcurriculum :: content}"-->
+<!--         th:if="${activeStep == 'curriculum'}"></div>-->
+<!--    <div th:replace="~{instructor_course/stepquizz :: content}"-->
+<!--         th:if="${activeStep == 'quiz'}"></div>-->
 <!--    <div th:replace="~{instructor_course/step-publish :: content}"-->
 <!--         th:if="${activeStep == 'publish'}"></div>-->
+
+    <div th:if="${activeStep == 'info'}"
+         th:insert="~{instructor_course/stepinfor :: content}"></div>
+    <div th:if="${activeStep == 'curriculum'}"
+         th:insert="~{instructor_course/stepcurriculum :: content}"></div>
+    <div th:if="${activeStep == 'quiz'}"
+         th:insert="~{instructor_course/stepquizz :: content}"></div>
 
 </main>
 

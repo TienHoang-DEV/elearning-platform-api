@@ -12,6 +12,7 @@ import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.CategoryRepository;
 
@@ -54,14 +55,25 @@ public class CourseService {
                 .map(dtoMapper::toCourseDto);
     }
 
+    //Page course của mỗi instructor
+    public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus){
+         return repository.findByInstructorAndStatus(instructor, pageable,courseStatus).map(dtoMapper::toCourseDto);
+    }
+
     public Course save(User user, CourseCreateDto courseCreateDto) {
 
         if (repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
-            throw new RuntimeException("Bạn đã có khoá học với tiêu đề này rồi");
+            throw new CourseValidationException(
+                    "title",
+                    "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác."
+            );
         }
 
         if (courseCreateDto.getTitle().length() < 3) {
-            throw new RuntimeException("Tiêu đề khoá học với số lượng kí tự lớn hơn 3");
+            throw new CourseValidationException(
+                    "title",
+                    "Tiêu đề khóa học phải có ít nhất 3 ký tự."
+            );
         }
 
         String thumbnailUrl = null;
@@ -69,7 +81,7 @@ public class CourseService {
             thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), "course-thumbnails");
         }
 
-        Category category = categoryRepository.findById(courseCreateDto.getCategoryId()).orElseThrow(() -> new RuntimeException("Category không tồn tại"));
+        Category category = categoryRepository.findById(courseCreateDto.getCategoryId()).orElseThrow(() -> new CourseValidationException("categoryId","Category không tồn tại"));
 
         Course course = new Course();
         course.setTitle(courseCreateDto.getTitle());
@@ -209,9 +221,6 @@ public class CourseService {
         return repository.findByIdWithSectionsAndLessons(id).orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
     }
 
-    public Course save(Course entity) {
-        return repository.save(entity);
-    }
 
     public void deleteById(Integer id) {
         repository.deleteById(id);
