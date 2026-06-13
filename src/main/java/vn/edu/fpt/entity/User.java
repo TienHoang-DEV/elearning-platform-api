@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import vn.edu.fpt.util.AppConstants;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -141,5 +142,20 @@ public class User extends BaseEntity {
     public void removeEnrollment(Enrollment enrollment) {
         enrollments.remove(enrollment);
         enrollment.setUser(null);
+    }
+
+    public String getFullAvatarUrl() {
+        if (avatarUrl == null || avatarUrl.isBlank()) {
+            return null;
+        }
+
+        if (avatarUrl.startsWith("http://")
+                || avatarUrl.startsWith("https://")) {
+            return avatarUrl;
+        }
+
+        return AppConstants.AZURE_STORAGE_BASE_URL + "/" +
+                AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS + "/" +
+                avatarUrl;
     }
 }

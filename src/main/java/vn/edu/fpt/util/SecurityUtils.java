@@ -1,6 +1,7 @@
 package vn.edu.fpt.util;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import vn.edu.fpt.security.CustomOAuth2User;
 import vn.edu.fpt.security.CustomUserDetails;
 import vn.edu.fpt.entity.User;
 public class SecurityUtils {
@@ -19,8 +20,8 @@ public class SecurityUtils {
                 return ((CustomUserDetails) principal).getUser();
             }
 
-            if (principal instanceof vn.edu.fpt.security.CustomOAuth2User) {
-                return ((vn.edu.fpt.security.CustomOAuth2User) principal).getUser();
+            if (principal instanceof CustomOAuth2User) {
+                return ((CustomOAuth2User) principal).getUser();
             }
 
             if (principal instanceof User) {

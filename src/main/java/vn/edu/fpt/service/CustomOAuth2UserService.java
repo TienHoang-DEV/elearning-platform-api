@@ -58,6 +58,14 @@ public class CustomOAuth2UserService
             String lastName =
                     oAuth2User.getAttribute("family_name");
 
+            if (firstName == null || firstName.isBlank()) {
+                firstName = "Google";
+            }
+
+            if (lastName == null || lastName.isBlank()) {
+                lastName = "User";
+            }
+
             String picture =
                     oAuth2User.getAttribute("picture");
 
