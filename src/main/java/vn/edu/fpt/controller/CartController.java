@@ -61,12 +61,8 @@ public class CartController {
         model.addAttribute("cartSize", details.getCartSize());
         model.addAttribute("subtotal", details.getSubtotal());
         model.addAttribute("courseDiscounts", details.getCourseDiscounts());
-        model.addAttribute("instructorDiscounts", details.getInstructorDiscounts());
         model.addAttribute("total", details.getTotal());
         model.addAttribute("selectedItemsCount", details.getSelectedItemsCount());
-        model.addAttribute("appliedVoucherCodes", details.getAppliedVoucherCodes());
-        model.addAttribute("appliedVoucherDiscounts", details.getAppliedVoucherDiscounts());
-        model.addAttribute("voucherSuccess", details.getVoucherSuccess());
         model.addAttribute("instructorCheckboxState", details.getInstructorCheckboxState());
         model.addAttribute("globalCheckboxState", details.getGlobalCheckboxState());
 
@@ -212,25 +208,4 @@ public class CartController {
         }
     }
 
-    @PostMapping("/api/cart/apply-voucher")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> applyVoucher(@RequestParam("instructorId") Integer instructorId,
-                                                            @RequestParam("code") String code) {
-        try {
-            User user = getAuthenticatedUser();
-            if (user == null) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "Vui lòng đăng nhập.");
-                return ResponseEntity.status(401).body(response);
-            }
-            Map<String, Object> response = cartService.applyVoucher(user, instructorId, code);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Có lỗi xảy ra: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
 }

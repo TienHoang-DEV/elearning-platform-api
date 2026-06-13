@@ -571,52 +571,6 @@ CREATE TABLE quiz_attempts (
 );
 
 -- =========================
--- COUPONS
--- =========================
-CREATE TABLE coupons (
-                         id INT PRIMARY KEY IDENTITY(1,1),
-    -- Mã định danh mã giảm giá
-
-                         instructor_id INT NOT NULL,
-    -- Tham chiếu đến bảng users (role='instructor'), giáo viên tạo coupon cho khóa học của họ
-
-                         code VARCHAR(100) UNIQUE NOT NULL,
-    -- Mã code coupon (ví dụ: 'SUMMER50', 'NEWYEAR2024'), phải unique
-
-    title VARCHAR(200) NOT NULL,
-    -- tên mã
-
-                         discount_type VARCHAR(20)
-                             CHECK (discount_type IN ('PERCENT', 'FIXED')),
-    -- Loại giảm giá: percent (giảm theo %), fixed (giảm số tiền cố định)
-
-                         discount_value DECIMAL(10,2) NOT NULL CHECK (discount_value > 0),
-    -- Giá trị giảm (ví dụ: 50 cho percent, 100000 cho fixed)
-
-                         usage_limit INT NULL CHECK (usage_limit >= 1),
-    -- Giới hạn số lần sử dụng coupon (NULL = không giới hạn)
-
-                         used_count INT DEFAULT 0 CHECK (used_count >= 0),
-    -- Số lần coupon đã được sử dụng
-
-                         expired_at DATETIME NULL,
-    -- Thời gian hết hiệu lực coupon (NULL = không có hạn)
-
-                         status VARCHAR(20)
-                             CHECK (status IN ('ACTIVE', 'INACTIVE')),
-    -- Trạng thái: active (đang hoạt động), inactive (không hoạt động)
-
-                         created_at DATETIME DEFAULT GETDATE(),
-    -- Thời gian tạo coupon
-
-                         updated_at DATETIME NULL,
-    -- Thời gian cập nhật gần nhất
-
-                         CONSTRAINT FK_coupons_instructor
-                             FOREIGN KEY (instructor_id) REFERENCES users(id)
-);
-
--- =========================
 -- CARTS
 -- =========================
 CREATE TABLE carts (
@@ -667,40 +621,6 @@ CREATE TABLE cart_items (
                             CONSTRAINT UQ_cart_course UNIQUE(cart_id, course_id)
 );
 
--- =========================
--- CART INSTRUCTOR COUPONS
--- =========================
-CREATE TABLE cart_instructor_coupons (
-                                         id INT PRIMARY KEY IDENTITY(1,1),
-    -- Mã định danh mối quan hệ
-
-                                         cart_id INT NOT NULL,
-    -- Tham chiếu đến bảng carts, giỏ nào áp dụng coupon
-
-                                         instructor_id INT NOT NULL,
-    -- Tham chiếu đến bảng users, coupon của giáo viên nào
-
-                                         coupon_id INT NOT NULL,
-    -- Tham chiếu đến bảng coupons, coupon nào được áp dụng
-
-                                         created_at DATETIME DEFAULT GETDATE(),
-    -- Thời gian tạo bản ghi
-                                         updated_at DATETIME NULL,
-    -- Thời gian cập nhật gần nhất
-
-                                         CONSTRAINT FK_cart_coupon_cart
-                                             FOREIGN KEY (cart_id) REFERENCES carts(id),
-
-                                         CONSTRAINT FK_cart_coupon_instructor
-                                             FOREIGN KEY (instructor_id) REFERENCES users(id),
-
-                                         CONSTRAINT FK_cart_coupon_coupon
-                                             FOREIGN KEY (coupon_id) REFERENCES coupons(id),
-
-    -- Constraint unique để tránh áp dụng coupon cùng giáo viên 2 lần
-                                         CONSTRAINT UQ_cart_instructor UNIQUE(cart_id, instructor_id)
-);
-
 
 -- =========================
 -- ORDERS
@@ -713,10 +633,7 @@ CREATE TABLE orders (
     -- Tham chiếu đến bảng users, học viên tạo đơn hàng
 
                         total_amount DECIMAL(10,2) NOT NULL CHECK (total_amount >= 0),
-    -- Tổng tiền trước khi giảm giá
-
-                        discount_amount DECIMAL(10,2) DEFAULT 0 CHECK (discount_amount >= 0),
-    -- Tổng tiền giảm từ tất cả coupons
+    -- Tổng tiền của đơn hàng
 
                         status VARCHAR(20)
                             CHECK (status IN ('PENDING', 'PAID', 'COMPLETED', 'CANCELLED', 'EXPIRED')),
@@ -750,17 +667,8 @@ CREATE TABLE order_items (
                              course_id INT NOT NULL,
     -- Tham chiếu đến bảng courses, khóa học nào được thanh toán
 
-                             coupon_id INT NULL,
-    -- Tham chiếu đến bảng coupons, coupon được áp dụng cho item này (nếu có)
-
                              price_snapshot DECIMAL(10,2) NOT NULL CHECK (price_snapshot >= 0),
     -- Giá gốc khóa học tại thời điểm tạo đơn (snapshot)
-
-                             discount_amount DECIMAL(10,2) DEFAULT 0 CHECK (discount_amount >= 0),
-    -- Tiền giảm từ coupon (nếu có)
-
-                             final_price DECIMAL(10,2) NOT NULL CHECK (final_price >= 0),
-    -- Giá cuối cùng = price_snapshot - discount_amount
 
                              course_title_snapshot NVARCHAR(255) NULL,
     -- Tên khóa học tại thời điểm tạo đơn (snapshot, dùng cho lịch sử)
@@ -773,9 +681,7 @@ CREATE TABLE order_items (
                              CONSTRAINT FK_order_items_order
                                  FOREIGN KEY (order_id) REFERENCES orders(id),
                              CONSTRAINT FK_order_items_course
-                                 FOREIGN KEY (course_id) REFERENCES courses(id),
-                             CONSTRAINT FK_order_items_coupon
-                                 FOREIGN KEY (coupon_id) REFERENCES coupons(id)
+                                 FOREIGN KEY (course_id) REFERENCES courses(id)
 );
 
 -- =========================
@@ -817,37 +723,6 @@ CREATE TABLE payments (
 
                           CONSTRAINT FK_payments_order
                               FOREIGN KEY (order_id) REFERENCES orders(id)
-);
-
--- =========================
--- COUPON USAGES
--- =========================
-CREATE TABLE coupon_usages (
-                               id INT PRIMARY KEY IDENTITY(1,1),
-    -- Mã định danh lần sử dụng coupon
-
-                               coupon_id INT NOT NULL,
-    -- Tham chiếu đến bảng coupons, coupon nào được sử dụng
-
-                               user_id INT NOT NULL,
-    -- Tham chiếu đến bảng users, người dùng nào sử dụng
-
-                               order_id INT NOT NULL,
-                               discount_amount DECIMAL(10,2) NOT NULL,
-
-                               used_at DATETIME NULL,
-
-                               created_at DATETIME DEFAULT GETDATE(),
-    -- Thời gian tạo bản ghi
-                               updated_at DATETIME NULL,
-    -- Thời gian cập nhật gần nhất
-
-                               CONSTRAINT FK_coupon_usages_coupon
-                                   FOREIGN KEY (coupon_id) REFERENCES coupons(id),
-                               CONSTRAINT FK_coupon_usages_user
-                                   FOREIGN KEY (user_id) REFERENCES users(id),
-                               CONSTRAINT FK_coupon_usages_order
-                                   FOREIGN KEY (order_id) REFERENCES orders(id)
 );
 
 -- =========================

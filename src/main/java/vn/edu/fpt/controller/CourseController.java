@@ -82,7 +82,8 @@ public class CourseController {
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             Model model) {
 
-        List<CourseDto> filteredCourses = courseService.getFilteredAndSortedCourses(search, categoryId, ratings, prices, sort);
+        List<CourseDto> filteredCourses = courseService.getFilteredAndSortedCourses(search, categoryId, ratings, prices,
+                sort);
         List<CategoryDto> categoryDtos = categoryService.getActiveParentCategories();
 
         model.addAttribute("parentCategories", categoryDtos);
@@ -98,7 +99,8 @@ public class CourseController {
             try {
                 Cart cart = cartService.getOrCreateCartForUser(user);
                 cartSize = cartItemService.countItemsInCart(cart);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         model.addAttribute("cartSize", cartSize);
 
@@ -131,7 +133,8 @@ public class CourseController {
             pagedCourses = filteredCourses.subList(startIndex, endIndex);
         }
 
-        // 6. Đưa dữ liệu trang hiện tại và các thuộc tính phân trang vào Model để render ra UI
+        // 6. Đưa dữ liệu trang hiện tại và các thuộc tính phân trang vào Model để
+        // render ra UI
         model.addAttribute("courses", pagedCourses);
         model.addAttribute("search", search);
         model.addAttribute("categoryId", categoryId);
@@ -167,16 +170,17 @@ public class CourseController {
                 Cart cart = cartService.getOrCreateCartForUser(user);
                 int cartSize = cartItemService.countItemsInCart(cart);
                 model.addAttribute("cartSize", cartSize);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         return "course/detail";
     }
 
     @PostMapping("/course/review/add")
     public String addCourseReview(@RequestParam("courseId") Integer courseId,
-                                  @RequestParam("rating") Integer rating,
-                                  @RequestParam(value = "comment", required = false, defaultValue = "") String comment,
-                                  org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+            @RequestParam("rating") Integer rating,
+            @RequestParam(value = "comment", required = false, defaultValue = "") String comment,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         User user = getSessionUser();
         if (user == null) {
             return "redirect:/";
