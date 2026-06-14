@@ -24,6 +24,8 @@
     <link rel="stylesheet" th:href="@{/css/home.css}">
     <!-- Courses Search Page Custom Stylesheet -->
     <link rel="stylesheet" th:href="@{/css/course.css}">
+    <!-- Clean Interface Stylesheet -->
+    <link rel="stylesheet" th:href="@{/css/list.css}">
 
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -32,8 +34,8 @@
 <body class="bg-light bg-opacity-25">
 
     <!-- Header Navigation -->
-    <header class="navbar navbar-expand-lg bg-white border-bottom py-3">
-        <div class="container d-flex justify-content-between align-items-center">
+    <header class="site-header">
+        <div class="header-container container">
 
             <!-- Logo Section -->
             <a class="header-logo d-flex align-items-center gap-2 text-decoration-none" th:href="@{/}">
@@ -42,102 +44,79 @@
             </a>
 
             <!-- Search and Category -->
-            <div class="search-category-section d-none d-lg-flex align-items-center gap-2 flex-grow-1 mx-5"
-                style="max-width: 600px;">
+            <div class="search-category-section" style="max-width: 600px;">
 
                 <!-- Search Input -->
-                <form action="/courses" method="get" class="search-bar-wrapper position-relative flex-grow-1">
-                    <i data-lucide="search"
-                        class="search-icon position-absolute start-0 top-50 translate-middle-y ms-3 text-muted"
-                        style="width:18px; height:18px;"></i>
+                <form action="/courses" method="get" class="search-bar-wrapper">
+                    <i data-lucide="search" class="search-icon-header"></i>
                     <input type="text" name="search" th:value="${search}" placeholder="Tìm khóa học..."
-                        class="form-control rounded-pill border-0 bg-light px-4 py-2 ps-5" id="search-input">
+                        class="search-input-header" id="search-input">
                 </form>
             </div>
 
             <!-- User Utilities -->
-            <div class="header-utilities d-flex align-items-center gap-3">
+            <div class="header-utilities">
                 <!-- Nút Đăng ký dạy (Ẩn trên màn hình nhỏ để tránh chật chội) -->
-                <a th:href="@{/instructor-request}" th:if="${currentUser == null || (currentUser.role?.name() != 'INSTRUCTOR' && currentUser.role?.name() != 'MANAGER')}"
-                    class="btn-instructor-join d-none d-xl-flex align-items-center gap-1 text-decoration-none fw-medium fs-7 me-2">
+                <a th:href="@{/instructor-request}"
+                    th:if="${currentUser == null || (currentUser.role?.name() != 'INSTRUCTOR' && currentUser.role?.name() != 'MANAGER')}"
+                    class="btn-instructor-join">
                     <i data-lucide="award" style="width: 16px; height: 16px;"></i>
                     <span>Trở thành Giảng viên</span>
                 </a>
 
                 <th:block th:if="${currentUser == null}">
-                    <a th:href="@{/login_no}"
-                        class="btn btn-ghost-primary rounded-pill px-4 py-2 fw-semibold fs-7 d-none d-sm-inline-block text-decoration-none">Đăng
-                        nhập</a>
-                    <a th:href="@{/register}"
-                        class="btn btn-primary-solid rounded-pill px-4 py-2 fw-semibold fs-7 text-decoration-none"
-                        id="btn-login-header">Đăng ký</a>
+                    <a th:href="@{/login_no}" class="btn-login-ghost">Đăng nhập</a>
+                    <a th:href="@{/register}" class="btn-register-solid" id="btn-login-header">Đăng ký</a>
                 </th:block>
 
                 <th:block th:if="${currentUser != null}">
                     <!-- Cart Icon with badge number 2 -->
-                    <a th:href="@{/cart}"
-                        class="btn btn-link nav-icon-btn text-muted p-2 rounded-circle position-relative text-decoration-none"
-                        aria-label="Giỏ hàng">
-                        <i data-lucide="shopping-cart" style="width: 20px; height: 20px;"></i>
-                        <span
-                            class="position-absolute top-1 translate-middle badge rounded-circle bg-danger p-1 cart-count-badge"
-                            id="cart-badge-count"
-                            style="left: 75%; font-size: 10px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; color: #fff;"
-                            th:text="${cartSize ?: 0}">
-                            0
-                        </span>
+                    <a th:href="@{/cart}" class="btn-header-cart" aria-label="Giỏ hàng">
+                        <i data-lucide="shopping-cart"></i>
+                        <span class="header-cart-badge" id="cart-badge-count" th:text="${cartSize ?: 0}"></span>
                     </a>
 
                     <!-- Notification Bell -->
-                    <button class="btn btn-link nav-icon-btn text-muted p-2 rounded-circle" aria-label="Thông báo">
-                        <i data-lucide="bell" style="width: 20px; height: 20px;"></i>
+                    <button class="btn-header-bell" aria-label="Thông báo">
+                        <i data-lucide="bell"></i>
                     </button>
 
                     <!-- User Profile Dropdown -->
                     <div class="dropdown user-profile-dropdown">
-                        <button
-                            class="btn d-flex align-items-center gap-2 p-1 border-0 bg-transparent dropdown-toggle no-caret"
+                        <button class="user-profile-dropdown-btn dropdown-toggle no-caret"
                             type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="user-avatar-wrapper position-relative">
+                            <div class="user-avatar-wrapper">
                                 <img th:src="${currentUser.getFullAvatarUrl() != null ? currentUser.getFullAvatarUrl() : '/images/student2.png'}"
-                                    alt="User Avatar" class="rounded-circle header-user-avatar"
-                                    style="width: 36px; height: 36px; object-fit: cover;">
+                                    alt="User Avatar" class="header-user-avatar">
                                 <span class="user-online-badge"></span>
                             </div>
-                            <span class="user-name fw-semibold fs-7 text-dark d-none d-md-inline-block"
-                                th:text="${currentUser.firstName + ' ' + currentUser.lastName}">Tên Học Viên</span>
+                            <span class="user-name-header" th:text="${currentUser.firstName + ' ' + currentUser.lastName}">Tên Học Viên</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 p-2 context-menu"
-                            aria-labelledby="profileDropdown" style="width: 220px; border-radius: var(--radius-lg);">
+                        <ul class="dropdown-menu dropdown-menu-profile dropdown-menu-end" aria-labelledby="profileDropdown">
                             <li class="px-3 py-2 border-bottom mb-1">
                                 <p class="fw-bold text-dark m-0 fs-7 text-truncate"
                                     th:text="${currentUser.firstName + ' ' + currentUser.lastName}">Tên Học Viên</p>
-                                <p class="user-email text-muted m-0 fs-8 text-truncate" th:text="${currentUser.email}">
-                                    email@example.com</p>
+                                <p class="user-email text-muted m-0 fs-8 text-truncate" th:text="${currentUser.email}">email@example.com</p>
                             </li>
-                            <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted text-decoration-none"
-                                    th:href="@{/student/profile}"><i data-lucide="user" style="width:16px;"></i> Thông
-                                    tin
-                                    của tôi</a></li>
-                            <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted text-decoration-none"
-                                    th:href="@{/student/my-learning}"><i data-lucide="graduation-cap"
-                                        style="width:16px;"></i> Việc học của tôi</a></li>
-                            <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted text-decoration-none"
-                                    th:href="@{/student/recommendations}"><i data-lucide="sparkles"
-                                        style="width:16px;"></i>
-                                    Khóa học đề xuất</a></li>
-                            <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted text-decoration-none"
-                                    th:href="@{/student/purchase-history}"><i data-lucide="history"
-                                        style="width:16px;"></i>
-                                    Lịch sử mua hàng</a></li>
-                            <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted active bg-primary text-white text-decoration-none"
-                                    th:href="@{/courses}"><i data-lucide="search" style="width:16px;"></i> Tìm kiếm khóa
-                                    học</a></li>
-                            <li>
-                                <hr class="dropdown-divider my-2">
-                            </li>
-                            <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-danger fw-semibold text-decoration-none"
-                                    th:href="@{/}"><i data-lucide="log-out" style="width:16px;"></i> Đăng xuất</a></li>
+                            <li><a class="profile-dropdown-item" th:href="@{/student/profile}">
+                                    <i data-lucide="user" style="width:16px;"></i> Thông tin của tôi
+                                </a></li>
+                            <li><a class="profile-dropdown-item" th:href="@{/student/my-learning}">
+                                    <i data-lucide="graduation-cap" style="width:16px;"></i> Việc học của tôi
+                                </a></li>
+                            <li><a class="profile-dropdown-item" th:href="@{/student/recommendations}">
+                                    <i data-lucide="sparkles" style="width:16px;"></i> Khóa học đề xuất
+                                </a></li>
+                            <li><a class="profile-dropdown-item" th:href="@{/student/purchase-history}">
+                                    <i data-lucide="history" style="width:16px;"></i> Lịch sử mua hàng
+                                </a></li>
+                            <li><a class="profile-dropdown-item active" th:href="@{/courses}">
+                                    <i data-lucide="search" style="width:16px;"></i> Tìm kiếm khóa học
+                                </a></li>
+                            <li><hr class="dropdown-divider my-2"></li>
+                            <li><a class="profile-dropdown-item danger" th:href="@{/}">
+                                    <i data-lucide="log-out" style="width:16px;"></i> Đăng xuất
+                                </a></li>
                         </ul>
                     </div>
                 </th:block>
@@ -163,7 +142,7 @@
                             <!-- Filter Group 1: Categories -->
                             <div class="filter-group mb-4">
                                 <h4 class="filter-title fw-bold fs-7 mb-3 d-flex align-items-center gap-2">
-                                    <i data-lucide="folder" class="text-muted" style="width: 18px; height: 18px;"></i>
+                                    <i data-lucide="folder" class="filter-icon"></i>
                                     Danh mục
                                 </h4>
                                 <div class="accordion category-accordion" id="categoryAccordion">
@@ -205,7 +184,7 @@
                             <!-- Filter Group 2: Ratings -->
                             <div class="filter-group mb-4">
                                 <h4 class="filter-title fw-bold fs-7 mb-3 d-flex align-items-center gap-2">
-                                    <i data-lucide="star" class="text-muted" style="width: 18px; height: 18px;"></i>
+                                    <i data-lucide="star" class="filter-icon"></i>
                                     Đánh giá
                                 </h4>
                                 <div class="d-flex flex-column gap-2">
@@ -284,7 +263,7 @@
                             <!-- Filter Group 3: Price -->
                             <div class="filter-group">
                                 <h4 class="filter-title fw-bold fs-7 mb-3 d-flex align-items-center gap-2">
-                                    <i data-lucide="coins" class="text-muted" style="width: 18px; height: 18px;"></i>
+                                    <i data-lucide="coins" class="filter-icon"></i>
                                     Giá tiền
                                 </h4>
                                 <div class="d-flex flex-column gap-2 fs-7 text-muted-dark">
@@ -341,7 +320,7 @@
                         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
                             <div>
                                 <h2 class="search-result-title fw-extrabold font-heading fs-4 m-0 d-inline-block"
-                                    th:text="${search != null && !search.isEmpty()} ? 'Kết quả cho &quot;' + ${search} + '&quot;' : 'Tất cả khóa học'">
+                                    th:text="${search != null && !search.isEmpty()} ? 'Kết quả cho &quot;' + ${search} + '&quot;' : (${selectedCategoryName != null} ? 'Khóa học ' + ${selectedCategoryName} : 'Tất cả khóa học')">
                                     Kết quả cho "Guitar"
                                 </h2>
                                 <span class="text-muted fs-7 ms-2"
@@ -350,8 +329,8 @@
                             </div>
                             <div class="d-flex align-items-center gap-2">
                                 <select name="sort" id="sort-select"
-                                    class="form-select border-light-subtle rounded-3 py-2 px-3 fs-7 text-muted fw-semibold"
-                                    style="width: 170px; cursor: pointer;" onchange="submitFormResetPage()">
+                                    class="form-select border-light-subtle rounded-3 py-2 px-3 fs-7 text-muted fw-semibold course-sort-select"
+                                    onchange="submitFormResetPage()">
                                     <option value="newest" th:selected="${sort == 'newest'}">Mới nhất</option>
                                     <option value="rating" th:selected="${sort == 'rating'}">Đánh giá tốt nhất</option>
                                     <option value="price-asc" th:selected="${sort == 'price-asc'}">Giá tăng dần</option>
@@ -371,8 +350,7 @@
                                 th:data-category-id="${course.category != null ? course.category.id : ''}">
                                 <!-- Left: Thumbnail -->
                                 <a th:href="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id)} ? @{/student/my-learning} : @{/course/detail(id=${course.id})}"
-                                    class="position-relative overflow-hidden rounded-3 flex-shrink-0 align-self-center align-self-md-start"
-                                    style="width: 240px; height: 145px; display: block;">
+                                    class="course-thumbnail-link">
                                     <img th:src="${course.thumbnailPath}" th:alt="${course.title}"
                                         class="w-100 h-100 object-fit-cover"
                                         onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
@@ -382,8 +360,7 @@
                                 </a>
 
                                 <!-- Right: Info -->
-                                <div class="flex-grow-1 w-100 d-flex flex-column justify-content-between h-100"
-                                    style="min-height: 145px;">
+                                <div class="course-info-wrapper">
                                     <div>
                                         <a th:href="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id)} ? @{/student/my-learning} : @{/course/detail(id=${course.id})}"
                                             class="text-decoration-none text-dark">
@@ -421,12 +398,12 @@
                                         <!-- Meta Attributes -->
                                         <div class="d-flex align-items-center gap-3 text-muted fs-8">
                                             <span class="d-flex align-items-center gap-1"><i data-lucide="clock"
-                                                    style="width: 14px;"></i> 31 phút</span>
+                                                    class="course-meta-icon"></i> 31 phút</span>
                                             <span class="d-flex align-items-center gap-1"><i data-lucide="zap"
-                                                    style="width: 14px;"></i> <span th:text="${course.level}">Cơ
+                                                    class="course-meta-icon"></i> <span th:text="${course.level}">Cơ
                                                     bản</span></span>
                                             <span class="d-flex align-items-center gap-1"><i data-lucide="eye"
-                                                    style="width: 14px;"></i> <span
+                                                    class="course-meta-icon"></i> <span
                                                     th:text="${course.enrollmentsCount} + ' lượt mua'">0 lượt
                                                     mua</span></span>
                                         </div>

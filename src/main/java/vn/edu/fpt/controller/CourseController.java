@@ -138,6 +138,15 @@ public class CourseController {
         model.addAttribute("courses", pagedCourses);
         model.addAttribute("search", search);
         model.addAttribute("categoryId", categoryId);
+        if (categoryId != null) {
+            try {
+                vn.edu.fpt.entity.Category selectedCategory = categoryService.findByIdAndStatus(categoryId, "ACTIVE");
+                if (selectedCategory != null) {
+                    model.addAttribute("selectedCategoryName", selectedCategory.getName());
+                }
+            } catch (Exception ignored) {
+            }
+        }
         model.addAttribute("selectedRatings", ratings);
         model.addAttribute("selectedPrices", prices);
         model.addAttribute("sort", sort);
