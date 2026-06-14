@@ -65,7 +65,9 @@ public class StudentProfileController {
 
     @GetMapping("/")
     public String showHomePage(Model model) {
-        return "home/home_logged_in";
+        User currentUser = getSessionUser();
+        model.addAttribute("currentUser", currentUser);
+        return "home/home";
     }
 
     @org.springframework.transaction.annotation.Transactional

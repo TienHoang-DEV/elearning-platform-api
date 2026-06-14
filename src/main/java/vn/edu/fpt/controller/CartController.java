@@ -60,7 +60,6 @@ public class CartController {
         model.addAttribute("itemsByInstructor", details.getItemsByInstructor());
         model.addAttribute("cartSize", details.getCartSize());
         model.addAttribute("subtotal", details.getSubtotal());
-        model.addAttribute("courseDiscounts", details.getCourseDiscounts());
         model.addAttribute("total", details.getTotal());
         model.addAttribute("selectedItemsCount", details.getSelectedItemsCount());
         model.addAttribute("instructorCheckboxState", details.getInstructorCheckboxState());

@@ -69,7 +69,6 @@ public class CartService {
         int cartSize = cartItemService.countItemsInCart(cart);
 
         long subtotal = 0;
-        long courseDiscounts = 0;
         long selectedItemsCount = 0;
 
         Map<Integer, String> instructorCheckboxState = new HashMap<>(); // "checked", "unchecked", "indeterminate"
@@ -79,20 +78,16 @@ public class CartService {
             List<CartItemDto> itemsList = entry.getValue();
 
             long instSubtotal = 0;
-            long instCourseDiscounts = 0;
             long groupSelectedCount = 0;
 
             for (CartItemDto item : itemsList) {
                 if (item.isSelected()) {
                     long price = item.getCourse().getPrice().longValue();
-                    long discount = 0; // No discount
 
                     subtotal += price;
-                    courseDiscounts += discount;
                     selectedItemsCount++;
 
                     instSubtotal += price;
-                    instCourseDiscounts += discount;
                     groupSelectedCount++;
                 }
             }
@@ -107,7 +102,7 @@ public class CartService {
             }
         }
 
-        long total = subtotal - courseDiscounts;
+        long total = subtotal;
         if (total < 0) total = 0;
 
         boolean allSelected = true;
@@ -131,7 +126,6 @@ public class CartService {
                 .itemsByInstructor(itemsByInstructor)
                 .cartSize(cartSize)
                 .subtotal(subtotal)
-                .courseDiscounts(courseDiscounts)
                 .total(total)
                 .selectedItemsCount(selectedItemsCount)
                 .instructorCheckboxState(instructorCheckboxState)

@@ -1,6 +1,7 @@
 package vn.edu.fpt.dto;
 
 import lombok.*;
+import vn.edu.fpt.enums.RoleType;
 
 @Getter
 @Setter
@@ -16,4 +17,20 @@ public class UserDto {
     private String avatarUrl;
     private String bio;
     private String phone;
+    private RoleType role;
+
+    public String getFullAvatarUrl() {
+        if (avatarUrl == null || avatarUrl.isBlank()) {
+            return null;
+        }
+
+        if (avatarUrl.startsWith("http://")
+                || avatarUrl.startsWith("https://")) {
+            return avatarUrl;
+        }
+
+        return vn.edu.fpt.util.AppConstants.AZURE_STORAGE_BASE_URL + "/" +
+                vn.edu.fpt.util.AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS + "/" +
+                avatarUrl;
+    }
 }
