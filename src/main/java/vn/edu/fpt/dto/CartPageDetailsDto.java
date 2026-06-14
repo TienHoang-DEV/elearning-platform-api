@@ -15,7 +15,6 @@ public class CartPageDetailsDto {
     private int cartSize;
     
     private long subtotal;
-    private long courseDiscounts;
     private long total;
     private long selectedItemsCount;
     
