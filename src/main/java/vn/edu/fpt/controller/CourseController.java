@@ -76,7 +76,7 @@ public class CourseController {
     public String showCourseList(
             @RequestParam(value = "search", required = false) String search,
             @RequestParam(value = "categoryId", required = false) Integer categoryId,
-            @RequestParam(value = "ratings", required = false) List<Integer> ratings,
+            @RequestParam(value = "ratings", required = false) List<Double> ratings,
             @RequestParam(value = "prices", required = false) List<String> prices,
             @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort,
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,

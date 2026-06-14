@@ -110,7 +110,7 @@ public class CourseService {
     public List<CourseDto> getFilteredAndSortedCourses(
             String search,
             Integer categoryId,
-            List<Integer> ratings,
+            List<Double> ratings,
             List<String> prices,
             String sort) {
 
@@ -127,21 +127,14 @@ public class CourseService {
                 }
             }
 
-            // Lọc theo số sao đánh giá
+            // Lọc theo số sao đánh giá (từ X sao trở lên)
             if (ratings != null && !ratings.isEmpty()) {
                 boolean matchRating = false;
                 double avgRating = course.getAverageRating();
-                for (Integer r : ratings) {
-                    if (r == 5) {
-                        if (avgRating >= 5.0) {
-                            matchRating = true;
-                            break;
-                        }
-                    } else {
-                        if (avgRating >= r && avgRating < r + 1) {
-                            matchRating = true;
-                            break;
-                        }
+                for (Double r : ratings) {
+                    if (avgRating >= r) {
+                        matchRating = true;
+                        break;
                     }
                 }
                 if (!matchRating) {

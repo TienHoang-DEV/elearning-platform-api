@@ -186,26 +186,29 @@
                                     Đánh giá
                                 </h4>
                                 <div class="d-flex flex-column gap-2">
+                                    <!-- Từ 4.5 sao trở lên -->
                                     <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
                                         <input type="checkbox" name="ratings"
                                             class="form-check-input border-secondary-subtle filter-rating-checkbox"
-                                            value="5"
-                                            th:checked="${selectedRatings != null && selectedRatings.contains(5)}"
+                                            value="4.5"
+                                            th:checked="${selectedRatings != null && selectedRatings.contains(4.5)}"
                                             onchange="submitFormResetPage()">
                                         <span class="d-flex align-items-center gap-1">
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
-                                            <i data-lucide="star" class="star-icon star-filled"></i>
-                                            <span class="ms-1 text-muted fs-8">5 sao</span>
+                                            <i data-lucide="star-half" class="star-icon star-filled"></i>
+                                            <span class="ms-1 text-muted fs-8">Từ 4,5 sao trở lên</span>
                                         </span>
                                     </label>
+                                    
+                                    <!-- Từ 4.0 sao trở lên -->
                                     <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
                                         <input type="checkbox" name="ratings"
                                             class="form-check-input border-secondary-subtle filter-rating-checkbox"
-                                            value="4"
-                                            th:checked="${selectedRatings != null && selectedRatings.contains(4)}"
+                                            value="4.0"
+                                            th:checked="${selectedRatings != null && selectedRatings.contains(4.0)}"
                                             onchange="submitFormResetPage()">
                                         <span class="d-flex align-items-center gap-1">
                                             <i data-lucide="star" class="star-icon star-filled"></i>
@@ -213,52 +216,41 @@
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <span class="ms-1 text-muted fs-8">4 sao</span>
+                                            <span class="ms-1 text-muted fs-8">Từ 4 sao trở lên</span>
                                         </span>
                                     </label>
+                                    
+                                    <!-- Từ 3.5 sao trở lên -->
                                     <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
                                         <input type="checkbox" name="ratings"
                                             class="form-check-input border-secondary-subtle filter-rating-checkbox"
-                                            value="3"
-                                            th:checked="${selectedRatings != null && selectedRatings.contains(3)}"
+                                            value="3.5"
+                                            th:checked="${selectedRatings != null && selectedRatings.contains(3.5)}"
                                             onchange="submitFormResetPage()">
                                         <span class="d-flex align-items-center gap-1">
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
+                                            <i data-lucide="star-half" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <span class="ms-1 text-muted fs-8">3 sao</span>
+                                            <span class="ms-1 text-muted fs-8">Từ 3,5 sao trở lên</span>
                                         </span>
                                     </label>
+                                    
+                                    <!-- Từ 3.0 sao trở lên -->
                                     <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
                                         <input type="checkbox" name="ratings"
                                             class="form-check-input border-secondary-subtle filter-rating-checkbox"
-                                            value="2"
-                                            th:checked="${selectedRatings != null && selectedRatings.contains(2)}"
+                                            value="3.0"
+                                            th:checked="${selectedRatings != null && selectedRatings.contains(3.0)}"
                                             onchange="submitFormResetPage()">
                                         <span class="d-flex align-items-center gap-1">
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
-                                            <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <span class="ms-1 text-muted fs-8">2 sao</span>
-                                        </span>
-                                    </label>
-                                    <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
-                                        <input type="checkbox" name="ratings"
-                                            class="form-check-input border-secondary-subtle filter-rating-checkbox"
-                                            value="1"
-                                            th:checked="${selectedRatings != null && selectedRatings.contains(1)}"
-                                            onchange="submitFormResetPage()">
-                                        <span class="d-flex align-items-center gap-1">
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-empty"></i>
                                             <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <span class="ms-1 text-muted fs-8">1 sao</span>
+                                            <span class="ms-1 text-muted fs-8">Từ 3 sao trở lên</span>
                                         </span>
                                     </label>
                                 </div>
