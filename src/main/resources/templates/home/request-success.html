@@ -28,7 +28,7 @@
       <div class="dropdown user-profile-dropdown" th:if="${currentUser != null}">
         <button class="btn d-flex align-items-center gap-2 p-1 border-0 bg-transparent dropdown-toggle no-caret" type="button" data-bs-toggle="dropdown">
           <div class="user-avatar-wrapper position-relative">
-            <img th:src="${currentUser.avatarUrl != null ? currentUser.avatarUrl : '/images/avatar.png'}" alt="User Avatar" class="rounded-circle header-user-avatar">
+            <img th:src="${currentUser.avatarUrl != null ? currentUser.avatarUrl : '/images/avatar.png'}" alt="User Avatar" class="rounded-circle header-user-avatar" onerror="this.onerror=null; this.src='/images/student2.png';" >
             <span class="user-online-badge"></span>
           </div>
           <span class="user-name fw-semibold fs-7 text-dark d-none d-md-inline-block" th:text="${currentUser.firstName + ' ' + currentUser.lastName}">Nguyễn Văn A</span>

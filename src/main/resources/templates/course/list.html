@@ -34,95 +34,7 @@
 <body class="bg-light bg-opacity-25">
 
     <!-- Header Navigation -->
-    <header class="site-header">
-        <div class="header-container container">
-
-            <!-- Logo Section -->
-            <a class="header-logo d-flex align-items-center gap-2 text-decoration-none" th:href="@{/}">
-                <i class="fa-solid fa-layer-group logo-fa-layers"></i>
-                <span class="logo-text fw-bold font-heading">LearningHub</span>
-            </a>
-
-            <!-- Search and Category -->
-            <div class="search-category-section" style="max-width: 600px;">
-
-                <!-- Search Input -->
-                <form action="/courses" method="get" class="search-bar-wrapper">
-                    <i data-lucide="search" class="search-icon-header"></i>
-                    <input type="text" name="search" th:value="${search}" placeholder="Tìm khóa học..."
-                        class="search-input-header" id="search-input">
-                </form>
-            </div>
-
-            <!-- User Utilities -->
-            <div class="header-utilities">
-                <!-- Nút Đăng ký dạy (Ẩn trên màn hình nhỏ để tránh chật chội) -->
-                <a th:href="@{/instructor-request}"
-                    th:if="${currentUser == null || (currentUser.role?.name() != 'INSTRUCTOR' && currentUser.role?.name() != 'MANAGER')}"
-                    class="btn-instructor-join">
-                    <i data-lucide="award" style="width: 16px; height: 16px;"></i>
-                    <span>Trở thành Giảng viên</span>
-                </a>
-
-                <th:block th:if="${currentUser == null}">
-                    <a th:href="@{/login_no}" class="btn-login-ghost">Đăng nhập</a>
-                    <a th:href="@{/register}" class="btn-register-solid" id="btn-login-header">Đăng ký</a>
-                </th:block>
-
-                <th:block th:if="${currentUser != null}">
-                    <!-- Cart Icon with badge number 2 -->
-                    <a th:href="@{/cart}" class="btn-header-cart" aria-label="Giỏ hàng">
-                        <i data-lucide="shopping-cart"></i>
-                        <span class="header-cart-badge" id="cart-badge-count" th:text="${cartSize ?: 0}"></span>
-                    </a>
-
-                    <!-- Notification Bell -->
-                    <button class="btn-header-bell" aria-label="Thông báo">
-                        <i data-lucide="bell"></i>
-                    </button>
-
-                    <!-- User Profile Dropdown -->
-                    <div class="dropdown user-profile-dropdown">
-                        <button class="user-profile-dropdown-btn dropdown-toggle no-caret"
-                            type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="user-avatar-wrapper">
-                                <img th:src="${currentUser.getFullAvatarUrl() != null ? currentUser.getFullAvatarUrl() : '/images/student2.png'}"
-                                    alt="User Avatar" class="header-user-avatar">
-                                <span class="user-online-badge"></span>
-                            </div>
-                            <span class="user-name-header" th:text="${currentUser.firstName + ' ' + currentUser.lastName}">Tên Học Viên</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-profile dropdown-menu-end" aria-labelledby="profileDropdown">
-                            <li class="px-3 py-2 border-bottom mb-1">
-                                <p class="fw-bold text-dark m-0 fs-7 text-truncate"
-                                    th:text="${currentUser.firstName + ' ' + currentUser.lastName}">Tên Học Viên</p>
-                                <p class="user-email text-muted m-0 fs-8 text-truncate" th:text="${currentUser.email}">email@example.com</p>
-                            </li>
-                            <li><a class="profile-dropdown-item" th:href="@{/student/profile}">
-                                    <i data-lucide="user" style="width:16px;"></i> Thông tin của tôi
-                                </a></li>
-                            <li><a class="profile-dropdown-item" th:href="@{/student/my-learning}">
-                                    <i data-lucide="graduation-cap" style="width:16px;"></i> Việc học của tôi
-                                </a></li>
-                            <li><a class="profile-dropdown-item" th:href="@{/student/recommendations}">
-                                    <i data-lucide="sparkles" style="width:16px;"></i> Khóa học đề xuất
-                                </a></li>
-                            <li><a class="profile-dropdown-item" th:href="@{/student/purchase-history}">
-                                    <i data-lucide="history" style="width:16px;"></i> Lịch sử mua hàng
-                                </a></li>
-                            <li><a class="profile-dropdown-item active" th:href="@{/courses}">
-                                    <i data-lucide="search" style="width:16px;"></i> Tìm kiếm khóa học
-                                </a></li>
-                            <li><hr class="dropdown-divider my-2"></li>
-                            <li><a class="profile-dropdown-item danger" th:href="@{/}">
-                                    <i data-lucide="log-out" style="width:16px;"></i> Đăng xuất
-                                </a></li>
-                        </ul>
-                    </div>
-                </th:block>
-            </div>
-        </div>
-    </header>
+    <header th:replace="fragments/header :: header"></header>
 
     <!-- Main Content Layout -->
     <main class="py-5">
@@ -615,54 +527,15 @@
                             messageEl.textContent = data.message; // Gán nội dung thông báo
 
                             const titleEl = toastEl.querySelector('.toast-title');
-                            const iconEl = toastEl.querySelector('[data-lucide]');
-                            const closeBtn = toastEl.querySelector('.btn-close');
 
                             if (data.newlyAdded) {
-                                // Giao diện màu xanh (Thành công)
-                                toastEl.classList.remove('bg-warning', 'text-dark');
-                                toastEl.classList.add('bg-success', 'text-white');
-
-                                if (titleEl) {
-                                    titleEl.textContent = "Thành công!";
-                                    titleEl.classList.remove('text-dark');
-                                    titleEl.classList.add('text-white');
-                                }
-                                if (messageEl) {
-                                    messageEl.style.setProperty('color', 'rgba(255, 255, 255, 0.9)', 'important');
-                                }
-                                if (iconEl) {
-                                    iconEl.setAttribute('data-lucide', 'check-circle');
-                                    iconEl.className = 'text-white';
-                                }
-                                if (closeBtn) {
-                                    closeBtn.classList.add('btn-close-white');
-                                }
+                                toastEl.classList.remove('toast-warning');
+                                toastEl.classList.add('toast-success');
+                                if (titleEl) titleEl.textContent = "Thành công!";
                             } else {
-                                // Giao diện màu vàng (Cảnh báo/Đã có trong giỏ)
-                                toastEl.classList.remove('bg-success', 'text-white');
-                                toastEl.classList.add('bg-warning', 'text-dark');
-
-                                if (titleEl) {
-                                    titleEl.textContent = "Thông báo!";
-                                    titleEl.classList.remove('text-white');
-                                    titleEl.classList.add('text-dark');
-                                }
-                                if (messageEl) {
-                                    messageEl.style.setProperty('color', 'rgba(0, 0, 0, 0.8)', 'important');
-                                }
-                                if (iconEl) {
-                                    iconEl.setAttribute('data-lucide', 'alert-circle');
-                                    iconEl.className = 'text-dark';
-                                }
-                                if (closeBtn) {
-                                    closeBtn.classList.remove('btn-close-white');
-                                }
-                            }
-
-                            // Tạo lại icon Lucide nếu thuộc tính thay đổi
-                            if (typeof lucide !== 'undefined') {
-                                lucide.createIcons();
+                                toastEl.classList.remove('toast-success');
+                                toastEl.classList.add('toast-warning');
+                                if (titleEl) titleEl.textContent = "Thông báo!";
                             }
 
                             const toast = new bootstrap.Toast(toastEl);
@@ -679,21 +552,21 @@
                 });
         }
     </script>
-
+ 
     <!-- Bootstrap Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1100;">
-        <div class="toast align-items-center text-white bg-success border-0 rounded-3 shadow-lg" id="cartToast"
+        <div class="toast align-items-center border-0 rounded-3 shadow-lg toast-success" id="cartToast"
             role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body d-flex align-items-center gap-3 p-3">
-                    <i data-lucide="check-circle" class="text-white" style="width: 24px; height: 24px;"></i>
+                    <i data-lucide="check-circle" class="toast-icon-success" style="width: 24px; height: 24px;"></i>
+                    <i data-lucide="alert-circle" class="toast-icon-warning" style="width: 24px; height: 24px;"></i>
                     <div class="toast-content flex-grow-1">
-                        <p class="toast-title fw-bold text-white m-0 fs-7">Thành công!</p>
-                        <p class="toast-message text-white-50 m-0 fs-8" id="toast-message-text"
-                            style="color: rgba(255, 255, 255, 0.9) !important;">Thông báo</p>
+                        <p class="toast-title fw-bold m-0 fs-7">Thành công!</p>
+                        <p class="toast-message m-0 fs-8" id="toast-message-text">Thông báo</p>
                     </div>
                 </div>
-                <button type="button" class="btn-close btn-close-white me-3 m-auto shadow-none" data-bs-dismiss="toast"
+                <button type="button" class="btn-close me-3 m-auto shadow-none" data-bs-dismiss="toast"
                     aria-label="Close"></button>
             </div>
         </div>
