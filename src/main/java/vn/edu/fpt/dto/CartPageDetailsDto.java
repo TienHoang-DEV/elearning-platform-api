@@ -15,14 +15,9 @@ public class CartPageDetailsDto {
     private int cartSize;
     
     private long subtotal;
-    private long courseDiscounts;
-    private long instructorDiscounts;
     private long total;
     private long selectedItemsCount;
     
-    private Map<Integer, String> appliedVoucherCodes;
-    private Map<Integer, Long> appliedVoucherDiscounts;
-    private Map<Integer, Boolean> voucherSuccess;
     private Map<Integer, String> instructorCheckboxState;
     private String globalCheckboxState;
 }

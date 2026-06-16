@@ -21,20 +21,18 @@ public class CourseCreateDto {
 
     private Integer id;
 
-    @NotBlank(message = "Title không được để trống")
+    @NotBlank(message = "Vui lòng nhập tiêu đề khóa học.")
     private String title;
 
-    @NotBlank(message = "Description không được để trống")
+    @NotBlank(message = "Vui lòng nhập mô tả khóa học.")
     private String description;
-
 
     private MultipartFile thumbnailFile;
 
     private String level;
 
-    @NotNull(message = "Price không được để trống")
+    @NotNull(message = "Vui lòng nhập giá khóa học.")
     private BigDecimal price;
 
-    @NotNull(message = "Category không được để trống")
-    private Integer categoryId;
-}
+    @NotNull(message = "Vui lòng chọn danh mục khóa học.")
+    private Integer categoryId;}

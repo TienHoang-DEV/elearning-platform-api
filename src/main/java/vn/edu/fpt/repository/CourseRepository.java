@@ -26,6 +26,9 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     boolean existsByInstructorAndTitle(User instructor, String title);
 
 
+    //Phân trang khoá học của mỗi instructor
+    Page<Course> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus);
+
 
     long countByStatus(CourseStatus status);
 

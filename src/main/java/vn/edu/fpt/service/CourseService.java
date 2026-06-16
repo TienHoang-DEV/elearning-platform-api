@@ -12,6 +12,7 @@ import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.CategoryRepository;
 
@@ -27,7 +28,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @Service
 @Transactional
 public class CourseService {
@@ -37,8 +37,8 @@ public class CourseService {
     private final AzureBlobService azureBlobService;
     private final CategoryService categoryService;
 
-
-    public CourseService(CourseRepository courseRepository, DtoMapper dtoMapper, CategoryRepository categoryRepository, AzureBlobService azureBlobService, CategoryService categoryService) {
+    public CourseService(CourseRepository courseRepository, DtoMapper dtoMapper, CategoryRepository categoryRepository,
+            AzureBlobService azureBlobService, CategoryService categoryService) {
         this.categoryService = categoryService;
         this.repository = courseRepository;
         this.dtoMapper = dtoMapper;
@@ -48,20 +48,28 @@ public class CourseService {
 
     // ben manager duyet khoa hoc
     public Page<CourseDto> searchAndFilter(String keyword, String statusStr, Pageable pageable) {
-        CourseStatus status =
-                (statusStr == null || statusStr.isEmpty()) ? null : CourseStatus.valueOf(statusStr);
+        CourseStatus status = (statusStr == null || statusStr.isEmpty()) ? null : CourseStatus.valueOf(statusStr);
         return repository.searchAndFilter(keyword, status, pageable)
                 .map(dtoMapper::toCourseDto);
+    }
+
+    // Page course của mỗi instructor
+    public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
+        return repository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
     }
 
     public Course save(User user, CourseCreateDto courseCreateDto) {
 
         if (repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
-            throw new RuntimeException("Bạn đã có khoá học với tiêu đề này rồi");
+            throw new CourseValidationException(
+                    "title",
+                    "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
         }
 
         if (courseCreateDto.getTitle().length() < 3) {
-            throw new RuntimeException("Tiêu đề khoá học với số lượng kí tự lớn hơn 3");
+            throw new CourseValidationException(
+                    "title",
+                    "Tiêu đề khóa học phải có ít nhất 3 ký tự.");
         }
 
         String thumbnailUrl = null;
@@ -69,7 +77,8 @@ public class CourseService {
             thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), "course-thumbnails");
         }
 
-        Category category = categoryRepository.findById(courseCreateDto.getCategoryId()).orElseThrow(() -> new RuntimeException("Category không tồn tại"));
+        Category category = categoryRepository.findById(courseCreateDto.getCategoryId())
+                .orElseThrow(() -> new CourseValidationException("categoryId", "Category không tồn tại"));
 
         Course course = new Course();
         course.setTitle(courseCreateDto.getTitle());
@@ -101,7 +110,7 @@ public class CourseService {
     public List<CourseDto> getFilteredAndSortedCourses(
             String search,
             Integer categoryId,
-            List<Integer> ratings,
+            List<Double> ratings,
             List<String> prices,
             String sort) {
 
@@ -118,21 +127,14 @@ public class CourseService {
                 }
             }
 
-            // Lọc theo số sao đánh giá
+            // Lọc theo số sao đánh giá (từ X sao trở lên)
             if (ratings != null && !ratings.isEmpty()) {
                 boolean matchRating = false;
                 double avgRating = course.getAverageRating();
-                for (Integer r : ratings) {
-                    if (r == 5) {
-                        if (avgRating >= 5.0) {
-                            matchRating = true;
-                            break;
-                        }
-                    } else {
-                        if (avgRating >= r && avgRating < r + 1) {
-                            matchRating = true;
-                            break;
-                        }
+                for (Double r : ratings) {
+                    if (avgRating >= r) {
+                        matchRating = true;
+                        break;
                     }
                 }
                 if (!matchRating) {
@@ -194,7 +196,6 @@ public class CourseService {
         return filteredCourses;
     }
 
-
     public CourseDto getCourseDetail(Integer id) {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
@@ -206,11 +207,8 @@ public class CourseService {
     }
 
     public Course findByIdWithSectionsAndLessons(Integer id) {
-        return repository.findByIdWithSectionsAndLessons(id).orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-    }
-
-    public Course save(Course entity) {
-        return repository.save(entity);
+        return repository.findByIdWithSectionsAndLessons(id)
+                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
     }
 
     public void deleteById(Integer id) {
@@ -241,37 +239,39 @@ public class CourseService {
     }
 
     @Transactional
-    public Course save(User instructor, String title, String shortdesc, String desc, String outcome, String requirement, CourseLevel level, Integer categoryId, MultipartFile file, BigDecimal price) {
-        if(instructor == null){
+    public Course save(User instructor, String title, String shortdesc, String desc, String outcome, String requirement,
+            CourseLevel level, Integer categoryId, MultipartFile file, BigDecimal price) {
+        if (instructor == null) {
             throw new RuntimeException("User do not have");
         }
-        if(title == null || title.isEmpty()){
+        if (title == null || title.isEmpty()) {
             throw new RuntimeException("Title can not null. Please try again");
         }
-        if(shortdesc == null || shortdesc.isEmpty()){
+        if (shortdesc == null || shortdesc.isEmpty()) {
             throw new RuntimeException("Short can not null. Please try again");
         }
-        if(desc == null || desc.isEmpty()){
+        if (desc == null || desc.isEmpty()) {
             throw new RuntimeException("Description can not null. Please try again");
         }
-        if(outcome == null || outcome.isEmpty()){
+        if (outcome == null || outcome.isEmpty()) {
             throw new RuntimeException(("Outcome can not null. Please try again"));
         }
-        if(requirement == null || requirement.isEmpty()){
+        if (requirement == null || requirement.isEmpty()) {
             throw new RuntimeException("Requirement can not null. Please try again");
         }
 
-        if(level == null){
+        if (level == null) {
             throw new RuntimeException(("Level can not null. Please try again"));
         }
 
         Category category = categoryService.findByIdAndStatus(categoryId, "ACTIVE");
-        if(file == null || file.isEmpty()){
+        if (file == null || file.isEmpty()) {
             throw new RuntimeException("File can not null. Please try again");
         }
-        if(price == null){
+        if (price == null) {
             throw new RuntimeException("price can not null");
-        }if(price.compareTo(BigDecimal.ZERO) < 0){
+        }
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
             throw new RuntimeException("Price have to >= 0");
         }
         String url = azureBlobService.saveFile(file, "user-avatars");
@@ -287,22 +287,20 @@ public class CourseService {
         return repository.save(course);
     }
 
-    public List<Course> findByInstructorAndStatus(User user, String status){
-        if(user == null){
+    public List<Course> findByInstructorAndStatus(User user, CourseStatus status) {
+        if (user == null) {
             throw new RuntimeException("User not found");
         }
-        if(status == null || status.isEmpty()){
+        if (status == null) {
             throw new RuntimeException("Status can not null");
         }
-        CourseStatus courseStatus = CourseStatus.valueOf(status);
-        return repository.findByInstructorAndStatus(user, courseStatus);
+
+        return repository.findByInstructorAndStatus(user, status);
     }
 
     public Course findByCourseIdAndUserId(Integer courseId, Integer userId) {
-        return repository.findByCourseIdAndUserId(courseId, userId).orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
+        return repository.findByCourseIdAndUserId(courseId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
     }
-
-
-
 
 }

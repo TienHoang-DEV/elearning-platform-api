@@ -7,6 +7,7 @@ import vn.edu.fpt.dto.MonthlyRevenueDTO;
 import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.enums.InstructorRequestStatus;
 import vn.edu.fpt.enums.PaymentStatus;
+import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.FeedbackReportRepository;
 import vn.edu.fpt.repository.InstructorRequestRepository;

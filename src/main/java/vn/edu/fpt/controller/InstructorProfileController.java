@@ -21,13 +21,16 @@ import vn.edu.fpt.service.UserService;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.util.SecurityUtils;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @RequestMapping("/instructor")
 @Controller
 public class InstructorProfileController {
 
-    private UserService userService;
-    private CategoryService categoryService;
-
+    private final UserService userService;
+    private final CategoryService categoryService;
     public InstructorProfileController(UserService userService, CategoryService categoryService) {
         this.userService = userService;
         this.categoryService = categoryService;

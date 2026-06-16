@@ -35,6 +35,25 @@ public class GlobalControllerAdvice {
         this.dtoMapper = dtoMapper;
     }
 
+    @ModelAttribute("currentUser")
+    public User getCurrentUser(HttpServletRequest request) {
+        try {
+            User user = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
+            if (user == null) {
+                HttpSession session = request.getSession(false);
+                if (session != null) {
+                    User sessionUser = (User) session.getAttribute("user");
+                    if (sessionUser != null) {
+                        user = userRepository.findById(sessionUser.getId()).orElse(null);
+                    }
+                }
+            }
+            return user;
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
     @ModelAttribute("cartSize")
     public int getCartSize(HttpServletRequest request) {
         try {
@@ -47,9 +66,6 @@ public class GlobalControllerAdvice {
                         user = userRepository.findById(sessionUser.getId()).orElse(null);
                     }
                 }
-            }
-            if (user == null) {
-                user = userRepository.findByEmail("28tech@gmail.com").orElse(null);
             }
             if (user != null) {
                 Cart cart = cartService.getOrCreateCartForUser(user);
