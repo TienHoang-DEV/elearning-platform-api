@@ -80,14 +80,6 @@ public class PaymentService {
 
                 // Calculate prices
                 long coursePrice = course.getPrice().longValue();
-                long courseDiscount = Math.round(coursePrice * AppConstants.DEFAULT_DISCOUNT);
-                long instItemDiscount = 0;
-
-                long itemTotalDiscount = courseDiscount + instItemDiscount;
-                long finalPrice = coursePrice - itemTotalDiscount;
-                if (finalPrice < 0) {
-                    finalPrice = 0;
-                }
 
                 OrderItem orderItem = OrderItem.builder()
                         .order(order)

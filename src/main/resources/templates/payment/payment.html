@@ -141,18 +141,6 @@
                             <div class="course-instructor" th:text="${entry.key.firstName + ' ' + entry.key.lastName}">Giang Hoàng</div>
                             <div class="stars">★★★★★</div>
                         </div>
-                        <div class="course-price">
-                            <!-- snapshot price details -->
-                            <div class="price-new" th:text="${#numbers.formatDecimal(item.finalPrice, 0, 'COMMA', 0, 'POINT') + ' ₫'}">299,000 ₫</div>
-                            <div class="price-old" th:text="${#numbers.formatDecimal(item.priceSnapshot, 0, 'COMMA', 0, 'POINT') + ' ₫'}">389,700 ₫</div>
-                        </div>
-                    </div>
-
-                    <!-- Voucher Applied Section -->
-                    <div th:each="item : ${entry.value}" th:if="${item.coupon != null and itemStat.first}">
-                        <span class="voucher-applied">
-                          <span class="tag-icon">🏷</span> <span th:text="${item.coupon.code}">GIANG10</span> – Giảm <span th:text="${item.coupon.discountType == 'PERCENT' ? item.coupon.discountValue + '%' : #numbers.formatDecimal(item.coupon.discountValue, 0, 'COMMA', 0, 'POINT') + ' ₫'}">10%</span> từ giảng viên
-                        </span>
                     </div>
                 </div>
 
