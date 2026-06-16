@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.enums.RoleType;
 
 import java.util.HashSet;
@@ -60,8 +61,9 @@ public class User extends BaseEntity {
 
     private String googleId;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
-    private String status;
+    private UserStatus status;
 
     @Builder.Default
     @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)

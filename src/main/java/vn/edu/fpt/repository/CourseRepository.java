@@ -50,6 +50,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     Optional<Course> findByIdWithEnrollmentAndLessonProgress(@Param("id") Integer courseId);
 
     List<Course> findByInstructorAndStatus(User user, CourseStatus status);
+    List<Course> findByInstructor(User instructor);
 
     @Query("""
             select c from Course c join c.enrollments e where e.user.id = :userId and c.id = :courseId
