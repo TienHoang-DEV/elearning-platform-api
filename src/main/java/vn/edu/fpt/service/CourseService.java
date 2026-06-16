@@ -303,7 +303,7 @@ public class CourseService {
         if(status == null){
             throw new RuntimeException("Status can not null");
         }
-        CourseStatus courseStatus = CourseStatus.valueOf(status);
+        CourseStatus courseStatus = status;
         return repository.findByInstructorAndStatus(user, courseStatus);
     }
 

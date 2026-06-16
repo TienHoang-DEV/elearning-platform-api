@@ -23,7 +23,7 @@ setInterval(updateTimer, 1000);
 // Copy
 function copyText(text, label) {
     navigator.clipboard.writeText(text).catch(() => {});
-    const t = document.getElementById('toastCopy');
+    const t = document.getElementById('');
     t.textContent = `✔ Đã sao chép ${label}!`;
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2000);
