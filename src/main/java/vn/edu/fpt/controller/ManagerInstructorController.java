@@ -46,22 +46,14 @@ public class ManagerInstructorController {
     @GetMapping("/list")
     public String listInstructors(
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "") String status,
+            @RequestParam(defaultValue = "") UserStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size,
             Model model) {
 
-        UserStatus userStatus = null;
-        if (status != null && !status.isEmpty()) {
-            try {
-                userStatus = UserStatus.valueOf(status);
-            } catch (IllegalArgumentException e) {
-                // ignore invalid status string
-            }
-        }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        Page<User> instructorPage = userRepository.searchAndFilterInstructors(keyword, userStatus, pageable);
+        Page<User> instructorPage = userRepository.searchAndFilterInstructors(keyword, status, pageable);
         Page<UserDto> requestPage = instructorPage.map(dtoMapper::toUserDto);
 
         model.addAttribute("requestPage", requestPage);

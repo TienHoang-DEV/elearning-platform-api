@@ -80,11 +80,6 @@
                         <div class="profile-section">
                             <div class="profile-details">
                                 <div class="profile-name-lg" th:text="${request.fullName}">Tiến sĩ Eleanor Vance</div>
-                                <div class="profile-title-sub"
-                                    th:text="${request.bio != null ? request.bio : 'Giảng viên hệ thống'}">
-                                    Chuyên gia Khoa học Dữ liệu cấp cao tại TechCorp
-                                </div>
-
                                 <div class="profile-meta-info">
                                     <span class="meta-item"><i class="ph ph-envelope"></i> <span th:text="${request.email}">eleanor@example.com</span></span>
                                     <span class="meta-item"><i class="ph ph-phone"></i> <span th:text="${request.phone != null ? request.phone : 'N/A'}">0123456789</span></span>
