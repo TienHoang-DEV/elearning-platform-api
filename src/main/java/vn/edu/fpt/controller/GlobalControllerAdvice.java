@@ -76,26 +76,4 @@ public class GlobalControllerAdvice {
         return 0;
     }
 
-    @ModelAttribute("currentUser")
-    public UserDto getCurrentUser(HttpServletRequest request) {
-        try {
-            User user = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
-            if (user == null) {
-                HttpSession session = request.getSession(false);
-                if (session != null) {
-                    User sessionUser = (User) session.getAttribute("user");
-                    if (sessionUser != null) {
-                        user = userRepository.findById(sessionUser.getId()).orElse(null);
-                    }
-                }
-            }
-            if (user != null) {
-                User dbUser = userRepository.findById(user.getId()).orElse(user);
-                return dtoMapper.toUserDto(dbUser);
-            }
-        } catch (Exception ignored) {
-        }
-        return null;
-    }
-
 }

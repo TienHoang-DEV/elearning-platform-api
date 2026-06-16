@@ -35,7 +35,7 @@
                     <li>
                         <a th:href="@{/manager/instructor/list}">
                             <i class="ph ph-users"></i>
-                            <span>Phê duyệt giảng viên</span>
+                            <span>Quản lý giảng viên</span>
                         </a>
                     </li>
                     <li>
@@ -90,8 +90,8 @@
                             <span class="stat-title">GIẢNG VIÊN</span>
                         </div>
                         <div class="stat-body">
-                            <span class="stat-label">Chờ phê duyệt</span>
-                            <div class="stat-value" th:text="${pendingInstructors}">12</div>
+                            <span class="stat-label">Tổng số giảng viên</span>
+                            <div class="stat-value" th:text="${totalInstructors}">12</div>
                         </div>
                     </div>
                     <!-- Card 2 -->

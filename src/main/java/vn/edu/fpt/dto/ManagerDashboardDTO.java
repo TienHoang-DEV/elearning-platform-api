@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ManagerDashboardDTO {
-    private long pendingInstructors;
+    private long totalInstructors;
     private long pendingCourses;
     private long pendingFeedbacks;
     private String monthlyRevenue;

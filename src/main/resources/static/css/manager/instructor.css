@@ -230,3 +230,50 @@ body { font-family: var(--font-family); background-color: var(--bg-body); color:
     .main-wrapper { overflow-y: visible; }
     .documents-grid, .cccd-images-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Detail Courses Table ── */
+.detail-courses-table {
+    background: transparent;
+    color: inherit;
+}
+.detail-courses-thead-tr {
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+.detail-courses-th {
+    padding: 12px;
+    color: var(--text-gray);
+    font-weight: 600;
+}
+.detail-courses-tr {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+.detail-courses-td {
+    padding: 12px;
+}
+.detail-courses-td-title {
+    padding: 12px;
+    font-weight: 500;
+}
+
+/* ── Status Form Controls ── */
+.status-form-label {
+    font-weight: 500;
+    color: var(--text-main);
+}
+.status-form-select {
+    background-color: var(--white);
+    border-color: var(--border-color);
+    color: var(--text-main);
+    font-weight: 500;
+}
+.status-form-submit-btn {
+    background-color: var(--primary-blue);
+    border: none;
+    font-weight: 600;
+    padding: 12px;
+    color: #fff;
+    transition: background-color 0.2s ease;
+}
+.status-form-submit-btn:hover {
+    background-color: var(--primary-blue-hover);
+}

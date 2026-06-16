@@ -26,7 +26,7 @@
                         <a th:href="@{/manager/dashboard}"><i class="ph ph-squares-four"></i><span>Tổng quan</span></a>
                     </li>
                     <li class="active">
-                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Phê duyệt giảng viên</span></a>
+                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Quản lý giảng viên</span></a>
                     </li>
                     <li>
                         <a th:href="@{/manager/course/list}"><i class="ph ph-book-open"></i><span>Phê duyệt khóa học</span></a>
@@ -55,17 +55,16 @@
             <main class="content">
                 <form th:action="@{/manager/instructor/list}" method="get" class="page-header page-header-top">
                     <div>
-                        <h1>Phê duyệt Giảng viên</h1>
-                        <p>Quản lý các đơn đăng ký thành giảng viên</p>
+                        <h1>Quản lý Giảng viên</h1>
+                        <p>Quản lý danh sách tài khoản giảng viên</p>
                     </div>
                     <div class="header-actions">
                         <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm giảng viên..."
                             class="search-input form-control">
                         <select name="status" class="search-input search-select form-select" onchange="this.form.submit()">
                             <option value="" th:selected="${status == null or status == ''}">Tất cả trạng thái</option>
-                            <option value="PENDING" th:selected="${status == 'PENDING'}">Đang chờ duyệt</option>
-                            <option value="APPROVED" th:selected="${status == 'APPROVED'}">Đã duyệt</option>
-                            <option value="REJECTED" th:selected="${status == 'REJECTED'}">Từ chối</option>
+                            <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">Hoạt động</option>
+                            <option value="BANNED" th:selected="${status == 'BANNED'}">Bị khóa</option>
                         </select>
                         <button type="submit" class="d-none">Search</button>
                     </div>
@@ -76,7 +75,7 @@
                             <tr>
                                 <th>Tên</th>
                                 <th>Email</th>
-                                <th>Ngày đăng ký</th>
+                                <th>Điện thoại</th>
                                 <th>Trạng thái</th>
                                 <th>Thao tác</th>
                             </tr>
@@ -89,20 +88,18 @@
                                     </div>
                                 </td>
                                 <td th:text="${request.email}">nguyenvana@example.com</td>
-                                <td th:text="${request.createdAt != null ? #temporals.format(request.createdAt, 'dd/MM/yyyy') : ''}">5/24/2026</td>
+                                <td th:text="${request.phone != null ? request.phone : 'N/A'}">0123456789</td>
                                 <td>
                                     <span
-                                        th:class="${'badge badge-' + (request.status.name() == 'PENDING' ? 'warning' : request.status.name() == 'APPROVED' ? 'success' : request.status.name() == 'REJECTED' ? 'danger' : 'dark')}"
-                                        th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : request.status.name() == 'REJECTED' ? 'Từ chối' : 'Bị chặn'}">
-                                        Đang chờ duyệt
+                                        th:class="${'badge badge-' + (request.status == 'ACTIVE' ? 'success' : 'danger')}"
+                                        th:text="${request.status == 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}">
+                                        Hoạt động
                                     </span>
                                 </td>
                                 <td>
                                     <div class="actions">
                                         <a th:href="@{/manager/instructor/detail/{id}(id=${request.id})}"
                                             class="action-btn"><i class="ph ph-eye"></i> Xem Chi Tiết</a>
-                                        <a th:if="${request.status.name() == 'PENDING'}" th:href="@{/manager/instructor/edit/{id}(id=${request.id})}"
-                                            class="action-btn"><i class="ph ph-pencil-simple"></i> Sửa</a>
                                     </div>
                                 </td>
                             </tr>

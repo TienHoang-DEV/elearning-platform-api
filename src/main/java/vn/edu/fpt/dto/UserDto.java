@@ -2,6 +2,7 @@ package vn.edu.fpt.dto;
 
 import lombok.*;
 import vn.edu.fpt.enums.RoleType;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -11,6 +12,7 @@ import vn.edu.fpt.enums.RoleType;
 @EqualsAndHashCode(of = "id")
 public class UserDto {
     private Integer id;
+    private LocalDateTime createdAt;
     private String firstName;
     private String lastName;
     private String email;
@@ -18,6 +20,7 @@ public class UserDto {
     private String bio;
     private String phone;
     private RoleType role;
+    private String status;
 
     public String getFullAvatarUrl() {
         if (avatarUrl == null || avatarUrl.isBlank()) {
@@ -32,5 +35,9 @@ public class UserDto {
         return vn.edu.fpt.util.AppConstants.AZURE_STORAGE_BASE_URL + "/" +
                 vn.edu.fpt.util.AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS + "/" +
                 avatarUrl;
+    }
+
+    public String getFullName() {
+        return (lastName != null ? lastName : "") + " " + (firstName != null ? firstName : "");
     }
 }
