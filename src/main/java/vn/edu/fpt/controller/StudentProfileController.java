@@ -8,9 +8,10 @@ import vn.edu.fpt.entity.Enrollment;
 import vn.edu.fpt.entity.Order;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.repository.UserRepository;
-import vn.edu.fpt.repository.OrderRepository;
+import vn.edu.fpt.service.OrderService;
 import vn.edu.fpt.repository.EnrollmentRepository;
 import vn.edu.fpt.repository.CourseRepository;
+import vn.edu.fpt.enums.CourseStatus;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -26,18 +27,18 @@ import java.util.stream.Collectors;
 public class StudentProfileController {
 
     private final UserRepository userRepository;
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private final EnrollmentRepository enrollmentRepository;
     private final CourseRepository courseRepository;
     private final DtoMapper dtoMapper;
 
     public StudentProfileController(UserRepository userRepository,
-                                    OrderRepository orderRepository,
+                                    OrderService orderService,
                                     EnrollmentRepository enrollmentRepository,
                                     CourseRepository courseRepository,
                                     DtoMapper dtoMapper) {
         this.userRepository = userRepository;
-        this.orderRepository = orderRepository;
+        this.orderService = orderService;
         this.enrollmentRepository = enrollmentRepository;
         this.courseRepository = courseRepository;
         this.dtoMapper = dtoMapper;
@@ -59,25 +60,23 @@ public class StudentProfileController {
             }
         } catch (Exception ignored) {
         }
-        return userRepository.findByEmail("28tech@gmail.com")
-                .orElseGet(() -> {
-                    List<User> allUsers = userRepository.findAll();
-                    if (allUsers.isEmpty()) {
-                        throw new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!");
-                    }
-                    return allUsers.get(0);
-                });
+        return null;
     }
 
     @GetMapping("/")
     public String showHomePage(Model model) {
-        return "home/home_logged_in";
+        User currentUser = getSessionUser();
+        model.addAttribute("currentUser", currentUser);
+        return "home/home";
     }
 
     @org.springframework.transaction.annotation.Transactional
     @GetMapping("/student/profile")
     public String showStudentProfile(Model model) {
         User user = getSessionUser();
+        if (user == null) {
+            return "redirect:/login_no";
+        }
         
         int enrollmentsCount = user.getEnrollments().size();
         long certificatesCount = 0;
@@ -111,6 +110,9 @@ public class StudentProfileController {
             @org.springframework.web.bind.annotation.RequestParam(value = "page", defaultValue = "1") int page,
             Model model) {
         User user = getSessionUser();
+        if (user == null) {
+            return "redirect:/login_no";
+        }
         List<Enrollment> enrollments = enrollmentRepository.findByUser(user);
         
         List<EnrollmentDto> enrollmentDtos = new java.util.ArrayList<>();
@@ -154,12 +156,10 @@ public class StudentProfileController {
     @GetMapping("/student/purchase-history")
     public String showPurchaseHistory(Model model) {
         User user = getSessionUser();
-        List<Order> orders = orderRepository.findByUser(user);
-        
-        List<OrderDto> orderDtos = new java.util.ArrayList<>();
-        for (Order order : orders) {
-            orderDtos.add(dtoMapper.toOrderDto(order));
+        if (user == null) {
+            return "redirect:/login_no";
         }
+        List<OrderDto> orderDtos = orderService.getPurchaseHistory(user);
         
         model.addAttribute("currentUser", dtoMapper.toUserDto(user));
         model.addAttribute("orders", orderDtos);
@@ -171,6 +171,9 @@ public class StudentProfileController {
     @GetMapping("/student/recommendations")
     public String showRecommendations(Model model) {
         User user = getSessionUser();
+        if (user == null) {
+            return "redirect:/login_no";
+        }
         
         Set<Integer> enrolledCourseIds = new java.util.HashSet<>();
         for (Enrollment e : user.getEnrollments()) {
@@ -181,7 +184,7 @@ public class StudentProfileController {
                 
         List<CourseDto> recommendedCourses = new java.util.ArrayList<>();
         for (Course c : courseRepository.findAll()) {
-            if (!enrolledCourseIds.contains(c.getId()) && "PUBLISHED".equals(c.getStatus())) {
+            if (!enrolledCourseIds.contains(c.getId()) && c.getStatus() == CourseStatus.PUBLISHED) {
                 recommendedCourses.add(dtoMapper.toCourseDto(c));
             }
         }

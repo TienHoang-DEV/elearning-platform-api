@@ -64,6 +64,19 @@
     transition: transform 0.2s ease;
 }
 
+/* Toggle text and icon direction using aria-expanded (no JS required) */
+.btn-toggle-order[aria-expanded="true"] span::before {
+    content: "Ẩn chi tiết";
+}
+
+.btn-toggle-order[aria-expanded="false"] span::before {
+    content: "Xem chi tiết";
+}
+
+.btn-toggle-order[aria-expanded="false"] .toggle-icon {
+    transform: rotate(180deg);
+}
+
 /* Responsive adjustments */
 @media (max-width: 576px) {
     .list-group-item img {

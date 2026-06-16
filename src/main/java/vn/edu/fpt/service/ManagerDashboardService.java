@@ -5,12 +5,11 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.ManagerDashboardDTO;
 import vn.edu.fpt.dto.MonthlyRevenueDTO;
 import vn.edu.fpt.enums.CourseStatus;
-import vn.edu.fpt.enums.InstructorRequestStatus;
 import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.FeedbackReportRepository;
-import vn.edu.fpt.repository.InstructorRequestRepository;
 import vn.edu.fpt.repository.PaymentRepository;
+import vn.edu.fpt.repository.UserRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,17 +21,17 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ManagerDashboardService {
 
-    private final InstructorRequestRepository instructorRequestRepository;
+    private final UserRepository userRepository;
     private final CourseRepository courseRepository;
     private final FeedbackReportRepository feedbackReportRepository;
     private final PaymentRepository paymentRepository;
 
     public ManagerDashboardService(
-            InstructorRequestRepository instructorRequestRepository,
+            UserRepository userRepository,
             CourseRepository courseRepository,
             FeedbackReportRepository feedbackReportRepository,
             PaymentRepository paymentRepository) {
-        this.instructorRequestRepository = instructorRequestRepository;
+        this.userRepository = userRepository;
         this.courseRepository = courseRepository;
         this.feedbackReportRepository = feedbackReportRepository;
         this.paymentRepository = paymentRepository;
@@ -40,9 +39,9 @@ public class ManagerDashboardService {
 
     public ManagerDashboardDTO getDashboardData() {
         ManagerDashboardDTO dto = new ManagerDashboardDTO();
-        // Đếm số lượng yêu cầu giảng viên đang ở trạng thái PENDING
-        long pendingInstructors = instructorRequestRepository.countByStatus(InstructorRequestStatus.PENDING);
-        dto.setPendingInstructors(pendingInstructors);
+        // Đếm tổng số lượng giảng viên
+        long totalInstructors = userRepository.countInstructors();
+        dto.setTotalInstructors(totalInstructors);
         //Đếm số lượng khóa học đang ở trạng thái "PENDING"
         long pendingCourses = courseRepository.countByStatus(CourseStatus.PENDING);
         dto.setPendingCourses(pendingCourses);

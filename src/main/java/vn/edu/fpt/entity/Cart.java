@@ -24,10 +24,6 @@ public class Cart extends BaseEntity {
     @OneToMany(mappedBy = "cart", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CartItem> items = new HashSet<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "cart", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CartInstructorCoupon> instructorCoupons = new HashSet<>();
-
     public void addItem(CartItem item) {
         items.add(item);
         item.setCart(this);
@@ -36,16 +32,6 @@ public class Cart extends BaseEntity {
     public void removeItem(CartItem item) {
         items.remove(item);
         item.setCart(null);
-    }
-
-    public void addInstructorCoupon(CartInstructorCoupon coupon) {
-        instructorCoupons.add(coupon);
-        coupon.setCart(this);
-    }
-
-    public void removeInstructorCoupon(CartInstructorCoupon coupon) {
-        instructorCoupons.remove(coupon);
-        coupon.setCart(null);
     }
 }
 

@@ -19,10 +19,13 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Central Stylesheet -->
     <link rel="stylesheet" th:href="@{/css/home.css}">
     <!-- Courses Search Page Custom Stylesheet -->
     <link rel="stylesheet" th:href="@{/css/course.css}">
+    <!-- Clean Interface Stylesheet -->
+    <link rel="stylesheet" th:href="@{/css/list.css}">
 
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -31,96 +34,7 @@
 <body class="bg-light bg-opacity-25">
 
     <!-- Header Navigation -->
-    <header class="navbar navbar-expand-lg bg-white border-bottom py-3">
-        <div class="container d-flex justify-content-between align-items-center">
-
-            <!-- Logo Section -->
-            <a class="navbar-brand d-flex align-items-center gap-2 m-0" th:href="@{/}">
-                <div class="logo-icon-box d-flex align-items-center justify-content-center bg-primary text-white"
-                    style="width: 36px; height: 36px; border-radius: 8px;">
-                    <i data-lucide="zap" style="width: 20px; height: 20px; fill: currentColor;"></i>
-                </div>
-                <span class="logo-text fw-bold text-primary font-heading text-uppercase"
-                    style="letter-spacing: 0.5px;">Learning Hub</span>
-            </a>
-
-            <!-- Search and Category -->
-            <div class="search-category-section d-none d-lg-flex align-items-center gap-2 flex-grow-1 mx-5"
-                style="max-width: 600px;">
-
-                <!-- Search Input -->
-                <form action="/courses" method="get" class="search-bar-wrapper position-relative flex-grow-1">
-                    <i data-lucide="search"
-                        class="search-icon position-absolute start-0 top-50 translate-middle-y ms-3 text-muted"
-                        style="width:18px; height:18px;"></i>
-                    <input type="text" name="search" th:value="${search}" placeholder="Tìm khóa học..."
-                        class="form-control rounded-pill border-0 bg-light px-4 py-2 ps-5" id="search-input">
-                </form>
-            </div>
-
-            <!-- User Utilities -->
-            <div class="header-utilities d-flex align-items-center gap-3">
-                <!-- Cart Icon with badge number 2 -->
-                <a th:href="@{/cart}" class="btn btn-link nav-icon-btn text-muted p-2 rounded-circle position-relative"
-                    aria-label="Giỏ hàng">
-                    <i data-lucide="shopping-cart" style="width: 20px; height: 20px;"></i>
-                    <span
-                        class="position-absolute top-1 translate-middle badge rounded-circle bg-danger p-1 cart-count-badge"
-                        id="cart-badge-count"
-                        style="left: 75%; font-size: 10px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; color: #fff;"
-                        th:text="${cartSize ?: 0}">
-                        0
-                    </span>
-                </a>
-
-                <!-- Notification Bell -->
-                <button class="btn btn-link nav-icon-btn text-muted p-2 rounded-circle" aria-label="Thông báo">
-                    <i data-lucide="bell" style="width: 20px; height: 20px;"></i>
-                </button>
-
-                <!-- User Profile Dropdown -->
-                <div class="dropdown">
-                    <button class="btn p-0 border-0 dropdown-toggle no-caret" type="button" id="profileDropdown"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <img th:src="${session.user != null && session.user.email == '28tech@gmail.com' ? '/images/avatar.png' : '/images/student2.png'}"
-                            alt="User Avatar" class="user-avatar rounded-circle border border-2 border-primary"
-                            style="width: 36px; height: 36px; object-fit: cover;">
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 p-2"
-                        aria-labelledby="profileDropdown" style="width: 220px; border-radius: var(--radius-lg);">
-                        <li class="px-3 py-2 border-bottom mb-1" th:if="${session.user != null}">
-                            <p class="user-name fw-semibold m-0 fs-7 text-dark"
-                                th:text="${session.user.lastName + ' ' + session.user.firstName}">Tên Học Viên</p>
-                            <p class="user-email text-muted m-0 fs-8 text-truncate" th:text="${session.user.email}">
-                                email@example.com</p>
-                        </li>
-                        <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted"
-                                th:href="@{/student/profile}"><i data-lucide="user" style="width:16px;"></i> Thông tin
-                                của tôi</a></li>
-                        <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted"
-                                th:href="@{/student/my-learning}"><i data-lucide="graduation-cap"
-                                    style="width:16px;"></i> Việc học của tôi</a></li>
-                        <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted"
-                                th:href="@{/student/recommendations}"><i data-lucide="sparkles" style="width:16px;"></i>
-                                Khóa học đề xuất</a></li>
-                        <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted"
-                                href="#"><i data-lucide="message-square" style="width:16px;"></i> Tin nhắn</a></li>
-                        <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted"
-                                th:href="@{/student/purchase-history}"><i data-lucide="history" style="width:16px;"></i>
-                                Lịch sử mua hàng</a></li>
-                        <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-muted active bg-primary text-white"
-                                th:href="@{/courses}"><i data-lucide="search" style="width:16px;"></i> Tìm kiếm khóa
-                                học</a></li>
-                        <li>
-                            <hr class="dropdown-divider my-2">
-                        </li>
-                        <li><a class="dropdown-item d-flex align-items-center gap-3 rounded py-2 fs-7 text-danger fw-semibold"
-                                th:href="@{/}"><i data-lucide="log-out" style="width:16px;"></i> Đăng xuất</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </header>
+<header th:replace="fragments/header :: header"></header>
 
     <!-- Main Content Layout -->
     <main class="py-5">
@@ -140,7 +54,7 @@
                             <!-- Filter Group 1: Categories -->
                             <div class="filter-group mb-4">
                                 <h4 class="filter-title fw-bold fs-7 mb-3 d-flex align-items-center gap-2">
-                                    <i data-lucide="folder" class="text-muted" style="width: 18px; height: 18px;"></i>
+                                    <i data-lucide="folder" class="filter-icon"></i>
                                     Danh mục
                                 </h4>
                                 <div class="accordion category-accordion" id="categoryAccordion">
@@ -182,30 +96,33 @@
                             <!-- Filter Group 2: Ratings -->
                             <div class="filter-group mb-4">
                                 <h4 class="filter-title fw-bold fs-7 mb-3 d-flex align-items-center gap-2">
-                                    <i data-lucide="star" class="text-muted" style="width: 18px; height: 18px;"></i>
+                                    <i data-lucide="star" class="filter-icon"></i>
                                     Đánh giá
                                 </h4>
                                 <div class="d-flex flex-column gap-2">
+                                    <!-- Từ 4.5 sao trở lên -->
                                     <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
                                         <input type="checkbox" name="ratings"
                                             class="form-check-input border-secondary-subtle filter-rating-checkbox"
-                                            value="5"
-                                            th:checked="${selectedRatings != null && selectedRatings.contains(5)}"
+                                            value="4.5"
+                                            th:checked="${selectedRatings != null && selectedRatings.contains(4.5)}"
                                             onchange="submitFormResetPage()">
                                         <span class="d-flex align-items-center gap-1">
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
-                                            <i data-lucide="star" class="star-icon star-filled"></i>
-                                            <span class="ms-1 text-muted fs-8">5 sao</span>
+                                            <i data-lucide="star-half" class="star-icon star-filled"></i>
+                                            <span class="ms-1 text-muted fs-8">Từ 4,5 sao trở lên</span>
                                         </span>
                                     </label>
+
+                                    <!-- Từ 4.0 sao trở lên -->
                                     <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
                                         <input type="checkbox" name="ratings"
                                             class="form-check-input border-secondary-subtle filter-rating-checkbox"
-                                            value="4"
-                                            th:checked="${selectedRatings != null && selectedRatings.contains(4)}"
+                                            value="4.0"
+                                            th:checked="${selectedRatings != null && selectedRatings.contains(4.0)}"
                                             onchange="submitFormResetPage()">
                                         <span class="d-flex align-items-center gap-1">
                                             <i data-lucide="star" class="star-icon star-filled"></i>
@@ -213,52 +130,41 @@
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <span class="ms-1 text-muted fs-8">4 sao</span>
+                                            <span class="ms-1 text-muted fs-8">Từ 4 sao trở lên</span>
                                         </span>
                                     </label>
+
+                                    <!-- Từ 3.5 sao trở lên -->
                                     <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
                                         <input type="checkbox" name="ratings"
                                             class="form-check-input border-secondary-subtle filter-rating-checkbox"
-                                            value="3"
-                                            th:checked="${selectedRatings != null && selectedRatings.contains(3)}"
+                                            value="3.5"
+                                            th:checked="${selectedRatings != null && selectedRatings.contains(3.5)}"
                                             onchange="submitFormResetPage()">
                                         <span class="d-flex align-items-center gap-1">
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
+                                            <i data-lucide="star-half" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <span class="ms-1 text-muted fs-8">3 sao</span>
+                                            <span class="ms-1 text-muted fs-8">Từ 3,5 sao trở lên</span>
                                         </span>
                                     </label>
+
+                                    <!-- Từ 3.0 sao trở lên -->
                                     <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
                                         <input type="checkbox" name="ratings"
                                             class="form-check-input border-secondary-subtle filter-rating-checkbox"
-                                            value="2"
-                                            th:checked="${selectedRatings != null && selectedRatings.contains(2)}"
+                                            value="3.0"
+                                            th:checked="${selectedRatings != null && selectedRatings.contains(3.0)}"
                                             onchange="submitFormResetPage()">
                                         <span class="d-flex align-items-center gap-1">
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-filled"></i>
-                                            <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <span class="ms-1 text-muted fs-8">2 sao</span>
-                                        </span>
-                                    </label>
-                                    <label class="d-flex align-items-center gap-2 fs-7 cursor-pointer text-muted-dark">
-                                        <input type="checkbox" name="ratings"
-                                            class="form-check-input border-secondary-subtle filter-rating-checkbox"
-                                            value="1"
-                                            th:checked="${selectedRatings != null && selectedRatings.contains(1)}"
-                                            onchange="submitFormResetPage()">
-                                        <span class="d-flex align-items-center gap-1">
                                             <i data-lucide="star" class="star-icon star-filled"></i>
                                             <i data-lucide="star" class="star-icon star-empty"></i>
                                             <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <i data-lucide="star" class="star-icon star-empty"></i>
-                                            <span class="ms-1 text-muted fs-8">1 sao</span>
+                                            <span class="ms-1 text-muted fs-8">Từ 3 sao trở lên</span>
                                         </span>
                                     </label>
                                 </div>
@@ -269,7 +175,7 @@
                             <!-- Filter Group 3: Price -->
                             <div class="filter-group">
                                 <h4 class="filter-title fw-bold fs-7 mb-3 d-flex align-items-center gap-2">
-                                    <i data-lucide="coins" class="text-muted" style="width: 18px; height: 18px;"></i>
+                                    <i data-lucide="coins" class="filter-icon"></i>
                                     Giá tiền
                                 </h4>
                                 <div class="d-flex flex-column gap-2 fs-7 text-muted-dark">
@@ -326,7 +232,7 @@
                         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
                             <div>
                                 <h2 class="search-result-title fw-extrabold font-heading fs-4 m-0 d-inline-block"
-                                    th:text="${search != null && !search.isEmpty()} ? 'Kết quả cho &quot;' + ${search} + '&quot;' : 'Tất cả khóa học'">
+                                    th:text="${search != null && !search.isEmpty()} ? 'Kết quả cho &quot;' + ${search} + '&quot;' : (${selectedCategoryName != null} ? 'Khóa học ' + ${selectedCategoryName} : 'Tất cả khóa học')">
                                     Kết quả cho "Guitar"
                                 </h2>
                                 <span class="text-muted fs-7 ms-2"
@@ -335,8 +241,8 @@
                             </div>
                             <div class="d-flex align-items-center gap-2">
                                 <select name="sort" id="sort-select"
-                                    class="form-select border-light-subtle rounded-3 py-2 px-3 fs-7 text-muted fw-semibold"
-                                    style="width: 170px; cursor: pointer;" onchange="submitFormResetPage()">
+                                    class="form-select border-light-subtle rounded-3 py-2 px-3 fs-7 text-muted fw-semibold course-sort-select"
+                                    onchange="submitFormResetPage()">
                                     <option value="newest" th:selected="${sort == 'newest'}">Mới nhất</option>
                                     <option value="rating" th:selected="${sort == 'rating'}">Đánh giá tốt nhất</option>
                                     <option value="price-asc" th:selected="${sort == 'price-asc'}">Giá tăng dần</option>
@@ -356,22 +262,17 @@
                                 th:data-category-id="${course.category != null ? course.category.id : ''}">
                                 <!-- Left: Thumbnail -->
                                 <a th:href="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id)} ? @{/student/my-learning} : @{/course/detail(id=${course.id})}"
-                                    class="position-relative overflow-hidden rounded-3 flex-shrink-0 align-self-center align-self-md-start"
-                                    style="width: 240px; height: 145px; display: block;">
+                                    class="course-thumbnail-link">
                                     <img th:src="${course.thumbnailPath}" th:alt="${course.title}"
                                         class="w-100 h-100 object-fit-cover"
                                         onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
-                                    <span
-                                        class="position-absolute top-0 start-0 badge-discount text-white fw-bold fs-8 px-2.5 py-1 m-3">GIẢM
-                                        30%</span>
                                     <span
                                         class="position-absolute bottom-0 end-0 bg-dark bg-opacity-75 text-white fs-8 px-2.5 py-1 rounded-pill m-3 fw-medium"
                                         th:text="${course.getTotalLessonsCount() * 10} + ' phút'">31 phút</span>
                                 </a>
 
                                 <!-- Right: Info -->
-                                <div class="flex-grow-1 w-100 d-flex flex-column justify-content-between h-100"
-                                    style="min-height: 145px;">
+                                <div class="course-info-wrapper">
                                     <div>
                                         <a th:href="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id)} ? @{/student/my-learning} : @{/course/detail(id=${course.id})}"
                                             class="text-decoration-none text-dark">
@@ -409,12 +310,12 @@
                                         <!-- Meta Attributes -->
                                         <div class="d-flex align-items-center gap-3 text-muted fs-8">
                                             <span class="d-flex align-items-center gap-1"><i data-lucide="clock"
-                                                    style="width: 14px;"></i> 31 phút</span>
+                                                    class="course-meta-icon"></i> 31 phút</span>
                                             <span class="d-flex align-items-center gap-1"><i data-lucide="zap"
-                                                    style="width: 14px;"></i> <span th:text="${course.level}">Cơ
+                                                    class="course-meta-icon"></i> <span th:text="${course.level}">Cơ
                                                     bản</span></span>
                                             <span class="d-flex align-items-center gap-1"><i data-lucide="eye"
-                                                    style="width: 14px;"></i> <span
+                                                    class="course-meta-icon"></i> <span
                                                     th:text="${course.enrollmentsCount} + ' lượt mua'">0 lượt
                                                     mua</span></span>
                                         </div>
@@ -583,7 +484,7 @@
             const input = document.getElementById('categoryIdInput');
             // Nếu click lại đúng danh mục đang được lọc hiện tại -> Bỏ lọc (set rỗng)
             if (input.value == catId) {
-                input.value = ''; 
+                input.value = '';
             } else {
                 // Nếu click danh mục mới -> Gán ID danh mục mới để gửi lên server lọc
                 input.value = catId;
@@ -607,7 +508,7 @@
         // Hàm gọi API thêm khóa học vào giỏ hàng qua Fetch API (AJAX)
         function addToCart(btn, courseId) {
             btn.disabled = true; // Khóa nút bấm để chống spam click nhiều lần
-            
+
             // Gửi yêu cầu HTTP POST bất đồng bộ tới API /api/cart/add
             fetch('/api/cart/add?courseId=' + courseId, { method: 'POST' })
                 .then(res => res.json()) // Chuyển đổi phản hồi thô của server về định dạng JSON
@@ -618,64 +519,25 @@
                         if (badge) {
                             badge.textContent = data.cartSize; // Cập nhật số lượng giỏ hàng trên thanh Header
                         }
-                        
+
                         // Hiển thị Bootstrap Toast thông báo thay vì alert
                         const toastEl = document.getElementById('cartToast');
                         const messageEl = document.getElementById('toast-message-text');
                         if (toastEl && messageEl) {
                             messageEl.textContent = data.message; // Gán nội dung thông báo
-                            
+
                             const titleEl = toastEl.querySelector('.toast-title');
-                            const iconEl = toastEl.querySelector('[data-lucide]');
-                            const closeBtn = toastEl.querySelector('.btn-close');
-                            
+
                             if (data.newlyAdded) {
-                                // Giao diện màu xanh (Thành công)
-                                toastEl.classList.remove('bg-warning', 'text-dark');
-                                toastEl.classList.add('bg-success', 'text-white');
-                                
-                                if (titleEl) {
-                                    titleEl.textContent = "Thành công!";
-                                    titleEl.classList.remove('text-dark');
-                                    titleEl.classList.add('text-white');
-                                }
-                                if (messageEl) {
-                                    messageEl.style.setProperty('color', 'rgba(255, 255, 255, 0.9)', 'important');
-                                }
-                                if (iconEl) {
-                                    iconEl.setAttribute('data-lucide', 'check-circle');
-                                    iconEl.className = 'text-white';
-                                }
-                                if (closeBtn) {
-                                    closeBtn.classList.add('btn-close-white');
-                                }
+                                toastEl.classList.remove('toast-warning');
+                                toastEl.classList.add('toast-success');
+                                if (titleEl) titleEl.textContent = "Thành công!";
                             } else {
-                                // Giao diện màu vàng (Cảnh báo/Đã có trong giỏ)
-                                toastEl.classList.remove('bg-success', 'text-white');
-                                toastEl.classList.add('bg-warning', 'text-dark');
-                                
-                                if (titleEl) {
-                                    titleEl.textContent = "Thông báo!";
-                                    titleEl.classList.remove('text-white');
-                                    titleEl.classList.add('text-dark');
-                                }
-                                if (messageEl) {
-                                    messageEl.style.setProperty('color', 'rgba(0, 0, 0, 0.8)', 'important');
-                                }
-                                if (iconEl) {
-                                    iconEl.setAttribute('data-lucide', 'alert-circle');
-                                    iconEl.className = 'text-dark';
-                                }
-                                if (closeBtn) {
-                                    closeBtn.classList.remove('btn-close-white');
-                                }
+                                toastEl.classList.remove('toast-success');
+                                toastEl.classList.add('toast-warning');
+                                if (titleEl) titleEl.textContent = "Thông báo!";
                             }
-                            
-                            // Tạo lại icon Lucide nếu thuộc tính thay đổi
-                            if (typeof lucide !== 'undefined') {
-                                lucide.createIcons();
-                            }
-                            
+
                             const toast = new bootstrap.Toast(toastEl);
                             toast.show();
                         }
@@ -690,20 +552,21 @@
                 });
         }
     </script>
-
+ 
     <!-- Bootstrap Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1100;">
-        <div class="toast align-items-center text-white bg-success border-0 rounded-3 shadow-lg" id="cartToast" role="alert" aria-live="assertive"
-            aria-atomic="true">
+        <div class="toast align-items-center border-0 rounded-3 shadow-lg toast-success" id="cartToast"
+            role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body d-flex align-items-center gap-3 p-3">
-                    <i data-lucide="check-circle" class="text-white" style="width: 24px; height: 24px;"></i>
+                    <i data-lucide="check-circle" class="toast-icon-success" style="width: 24px; height: 24px;"></i>
+                    <i data-lucide="alert-circle" class="toast-icon-warning" style="width: 24px; height: 24px;"></i>
                     <div class="toast-content flex-grow-1">
-                        <p class="toast-title fw-bold text-white m-0 fs-7">Thành công!</p>
-                        <p class="toast-message text-white-50 m-0 fs-8" id="toast-message-text" style="color: rgba(255, 255, 255, 0.9) !important;">Thông báo</p>
+                        <p class="toast-title fw-bold m-0 fs-7">Thành công!</p>
+                        <p class="toast-message m-0 fs-8" id="toast-message-text">Thông báo</p>
                     </div>
                 </div>
-                <button type="button" class="btn-close btn-close-white me-3 m-auto shadow-none" data-bs-dismiss="toast"
+                <button type="button" class="btn-close me-3 m-auto shadow-none" data-bs-dismiss="toast"
                     aria-label="Close"></button>
             </div>
         </div>

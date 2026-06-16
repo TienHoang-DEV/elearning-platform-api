@@ -99,6 +99,11 @@ body {
     display: none !important;
 }
 
+.user-avatar-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
 .header-user-avatar {
     width: 40px;
     height: 40px;
@@ -106,6 +111,7 @@ body {
     border: 2px solid #fff;
     box-shadow: 0 0 0 2px var(--primary);
     transition: var(--transition);
+    flex-shrink: 0;
 }
 
 .user-profile-dropdown:hover .header-user-avatar {

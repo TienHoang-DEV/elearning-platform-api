@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.enums.UserStatus;
+import vn.edu.fpt.enums.RoleType;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -59,8 +61,9 @@ public class User extends BaseEntity {
 
     private String googleId;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
-    private String status;
+    private UserStatus status;
 
     @Builder.Default
     @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)
@@ -157,5 +160,21 @@ public class User extends BaseEntity {
         return AppConstants.AZURE_STORAGE_BASE_URL + "/" +
                 AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS + "/" +
                 avatarUrl;
+    }
+
+    public RoleType getRole() {
+        if (userRoles == null || userRoles.isEmpty()) {
+            return RoleType.LEARNER;
+        }
+        for (UserRole ur : userRoles) {
+            if (ur.getRole() != null) {
+                try {
+                    return RoleType.valueOf(ur.getRole().getName().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    // ignore
+                }
+            }
+        }
+        return RoleType.LEARNER;
     }
 }

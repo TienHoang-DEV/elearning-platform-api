@@ -15,6 +15,7 @@ import java.util.Set;
 @Mapper(componentModel = "spring")
 public interface DtoMapper {
 
+    @Mapping(target = "avatarUrl", expression = "java(user.getFullAvatarUrl())")
     UserDto toUserDto(User user);
 
     @Mapping(target = "averageRating", expression = "java(course.getAverageRating())")
@@ -53,10 +54,4 @@ public interface DtoMapper {
     OrderDto toOrderDto(Order order);
     OrderItemDto toOrderItemDto(OrderItem orderItem);
     LessonMaterialDto toLessonMaterialDto(LessonMaterial lessonMaterial);
-    @Mapping(target = "fullName",
-            expression = "java(request.getUser().getFirstName() + \" \" + request.getUser().getLastName())")
-    @Mapping(target = "email",     source = "user.email")
-    @Mapping(target = "phone",     source = "user.phone")
-
-    InstructorRequestDTO toInstructorRequestDto(InstructorRequest request);
 }

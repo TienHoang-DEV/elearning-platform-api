@@ -3,15 +3,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
-    
+
     // Khôi phục trạng thái lửng lơ (indeterminate) cho checkbox từ thuộc tính server truyền xuống
     document.querySelectorAll('[data-indeterminate="true"]').forEach(cb => {
         cb.indeterminate = true;
     });
-    
+
     initializeCheckboxes();
     initializeRemoveButtons();
-    initializeInstructorVouchers();
     initializeCheckoutButton();
 });
 
@@ -79,7 +78,7 @@ function initializeRemoveButtons() {
         btn.addEventListener("click", () => {
             const cartItemId = btn.getAttribute("data-item-id");
             if (!cartItemId) return;
-            
+
             btn.disabled = true;
             fetch(`/api/cart/remove?cartItemId=${cartItemId}`, { method: 'POST' })
                 .then(r => r.json())
@@ -100,44 +99,7 @@ function initializeRemoveButtons() {
     });
 }
 
-// 3. Logic áp dụng Voucher giảng viên
-function initializeInstructorVouchers() {
-    const applyBtns = document.querySelectorAll(".btn-apply-instructor-voucher");
-    applyBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const instructorId = btn.getAttribute("data-instructor-id");
-            const input = document.getElementById(`voucher-input-${instructorId}`);
-            if (!input) return;
-            const code = input.value.trim();
-            
-            btn.disabled = true;
-            fetch(`/api/cart/apply-voucher?instructorId=${instructorId}&code=${encodeURIComponent(code)}`, { method: 'POST' })
-                .then(r => r.json())
-                .then(data => {
-                    btn.disabled = false;
-                    if (data.success) {
-                        window.location.reload();
-                    } else {
-                        // Hiển thị lỗi ngay bên dưới khung nhập mã
-                        const msgContainer = document.getElementById(`voucher-msg-container-${instructorId}`);
-                        const msgEl = document.getElementById(`voucher-msg-${instructorId}`);
-                        if (msgContainer && msgEl) {
-                            msgContainer.classList.remove("d-none");
-                            msgEl.className = "fs-8 fw-medium text-danger";
-                            msgEl.textContent = data.message;
-                        } else {
-                            alert(data.message);
-                        }
-                    }
-                })
-                .catch(err => {
-                    btn.disabled = false;
-                    console.error('Error applying voucher:', err);
-                    alert('Có lỗi xảy ra khi áp dụng mã.');
-                });
-        });
-    });
-}
+
 
 // 4. Logic thanh toán (Checkout) - Redirect to Payment Page
 function initializeCheckoutButton() {
