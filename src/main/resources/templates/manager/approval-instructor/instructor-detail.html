@@ -91,8 +91,8 @@
                                 </div>
 
                                 <span
-                                    th:class="${'badge badge-' + (request.status == 'ACTIVE' ? 'success' : 'danger')}"
-                                    th:text="${request.status == 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}">ACTIVE</span>
+                                    th:class="${'badge badge-' + (request.status?.name() == T(vn.edu.fpt.enums.UserStatus).ACTIVE.name() ? 'success' : 'danger')}"
+                                    th:text="${request.status?.name() == T(vn.edu.fpt.enums.UserStatus).ACTIVE.name() ? 'Hoạt động' : 'Bị khóa'}">ACTIVE</span>
                             </div>
                         </div>
 
@@ -147,8 +147,8 @@
                                 <div class="mb-3">
                                     <label class="form-label text-start d-block status-form-label" for="status">Trạng thái tài khoản</label>
                                     <select id="status" name="status" class="form-select status-form-select">
-                                        <option value="ACTIVE" th:selected="${request.status == 'ACTIVE'}">Hoạt động</option>
-                                        <option value="BANNED" th:selected="${request.status == 'BANNED'}">Bị khóa</option>
+                                        <option value="ACTIVE" th:selected="${request.status?.name() == T(vn.edu.fpt.enums.UserStatus).ACTIVE.name()}">Hoạt động</option>
+                                        <option value="BANNED" th:selected="${request.status?.name() == T(vn.edu.fpt.enums.UserStatus).BANNED.name()}">Bị khóa</option>
                                     </select>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100 status-form-submit-btn">

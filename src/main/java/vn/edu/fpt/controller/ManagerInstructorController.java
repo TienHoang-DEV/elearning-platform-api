@@ -19,6 +19,7 @@ import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.UserRepository;
+import vn.edu.fpt.enums.UserStatus;
 
 import java.util.List;
 
@@ -50,8 +51,17 @@ public class ManagerInstructorController {
             @RequestParam(defaultValue = "8") int size,
             Model model) {
 
+        UserStatus userStatus = null;
+        if (status != null && !status.isEmpty()) {
+            try {
+                userStatus = UserStatus.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                // ignore invalid status string
+            }
+        }
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        Page<User> instructorPage = userRepository.searchAndFilterInstructors(keyword, status, pageable);
+        Page<User> instructorPage = userRepository.searchAndFilterInstructors(keyword, userStatus, pageable);
         Page<UserDto> requestPage = instructorPage.map(dtoMapper::toUserDto);
 
         model.addAttribute("requestPage", requestPage);
@@ -85,15 +95,15 @@ public class ManagerInstructorController {
         User instructor = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên với ID: " + id));
 
-        if (!"ACTIVE".equals(status) && !"BANNED".equals(status)) {
+        try {
+            UserStatus userStatus = UserStatus.valueOf(status);
+            instructor.setStatus(userStatus);
+            userRepository.save(instructor);
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái tài khoản giảng viên thành công.");
+        } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
-            return "redirect:/manager/instructor/detail/" + id;
         }
 
-        instructor.setStatus(status);
-        userRepository.save(instructor);
-
-        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái tài khoản giảng viên thành công.");
         return "redirect:/manager/instructor/detail/" + id;
     }
 }

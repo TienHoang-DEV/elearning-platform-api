@@ -57,14 +57,6 @@
         </div>
 
         <div class="header-auth d-flex align-items-center gap-3">
-
-            <!-- Nút Đăng ký dạy - Bổ sung mới (Ẩn trên màn hình nhỏ để tránh chật chội) -->
-            <a th:href="@{/instructor-request}"
-               class="btn-instructor-join d-none d-xl-flex align-items-center gap-1 text-decoration-none fw-medium fs-7 me-2">
-                <i data-lucide="award" style="width: 16px; height: 16px;"></i>
-                <span>Trở thành Giảng viên</span>
-            </a>
-
             <th:block th:if="${currentUser == null}">
                 <a th:href="@{/login_no}"
                    class="btn btn-ghost-primary rounded-pill px-4 py-2 fw-semibold fs-7 d-none d-sm-inline-block text-decoration-none">Đăng
@@ -351,40 +343,6 @@
         </div>
     </section>
 
-    <!-- ========== INSTRUCTOR RECRUITMENT BANNER (Bổ sung mới) ========== -->
-    <section class="instructor-cta-section">
-        <div class="container">
-            <div class="instructor-cta-card position-relative overflow-hidden">
-                <!-- Các vòng tròn decor chìm sang trọng -->
-                <div class="cta-decor-circle cta-decor-1"></div>
-                <div class="cta-decor-circle cta-decor-2"></div>
-
-                <div class="row align-items-center row-gap-4 position-relative style-z-index">
-                    <div class="col-lg-7 text-center text-lg-start">
-                        <span class="badge bg-white text-primary fw-bold px-3 py-2 rounded-pill shadow-sm mb-3 fs-8 text-uppercase tracking-wider">Hợp tác cùng Learning Hub</span>
-                        <h2 class="cta-title font-heading text-white fw-bold mb-3">Lan Tỏa Kiến Thức — Tạo Ra Thu Nhập
-                            Bền Vững</h2>
-                        <p class="cta-desc text-white-50 m-0" style="max-width: 580px;">
-                            Tham gia vào đội ngũ hơn 200+ chuyên gia hàng đầu. Chia sẻ kỹ năng thực tiễn của bạn, xây
-                            dựng thương hiệu cá nhân và tiếp cận hàng vạn học viên trên toàn quốc.
-                        </p>
-                    </div>
-                    <div class="col-lg-5 text-center text-lg-end">
-                        <div class="d-flex flex-sm-row flex-column justify-content-lg-end justify-content-center gap-3">
-                            <a th:href="@{/instructor/about}"
-                               class="btn btn-light rounded-pill px-4 py-3 fw-bold fs-7 shadow-sm text-dark text-decoration-none hover-scale">
-                                Tìm hiểu quy trình
-                            </a>
-                            <a th:href="@{/instructor-request}"
-                               class="btn btn-warning-solid rounded-pill px-4 py-3 fw-bold fs-7 text-decoration-none shadow-orange hover-bounce">
-                                Đăng ký mở lớp ngay
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 </main>
 
 <footer class="site-footer">

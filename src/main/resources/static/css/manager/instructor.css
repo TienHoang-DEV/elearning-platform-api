@@ -63,7 +63,6 @@ body { font-family: var(--font-family); background-color: var(--bg-body); color:
 .badge-success { background: #d4edda; color: #155724; }
 .badge-danger { background: #f8d7da; color: #721c24; }
 .badge-secondary { background: #e2e3e5; color: #383d41; }
-.badge-dark { background: #343a40; color: #fff; }
 
 /* ── Table ── */
 .table-container { background: #fff; border: 1px solid var(--border-color); border-radius: var(--border-radius); overflow: hidden; margin-top: 15px; min-height: 470px; }
@@ -89,7 +88,6 @@ body { font-family: var(--font-family); background-color: var(--bg-body); color:
 .actions { display: flex; align-items: center; gap: 12px; }
 .action-btn { display: flex; align-items: center; gap: 4px; text-decoration: none; color: var(--primary-blue); font-weight: 500; font-size: 0.9rem; }
 .action-btn:hover { color: var(--primary-blue-hover); }
-.action-link { text-decoration: none; color: var(--primary-blue); font-weight: 500; font-size: 0.9rem; }
 
 /* ── Pagination ── */
 .pagination-circle-container { display: flex; justify-content: center; align-items: center; margin-top: 28px; }
@@ -139,32 +137,6 @@ body { font-family: var(--font-family); background-color: var(--bg-body); color:
 
 .intro-text { color: var(--text-main); font-size: 0.95rem; line-height: 1.6; background: var(--bg-light); padding: 18px; border-radius: var(--border-radius); border: 1px solid var(--border-color); }
 
-/* ── Documents ── */
-.documents-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.doc-group { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-
-.doc-card { background: var(--bg-light); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; min-width: 0; }
-.doc-card:hover { border-color: var(--primary-blue); background: #f0f7ff; }
-
-.doc-left { display: flex; align-items: center; gap: 10px; min-width: 0; overflow: hidden; flex: 1; }
-.doc-left i { font-size: 1.5rem; color: var(--primary-blue); }
-.doc-name { font-weight: 500; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.doc-link { color: var(--primary-blue); text-decoration: none; font-weight: 600; font-size: 0.85rem; white-space: nowrap; flex-shrink: 0; }
-.doc-link:hover { color: var(--primary-blue-hover); text-decoration: underline; }
-
-/* ── CCCD ── */
-.cccd-images-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.cccd-card { border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 14px; background: var(--bg-light); text-align: center; }
-.cccd-card-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 10px; }
-.cccd-card img { max-width: 100%; max-height: 200px; border-radius: 8px; object-fit: contain; box-shadow: var(--shadow-sm); transition: transform 0.2s ease; }
-.cccd-card img:hover { transform: scale(1.02); }
-.cccd-empty-placeholder { font-style: italic; color: var(--text-gray); padding: 36px 0; }
-
-/* ── Rejection Box ── */
-.rejection-box { background: #fff5f5; border: 1px solid #fca5a5; border-radius: 8px; padding: 16px 20px; }
-.rejection-box-title { font-size: 0.85rem; font-weight: 700; color: #dc3545; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-.rejection-box-body { font-size: 0.93rem; color: #7f1d1d; }
-
 /* ── Flash Alerts ── */
 .flash-alert { padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
 .flash-alert.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
@@ -177,50 +149,9 @@ body { font-family: var(--font-family); background-color: var(--bg-body); color:
 .action-card-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; display: flex; align-items: center; gap: 8px; }
 .action-card-title i { color: var(--primary-blue); }
 
-.form-actions { display: flex; flex-direction: column; gap: 10px; }
-
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 15px; border-radius: var(--border-radius); cursor: pointer; font-family: inherit; font-weight: 500; border: none; text-decoration: none; transition: all 0.2s ease; }
-.btn-block { width: 100%; padding: 12px; font-weight: 600; font-size: 0.95rem; }
-
-.btn-approve-trigger { background: linear-gradient(135deg, #28a745, #20903a); color: #fff; }
-.btn-approve-trigger:hover { background: linear-gradient(135deg, #218838, #1a7a30); color: #fff; transform: translateY(-1px); }
-.btn-reject-trigger { background: linear-gradient(135deg, #dc3545, #c82333); color: #fff; }
-.btn-reject-trigger:hover { background: linear-gradient(135deg, #c82333, #a71c2a); color: #fff; transform: translateY(-1px); }
-
-.action-card-status-container { text-align: center; padding: 14px 0; }
-.action-card-status-badge { font-size: 1rem; padding: 8px 16px; display: inline-block; }
 .action-card-footer { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-color); }
 .action-card-info-text { font-size: 0.78rem; color: var(--text-gray); line-height: 1.5; margin: 0; }
 .action-card-info-text i { color: var(--primary-blue); }
-
-/* ── CSS :target Modal ── */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
-.modal-overlay:target { display: flex; }
-.modal-box { background: #fff; border-radius: 12px; padding: 32px; max-width: 440px; width: 92%; box-shadow: 0 20px 60px rgba(0,0,0,0.2); position: relative; }
-.modal-close-bg { position: absolute; inset: 0; z-index: -1; }
-
-.modal-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 14px; }
-.modal-icon.approve { background: #e8f5e9; color: #28a745; }
-.modal-icon.reject { background: #ffebee; color: #dc3545; }
-
-.modal-title { font-size: 1.15rem; font-weight: 700; text-align: center; margin-bottom: 8px; }
-.modal-desc { font-size: 0.9rem; color: var(--text-gray); text-align: center; margin-bottom: 18px; line-height: 1.6; }
-.modal-name-hl { font-weight: 700; color: var(--text-main); }
-
-.modal-reason-label { font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 6px; }
-.modal-reason-label span { color: #dc3545; }
-.modal-reason-textarea { width: 100%; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none; resize: vertical; min-height: 90px; margin-bottom: 4px; }
-.modal-reason-textarea:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(0,86,179,0.1); }
-.modal-hint { font-size: 0.78rem; color: var(--text-gray); margin-bottom: 16px; }
-
-.modal-actions { display: flex; gap: 10px; }
-.modal-btn { flex: 1; padding: 11px 16px; border-radius: 8px; font-family: inherit; font-weight: 600; font-size: 0.9rem; cursor: pointer; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; }
-.modal-btn-cancel { background: #f8f9fa; border: 1px solid var(--border-color); color: #495057; }
-.modal-btn-cancel:hover { background: #e9ecef; }
-.modal-btn-approve { background: #28a745; color: #fff; }
-.modal-btn-approve:hover { background: #218838; }
-.modal-btn-reject { background: #dc3545; color: #fff; }
-.modal-btn-reject:hover { background: #c82333; }
 
 /* ── Responsive ── */
 @media (max-width: 1024px) { .split-layout-container { grid-template-columns: 1fr; } .action-card { position: static; } }
@@ -228,7 +159,6 @@ body { font-family: var(--font-family); background-color: var(--bg-body); color:
     .app-container { flex-direction: column; }
     .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); }
     .main-wrapper { overflow-y: visible; }
-    .documents-grid, .cccd-images-grid { grid-template-columns: 1fr; }
 }
 
 /* ── Detail Courses Table ── */

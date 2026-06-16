@@ -55,15 +55,7 @@
                 </form>
             </div>
 
-            <!-- User Utilities -->
             <div class="header-utilities d-flex align-items-center gap-3">
-                <!-- Nút Đăng ký dạy (Ẩn trên màn hình nhỏ để tránh chật chội) -->
-                <a th:href="@{/instructor-request}" th:if="${currentUser == null || (currentUser.role?.name() != 'INSTRUCTOR' && currentUser.role?.name() != 'MANAGER')}"
-                    class="btn-instructor-join d-none d-xl-flex align-items-center gap-1 text-decoration-none fw-medium fs-7 me-2">
-                    <i data-lucide="award" style="width: 16px; height: 16px;"></i>
-                    <span>Trở thành Giảng viên</span>
-                </a>
-
                 <th:block th:if="${currentUser == null}">
                     <a th:href="@{/login_no}"
                         class="btn btn-ghost-primary rounded-pill px-4 py-2 fw-semibold fs-7 d-none d-sm-inline-block text-decoration-none">Đăng

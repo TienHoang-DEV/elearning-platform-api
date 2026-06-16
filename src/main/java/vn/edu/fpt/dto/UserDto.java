@@ -2,6 +2,7 @@ package vn.edu.fpt.dto;
 
 import lombok.*;
 import vn.edu.fpt.enums.RoleType;
+import vn.edu.fpt.enums.UserStatus;
 import java.time.LocalDateTime;
 
 @Getter
@@ -20,7 +21,7 @@ public class UserDto {
     private String bio;
     private String phone;
     private RoleType role;
-    private String status;
+    private UserStatus status;
 
     public String getFullAvatarUrl() {
         if (avatarUrl == null || avatarUrl.isBlank()) {

@@ -49,11 +49,6 @@
 
             <!-- Right Side: Search and Avatar -->
             <div class="header-utilities d-flex align-items-center gap-3">
-                <a th:href="@{/instructor-request}" th:if="${currentUser == null || (currentUser.role?.name() != 'INSTRUCTOR' && currentUser.role?.name() != 'MANAGER')}"
-                   class="btn-instructor-join d-none d-xl-flex align-items-center gap-1 text-decoration-none fw-medium fs-7 me-2">
-                    <i data-lucide="award" style="width: 16px; height: 16px;"></i>
-                    <span>Trở thành Giảng viên</span>
-                </a>
                 <!-- Search Trigger Icon -->
                 <button class="btn btn-link text-muted p-2 rounded-circle" id="btn-search-trigger"
                     aria-label="Tìm kiếm">

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.RegisterRequest;
 import vn.edu.fpt.entity.Role;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.repository.RoleRepository;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.security.CustomUserDetails;
@@ -67,7 +68,7 @@ public class AuthService {
 
         user.setAvatarUrl("https://cdn2.fptshop.com.vn/small/avatar_trang_1_cd729c335b.jpg");
 
-        user.setStatus("ACTIVE");
+        user.setStatus(UserStatus.ACTIVE);
 
 
         user.addUserRole(role);

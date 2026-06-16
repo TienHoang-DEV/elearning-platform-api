@@ -43,13 +43,7 @@
                 </div>
             </div>
 
-            <!-- User Utilities -->
             <div class="header-utilities d-flex align-items-center gap-3">
-                <a th:href="@{/instructor-request}" th:if="${currentUser == null || (currentUser.role?.name() != 'INSTRUCTOR' && currentUser.role?.name() != 'MANAGER')}"
-                   class="btn-instructor-join d-none d-xl-flex align-items-center gap-1 text-decoration-none fw-medium fs-7 me-2">
-                    <i data-lucide="award" style="width: 16px; height: 16px;"></i>
-                    <span>Trở thành Giảng viên</span>
-                </a>
                 <!-- Cart Icon -->
                 <a th:href="@{/cart}" class="btn btn-link nav-icon-btn text-muted p-2 rounded-circle position-relative" aria-label="Giỏ hàng">
                     <i data-lucide="shopping-cart" style="width: 20px; height: 20px;"></i>
