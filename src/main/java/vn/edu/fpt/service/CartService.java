@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.*;
 import vn.edu.fpt.dto.*;
+import vn.edu.fpt.enums.OrderStatus;
 import vn.edu.fpt.repository.*;
 import vn.edu.fpt.mapper.DtoMapper;
 
@@ -202,7 +203,6 @@ public class CartService {
         }
     }
 
-    }
 
     public Map<String, Object> checkoutCart(User user) {
         Map<String, Object> response = new HashMap<>();
@@ -251,7 +251,7 @@ public class CartService {
         Order order = Order.builder()
                 .user(user)
                 .totalAmount(orderSubtotal)
-                .status("paid")
+                .status(OrderStatus.PAID)
                 .paymentMethod("ATM / Internet Banking")
                 .build();
 

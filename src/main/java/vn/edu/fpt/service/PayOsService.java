@@ -204,7 +204,6 @@ public class PayOsService {
                             .map(item -> item.getCourse().getInstructor())
                             .collect(java.util.stream.Collectors.toSet());
 
-                    cart.getInstructorCoupons().removeIf(cic -> !remainingInstructors.contains(cic.getInstructor()));
                     cartRepository.save(cart);
                 }
             }

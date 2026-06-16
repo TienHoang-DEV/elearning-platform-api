@@ -63,14 +63,11 @@ public class PaymentService {
 
             // Create order with final total amount (after discounts)
             BigDecimal totalAmount = BigDecimal.valueOf(cartDetails.getTotal());
-            BigDecimal discountAmount = BigDecimal.valueOf(
-                    cartDetails.getCourseDiscounts() + cartDetails.getInstructorDiscounts()
-            );
+
 
             Order order = Order.builder()
                     .user(user)
                     .totalAmount(totalAmount)
-                    .discountAmount(discountAmount)
                     .status(OrderStatus.PENDING)
                     .paymentMethod(AppConstants.PAYMENT_GATEWAY)
                     .build();
@@ -80,49 +77,11 @@ public class PaymentService {
                 Course course = item.getCourse();
 
                 // Find if there is an applied coupon for this instructor
-                CartInstructorCoupon appliedCoupon = null;
-
-                for (CartInstructorCoupon cic : cart.getInstructorCoupons()) {
-                    if (cic.getInstructor().getId().equals(course.getInstructor().getId())) {
-                        appliedCoupon = cic;
-                        break;
-                    }
-                }
-
-                Coupon coupon = (appliedCoupon != null) ? appliedCoupon.getCoupon() : null;
 
                 // Calculate prices
                 long coursePrice = course.getPrice().longValue();
                 long courseDiscount = Math.round(coursePrice * AppConstants.DEFAULT_DISCOUNT);
                 long instItemDiscount = 0;
-
-                if (coupon != null) {
-                    long instSubtotal = 0;
-                    Integer instructorId = course.getInstructor().getId();
-                    for (CartItem ci : cart.getItems()) {
-                        if (ci.isSelected() && ci.getCourse().getInstructor().getId().equals(instructorId)) {
-                            instSubtotal += ci.getCourse().getPrice().longValue();
-                        }
-                    }
-                    long instCourseDiscounts = Math.round(instSubtotal * AppConstants.DEFAULT_DISCOUNT);
-                    long instSubtotalAfterDiscount = instSubtotal - instCourseDiscounts;
-
-                    long instDiscountAmount = 0;
-                    if (DiscountType.PERCENT.toString().equalsIgnoreCase(coupon.getDiscountType())) {
-                        double rate = coupon.getDiscountValue().doubleValue() / 100.0;
-                        instDiscountAmount = Math.round(instSubtotalAfterDiscount * rate);
-                    } else if (DiscountType.FIXED.toString().equalsIgnoreCase(coupon.getDiscountType())) {
-                        instDiscountAmount = coupon.getDiscountValue().longValue();
-                        if (instDiscountAmount > instSubtotalAfterDiscount) {
-                            instDiscountAmount = instSubtotalAfterDiscount;
-                        }
-                    }
-
-                    long itemSubtotalAfterDiscount = coursePrice - courseDiscount;
-                    if (instSubtotalAfterDiscount > 0) {
-                        instItemDiscount = Math.round((double) itemSubtotalAfterDiscount / instSubtotalAfterDiscount * instDiscountAmount);
-                    }
-                }
 
                 long itemTotalDiscount = courseDiscount + instItemDiscount;
                 long finalPrice = coursePrice - itemTotalDiscount;
@@ -133,10 +92,7 @@ public class PaymentService {
                 OrderItem orderItem = OrderItem.builder()
                         .order(order)
                         .course(course)
-                        .coupon(coupon)
                         .priceSnapshot(BigDecimal.valueOf(coursePrice))
-                        .discountAmount(BigDecimal.valueOf(itemTotalDiscount))
-                        .finalPrice(BigDecimal.valueOf(finalPrice))
                         .courseTitleSnapshot(course.getTitle())
                         .build();
 
