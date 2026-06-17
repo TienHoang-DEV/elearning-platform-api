@@ -38,14 +38,13 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 		   "AND (:keyword IS NULL OR :keyword = '' " +
 		   "     OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
 		   "     OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-		   "     OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-		   "     OR u.phone LIKE CONCAT('%', :keyword, '%'))")
+		   "     OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')))")
 	Page<User> searchAndFilterInstructors(
 			@Param("keyword") String keyword,
 			@Param("status") UserStatus status,
 			Pageable pageable);
 
-	@Query("SELECT COUNT(u) FROM User u JOIN u.userRoles ur JOIN ur.role r WHERE LOWER(r.name) = 'instructor'")
+	@Query("SELECT COUNT(u) FROM User u JOIN u.userRoles ur JOIN ur.role r WHERE r.name = 'INSTRUCTOR'")
 	long countInstructors();
 }
 

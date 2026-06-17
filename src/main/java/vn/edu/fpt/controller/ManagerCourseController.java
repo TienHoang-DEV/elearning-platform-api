@@ -7,9 +7,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.CourseDto;
+import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.service.CourseService;
 
 @Controller
@@ -42,5 +46,33 @@ public class ManagerCourseController {
         model.addAttribute("status", status);
 
         return "manager/approval-course/course-list";
+    }
+
+    /**
+     * GET /manager/course/detail/{id}
+     * Hiển thị trang chi tiết của một khóa học.
+     */
+    @GetMapping("/detail/{id}")
+    public String detailCourse(@PathVariable Integer id, Model model) {
+        CourseDto course = courseService.getCourseDetail(id);
+        model.addAttribute("course", course);
+        return "manager/approval-course/course-detail";
+    }
+
+    /**
+     * POST /manager/course/edit/{id}
+     * Cập nhật trạng thái khóa học (PHÊ DUYỆT, TỪ CHỐI, ẨN).
+     */
+    @PostMapping("/edit/{id}")
+    public String updateCourseStatus(
+            @PathVariable Integer id,
+            @RequestParam("status") String status,
+            RedirectAttributes redirectAttributes) {
+
+        CourseStatus courseStatus = CourseStatus.valueOf(status);
+        courseService.updateCourseStatus(id, courseStatus);
+        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái khóa học thành công.");
+
+        return "redirect:/manager/course/detail/" + id;
     }
 }

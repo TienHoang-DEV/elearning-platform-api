@@ -303,4 +303,11 @@ public class CourseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
     }
 
+    @Transactional
+    public void updateCourseStatus(Integer id, CourseStatus status) {
+        Course course = repository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        course.setStatus(status);
+        repository.save(course);
+    }
 }
