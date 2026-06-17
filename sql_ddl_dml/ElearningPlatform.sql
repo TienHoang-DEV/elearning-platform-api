@@ -362,44 +362,44 @@ CREATE TABLE video_moderation_flags (
 -- =========================
 -- LESSON MATERIALS
 -- =========================
-CREATE TABLE lesson_materials (
-                                  id INT PRIMARY KEY IDENTITY(1,1),
-    -- Mã định danh tài liệu
+    CREATE TABLE lesson_materials (
+                                      id INT PRIMARY KEY IDENTITY(1,1),
+        -- Mã định danh tài liệu
 
-                                  instructor_id INT NOT NULL,
-    -- Tham chiếu đến bảng users (role='instructor'), giáo viên upload tài liệu
+                                      instructor_id INT NOT NULL,
+        -- Tham chiếu đến bảng users (role='instructor'), giáo viên upload tài liệu
 
-                                  course_id INT NULL,
-    -- Tham chiếu đến bảng courses (tài liệu cho cả khóa học nếu có)
+                                      course_id INT NULL,
+        -- Tham chiếu đến bảng courses (tài liệu cho cả khóa học nếu có)
 
-                                  lesson_id INT NULL,
-    -- Tham chiếu đến bảng lessons (tài liệu cho bài học cụ thể)
+                                      lesson_id INT NULL,
+        -- Tham chiếu đến bảng lessons (tài liệu cho bài học cụ thể)
 
-                                  file_name NVARCHAR(255) NULL,
-    -- Tên file gốc
+                                      file_name NVARCHAR(255) NULL,
+        -- Tên file gốc
 
-                                  file_url VARCHAR(500) NULL,
-    -- URL file (lưu link từ Azure Blob Storage)
+                                      file_url VARCHAR(500) NULL,
+        -- URL file (lưu link từ Azure Blob Storage)
 
-                                  file_type VARCHAR(50) NULL,
-    -- Loại file: 'pdf', 'docx', 'pptx', 'zip', 'txt', ...
+                                      file_type VARCHAR(50) NULL,
+        -- Loại file: 'pdf', 'docx', 'pptx', 'zip', 'txt', ...
 
-                                  file_size BIGINT NULL,
-    -- Kích thước file (bytes)
+                                      file_size BIGINT NULL,
+        -- Kích thước file (bytes)
 
-                                  created_at DATETIME DEFAULT GETDATE(),
-    -- Thời gian upload tài liệu
+                                      created_at DATETIME DEFAULT GETDATE(),
+        -- Thời gian upload tài liệu
 
-                                  updated_at DATETIME NULL,
-    -- Thời gian cập nhật gần nhất
+                                      updated_at DATETIME NULL,
+        -- Thời gian cập nhật gần nhất
 
-                                  CONSTRAINT FK_materials_instructor
-                                      FOREIGN KEY (instructor_id) REFERENCES users(id),
-                                  CONSTRAINT FK_materials_course
-                                      FOREIGN KEY (course_id) REFERENCES courses(id),
-                                  CONSTRAINT FK_materials_lesson
-                                      FOREIGN KEY (lesson_id) REFERENCES lessons(id)
-);
+                                      CONSTRAINT FK_materials_instructor
+                                          FOREIGN KEY (instructor_id) REFERENCES users(id),
+                                      CONSTRAINT FK_materials_course
+                                          FOREIGN KEY (course_id) REFERENCES courses(id),
+                                      CONSTRAINT FK_materials_lesson
+                                          FOREIGN KEY (lesson_id) REFERENCES lessons(id)
+    );
 
 -- =========================
 -- QUIZZES

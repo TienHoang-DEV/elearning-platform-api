@@ -2,17 +2,17 @@ package vn.edu.fpt.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.dto.CourseDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.exception.CourseNotFoundException;
+import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.CourseSectionRepository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
+import java.time.LocalDateTime;
+import java.util.*;
+
 import vn.edu.fpt.dto.CourseSectionDto;
 import vn.edu.fpt.dto.LessonDto;
 
@@ -76,4 +76,37 @@ public class CourseSectionService {
         }
         return sectionCompletedMap;
     }
+
+    ////Thêm Section vào Khoá Học hiện tại
+    public CourseSection SaveSection(CourseSectionDto courseSectionDto, Course course){
+        if(course == null){
+            throw new CourseValidationException("courseRequets","Khoá học này không tồn tại");
+        }
+
+        Integer po = repository.FindMaxPositionByCourseId(course.getId());
+        CourseSection courseSection = new CourseSection();
+        courseSection.setTitle(courseSectionDto.getTitle());
+        courseSection.setPosition(po + 1);
+        courseSection.setCourse(course);
+        courseSection.setCreatedAt(LocalDateTime.now());
+        return repository.save(courseSection);
+    }
+    //// Danh sách Section theo Course
+    public List<CourseSectionDto> FindSectionByCourseId(Integer courseId){
+        List<CourseSection> courseSections = repository.findByCourseId(courseId);
+        List<CourseSectionDto> courseSectionDtos  = new ArrayList<>();
+        for(CourseSection c : courseSections){
+            CourseSectionDto courseSectionDto = new CourseSectionDto();
+
+            courseSectionDto.setId(c.getId());
+            courseSectionDto.setTitle(c.getTitle());
+            courseSectionDto.setPosition(c.getPosition());
+
+            courseSectionDtos.add(courseSectionDto);
+        }
+         return courseSectionDtos;
+    }
+
+
+
 }

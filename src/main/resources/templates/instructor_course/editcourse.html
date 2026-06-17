@@ -30,40 +30,38 @@
     <div class="wizard-steps">
 <!--        <a th:href="@{/instructor/courses/{id}/edit/info(id=${courseRequest.id})}"-->
 <!--           class="wizard-step" th:classappend="${activeStep == 'info'} ? 'active' : ''">-->
-            <a th:href="${courseRequest.id != null}
-       ? @{/instructor/courses/{id}/edit/info(id=${courseRequest.id})}
-       : '#'"
-               class="wizard-step" th:classappend="${activeStep == 'info'} ? 'active' : ''">
+        <a th:href="${courseRequest?.id != null}
+               ? @{/instructor/courses/{id}/edit/info(id=${courseRequest.id})}
+               : '#'"
+           class="wizard-step" th:classappend="${activeStep == 'info'} ? 'active' : ''">
             <div class="step-dot">1</div>
             <div class="step-label">GIỚI THIỆU<br/>KHÓA HỌC</div>
         </a>
-        <a th:href="@{/instructor/courses/{id}/edit/curriculum(id=${courseRequest.id})}"
+
+        <a th:href="${courseRequest?.id != null}
+               ? @{/instructor/courses/{id}/edit/curriculum(id=${courseRequest.id})}
+               : '#'"
            class="wizard-step" th:classappend="${activeStep == 'curriculum'} ? 'active' : ''">
             <div class="step-dot">2</div>
             <div class="step-label">CHƯƠNG TRÌNH<br/>GIẢNG DẠY</div>
         </a>
-        <a th:href="@{/instructor/courses/{id}/edit/quiz(id=${courseRequest.id})}"
+
+        <a th:href="${courseRequest?.id != null}
+               ? @{/instructor/courses/{id}/edit/quiz(id=${courseRequest.id})}
+               : '#'"
            class="wizard-step" th:classappend="${activeStep == 'quiz'} ? 'active' : ''">
             <div class="step-dot">3</div>
             <div class="step-label">CÂU HỎI ÔN TẬP</div>
         </a>
-        <a th:href="@{/instructor/courses/{id}/edit/publish(id=${courseRequest.id})}"
+
+        <a th:href="${courseRequest?.id != null}
+               ? @{/instructor/courses/{id}/edit/publish(id=${courseRequest.id})}
+               : '#'"
            class="wizard-step" th:classappend="${activeStep == 'publish'} ? 'active' : ''">
             <div class="step-dot">4</div>
             <div class="step-label">XUẤT BẢN</div>
         </a>
     </div>
-
-    <!-- Nội dung từng step sẽ được include riêng -->
-    <!-- Ví dụ controller trả về fragment tương ứng với activeStep -->
-<!--    <div th:replace="~{instructor_course/stepinfor :: content}"-->
-<!--         th:if="${activeStep == 'info'}"></div>-->
-<!--    <div th:replace="~{instructor_course/stepcurriculum :: content}"-->
-<!--         th:if="${activeStep == 'curriculum'}"></div>-->
-<!--    <div th:replace="~{instructor_course/stepquizz :: content}"-->
-<!--         th:if="${activeStep == 'quiz'}"></div>-->
-<!--    <div th:replace="~{instructor_course/step-publish :: content}"-->
-<!--         th:if="${activeStep == 'publish'}"></div>-->
 
     <div th:if="${activeStep == 'info'}"
          th:insert="~{instructor_course/stepinfor :: content}"></div>
