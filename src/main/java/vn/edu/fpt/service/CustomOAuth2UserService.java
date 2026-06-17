@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.entity.Role;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.repository.RoleRepository;
 import vn.edu.fpt.repository.UserRepository;
 
@@ -81,7 +82,7 @@ public class CustomOAuth2UserService
 
             user.setAvatarUrl(picture);
 
-            user.setStatus("ACTIVE");
+            user.setStatus(UserStatus.ACTIVE);
 
             user.addUserRole(role);
 

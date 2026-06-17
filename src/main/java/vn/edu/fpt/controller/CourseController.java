@@ -69,32 +69,27 @@ public class CourseController {
             }
         } catch (Exception ignored) {
         }
-        return userService.findByEmail("28tech@gmail.com")
-                .orElseGet(() -> {
-                    List<User> allUsers = userService.findAll();
-                    if (allUsers.isEmpty()) {
-                        throw new IllegalStateException("Không tìm thấy người dùng nào trong cơ sở dữ liệu để giả lập. Vui lòng import lại file sql_ddl_dml/ElearningPlatform.sql vào SQL Server của bạn!");
-                    }
-                    return allUsers.get(0);
-                });
+        return null;
     }
 
     @GetMapping("/courses")
     public String showCourseList(
             @RequestParam(value = "search", required = false) String search,
             @RequestParam(value = "categoryId", required = false) Integer categoryId,
-            @RequestParam(value = "ratings", required = false) List<Integer> ratings,
+            @RequestParam(value = "ratings", required = false) List<Double> ratings,
             @RequestParam(value = "prices", required = false) List<String> prices,
             @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort,
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             Model model) {
 
-        List<CourseDto> filteredCourses = courseService.getFilteredAndSortedCourses(search, categoryId, ratings, prices, sort);
+        List<CourseDto> filteredCourses = courseService.getFilteredAndSortedCourses(search, categoryId, ratings, prices,
+                sort);
         List<CategoryDto> categoryDtos = categoryService.getActiveParentCategories();
 
         model.addAttribute("parentCategories", categoryDtos);
 
         User user = getSessionUser();
+
         java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
         model.addAttribute("enrolledCourseIds", enrolledCourseIds);
 
@@ -104,7 +99,8 @@ public class CourseController {
             try {
                 Cart cart = cartService.getOrCreateCartForUser(user);
                 cartSize = cartItemService.countItemsInCart(cart);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         model.addAttribute("cartSize", cartSize);
 
@@ -137,10 +133,20 @@ public class CourseController {
             pagedCourses = filteredCourses.subList(startIndex, endIndex);
         }
 
-        // 6. Đưa dữ liệu trang hiện tại và các thuộc tính phân trang vào Model để render ra UI
+        // 6. Đưa dữ liệu trang hiện tại và các thuộc tính phân trang vào Model để
+        // render ra UI
         model.addAttribute("courses", pagedCourses);
         model.addAttribute("search", search);
         model.addAttribute("categoryId", categoryId);
+        if (categoryId != null) {
+            try {
+                vn.edu.fpt.entity.Category selectedCategory = categoryService.findByIdAndStatus(categoryId, "ACTIVE");
+                if (selectedCategory != null) {
+                    model.addAttribute("selectedCategoryName", selectedCategory.getName());
+                }
+            } catch (Exception ignored) {
+            }
+        }
         model.addAttribute("selectedRatings", ratings);
         model.addAttribute("selectedPrices", prices);
         model.addAttribute("sort", sort);
@@ -173,16 +179,17 @@ public class CourseController {
                 Cart cart = cartService.getOrCreateCartForUser(user);
                 int cartSize = cartItemService.countItemsInCart(cart);
                 model.addAttribute("cartSize", cartSize);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         return "course/detail";
     }
 
     @PostMapping("/course/review/add")
     public String addCourseReview(@RequestParam("courseId") Integer courseId,
-                                  @RequestParam("rating") Integer rating,
-                                  @RequestParam(value = "comment", required = false, defaultValue = "") String comment,
-                                  org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+            @RequestParam("rating") Integer rating,
+            @RequestParam(value = "comment", required = false, defaultValue = "") String comment,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         User user = getSessionUser();
         if (user == null) {
             return "redirect:/";

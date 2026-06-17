@@ -12,7 +12,5 @@ public class OrderItemDto {
     private Integer id;
     private CourseDto course;
     private BigDecimal priceSnapshot;
-    private BigDecimal discountAmount;
-    private BigDecimal finalPrice;
     private String courseTitleSnapshot;
 }
