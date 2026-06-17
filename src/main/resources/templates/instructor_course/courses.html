@@ -36,7 +36,7 @@
                 <table>
                     <thead>
                     <tr>
-                        <th>Mã Khóa Học</th>
+                        <th>STT</th>
                         <th>Tên Khóa Học</th>
                         <th>Lịch Cập Nhật</th>
                         <th>Giá Gốc (VNĐ)</th>
@@ -45,16 +45,16 @@
                     </tr>
                     </thead>
                     <tbody th:if="${listpublished != null and not #lists.isEmpty(listpublished)}">
-                    <tr th:each="course : ${listpublished}">
-                        <td th:text="${course.id}">KH001</td>
+                    <tr th:each="course, stat : ${listpublished}">
+                        <td th:text="${publishedPage.number * publishedPage.size + stat.count}"></td>
                         <td th:text="${course.title}">Tên khóa học</td>
-                        <td th:text="${#temporals.format(course.createAt, 'dd-MM-yyyy')}">01/01/2025</td>
+                        <td th:text="${course.createdAt != null ? #temporals.format(course.createdAt, 'dd-MM-yyyy') : ''}"></td>
                         <td th:text="${course.price}">500,000</td>
                         <td th:text="${course.price}">399,000</td>
                         <td>
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${courseRequest.id})}"
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
                                class="btn btn-sm btn-outline">Xem Chi Tiết</a>
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${courseRequest.id})}"
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
                                class="btn btn-sm btn-outline">Chỉnh Sửa</a>
                         </td>
                     </tr>
@@ -73,20 +73,20 @@
                 <table>
                     <thead>
                     <tr>
-                        <th>Mã Khóa Học</th><th>Tên Khóa Học</th><th>Ngày Gửi</th><th>Thao Tác</th>
+                        <th>STT</th><th>Tên Khóa Học</th><th>Ngày Gửi</th><th>Thao Tác</th>
                     </tr>
                     </thead>
 
                    <tbody th:if="${listpending != null and not #lists.isEmpty(listpending)}">
-                    <tr th:each="course : ${listpending}">
-                        <td th:text="${course.id}"></td>
+                    <tr th:each="course, stat : ${listpending}">
+                        <td th:text="${pendingPage.number * pendingPage.size + stat.count}"></td>
                         <td th:text="${course.title}"></td>
-                        <td th:text="${#temporals.format(course.updatedAt,'dd/MM/yyyy')}"></td>
+                        <td th:text="${course.updatedAt != null ? #temporals.format(course.updatedAt, 'dd-MM-yyyy') : ''}"></td>
                         <td>
-                            <a th:href="@{/instructor/courses/{id}/view(id=${courseRequest.id})}"
+                            <a th:href="@{/instructor/courses/{id}/view(id=${course.id})}"
                                class="btn btn-sm btn-outline">Xem Chi Tiết</a>
 
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${courseRequest.id})}"
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
                                class="btn btn-sm btn-outline">Thu Hồi Yêu Cầu</a>
                         </td>
                     </tr>
@@ -106,14 +106,14 @@
 
                     <thead>
                     <tr>
-                        <th>Mã Khóa Học</th><th>Tên Khóa Học</th><th>Lần Sửa Cuối</th><th>Thao Tác</th>
+                        <th>STT</th><th>Tên Khóa Học</th><th>Lần Sửa Cuối</th><th>Thao Tác</th>
                     </tr>
                     </thead>
                     <tbody th:if="${listdraft != null and not #lists.isEmpty(listdraft)}">
-                    <tr th:each="course : ${listdraft}">
-                        <td th:text="${course.id}"></td>
+                    <tr th:each="course, stat : ${listdraft}">
+                        <td th:text="${draftPage.number * draftPage.size + stat.count}"></td>
                         <td th:text="${course.title}"></td>
-                        <td th:text="${#temporals.format(course.updatedAt,'dd/MM/yyyy')}"></td>
+                        <td th:text="${course.updatedAt != null ? #temporals.format(course.updatedAt, 'dd-MM-yyyy') : ''}"></td>
                         <td>
                             <a th:href="@{/instructor/courses/{id}/view(id=${course.id})}"
                                class="btn btn-sm btn-outline">Xem</a>
@@ -141,12 +141,12 @@
                 <table>
                     <thead>
                     <tr>
-                        <th>Mã</th><th>Tên Khóa Học</th><th>Lý Do Từ Chối</th><th>Thao Tác</th>
+                        <th>STT</th><th>Tên Khóa Học</th><th>Lý Do Từ Chối</th><th>Thao Tác</th>
                     </tr>
                     </thead>
                     <tbody th:if="${listrejected != null and not #lists.isEmpty(listrejected)}">
-                    <tr th:each="course : ${listrejected}">
-                        <td th:text="${course.id}"></td>
+                    <tr th:each="course, stat : ${listrejected}">
+                        <td th:text="${rejectedPage.number * rejectedPage.size + stat.count}"></td>
                         <td th:text="${course.title}"></td>
                         <td th:text="${course.rejectReason ?: '—'}"></td>
                         <td>
@@ -176,15 +176,16 @@
             <div class="table-empty" style="padding:32px;">
                 <table>
                     <thead>
-                      <th>Mã</th>
+                      <th>TT</th>
                       <th>Tên Khoá Học</th>
                       <th>Thao Tác</th>
                     </thead>
                     <tbody th:if="${listhidden != null and not #lists.isEmpty(listhidden)}">
-                    <tr th:each="course: ${listhidden}">
+                    <tr th:each="course, stat: ${listhidden}">
+                        <td th:text="${hiddenPage.number * hiddenPage.size + stat.count}"></td>
                         <th th:value="${course.id}"></th>
                         <th th:text="${course.title}"></th>
-                        <th th:text="${#temporals.format(course.updateAt, 'dd-MM-yyyy')}"></th>
+                        <td th:text="${course.updatedAt != null ? #temporals.format(course.updatedAt, 'dd-MM-yyyy') : ''}"></td>
 
                         <th>
                             <a th:href="">Chỉnh sửa lại</a>
