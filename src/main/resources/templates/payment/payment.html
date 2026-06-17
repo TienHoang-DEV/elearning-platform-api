@@ -148,15 +148,11 @@
                 <div th:if="${order != null}" class="price-breakdown">
                     <div class="price-line">
                         <span class="label">Tạm tính (<span th:text="${order.items.size()}">0</span> khóa học)</span>
-                        <span class="value" th:text="${#numbers.formatDecimal(order.totalAmount + order.discountAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">2,296,000 ₫</span>
-                    </div>
-                    <div class="price-line discount" th:if="${order.discountAmount > 0}">
-                        <span class="label">Khuyến mãi & giảm giá</span>
-                        <span class="value" th:text="${'−' + #numbers.formatDecimal(order.discountAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">−688,800 ₫</span>
+                        <span class="value" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">2,296,000 ₫</span>
                     </div>
                     <div class="price-line total">
                         <span class="label">Tổng thanh toán</span>
-                        <span class="value" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">1,607,200 ₫</span>
+                        <span class="value" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">2,296,000 ₫</span>
                     </div>
                 </div>
             </div>
