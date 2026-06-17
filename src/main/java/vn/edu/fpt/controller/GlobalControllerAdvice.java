@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import vn.edu.fpt.dto.CategoryDto;
 import vn.edu.fpt.dto.UserDto;
 import vn.edu.fpt.entity.Cart;
 import vn.edu.fpt.entity.CartItem;
@@ -33,6 +34,15 @@ public class GlobalControllerAdvice {
         this.userRepository = userRepository;
         this.categoryService = categoryService;
         this.dtoMapper = dtoMapper;
+    }
+
+    @ModelAttribute("headerCategories")
+    public List<CategoryDto> getHeaderCategories() {
+        try {
+            return categoryService.getActiveParentCategories();
+        } catch (Exception ignored) {
+        }
+        return List.of();
     }
 
     @ModelAttribute("currentUser")
