@@ -22,7 +22,7 @@ public class ManagerDashboardController {
         ManagerDashboardDTO data = managerDashboardService.getDashboardData();
 
         // Add attributes to model
-        model.addAttribute("pendingInstructors", data.getPendingInstructors());
+        model.addAttribute("totalInstructors", data.getTotalInstructors());
         model.addAttribute("pendingCourses", data.getPendingCourses());
         model.addAttribute("pendingFeedbacks", data.getPendingFeedbacks());
         model.addAttribute("monthlyRevenue", data.getMonthlyRevenue());

@@ -299,33 +299,6 @@ function initPricing() {
         const val = parseInt(this.value) || 0;
         priceDisplay.textContent = val.toLocaleString('vi-VN') + ' VNĐ';
     });
-
-    // Voucher
-    const addVoucherBtn     = document.getElementById('addVoucherBtn');
-    const voucherCodeInput  = document.getElementById('voucherCodeInput');
-    const voucherDiscInput  = document.getElementById('voucherDiscountInput');
-    const voucherList       = document.getElementById('voucherList');
-    if (!addVoucherBtn) return;
-
-    addVoucherBtn.addEventListener('click', function () {
-        const code     = voucherCodeInput?.value.trim().toUpperCase();
-        const discount = voucherDiscInput?.value.trim();
-        if (!code || !discount) {
-            alert('Vui lòng nhập mã voucher và % giảm giá.');
-            return;
-        }
-        const item = document.createElement('div');
-        item.className = 'voucher-item';
-        item.innerHTML = `
-      <span class="voucher-code">🎟 ${code}</span>
-      <span class="voucher-discount">Giảm ${discount}%</span>
-      <button type="button" class="voucher-remove" title="Xóa">✕</button>
-    `;
-        item.querySelector('.voucher-remove').addEventListener('click', () => item.remove());
-        voucherList?.appendChild(item);
-        if (voucherCodeInput) voucherCodeInput.value = '';
-        if (voucherDiscInput) voucherDiscInput.value = '';
-    });
 }
 
 function initVideoPreview() {
@@ -498,7 +471,7 @@ function openAddLessonModal(sectionId) {
     if (hiddenInput) hiddenInput.value = sectionId;
     // Update form action
     const form = document.getElementById('addLessonForm');
-    if (form) form.action = `/instructor/sections/${sectionId}/lessons`;
+    if (form) form.action = `/instructorcourse/sections/${sectionId}/lessons`;
     openModal('modal-add-lesson');
 }
 

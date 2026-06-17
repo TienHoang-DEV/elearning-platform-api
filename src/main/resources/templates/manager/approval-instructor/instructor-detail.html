@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="../../../static/css/manager/instructor.css" th:href="@{/css/manager/instructor.css}">
 </head>
@@ -24,7 +26,7 @@
                         <a th:href="@{/manager/dashboard}"><i class="ph ph-squares-four"></i><span>Tổng quan</span></a>
                     </li>
                     <li class="active">
-                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Phê duyệt giảng viên</span></a>
+                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Quản lý giảng viên</span></a>
                     </li>
                     <li>
                         <a th:href="@{/manager/course/list}"><i class="ph ph-book-open"></i><span>Phê duyệt khóa học</span></a>
@@ -38,10 +40,13 @@
                 </ul>
             </nav>
             <div class="sidebar-footer">
-                <div class="avatar footer-avatar">M</div>
+                <div class="avatar footer-avatar">
+                    <img th:if="${currentUser != null and currentUser.avatarUrl != null}" th:src="${currentUser.avatarUrl}" alt="Avatar" class="w-100 h-100 object-fit-cover" />
+                    <span th:if="${currentUser == null or currentUser.avatarUrl == null}" th:text="${currentUser != null and currentUser.firstName != null and !currentUser.firstName.isEmpty() ? #strings.substring(currentUser.firstName, 0, 1).toUpperCase() : 'M'}">M</span>
+                </div>
                 <div class="profile-info">
-                    <div class="profile-name">Quản trị viên</div>
-                    <div class="profile-email">admin@system.com</div>
+                    <div class="profile-name" th:text="${currentUser != null ? (currentUser.lastName + ' ' + currentUser.firstName) : 'Quản trị viên'}">Quản trị viên</div>
+                    <div class="profile-email" th:text="${currentUser != null ? currentUser.email : 'admin@system.com'}">admin@system.com</div>
                 </div>
             </div>
         </aside>
@@ -54,7 +59,7 @@
                     </a>
                     <div>
                         <h1>Chi tiết Giảng viên</h1>
-                        <p>Xem xét đơn đăng ký và hồ sơ.</p>
+                        <p>Xem thông tin chi tiết hồ sơ giảng viên và danh sách khóa học.</p>
                     </div>
                 </div>
 
@@ -68,120 +73,88 @@
                     <span th:text="${errorMessage}"></span>
                 </div>
 
-                <div class="detail-card">
-                    <!-- Profile Header Section -->
-                    <div class="profile-section">
-                        <div class="profile-details">
-                            <div class="profile-name-lg" th:text="${request.fullName}">Tiến sĩ Eleanor Vance</div>
-                            <div class="profile-title-sub"
-                                th:text="${request.bio != null ? request.bio : 'Ứng viên Giảng viên'}">
-                                Chuyên gia Khoa học Dữ liệu cấp cao tại TechCorp
+                <div class="split-layout-container">
+                    <!-- LEFT: Detail -->
+                    <div class="detail-card">
+                        <!-- Profile Header Section -->
+                        <div class="profile-section">
+                            <div class="profile-details">
+                                <div class="profile-name-lg" th:text="${request.fullName}">Tiến sĩ Eleanor Vance</div>
+                                <div class="profile-meta-info">
+                                    <span class="meta-item"><i class="ph ph-envelope"></i> <span th:text="${request.email}">eleanor@example.com</span></span>
+                                    <span class="meta-item"><i class="ph ph-phone"></i> <span th:text="${request.phone != null ? request.phone : 'N/A'}">0123456789</span></span>
+                                </div>
+
+                                <span
+                                    th:class="${'badge badge-' + (request.status?.name() == T(vn.edu.fpt.enums.UserStatus).ACTIVE.name() ? 'success' : 'danger')}"
+                                    th:text="${request.status?.name() == T(vn.edu.fpt.enums.UserStatus).ACTIVE.name() ? 'Hoạt động' : 'Bị khóa'}">ACTIVE</span>
                             </div>
-
-                            <div class="profile-meta-info">
-                                <span class="meta-item"><i class="ph ph-envelope"></i> <span
-                                        th:text="${request.email}">eleanor@example.com</span></span>
-                                <span class="meta-item"><i class="ph ph-phone"></i> <span
-                                        th:text="${request.phone != null ? request.phone : 'N/A'}">0123456789</span></span>
-                                <span class="meta-item"><i class="ph ph-calendar"></i> <span
-                                        th:text="${request.createdAt != null ? #temporals.format(request.createdAt, 'dd/MM/yyyy') : ''}">01/06/2026</span></span>
-                            </div>
-
-                            <span
-                                th:class="${'badge badge-' + (request.status.name() == 'PENDING' ? 'warning' : request.status.name() == 'APPROVED' ? 'success' : 'danger')}"
-                                th:text="${request.status.name() == 'PENDING' ? 'Đang chờ duyệt' : request.status.name() == 'APPROVED' ? 'Đã duyệt' : 'Từ chối'}">PENDING</span>
                         </div>
-                    </div>
 
-                    <!-- Giới thiệu (Introduction) Section -->
-                    <div class="detail-section">
-                        <div class="detail-section-title">
-                            <i class="ph ph-user-circle"></i> Giới thiệu
-                        </div>
-                        <div class="intro-text"
-                            th:text="${request.description != null ? request.description : 'Không có phần tự giới thiệu.'}">
-                            Tôi có hơn 10 năm kinh nghiệm trong lĩnh vực Khoa học Dữ liệu và rất mong muốn được chia sẻ
-                            kiến thức của mình với những học viên ham học hỏi.
-                        </div>
-                    </div>
-
-                    <!-- Documents Section (CV and Certificates) -->
-                    <div class="documents-grid">
-                        <!-- Sơ yếu lý lịch (CV) -->
-                        <div class="doc-group">
+                        <!-- Giới thiệu (Introduction) Section -->
+                        <div class="detail-section">
                             <div class="detail-section-title">
-                                <i class="ph ph-file-text"></i> Sơ yếu lý lịch
+                                <i class="ph ph-user-circle"></i> Giới thiệu
                             </div>
-                            <div class="doc-card" th:if="${request.cvUrl != null && !request.cvUrl.isEmpty()}">
-                                <div class="doc-left">
-                                    <i class="ph ph-file-pdf"></i>
-                                    <div class="doc-name" th:title="${request.cvUrl}"
-                                        th:text="${request.cvOriginalName != null ? request.cvOriginalName : 'instructor_cv.pdf'}">
-                                        instructor_cv.pdf</div>
-                                </div>
-                                <a th:href="${request.cvUrl}" target="_blank" class="doc-link">Xem</a>
-                            </div>
-                            <div th:if="${request.cvUrl == null || request.cvUrl.isEmpty()}" class="intro-text">
-                                Không có tệp CV được tải lên.
+                            <div class="intro-text"
+                                th:text="${request.bio != null ? request.bio : 'Không có phần tự giới thiệu.'}">
+                                Tôi có hơn 10 năm kinh nghiệm trong lĩnh vực Khoa học Dữ liệu.
                             </div>
                         </div>
 
-                        <!-- Chứng chỉ (Certificates) -->
-                        <div class="doc-group">
+                        <!-- Danh sách khóa học Section -->
+                        <div class="detail-section">
                             <div class="detail-section-title">
-                                <i class="ph ph-certificate"></i> Chứng chỉ
+                                <i class="ph ph-book-open"></i> Danh sách khóa học
                             </div>
-                            <div class="doc-card"
-                                th:if="${request.certificateUrl != null && !request.certificateUrl.isEmpty()}">
-                                <div class="doc-left">
-                                    <i class="ph ph-medal"></i>
-                                    <div class="doc-name" th:title="${request.certificateUrl}"
-                                        th:text="${request.certificateOriginalName != null ? request.certificateOriginalName : 'chứng_chỉ.pdf'}">
-                                        Chứng chỉ chuyên môn</div>
-                                </div>
-                                <a th:href="${request.certificateUrl}" target="_blank" class="doc-link">Xem</a>
+                            <div class="table-responsive mt-3" th:if="${courses != null and !courses.empty}">
+                                <table class="table table-hover align-middle detail-courses-table">
+                                    <thead>
+                                        <tr class="detail-courses-thead-tr">
+                                            <th class="detail-courses-th">Tên khóa học</th>
+                                            <th class="detail-courses-th">Cấp độ</th>
+                                            <th class="detail-courses-th">Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="course : ${courses}" class="detail-courses-tr">
+                                            <td class="detail-courses-td-title" th:text="${course.title}">Tên khóa học</td>
+                                            <td class="detail-courses-td" th:text="${course.level != null ? course.level : 'N/A'}">Cấp độ</td>
+                                            <td class="detail-courses-td">
+                                                <span th:class="${'badge badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : course.status.name() == 'PENDING' ? 'warning' : 'secondary')}"
+                                                      th:text="${course.status.name() == 'PUBLISHED' ? 'Đã xuất bản' : course.status.name() == 'PENDING' ? 'Chờ duyệt' : 'Bản nháp'}">Trạng thái</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div th:if="${request.certificateUrl == null || request.certificateUrl.isEmpty()}"
-                                class="intro-text">
-                                Không có chứng chỉ được tải lên.
+                            <div th:if="${courses == null or courses.empty}" class="intro-text py-3">
+                                Giảng viên này chưa tạo khóa học nào.
                             </div>
-                        </div>
-                        <div th:if="${request.status.name()=='REJECTED' && request.rejectionReason != null}"
-                            class="rejection-box">
-                            <div class="rejection-box-title"><i class="ph ph-warning"></i> Lý do từ chối</div>
-                            <div class="rejection-box-body" th:text="${request.rejectionReason}">Lý do...</div>
                         </div>
                     </div>
 
-                    <!-- CCCD Section -->
-                    <div class="detail-section">
-                        <div class="detail-section-title">
-                            <i class="ph ph-identification-card"></i> Ảnh thẻ Căn cước công dân (CCCD)
-                        </div>
-                        <div class="cccd-images-grid">
-                            <!-- Mặt trước -->
-                            <div class="cccd-card">
-                                <div class="cccd-card-title">Mặt trước CCCD</div>
-                                <div th:if="${request.nationalIdCardFront != null && !request.nationalIdCardFront.isEmpty()}">
-                                    <a th:href="${request.nationalIdCardFront}" target="_blank">
-                                        <img th:src="${request.nationalIdCardFront}" alt="Mặt trước CCCD">
-                                    </a>
+                    <!-- RIGHT: Action Card -->
+                    <div>
+                        <div class="action-card">
+                            <div class="action-card-title"><i class="ph ph-shield-check"></i> Thiết lập tài khoản</div>
+                            <form th:action="@{/manager/instructor/edit/{id}(id=${request.id})}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label text-start d-block status-form-label" for="status">Trạng thái tài khoản</label>
+                                    <select id="status" name="status" class="form-select status-form-select">
+                                        <option value="ACTIVE" th:selected="${request.status?.name() == T(vn.edu.fpt.enums.UserStatus).ACTIVE.name()}">Hoạt động</option>
+                                        <option value="BANNED" th:selected="${request.status?.name() == T(vn.edu.fpt.enums.UserStatus).BANNED.name()}">Bị khóa</option>
+                                    </select>
                                 </div>
-                                <div th:if="${request.nationalIdCardFront == null || request.nationalIdCardFront.isEmpty()}" class="cccd-empty-placeholder">
-                                    Chưa tải lên mặt trước
-                                </div>
-                            </div>
-                            <!-- Mặt sau -->
-                            <div class="cccd-card">
-                                <div class="cccd-card-title">Mặt sau CCCD</div>
-                                <div th:if="${request.nationalIdCardBack != null && !request.nationalIdCardBack.isEmpty()}">
-                                    <a th:href="${request.nationalIdCardBack}" target="_blank">
-                                        <img th:src="${request.nationalIdCardBack}" alt="Mặt sau CCCD">
-                                    </a>
-                                </div>
-                                <div th:if="${request.nationalIdCardBack == null || request.nationalIdCardBack.isEmpty()}" class="cccd-empty-placeholder">
-                                    Chưa tải lên mặt sau
-                                </div>
+                                <button type="submit" class="btn btn-primary w-100 status-form-submit-btn">
+                                    <i class="ph ph-floppy-disk"></i> Lưu thay đổi
+                                </button>
+                            </form>
+                            <div class="action-card-footer">
+                                <p class="action-card-info-text">
+                                    <i class="ph ph-info"></i>
+                                    Thay đổi trạng thái sang <strong>Bị khóa</strong> sẽ ngăn chặn giảng viên đăng nhập và thao tác trên hệ thống.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -189,6 +162,7 @@
             </main>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

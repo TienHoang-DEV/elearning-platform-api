@@ -23,19 +23,10 @@ public class OrderItem extends BaseEntity {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id")
-    private Coupon coupon;
+
 
     @Column(name = "price_snapshot", nullable = false, precision = 10, scale = 2)
     private BigDecimal priceSnapshot;
-
-    @Builder.Default
-    @Column(name = "discount_amount")
-    private BigDecimal discountAmount = BigDecimal.ZERO;
-
-    @Column(name = "final_price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal finalPrice;
 
     @Column(name = "course_title_snapshot", columnDefinition = "NVARCHAR(255)")
     private String courseTitleSnapshot;

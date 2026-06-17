@@ -3,6 +3,8 @@ package vn.edu.fpt.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -21,5 +23,5 @@ public class CourseSectionDto {
     )
     private String title;
     private Integer position;
-    private Set<LessonDto> lessons;
+    private List<LessonDto> lessons;
 }
