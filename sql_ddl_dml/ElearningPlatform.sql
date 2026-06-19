@@ -207,7 +207,7 @@ CREATE TABLE courses (
                          description NVARCHAR(MAX) NULL,
     -- Mô tả chi tiết nội dung, mục tiêu khóa học
 
-                         thumbnail_url VARCHAR(500) NULL,
+                         thumbnail_url NVARCHAR(500) NULL,
     -- URL ảnh bìa khóa học (lưu link từ Azure Blob Storage)
 
                          price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
