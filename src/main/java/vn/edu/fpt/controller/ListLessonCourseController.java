@@ -56,7 +56,6 @@ public class ListLessonCourseController {
         for (LessonMaterial m : lesson.getMaterials()) {
             materialDtos.add(dtoMapper.toLessonMaterialDto(m));
         }
-//        String thumbnailUrl = courseService.(course);
         Integer totalNumberOfLesson = lessonService.findNumberOfLessonByCourseId(courseId);
         Enrollment enrollment = enrollmentService.findEnrollmentByCourseIdAndUserId(courseId, user.getId());
         Integer totalNumberOfLessonCompleted = lessonProgressService.findNumberOfLessonCompletedByEnrollment(enrollment);
@@ -80,7 +79,6 @@ public class ListLessonCourseController {
         model.addAttribute("courseSections", courseDto.getSections());
         model.addAttribute("lesson", lessonDto);
         model.addAttribute("materials", materialDtos);
-//        model.addAttribute("posterUrl", thumbnailUrl);
         return "learning/learning";
     }
 

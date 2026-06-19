@@ -152,9 +152,6 @@ public class LessonService {
         if (nextLessons == null || nextLessons.isEmpty()) {
             return null;
         }
-        nextLessons.forEach(lesson1 -> {
-            System.out.println("khoa hoc " +lesson1.getId());
-        });
         for (Lesson nextLesson : nextLessons) {
             if ((nextLesson.getId() > lesson.getId()) || (lesson.getId() == nextLessons.get(nextLessons.size() - 1).getId())) {
                 return nextLesson;

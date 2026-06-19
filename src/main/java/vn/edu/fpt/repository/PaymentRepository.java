@@ -10,6 +10,7 @@ import vn.edu.fpt.dto.MonthlyRevenueDTO;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Integer> {
@@ -23,4 +24,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
            "GROUP BY YEAR(p.paidAt), MONTH(p.paidAt) " +
            "ORDER BY YEAR(p.paidAt) ASC, MONTH(p.paidAt) ASC")
     List<MonthlyRevenueDTO> getMonthlyRevenue(@Param("status") PaymentStatus status, @Param("startDate") LocalDateTime startDate);
+
+    /**
+     * Find payment by PayOS gateway order code
+     */
+    Optional<Payment> findByGatewayOrderCode(String gatewayOrderCode);
 }
