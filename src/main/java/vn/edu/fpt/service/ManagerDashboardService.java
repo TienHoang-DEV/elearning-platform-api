@@ -52,7 +52,7 @@ public class ManagerDashboardService {
         LocalDateTime startOfMonth = LocalDateTime.now()
                 .with(TemporalAdjusters.firstDayOfMonth())
                 .withHour(0).withMinute(0).withSecond(0).withNano(0);//set ngày đầu tiên vd: 01/06/2026 00:00:00
-        BigDecimal monthlyRevenue = paymentRepository.sumAmountByStatusAndPaidAtAfter(PaymentStatus.SUCCESS, startOfMonth);
+        BigDecimal monthlyRevenue = paymentRepository.sumAmountByStatusAndPaidAtAfter(PaymentStatus.PAID, startOfMonth);
         dto.setMonthlyRevenue(formatRevenue(monthlyRevenue));
         // --- Chuẩn bị dữ liệu cho biểu đồ (12 tháng trong năm hiện tại) ---
         List<String> chartLabels = new ArrayList<>();// nhãn: "Tháng 1" -> "Tháng 12"
@@ -71,7 +71,7 @@ public class ManagerDashboardService {
                 .withHour(0).withMinute(0).withSecond(0).withNano(0);
 
         // Lấy danh sách doanh thu theo tháng từ đầu năm hiện tại
-        List<MonthlyRevenueDTO> rawChartData = paymentRepository.getMonthlyRevenue(PaymentStatus.SUCCESS, startOfYear);
+        List<MonthlyRevenueDTO> rawChartData = paymentRepository.getMonthlyRevenue(PaymentStatus.PAID, startOfYear);
 
         // Duyệt dữ liệu thô và gán giá trị vào đúng vị trí trong chartData (chỉ cho năm hiện tại)
         for (MonthlyRevenueDTO row : rawChartData) {

@@ -1,4 +1,4 @@
-USE ElearningPlatform;
+USE [ElearningPlatform];
 GO
 
 -- =========================
@@ -185,8 +185,8 @@ VALUES
     9,
     N'Java Core Từ Cơ Bản Đến Nâng Cao',
     N'Học Java từ cú pháp cơ bản, OOP, Collections đến xử lý ngoại lệ.',
-    'fptthumbnail.jpg',
-    499000,
+    N'Java Core Từ Cơ Bản Đến Nâng Cao.jpg',
+    1000,
     'BEGINNER',
     'PUBLISHED',
     3,
@@ -198,8 +198,8 @@ VALUES
     6,
     N'ReactJS Thực Chiến',
     N'Xây dựng ứng dụng ReactJS sử dụng Hooks, Router và Redux Toolkit.',
-    'fptthumbnail.jpg',
-    699000,
+    N'ReactJS Thực Chiến.png',
+    1000,
     'INTERMEDIATE',
     'PUBLISHED',
     3,
@@ -211,8 +211,8 @@ VALUES
     5,
     N'CSS Mastery',
     N'Flexbox, Grid, Animation và Responsive Design chuyên sâu.',
-    'fptthumbnail.jpg',
-    299000,
+    N'CSS Mastery.jpg',
+    5000,
     'BEGINNER',
     'PUBLISHED',
     3,
@@ -225,8 +225,8 @@ VALUES
     7,
     N'Node.js REST API Với Express',
     N'Thiết kế và xây dựng RESTful API bằng Node.js và Express.',
-    'fptthumbnail.jpg',
-    599000,
+    N'Node.js REST API Với Express.jpg',
+    10000,
     'INTERMEDIATE',
     'PUBLISHED',
     4,
@@ -238,8 +238,8 @@ VALUES
     8,
     N'Python Cho Người Mới Bắt Đầu',
     N'Học Python từ cơ bản đến lập trình hướng đối tượng.',
-    'fptthumbnail.jpg',
-    399000,
+    N'Python Cho Người Mới Bắt Đầu.jpg',
+    2000,
     'BEGINNER',
     'PUBLISHED',
     4,
@@ -251,8 +251,8 @@ VALUES
     10,
     N'Swift Programming Fundamentals',
     N'Lập trình ứng dụng iOS bằng ngôn ngữ Swift.',
-    'fptthumbnail.jpg',
-    799000,
+    N'Swift Programming Fundamentals.jpg',
+    1000,
     'BEGINNER',
     'PUBLISHED',
     4,
@@ -264,8 +264,8 @@ VALUES
     11,
     N'Xây Dựng Giao Diện Với SwiftUI',
     N'Thiết kế giao diện hiện đại trên iOS bằng SwiftUI.',
-    'fptthumbnail.jpg',
-    899000,
+    N'Xây Dựng Giao Diện Với SwiftUI.jpg',
+    1000,
     'INTERMEDIATE',
     'PUBLISHED',
     4,
@@ -277,8 +277,8 @@ VALUES
     9,
     N'Spring Boot REST API',
     N'Xây dựng hệ thống Backend với Spring Boot, JPA và Security.',
-    'fptthumbnail.jpg',
-    999000,
+    N'Spring Boot REST API.jpg',
+    1000,
     'ADVANCED',
     'PUBLISHED',
     4,
@@ -291,7 +291,7 @@ VALUES
     4,
     N'HTML5 & CSS3 Cơ Bản Cho Người Mới',
     N'Khóa học nền tảng thiết kế giao diện web với HTML5 và CSS3.',
-    'fptthumbnail.jpg',
+    N'HTML5 & CSS3 Cơ Bản Cho Người Mới.jpg',
     190000,
     'BEGINNER',
     'PUBLISHED',
@@ -303,7 +303,7 @@ VALUES
     4,
     N'Thiết Kế Web Landing Page Với HTML5',
     N'Lập trình và hoàn thiện giao diện landing page chuyên nghiệp.',
-    'fptthumbnail.jpg',
+    N'Thiết Kế Web Landing Page Với HTML5.jpg',
     350000,
     'INTERMEDIATE',
     'PUBLISHED',
@@ -317,7 +317,7 @@ VALUES
     5,
     N'Tailwind CSS Từ Zero Đến Hero',
     N'Sử dụng Tailwind CSS để thiết kế nhanh các giao diện hiện đại.',
-    'fptthumbnail.jpg',
+    N'Tailwind CSS Từ Zero Đến Hero.jpg',
     250000,
     'BEGINNER',
     'PUBLISHED',
@@ -329,7 +329,7 @@ VALUES
     5,
     N'Responsive Web Design Với Flexbox & Grid',
     N'Làm chủ bố cục Responsive với CSS Flexbox và CSS Grid.',
-    'fptthumbnail.jpg',
+    N'Responsive Web Design Với Flexbox & Grid.jpg',
     450000,
     'INTERMEDIATE',
     'PUBLISHED',
@@ -343,7 +343,7 @@ VALUES
     6,
     N'React Native - Lập Trình Di Động Thực Chiến',
     N'Xây dựng ứng dụng di động đa nền tảng Android/iOS bằng React Native.',
-    'fptthumbnail.jpg',
+    N'React Native - Lập Trình Di Động Thực Chiến.jpg',
     890000,
     'ADVANCED',
     'PUBLISHED',
@@ -355,7 +355,7 @@ VALUES
     6,
     N'Next.js 14 - Tối Ưu Hóa Ứng Dụng React',
     N'Xây dựng ứng dụng Server-side Rendering với Next.js 14 mới nhất.',
-    'fptthumbnail.jpg',
+    N'Next.js 14 - Tối Ưu Hóa Ứng Dụng React.png',
     1150000,
     'ADVANCED',
     'PUBLISHED',
@@ -369,7 +369,7 @@ VALUES
     7,
     N'Node.js RESTful API & NestJS nâng cao',
     N'Thiết kế kiến trúc hệ thống chuyên nghiệp với NestJS và Node.js.',
-    'fptthumbnail.jpg',
+    N'Node.js RESTful API & NestJS nâng cao.png',
     1290000,
     'ADVANCED',
     'PUBLISHED',
@@ -381,7 +381,7 @@ VALUES
     7,
     N'Lập Trình Backend Thực Chiến Với Node.js & MongoDB',
     N'Kết nối Express, Node.js với cơ sở dữ liệu MongoDB NoSQL.',
-    'fptthumbnail.jpg',
+    N'Lập Trình Backend Thực Chiến Với Node.js & MongoDB.jpg',
     490000,
     'INTERMEDIATE',
     'PUBLISHED',
@@ -395,7 +395,7 @@ VALUES
     8,
     N'Phân Tích Dữ Liệu Với Python, Pandas & NumPy',
     N'Sử dụng thư viện Pandas và NumPy để xử lý và phân tích số liệu.',
-    'fptthumbnail.jpg',
+    N'Phân Tích Dữ Liệu Với Python, Pandas & NumPy.jpg',
     750000,
     'INTERMEDIATE',
     'PUBLISHED',
@@ -407,7 +407,7 @@ VALUES
     8,
     N'Django & Python - Xây Dựng Website Tin Tức',
     N'Tạo dự án Website tin tức hoàn thiện bằng Python & Django Framework.',
-    'fptthumbnail.jpg',
+    N'Django & Python - Xây Dựng Website Tin Tức.jpg',
     590000,
     'INTERMEDIATE',
     'PUBLISHED',
@@ -421,7 +421,7 @@ VALUES
     9,
     N'Lập Trình Hướng Đối Tượng Java Core Cơ Bản',
     N'Học 4 tính chất OOP cơ bản trong Java: Kế thừa, Đa hình, Đóng gói, Trừu tượng.',
-    'fptthumbnail.jpg',
+    N'Lập Trình Hướng Đối Tượng Java Core Cơ Bản.jpg',
     150000,
     'BEGINNER',
     'PUBLISHED',
@@ -433,7 +433,7 @@ VALUES
     9,
     N'Microservices Với Spring Boot & Spring Cloud',
     N'Xây dựng hệ thống phân tán chịu tải cao bằng Microservices.',
-    'fptthumbnail.jpg',
+    N'Microservices Với Spring Boot & Spring Cloud.png',
     1490000,
     'ADVANCED',
     'PUBLISHED',
@@ -447,7 +447,7 @@ VALUES
     10,
     N'iOS Development Swift & Xcode Thực Hành',
     N'Tự làm ứng dụng iOS đầu tiên sử dụng Storyboard, AutoLayout và Xcode.',
-    'fptthumbnail.jpg',
+    N'iOS Development Swift & Xcode Thực Hành.jpg',
     650000,
     'BEGINNER',
     'PUBLISHED',
@@ -459,7 +459,7 @@ VALUES
     10,
     N'Cấu Trúc Dữ Liệu & Giải Thuật Bằng Swift',
     N'Cải thiện tư duy thuật toán khi thiết kế logic trên iOS.',
-    'fptthumbnail.jpg',
+    N'Cấu Trúc Dữ Liệu & Giải Thuật Bằng Swift.jpg',
     990000,
     'ADVANCED',
     'PUBLISHED',
@@ -473,7 +473,7 @@ VALUES
     11,
     N'SwiftUI Animation - Chuyển Động Đẹp Mắt',
     N'Tạo các chuyển cảnh, chuyển động mượt mà bằng SwiftUI Animation.',
-    'fptthumbnail.jpg',
+    N'SwiftUI Animation - Chuyển Động Đẹp Mắt.jpg',
     550000,
     'ADVANCED',
     'PUBLISHED',
@@ -485,7 +485,7 @@ VALUES
     11,
     N'Xây Dựng Clone App iOS Với SwiftUI & Firebase',
     N'Clone ứng dụng mạng xã hội nổi tiếng sử dụng SwiftUI và Realtime Database.',
-    'fptthumbnail.jpg',
+    N'Xây Dựng Clone App iOS Với SwiftUI & Firebase.jpg',
     1090000,
     'INTERMEDIATE',
     'PUBLISHED',
@@ -1327,8 +1327,8 @@ DELETE FROM orders WHERE payment_method = 'TEST_METHOD';
 -- Tạo các khóa học chờ phê duyệt (PENDING COURSES)
 INSERT INTO courses (instructor_id, category_id, title, description, thumbnail_url, price, level, status, approved_by, approved_at, created_at)
 VALUES 
-(5, 9, N'Lập trình Java Web với Spring Boot', N'Học Spring MVC, JPA, Security và xây dựng Restful API hoàn chỉnh.', 'fptthumbnail.jpg', 899000, 'ADVANCED', 'PENDING', NULL, NULL, DATEADD(hour, -5, GETDATE())),
-(6, 5, N'Thiết kế giao diện nâng cao với Figma', N'Làm chủ Figma, AutoLayout, Component, Variable và Design System.', 'fptthumbnail.jpg', 399000, 'INTERMEDIATE', 'PENDING', NULL, NULL, DATEADD(hour, -1, GETDATE()));
+(5, 9, N'Lập trình Java Web với Spring Boot', N'Học Spring MVC, JPA, Security và xây dựng Restful API hoàn chỉnh.', N'Lập trình Java Web với Spring Boot.jpg', 1000, 'ADVANCED', 'PENDING', NULL, NULL, DATEADD(hour, -5, GETDATE())),
+(6, 5, N'Thiết kế giao diện nâng cao với Figma', N'Làm chủ Figma, AutoLayout, Component, Variable và Design System.', N'Thiết kế giao diện nâng cao với Figma.jpg', 1000, 'INTERMEDIATE', 'PENDING', NULL, NULL, DATEADD(hour, -1, GETDATE()));
 
 -- Tạo feedback & báo cáo vi phạm
 DECLARE @FeedbackId1 INT, @FeedbackId2 INT, @FeedbackId3 INT;
@@ -1350,60 +1350,28 @@ VALUES
 (@FeedbackId2, 7, N'Bình luận thô tục, xúc phạm giảng viên', 'PENDING', NULL, DATEADD(hour, -3, GETDATE())),
 (@FeedbackId3, 8, N'Spam nội dung quảng cáo', 'PENDING', NULL, DATEADD(hour, -1, GETDATE()));
 
--- Đơn hàng & thanh toán mẫu (năm 2026)
-DECLARE @OrderId INT;
 
--- Tháng 1/2026: Doanh thu 500,000 đ
-INSERT INTO orders (user_id, total_amount, status, payment_method, created_at)
-VALUES (7, 500000, 'PAID', 'TEST_METHOD', '2026-01-15 10:00:00');
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_JAN_01', 'TEST_GATEWAY', 'G_JAN_01', 500000, 'SUCCESS', '2026-01-15 10:05:00', '2026-01-15 10:00:00');
+-- =========================
+-- LESSON MATERIALS
+-- Lessons 1 -> 9
+-- =========================
 
--- Tháng 2/2026: Doanh thu 1,200,000 đ
-INSERT INTO orders (user_id, total_amount, status, payment_method, created_at)
-VALUES (8, 1200000, 'PAID', 'TEST_METHOD', '2026-02-18 14:00:00');
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_FEB_01', 'TEST_GATEWAY', 'G_FEB_01', 1200000, 'SUCCESS', '2026-02-18 14:05:00', '2026-02-18 14:00:00');
-
--- Tháng 3/2026: Doanh thu 800,000 đ
-INSERT INTO orders (user_id, total_amount, status, payment_method, created_at)
-VALUES (7, 800000, 'PAID', 'TEST_METHOD', '2026-03-10 09:00:00');
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_MAR_01', 'TEST_GATEWAY', 'G_MAR_01', 800000, 'SUCCESS', '2026-03-10 09:05:00', '2026-03-10 09:00:00');
-
--- Tháng 4/2026: Doanh thu 1,500,000 đ
-INSERT INTO orders (user_id, total_amount, status, payment_method, created_at)
-VALUES (8, 1500000, 'PAID', 'TEST_METHOD', '2026-04-22 16:30:00');
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_APR_01', 'TEST_GATEWAY', 'G_APR_01', 1500000, 'SUCCESS', '2026-04-22 16:35:00', '2026-04-22 16:30:00');
-
--- Tháng 5/2026: Doanh thu 2,100,000 đ
-INSERT INTO orders (user_id, total_amount, status, payment_method, created_at)
-VALUES (7, 1000000, 'PAID', 'TEST_METHOD', '2026-05-05 11:00:00');
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_MAY_01', 'TEST_GATEWAY', 'G_MAY_01', 1000000, 'SUCCESS', '2026-05-05 11:05:00', '2026-05-05 11:00:00');
-
-INSERT INTO orders (user_id, total_amount, status, payment_method, created_at)
-VALUES (8, 1100000, 'PAID', 'TEST_METHOD', '2026-05-20 15:00:00');
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_MAY_02', 'TEST_GATEWAY', 'G_MAY_02', 1100000, 'SUCCESS', '2026-05-20 15:05:00', '2026-05-20 15:00:00');
-
--- Tháng 6/2026 (Tháng hiện tại): Doanh thu 3,400,000 đ
-INSERT INTO orders (user_id, total_amount, status, payment_method, created_at)
-VALUES (7, 2000000, 'PAID', 'TEST_METHOD', DATEADD(day, -5, GETDATE()));
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_JUN_01', 'TEST_GATEWAY', 'G_JUN_01', 2000000, 'SUCCESS', DATEADD(day, -5, GETDATE()), DATEADD(day, -5, GETDATE()));
-
-INSERT INTO orders (user_id, total_amount, status, payment_method, created_at)
-VALUES (8, 1400000, 'PAID', 'TEST_METHOD', DATEADD(hour, -4, GETDATE()));
-SET @OrderId = SCOPE_IDENTITY();
-INSERT INTO payments (order_id, transaction_code, gateway, gateway_tx_id, amount, status, paid_at, created_at)
-VALUES (@OrderId, 'TX_JUN_02', 'TEST_GATEWAY', 'G_JUN_02', 1400000, 'SUCCESS', DATEADD(hour, -4, GETDATE()), DATEADD(hour, -4, GETDATE()));
-
+INSERT INTO lesson_materials
+(
+    instructor_id,
+    lesson_id,
+    file_name,
+    file_url,
+    file_type,
+    file_size
+)
+VALUES
+    (5, 1, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 2, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 3, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 4, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 5, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 6, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 7, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 8, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
+    (5, 9, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576);

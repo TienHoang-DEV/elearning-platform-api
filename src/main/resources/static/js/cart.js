@@ -101,28 +101,35 @@ function initializeRemoveButtons() {
 
 
 
-// 4. Logic thanh toán (Checkout)
+// 4. Logic thanh toán (Checkout) - Redirect to Payment Page
 function initializeCheckoutButton() {
     const checkoutBtn = document.getElementById("btn-checkout");
     if (checkoutBtn) {
-        checkoutBtn.addEventListener("click", () => {
+        checkoutBtn.addEventListener("click", async () => {
             checkoutBtn.disabled = true;
-            fetch("/api/cart/checkout", { method: "POST" })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        window.location.reload();
-                    } else {
-                        checkoutBtn.disabled = false;
-                        alert(data.message || "Thanh toán thất bại.");
+            
+            try {
+                const response = await fetch('/api/payments/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
                     }
-                })
-                .catch(err => {
-                    checkoutBtn.disabled = false;
-                    console.error("Checkout error:", err);
-                    alert("Có lỗi xảy ra khi xử lý thanh toán.");
                 });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Có lỗi xảy ra khi tạo đơn hàng.');
+                }
+
+                const data = await response.json();
+                // Redirect to payment page with payment ID
+                window.location.href = `/payment?id=${data.id}`;
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert(error.message);
+                checkoutBtn.disabled = false;
+            }
         });
     }
 }
+
