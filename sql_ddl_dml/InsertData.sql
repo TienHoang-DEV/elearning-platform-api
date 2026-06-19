@@ -1,4 +1,4 @@
-USE ElearningPlatform;
+USE [ElearningPlatform];
 GO
 
 -- =========================
