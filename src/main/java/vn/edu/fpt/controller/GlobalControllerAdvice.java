@@ -36,8 +36,23 @@ public class GlobalControllerAdvice {
         this.dtoMapper = dtoMapper;
     }
 
+    private boolean isHtmlRequest(HttpServletRequest request) {
+        if (request == null) {
+            return true;
+        }
+        String uri = request.getRequestURI();
+        if (uri.startsWith("/api/") || uri.startsWith("/api") || uri.contains("/material/") || uri.contains("/lesson")) {
+            return false;
+        }
+        String accept = request.getHeader("Accept");
+        return accept != null && accept.contains("text/html");
+    }
+
     @ModelAttribute("headerCategories")
-    public List<CategoryDto> getHeaderCategories() {
+    public List<CategoryDto> getHeaderCategories(HttpServletRequest request) {
+        if (!isHtmlRequest(request)) {
+            return List.of();
+        }
         try {
             return categoryService.getActiveParentCategories();
         } catch (Exception ignored) {
@@ -47,6 +62,9 @@ public class GlobalControllerAdvice {
 
     @ModelAttribute("currentUser")
     public User getCurrentUser(HttpServletRequest request) {
+        if (!isHtmlRequest(request)) {
+            return null;
+        }
         try {
             User user = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
             if (user == null) {
@@ -66,6 +84,9 @@ public class GlobalControllerAdvice {
 
     @ModelAttribute("cartSize")
     public int getCartSize(HttpServletRequest request) {
+        if (!isHtmlRequest(request)) {
+            return 0;
+        }
         try {
             User user = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
             if (user == null) {
