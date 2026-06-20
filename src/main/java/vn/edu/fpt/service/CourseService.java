@@ -21,7 +21,7 @@ import vn.edu.fpt.mapper.DtoMapper;
 
 import vn.edu.fpt.repository.CourseRepository;
 
-import vn.edu.fpt.dto.CourseDto;
+import vn.edu.fpt.dto.*;
 import vn.edu.fpt.util.AppConstants;
 
 import java.math.BigDecimal;
@@ -200,6 +200,17 @@ public class CourseService {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
         return dtoMapper.toCourseDto(course);
+    }
+
+    public Page<CourseListDto> getPagedCoursesSummary(
+            String search,
+            Integer categoryId,
+            List<Double> ratings,
+            List<String> prices,
+            String sort,
+            int page,
+            int size) {
+        return repository.getPagedCoursesSummary(search, categoryId, ratings, prices, sort, page, size);
     }
 
     public List<Course> findAll() {

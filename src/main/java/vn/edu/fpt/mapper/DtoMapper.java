@@ -26,6 +26,7 @@ public interface DtoMapper {
     @Mapping(target = "thumbnailPath", expression = "java(course.getThumbnailPath())")
     CourseDto toCourseDto(Course course);
 
+
     @Mapping(target = "courseCount", expression = "java(category.getCourses() != null ? category.getCourses().size() : 0)")
     @Mapping(
             target = "parentId",
