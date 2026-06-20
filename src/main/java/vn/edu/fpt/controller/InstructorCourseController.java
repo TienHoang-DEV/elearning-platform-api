@@ -10,12 +10,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import vn.edu.fpt.dto.CategoryDto;
-import vn.edu.fpt.dto.CourseCreateDto;
+import vn.edu.fpt.dto.*;
 
-import vn.edu.fpt.dto.CourseDto;
-import vn.edu.fpt.dto.CourseSectionDto;
 import vn.edu.fpt.entity.Course;
+import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.enums.CourseStatus;
@@ -25,6 +23,7 @@ import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
+import vn.edu.fpt.service.LessonService;
 import vn.edu.fpt.util.SecurityUtils;
 
 
@@ -37,11 +36,13 @@ public class InstructorCourseController {
     private CategoryService categoryService;
     private CourseService courseService;
     private CourseSectionService courseSectionService;
+    private LessonService lessonService;
 
-    public InstructorCourseController(CategoryService categoryService, CourseService courseService, CourseSectionService courseSectionService) {
+    public InstructorCourseController(CategoryService categoryService, CourseService courseService, CourseSectionService courseSectionService, LessonService lessonService) {
         this.categoryService = categoryService;
         this.courseService = courseService;
         this.courseSectionService = courseSectionService;
+        this.lessonService = lessonService;
     }
 
 
@@ -105,6 +106,7 @@ public class InstructorCourseController {
         model.addAttribute("categorychilds", categoryChildList);
         model.addAttribute("activeStep", "info");
         model.addAttribute("section", new CourseSectionDto());
+        model.addAttribute("lesson", new LessonDto());
         return "instructor_course/editcourse";
     }
 
@@ -118,6 +120,7 @@ public class InstructorCourseController {
       model.addAttribute("categorychilds",
               categoryService.findByParentIsNotNulAndStatus("ACTIVE"));
       model.addAttribute("section", new CourseSectionDto());
+      model.addAttribute("lesson", new LessonDto());
   }
 
     @PostMapping("/save")
@@ -165,22 +168,13 @@ public class InstructorCourseController {
             model.addAttribute("activeStep", "curriculum");
             model.addAttribute("courseRequest",
                     courseService.findById(courseId));
-            model.addAttribute("sections", courseSectionService.FindSectionByCourseId(courseId));
+//            model.addAttribute("sections", courseSectionService.FindSectionByCourseId(courseId));
             model.addAttribute("section", new CourseSectionDto());
+            model.addAttribute("lesson", new LessonDto());
+            model.addAttribute("sections", courseSectionService.findByCourseAndLesson(courseId));
             return "instructor_course/editcourse";
         }
 
-
-
-//        /////Tạo section
-//        @GetMapping("/createSection")
-//        public String getSectionPage(@ModelAttribute("section")CourseSectionDto courseSectionDto,
-//                                     Model model
-//                                    ){
-//            model.addAttribute("section", courseSectionDto);
-//
-//            return "instructor_course/modals";
-//        }
 
         @PostMapping("/{id}/sections")
         public String CreateSection(@PathVariable("id") Integer course_id,
@@ -210,6 +204,53 @@ public class InstructorCourseController {
             }
 
         }
+
+
+
+    @PostMapping("/sections/{sectionId}/lessons")
+    public String createLesson(@PathVariable("sectionId") Integer sectionId,
+                               @RequestParam("courseId") Integer courseId,
+                               @RequestParam(value = "videoFile", required = false) org.springframework.web.multipart.MultipartFile videoFile,
+                               @Valid @ModelAttribute("lesson") LessonDto lessonDto,
+                               BindingResult bindingResult,
+                               RedirectAttributes redirectAttributes,
+                               Model model) {
+
+        if (videoFile != null && !videoFile.isEmpty()) {
+            lessonDto.setVideoUrl(videoFile.getOriginalFilename());
+        }
+
+        if (bindingResult.hasErrors()) {
+            System.err.println(">>> Form Binding Errors: " + bindingResult.getAllErrors());
+            model.addAttribute("courseId", courseId);
+            model.addAttribute("courseRequest", courseService.findById(courseId));
+            model.addAttribute("sections", courseSectionService.findByCourseAndLesson(courseId));
+            model.addAttribute("section", new CourseSectionDto());
+            model.addAttribute("activeStep", "curriculum");
+            return "instructor_course/editcourse";
+        }
+
+        try {
+            lessonService.saveLesson(sectionId, lessonDto); // bỏ gán vào lesson
+            System.out.println(">>> Lesson saved, courseId = " + courseId);
+
+            redirectAttributes.addFlashAttribute("success", "Thêm bài giảng thành công!");
+            return "redirect:/instructorcourse/" + courseId + "/curriculum"; // dùng courseId từ @RequestParam
+
+        } catch (RuntimeException e) {
+            System.err.println(">>> ERROR saving lesson: " + e.getMessage());
+            e.printStackTrace();
+
+            model.addAttribute("courseId", courseId);
+            model.addAttribute("courseRequest", courseService.findById(courseId));
+            model.addAttribute("sections", courseSectionService.findByCourseAndLesson(courseId));
+            model.addAttribute("section", new CourseSectionDto());
+            model.addAttribute("activeStep", "curriculum");
+            model.addAttribute("error", "Lỗi: " + e.getMessage());
+            return "instructor_course/editcourse";
+        }
+    }
+
 
 
 

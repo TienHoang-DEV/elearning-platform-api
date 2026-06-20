@@ -39,7 +39,7 @@
         <div class="rich-editor" id="courseDescEditor" contenteditable="true"
              th:utext="*{description}"
              data-placeholder="Nhập mô tả đầy đủ cho khóa học..."></div>
-        <input type="hidden" th:field="*{description}" id="descHidden"/>
+        <input type="hidden" th:field="*{description}" id="descHidden" required/>
         <p
           class="text-danger"
           th:if="${#fields.hasErrors('description')}"

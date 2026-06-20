@@ -36,35 +36,36 @@
     <div class="modal-overlay" id="modal-add-lesson">
         <div class="modal modal-lg">
             <div class="modal-header">
-                <h3>🎬 Thêm Bài Giảng</h3>
+                <h3>Thêm Bài Giảng</h3>
                 <button class="modal-close" data-close-modal="modal-add-lesson">✕</button>
             </div>
-            <form th:action="@{/instructor/sections/{sectionId}/lessons(sectionId=0)}"
-                  method="POST" enctype="multipart/form-data" id="addLessonForm">
+            <form th:action="@{/instructorcourse/sections/{sectionId}/lessons(sectionId=${sectionId})}"
+                  method="POST" enctype="multipart/form-data" id="addLessonForm" th:object="${lesson}">
                 <!-- sectionId sẽ được set động bằng JS khi mở modal -->
                 <input type="hidden" name="sectionId" id="addLessonSectionId"/>
+                <input type="hidden" name="courseId" id="addLessonCourseId" th:value="${courseId}"/>
 
                 <div class="modal-body">
                     <div class="form-group" style="margin-bottom:16px;">
                         <label>Tên Bài Giảng <span class="required">*</span></label>
-                        <input type="text" name="title" id="lessonNameInput" class="form-control"
+                        <input type="text" th:field="*{title}" id="lessonNameInput" class="form-control"
                                placeholder="VD: Phân biệt guitar thùng và guitar điện" required/>
                     </div>
 
                     <!-- Media Tabs -->
                     <div class="lesson-media-tabs" data-group="lesson-media">
                         <div class="media-tab active" data-group="lesson-media" data-type="video">
-                            <span class="tab-icon">🎬</span> TẢI VIDEO LÊN
+                            <span class="tab-icon"></span> TẢI VIDEO LÊN
                         </div>
-                        <div class="media-tab" data-group="lesson-media" data-type="file">
-                            <span class="tab-icon">📎</span> FILE ĐÍNH KÈM
-                        </div>
+<!--                        <div class="media-tab" data-group="lesson-media" data-type="file">-->
+<!--                            <span class="tab-icon"></span> FILE ĐÍNH KÈM-->
+<!--                        </div>-->
                     </div>
 
                     <!-- Video Upload -->
                     <div class="media-content" data-group="lesson-media" data-type="video">
                         <div class="file-upload-area" onclick="document.getElementById('videoFileInput').click()">
-                            <div class="upload-icon">🎬</div>
+                            <div class="upload-icon"></div>
                             <p>Kéo thả hoặc nhấn để tải video lên</p>
                             <p style="font-size:.75rem;color:#aaa;margin-top:4px;">MP4, MOV, AVI. Tối đa 2GB.</p>
                             <span class="choose-btn">Chọn Video File</span>
@@ -74,16 +75,16 @@
                     </div>
 
                     <!-- File Upload -->
-                    <div class="media-content" data-group="lesson-media" data-type="file" style="display:none;">
-                        <div class="file-upload-area" onclick="document.getElementById('docFileInput').click()">
-                            <div class="upload-icon">📄</div>
-                            <p>Kéo thả hoặc nhấn để tải tài liệu lên</p>
-                            <p style="font-size:.75rem;color:#aaa;margin-top:4px;">PDF, DOCX, PPTX. Tối đa 50MB.</p>
-                            <span class="choose-btn">Chọn Tài Liệu</span>
-                        </div>
-                        <input type="file" id="docFileInput" name="docFile"
-                               accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" style="display:none;"/>
-                    </div>
+<!--                    <div class="media-content" data-group="lesson-media" data-type="file" style="display:none;">-->
+<!--                        <div class="file-upload-area" onclick="document.getElementById('docFileInput').click()">-->
+<!--                            <div class="upload-icon"></div>-->
+<!--                            <p>Kéo thả hoặc nhấn để tải tài liệu lên</p>-->
+<!--                            <p style="font-size:.75rem;color:#aaa;margin-top:4px;">PDF, DOCX, PPTX. Tối đa 50MB.</p>-->
+<!--                            <span class="choose-btn">Chọn Tài Liệu</span>-->
+<!--                        </div>-->
+<!--                        <input type="file" id="docFileInput" name="docFile"-->
+<!--                               accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" style="display:none;"/>-->
+<!--                    </div>-->
 
                     <!-- Free Preview -->
                     <div class="free-preview-toggle">

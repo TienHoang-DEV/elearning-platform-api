@@ -1,6 +1,7 @@
 package vn.edu.fpt.dto;
 
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -13,4 +14,5 @@ public class LessonDto {
     private String videoUrl;
     private Integer durationSeconds;
     private Integer position;
+    private Boolean isFreePreview;
 }

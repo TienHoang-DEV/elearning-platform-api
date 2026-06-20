@@ -107,6 +107,37 @@ public class CourseSectionService {
          return courseSectionDtos;
     }
 
+    public List<CourseSectionDto> findByCourseAndLesson(Integer courseId){
+        List<CourseSection> courseSections = repository.findByCourseAndLesson(courseId);
+        List<CourseSectionDto> courseSectionDtos = new ArrayList<>();
+        for(CourseSection c : courseSections){
+            CourseSectionDto courseSectionDto = new CourseSectionDto();
+
+            courseSectionDto.setId(c.getId());
+            courseSectionDto.setTitle(c.getTitle());
+            courseSectionDto.setPosition(c.getPosition());
+
+            List<LessonDto> lessons = c.getLessons().stream().
+                      map(l -> {
+                          LessonDto lessonDto = new LessonDto();
+                          lessonDto.setId(l.getId());
+                          lessonDto.setTitle(l.getTitle());
+                          lessonDto.setPosition(l.getPosition());
+                          lessonDto.setDurationSeconds(l.getDurationSeconds());
+                          lessonDto.setIsFreePreview(l.getIsFreePreview());
+                          return lessonDto;
+                      }).toList();
+            courseSectionDto.setLessons(lessons);
+
+            courseSectionDtos.add(courseSectionDto);
+
+        }
+       return courseSectionDtos;
+    }
+
+
+
+
 
 
 }
