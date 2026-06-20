@@ -117,7 +117,7 @@
                             responsive: true, maintainAspectRatio: false,
                             plugins: { legend: { display: false } },
                             scales: {
-                                y: { beginAtZero: true, max: max + max / 2, ticks: { stepSize: stepSize, callback: v => '$' + v } },
+                                y: { beginAtZero: true, max: max, ticks: { stepSize: stepSize, callback: value => value.toLocaleString('vi-VN') + ' đ'} },
                                 x: { grid: { display: false } }
                             }
                         }
