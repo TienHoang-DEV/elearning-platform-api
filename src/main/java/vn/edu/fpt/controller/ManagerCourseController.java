@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.CourseDto;
 import vn.edu.fpt.enums.CourseStatus;
+import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.CourseService;
 
 @Controller
@@ -21,9 +22,11 @@ import vn.edu.fpt.service.CourseService;
 public class ManagerCourseController {
 
     private final CourseService courseService;
+    private final CategoryService categoryService;
 
-    public ManagerCourseController(CourseService courseService) {
+    public ManagerCourseController(CourseService courseService, CategoryService categoryService) {
         this.courseService = courseService;
+        this.categoryService = categoryService;
     }
 
     /**
@@ -34,16 +37,19 @@ public class ManagerCourseController {
     public String listCourses(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "") String status,
+            @RequestParam(required = false) Integer categoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size,
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        Page<CourseDto> coursePage = courseService.searchAndFilter(keyword, status, pageable);
+        Page<CourseDto> coursePage = courseService.searchAndFilter(keyword, status, categoryId, pageable);
 
         model.addAttribute("coursePage", coursePage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("categories", categoryService.findAll());
 
         return "manager/approval-course/course-list";
     }

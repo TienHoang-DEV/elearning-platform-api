@@ -15,4 +15,5 @@ public class LessonDto {
     private Integer durationSeconds;
     private Integer position;
     private Boolean isFreePreview;
+    private java.util.List<LessonMaterialDto> materials;
 }

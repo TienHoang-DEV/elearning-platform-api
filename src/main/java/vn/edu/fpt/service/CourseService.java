@@ -46,12 +46,7 @@ public class CourseService {
         this.azureBlobService = azureBlobService;
     }
 
-    // ben manager duyet khoa hoc
-    public Page<CourseDto> searchAndFilter(String keyword, String statusStr, Pageable pageable) {
-        CourseStatus status = (statusStr == null || statusStr.isEmpty()) ? null : CourseStatus.valueOf(statusStr);
-        return repository.searchAndFilter(keyword, status, pageable)
-                .map(dtoMapper::toCourseDto);
-    }
+
 
     // Page course của mỗi instructor
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
@@ -196,11 +191,7 @@ public class CourseService {
         return filteredCourses;
     }
 
-    public CourseDto getCourseDetail(Integer id) {
-        Course course = repository.findById(id)
-                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-        return dtoMapper.toCourseDto(course);
-    }
+
 
     public List<Course> findAll() {
         return repository.findAll();
@@ -302,6 +293,31 @@ public class CourseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
     }
 
+    // =========================================================================
+    // ACADEMIC MANAGER (QUẢN LÝ HỌC THUẬT) SECTION
+    // =========================================================================
+
+    /**
+     * Tìm kiếm và lọc danh sách khóa học cho manager duyệt.
+     */
+    public Page<CourseDto> searchAndFilter(String keyword, String statusStr, Integer categoryId, Pageable pageable) {
+        CourseStatus status = (statusStr == null || statusStr.isEmpty()) ? null : CourseStatus.valueOf(statusStr);
+        return repository.searchAndFilter(keyword, status, categoryId, pageable)
+                .map(dtoMapper::toCourseDto);
+    }
+
+    /**
+     * Lấy chi tiết khóa học cho manager duyệt.
+     */
+    public CourseDto getCourseDetail(Integer id) {
+        Course course = repository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        return dtoMapper.toCourseDto(course);
+    }
+
+    /**
+     * Cập nhật trạng thái khóa học (PHÊ DUYỆT, TỪ CHỐI, vv) từ phía manager.
+     */
     @Transactional
     public void updateCourseStatus(Integer id, CourseStatus status) {
         Course course = repository.findById(id)

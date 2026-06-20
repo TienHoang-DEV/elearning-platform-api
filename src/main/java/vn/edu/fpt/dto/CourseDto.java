@@ -59,4 +59,20 @@ public class CourseDto {
         // Làm tròn đến 1 chữ số sau phần thập phân (Ví dụ: 75.4)
         return Math.round(pct * 10.0) / 10.0;
     }
+
+    public java.util.List<LessonMaterialDto> getAllMaterials() {
+        java.util.List<LessonMaterialDto> list = new java.util.ArrayList<>();
+        if (sections != null) {
+            for (CourseSectionDto section : sections) {
+                if (section.getLessons() != null) {
+                    for (LessonDto lesson : section.getLessons()) {
+                        if (lesson.getMaterials() != null) {
+                            list.addAll(lesson.getMaterials());
+                        }
+                    }
+                }
+            }
+        }
+        return list;
+    }
 }

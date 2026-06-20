@@ -28,6 +28,9 @@ public class MaterialViewController {
     @Autowired
     AzureBlobService azureBlobService;
 
+    @Autowired
+    private vn.edu.fpt.service.LessonService lessonService;
+
     @GetMapping("/material/{id}")
     @ResponseBody
     public String viewMaterial(@PathVariable Integer id, Model model) {
@@ -36,6 +39,22 @@ public class MaterialViewController {
             return null;
         }
         return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
+    }
+
+    @GetMapping("/material/{id}/view")
+    public String viewMaterialRedirect(@PathVariable Integer id) {
+        LessonMaterial lessonMaterial = lessonMaterialService.findById(id).orElse(null);
+        if (lessonMaterial == null) {
+            return "redirect:/";
+        }
+        String sasUrl = azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
+        return "redirect:" + sasUrl;
+    }
+
+    @GetMapping("/lesson/{id}/video")
+    public String viewLessonVideo(@PathVariable Integer id) {
+        String videoUrl = lessonService.findLessonUrl(id);
+        return "redirect:" + videoUrl;
     }
 
     @GetMapping("/material/{id}/download")
