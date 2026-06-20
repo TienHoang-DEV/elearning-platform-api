@@ -13,6 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface LessonRepository extends JpaRepository<Lesson, Integer> {
+    boolean existsByTitleAndCourseSection_Id(String title, Integer sectionId);
+
     Optional<Lesson> findFirstByCourseSection_IdOrderByPositionAscIdAsc(Integer sectionId);
 
     @Query("SELECT l FROM Lesson l LEFT JOIN FETCH l.materials WHERE l.id = :id")

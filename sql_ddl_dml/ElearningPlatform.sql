@@ -1,19 +1,4 @@
-USE master
-IF DB_ID('ElearningPlatform') IS NOT NULL
-BEGIN
-    ALTER DATABASE ElearningPlatform
-    SET SINGLE_USER
-    WITH ROLLBACK IMMEDIATE;
 
-    DROP DATABASE ElearningPlatform;
-END
-GO
-
-CREATE DATABASE ElearningPlatform;
-GO
-
-USE ElearningPlatform;
-GO
 
 -- =========================
 -- ROLES
@@ -222,7 +207,7 @@ CREATE TABLE courses (
                          description NVARCHAR(MAX) NULL,
     -- Mô tả chi tiết nội dung, mục tiêu khóa học
 
-                         thumbnail_url VARCHAR(500) NULL,
+                         thumbnail_url NVARCHAR(500) NULL,
     -- URL ảnh bìa khóa học (lưu link từ Azure Blob Storage)
 
                          price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
@@ -362,44 +347,44 @@ CREATE TABLE video_moderation_flags (
 -- =========================
 -- LESSON MATERIALS
 -- =========================
-CREATE TABLE lesson_materials (
-                                  id INT PRIMARY KEY IDENTITY(1,1),
-    -- Mã định danh tài liệu
+    CREATE TABLE lesson_materials (
+                                      id INT PRIMARY KEY IDENTITY(1,1),
+        -- Mã định danh tài liệu
 
-                                  instructor_id INT NOT NULL,
-    -- Tham chiếu đến bảng users (role='instructor'), giáo viên upload tài liệu
+                                      instructor_id INT NOT NULL,
+        -- Tham chiếu đến bảng users (role='instructor'), giáo viên upload tài liệu
 
-                                  course_id INT NULL,
-    -- Tham chiếu đến bảng courses (tài liệu cho cả khóa học nếu có)
+                                      course_id INT NULL,
+        -- Tham chiếu đến bảng courses (tài liệu cho cả khóa học nếu có)
 
-                                  lesson_id INT NULL,
-    -- Tham chiếu đến bảng lessons (tài liệu cho bài học cụ thể)
+                                      lesson_id INT NULL,
+        -- Tham chiếu đến bảng lessons (tài liệu cho bài học cụ thể)
 
-                                  file_name NVARCHAR(255) NULL,
-    -- Tên file gốc
+                                      file_name NVARCHAR(255) NULL,
+        -- Tên file gốc
 
-                                  file_url VARCHAR(500) NULL,
-    -- URL file (lưu link từ Azure Blob Storage)
+                                      file_url VARCHAR(500) NULL,
+        -- URL file (lưu link từ Azure Blob Storage)
 
-                                  file_type VARCHAR(50) NULL,
-    -- Loại file: 'pdf', 'docx', 'pptx', 'zip', 'txt', ...
+                                      file_type VARCHAR(50) NULL,
+        -- Loại file: 'pdf', 'docx', 'pptx', 'zip', 'txt', ...
 
-                                  file_size BIGINT NULL,
-    -- Kích thước file (bytes)
+                                      file_size BIGINT NULL,
+        -- Kích thước file (bytes)
 
-                                  created_at DATETIME DEFAULT GETDATE(),
-    -- Thời gian upload tài liệu
+                                      created_at DATETIME DEFAULT GETDATE(),
+        -- Thời gian upload tài liệu
 
-                                  updated_at DATETIME NULL,
-    -- Thời gian cập nhật gần nhất
+                                      updated_at DATETIME NULL,
+        -- Thời gian cập nhật gần nhất
 
-                                  CONSTRAINT FK_materials_instructor
-                                      FOREIGN KEY (instructor_id) REFERENCES users(id),
-                                  CONSTRAINT FK_materials_course
-                                      FOREIGN KEY (course_id) REFERENCES courses(id),
-                                  CONSTRAINT FK_materials_lesson
-                                      FOREIGN KEY (lesson_id) REFERENCES lessons(id)
-);
+                                      CONSTRAINT FK_materials_instructor
+                                          FOREIGN KEY (instructor_id) REFERENCES users(id),
+                                      CONSTRAINT FK_materials_course
+                                          FOREIGN KEY (course_id) REFERENCES courses(id),
+                                      CONSTRAINT FK_materials_lesson
+                                          FOREIGN KEY (lesson_id) REFERENCES lessons(id)
+    );
 
 -- =========================
 -- QUIZZES
@@ -638,40 +623,69 @@ CREATE TABLE order_items (
 -- =========================
 CREATE TABLE payments (
                           id INT PRIMARY KEY IDENTITY(1,1),
-    -- Mã định danh ghi nhận thanh toán
+    -- Mã định danh duy nhất của giao dịch thanh toán
 
                           order_id INT NOT NULL,
-    -- Tham chiếu đến bảng orders, thanh toán cho đơn hàng nào
+    -- Mỗi đơn hàng chỉ có một giao dịch thanh toán
 
-                          transaction_code VARCHAR(255) NULL,
-    -- Mã giao dịch nội bộ
+                          gateway VARCHAR(50) NOT NULL,
+    -- PAYOS, MOMO, VNPAY,...
 
-                          gateway VARCHAR(50) NULL,
-    -- Cổng thanh toán: 'MOMO', 'VNPAY', 'CARD', ...
+                          gateway_order_code VARCHAR(255) NOT NULL UNIQUE,
+    -- Mã đơn hàng gửi sang cổng thanh toán
 
-                          gateway_tx_id VARCHAR(255) NULL,
-    -- Transaction ID từ gateway MOMO, VNPAY, ... (để trace)
-
-                          amount DECIMAL(10,2) NOT NULL CHECK (amount >= 0),
+                          amount DECIMAL(10,2) NOT NULL
+                              CHECK (amount >= 0),
     -- Số tiền thanh toán
 
-                          qr_code_url VARCHAR(500) NULL,
-    -- URL mã QR động từ MOMO (để check QR trên điện thoại)
+                          payment_url VARCHAR(1000) NULL,
+    -- Link thanh toán PayOS
 
-                          status VARCHAR(20)
-                              CHECK (status IN ('SUCCESS', 'FAILED', 'PENDING')),
-    -- Trạng thái thanh toán: success (thành công), failed (thất bại), pending (chờ xác nhận)
+                          qr_code_url VARCHAR(1000) NULL,
+    -- Link QR động
+
+                          status VARCHAR(20) NOT NULL DEFAULT 'PENDING'
+                              CHECK (
+                                  status IN (
+                                             'PENDING',
+                                             'PAID',
+                                             'FAILED',
+                                             'EXPIRED',
+                                             'CANCELLED'
+                                      )
+                                  ),
+    -- Trạng thái giao dịch
+
+                          error_code VARCHAR(50) NULL,
+    -- Mã lỗi từ gateway
+
+                          error_message NVARCHAR(500) NULL,
+    -- Nội dung lỗi
+
+                          gateway_response NVARCHAR(MAX) NULL,
+    -- JSON response từ PayOS
+
+                          webhook_received BIT NOT NULL DEFAULT 0,
+    -- Đã nhận webhook hay chưa
+
+                          webhook_received_at DATETIME NULL,
+    -- Thời điểm nhận webhook
+
+                          expired_at DATETIME NULL,
+    -- Thời điểm QR/link hết hạn
 
                           paid_at DATETIME NULL,
-    -- Thời gian thanh toán thành công
+    -- Thời điểm thanh toán thành công
 
-                          created_at DATETIME DEFAULT GETDATE(),
-    -- Thời gian tạo bản ghi thanh toán
+                          created_at DATETIME NOT NULL DEFAULT GETDATE(),
+    -- Thời điểm tạo giao dịch
 
                           updated_at DATETIME NULL,
+    -- Thời điểm cập nhật gần nhất
 
                           CONSTRAINT FK_payments_order
-                              FOREIGN KEY (order_id) REFERENCES orders(id)
+                              FOREIGN KEY (order_id)
+                                  REFERENCES orders(id)
 );
 
 -- =========================

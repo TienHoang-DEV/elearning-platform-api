@@ -4,12 +4,12 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Learning Hub - Thư Viện Tài Liệu</title>
-    <link rel="stylesheet" th:href="@{/css/manager_course.css}"/>
+    <link rel="stylesheet" th:href="@{/css/course_manage.css}"/>
 </head>
 <body>
 
 <!-- SIDEBAR -->
-<div th:replace="~{fragments/sidebar :: sidebar(activePage='materials')}"></div>
+<div th:replace="~{instructor_course/sidebar :: sidebar(activePage='materials')}"></div>
 
 <!-- MAIN -->
 <main class="main-content">
@@ -184,7 +184,7 @@
     </div>
 </div>
 
-<script th:src="@{/js/instructor_course.js}"></script>
+<script th:src="@{/js/course_instructor.js}"></script>
 <script>
     document.getElementById('openUploadMaterialBtn').addEventListener('click', function () {
         document.getElementById('modal-upload-material').classList.add('active');

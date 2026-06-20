@@ -294,7 +294,7 @@ CREATE TABLE lessons (
                          title NVARCHAR(255) NOT NULL,
     -- Tên bài học (ví dụ: 'Bài 1: Giới thiệu ngôn ngữ C')
 
-                         video_url VARCHAR(500) NULL,
+                         video_url NVARCHAR(500) NULL,
     -- URL video bài học (lưu link từ Azure Blob Storage)
 
                          duration_seconds INT NULL CHECK (duration_seconds > 0),
@@ -528,6 +528,9 @@ CREATE TABLE coupons (
                          code VARCHAR(100) UNIQUE NOT NULL,
     -- Mã code coupon (ví dụ: 'SUMMER50', 'NEWYEAR2024'), phải unique
 
+    title VARCHAR(200) NOT NULL,
+    -- tên mã
+
                          discount_type VARCHAR(20)
                              CHECK (discount_type IN ('PERCENT', 'FIXED')),
     -- Loại giảm giá: percent (giảm theo %), fixed (giảm số tiền cố định)
@@ -723,40 +726,69 @@ CREATE TABLE order_items (
 -- =========================
 CREATE TABLE payments (
                           id INT PRIMARY KEY IDENTITY(1,1),
-    -- Mã định danh ghi nhận thanh toán
+    -- Mã định danh duy nhất của giao dịch thanh toán
 
                           order_id INT NOT NULL,
-    -- Tham chiếu đến bảng orders, thanh toán cho đơn hàng nào
+    -- Mỗi đơn hàng chỉ có một giao dịch thanh toán
 
-                          transaction_code VARCHAR(255) NULL,
-    -- Mã giao dịch nội bộ
+                          gateway VARCHAR(50) NOT NULL,
+    -- PAYOS, MOMO, VNPAY,...
 
-                          gateway VARCHAR(50) NULL,
-    -- Cổng thanh toán: 'MOMO', 'VNPAY', 'CARD', ...
+                          gateway_order_code VARCHAR(255) NOT NULL UNIQUE,
+    -- Mã đơn hàng gửi sang cổng thanh toán
 
-                          gateway_tx_id VARCHAR(255) NULL,
-    -- Transaction ID từ gateway MOMO, VNPAY, ... (để trace)
-
-                          amount DECIMAL(10,2) NOT NULL CHECK (amount >= 0),
+                          amount DECIMAL(10,2) NOT NULL
+                              CHECK (amount >= 0),
     -- Số tiền thanh toán
 
-                          qr_code_url VARCHAR(500) NULL,
-    -- URL mã QR động từ MOMO (để check QR trên điện thoại)
+                          payment_url VARCHAR(1000) NULL,
+    -- Link thanh toán PayOS
 
-                          status VARCHAR(20)
-                              CHECK (status IN ('SUCCESS', 'FAILED', 'PENDING')),
-    -- Trạng thái thanh toán: success (thành công), failed (thất bại), pending (chờ xác nhận)
+                          qr_code_url VARCHAR(1000) NULL,
+    -- Link QR động
+
+                          status VARCHAR(20) NOT NULL DEFAULT 'PENDING'
+                              CHECK (
+                                  status IN (
+                                             'PENDING',
+                                             'PAID',
+                                             'FAILED',
+                                             'EXPIRED',
+                                             'CANCELLED'
+                                      )
+                                  ),
+    -- Trạng thái giao dịch
+
+                          error_code VARCHAR(50) NULL,
+    -- Mã lỗi từ gateway
+
+                          error_message NVARCHAR(500) NULL,
+    -- Nội dung lỗi
+
+                          gateway_response NVARCHAR(MAX) NULL,
+    -- JSON response từ PayOS
+
+                          webhook_received BIT NOT NULL DEFAULT 0,
+    -- Đã nhận webhook hay chưa
+
+                          webhook_received_at DATETIME NULL,
+    -- Thời điểm nhận webhook
+
+                          expired_at DATETIME NULL,
+    -- Thời điểm QR/link hết hạn
 
                           paid_at DATETIME NULL,
-    -- Thời gian thanh toán thành công
+    -- Thời điểm thanh toán thành công
 
-                          created_at DATETIME DEFAULT GETDATE(),
-    -- Thời gian tạo bản ghi thanh toán
+                          created_at DATETIME NOT NULL DEFAULT GETDATE(),
+    -- Thời điểm tạo giao dịch
 
                           updated_at DATETIME NULL,
+    -- Thời điểm cập nhật gần nhất
 
                           CONSTRAINT FK_payments_order
-                              FOREIGN KEY (order_id) REFERENCES orders(id)
+                              FOREIGN KEY (order_id)
+                                  REFERENCES orders(id)
 );
 
 -- =========================

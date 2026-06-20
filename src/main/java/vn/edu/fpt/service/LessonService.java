@@ -3,6 +3,7 @@ package vn.edu.fpt.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.dto.LessonDto;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.User;
@@ -12,6 +13,7 @@ import vn.edu.fpt.repository.LessonRepository;
 import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.SecurityUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,6 +25,7 @@ public class LessonService {
 
     private final LessonRepository repository;
     private final AzureBlobService azureBlobService;
+    private final CourseSectionService courseSectionService;
 
     public List<Lesson> findAll() {
         return repository.findAll();
@@ -50,6 +53,46 @@ public class LessonService {
 
     public boolean existsById(Integer id) {
         return repository.existsById(id);
+    }
+
+    public Lesson saveLesson(Integer sectiondId, LessonDto lessonDto){
+        boolean exist = courseSectionService.existsById(sectiondId);
+        if(!exist){
+            throw new RuntimeException("Tiêu đề khoá học không tìm thấy với id: " + sectiondId);
+        }
+
+        if(lessonDto == null){
+            throw new RuntimeException("Dữ liệu bài học không tồn tại");
+        }
+
+        if(repository.existsByTitleAndCourseSection_Id(lessonDto.getTitle(), sectiondId)){
+            throw new RuntimeException("Tiêu đề bài này đã được thiết lập");
+        }
+
+        if(lessonDto.getTitle() == null || lessonDto.getTitle().isEmpty()){
+            throw new RuntimeException("Tiêu đề bài học được để trống");
+        }
+        if(lessonDto.getTitle().length() > 255){
+            throw new RuntimeException("Tiêu đề bài học đã dài quá mức cho phép");
+        }
+
+        if(lessonDto.getVideoUrl() == null || lessonDto.getVideoUrl().isEmpty()){
+            throw new RuntimeException("Video bài học không được để trống");
+        }
+
+        if(lessonDto.getDurationSeconds() == null || lessonDto.getDurationSeconds() <= 0){
+            lessonDto.setDurationSeconds(1); // Set a default value to prevent crash if not provided
+        }
+        String video_url = azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lessonDto.getVideoUrl());
+        Lesson l = new Lesson();
+        l.setTitle(lessonDto.getTitle());
+        l.setVideoUrl(video_url);
+        l.setPosition(lessonDto.getPosition());
+        l.setDurationSeconds(lessonDto.getDurationSeconds());
+        l.setCreatedAt(LocalDateTime.now());
+        l.setCourseSection(courseSectionService.findById(sectiondId).orElseThrow());
+        l.setIsFreePreview(lessonDto.getIsFreePreview() != null ? lessonDto.getIsFreePreview() : false);
+        return repository.save(l);
     }
 
     public Set<Lesson> findLessonByCourseSection(CourseSection courseSection) {
@@ -109,9 +152,6 @@ public class LessonService {
         if (nextLessons == null || nextLessons.isEmpty()) {
             return null;
         }
-        nextLessons.forEach(lesson1 -> {
-            System.out.println("khoa hoc " +lesson1.getId());
-        });
         for (Lesson nextLesson : nextLessons) {
             if ((nextLesson.getId() > lesson.getId()) || (lesson.getId() == nextLessons.get(nextLessons.size() - 1).getId())) {
                 return nextLesson;

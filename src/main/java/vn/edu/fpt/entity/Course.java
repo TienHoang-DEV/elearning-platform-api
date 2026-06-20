@@ -34,7 +34,7 @@ public class Course extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
-    @Column(name = "thumbnail_url", length = 500)
+    @Column(name = "thumbnail_url", length = 500, columnDefinition = "NVARCHAR(500)")
     private String thumbnailUrl;
 
     @Column(nullable = false, precision = 10, scale = 2)

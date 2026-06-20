@@ -471,7 +471,7 @@ function openAddLessonModal(sectionId) {
     if (hiddenInput) hiddenInput.value = sectionId;
     // Update form action
     const form = document.getElementById('addLessonForm');
-    if (form) form.action = `/instructor/sections/${sectionId}/lessons`;
+    if (form) form.action = `/instructorcourse/sections/${sectionId}/lessons`;
     openModal('modal-add-lesson');
 }
 

@@ -37,8 +37,7 @@
         </div>
         <div class="quiz-summary-card">
             <span class="quiz-summary-label">Trạng thái</span>
-            <strong class="quiz-summary-value" th:text="${quizCount > 0 ? 'Sẵn sàng' : 'Chưa có quiz'}">Sẵn
-                sàng</strong>
+            <strong class="quiz-summary-value" th:text="${quizCount > 0 ? 'Sẵn sàng' : 'Chưa có quiz'}"></strong>
             <small class="quiz-summary-note">chọn đáp án rồi nộp bài khi hoàn tất</small>
         </div>
     </section>
@@ -53,7 +52,7 @@
                 </div>
 
                 <div class="quiz-badges">
-                    <span class="quiz-points">Số điểm cần để qua: <strong th:text="${quiz.passScorePercent}">70</strong></span>
+                    <span class="quiz-points">Phần trăm điểm tối thiểu để đạt: <strong th:text="${quiz.passScorePercent != null ? quiz.passScorePercent + '%' : '---'}"></strong></span>
                     <span class="quiz-points quiz-points-soft">Số câu: <strong
                             th:text="${quiz.questionCount != null ? quiz.questionCount : 0}">0</strong></span>
                 </div>
