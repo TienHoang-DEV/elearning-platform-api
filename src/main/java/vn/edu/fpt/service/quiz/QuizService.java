@@ -1,16 +1,13 @@
-package vn.edu.fpt.service.quizservice;
+package vn.edu.fpt.service.quiz;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
-import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
 import vn.edu.fpt.entity.Quiz;
-import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.QuizRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional

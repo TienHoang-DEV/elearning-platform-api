@@ -1,20 +1,16 @@
 package vn.edu.fpt.service;
 
 import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.models.BlobProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.LessonMaterial;
 import vn.edu.fpt.repository.LessonMaterialRepository;
+import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 

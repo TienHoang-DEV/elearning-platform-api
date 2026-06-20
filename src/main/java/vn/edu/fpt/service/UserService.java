@@ -1,14 +1,12 @@
 package vn.edu.fpt.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.dto.ProfileDto;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.UserValidationException;
 import vn.edu.fpt.repository.UserRepository;
+import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.Validation;
 
 import java.time.LocalDateTime;

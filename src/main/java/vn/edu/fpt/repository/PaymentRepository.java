@@ -3,11 +3,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import vn.edu.fpt.dto.revenue_manager.MonthlyRevenueForManagerDTO;
 import vn.edu.fpt.entity.Payment;
 import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.dto.MonthlyRevenueDTO;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -29,4 +31,11 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
      * Find payment by PayOS gateway order code
      */
     Optional<Payment> findByGatewayOrderCode(String gatewayOrderCode);
+
+    @Query("""
+      SELECT new vn.edu.fpt.dto.revenue_manager.MonthlyRevenueForManagerDTO(COALESCE(SUM(p.amount), 0))  FROM Payment p 
+      WHERE p.status = vn.edu.fpt.enums.PaymentStatus.PAID
+      AND CAST(p.paidAt as date) >= :startDate AND CAST(p.paidAt as date) <= :endDate 
+""")
+    MonthlyRevenueForManagerDTO getMonthlyRevenueTotal(@Param("startDate") LocalDate startDate,@Param("endDate") LocalDate endDate);
 }

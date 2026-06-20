@@ -23,6 +23,8 @@ public final class AppConstants {
 
     public static final int PAYMENT_EXPIRATION_MINUTES = 15;
 
+    public static final Double PLATFORM_FEE = 0.3D;
+
     public static final String PAYMENT_GATEWAY = "PAYOS";
 
     public static final Map<String, String> BANK_NAMES = Map.of(

@@ -22,6 +22,7 @@ import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.CourseRepository;
 
 import vn.edu.fpt.dto.CourseDto;
+import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 
 import java.math.BigDecimal;
