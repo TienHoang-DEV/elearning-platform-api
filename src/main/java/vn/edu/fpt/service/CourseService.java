@@ -54,11 +54,28 @@ public class CourseService {
     }
 
     public Course save(User user, CourseCreateDto courseCreateDto) {
+        Course course;
+        boolean isUpdate = courseCreateDto.getId() != null;
 
-        if (repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
-            throw new CourseValidationException(
-                    "title",
-                    "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
+        if (isUpdate) {
+            course = repository.findById(courseCreateDto.getId())
+                    .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+            if (!course.getTitle().equals(courseCreateDto.getTitle()) &&
+                repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
+                throw new CourseValidationException(
+                        "title",
+                        "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
+            }
+        } else {
+            course = new Course();
+            if (repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
+                throw new CourseValidationException(
+                        "title",
+                        "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
+            }
+            course.setCreatedAt(LocalDateTime.now());
+            course.setStatus(CourseStatus.DRAFT);
+            course.setInstructor(user);
         }
 
         if (courseCreateDto.getTitle().length() < 3) {
@@ -67,7 +84,7 @@ public class CourseService {
                     "Tiêu đề khóa học phải có ít nhất 3 ký tự.");
         }
 
-        String thumbnailUrl = null;
+        String thumbnailUrl = course.getThumbnailUrl();
         if (courseCreateDto.getThumbnailFile() != null && !courseCreateDto.getThumbnailFile().isEmpty()) {
             thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), "course-thumbnails");
         }
@@ -75,16 +92,13 @@ public class CourseService {
         Category category = categoryRepository.findById(courseCreateDto.getCategoryId())
                 .orElseThrow(() -> new CourseValidationException("categoryId", "Category không tồn tại"));
 
-        Course course = new Course();
         course.setTitle(courseCreateDto.getTitle());
         course.setDescription(courseCreateDto.getDescription());
         course.setCategory(category);
         course.setPrice(courseCreateDto.getPrice());
         course.setThumbnailUrl(thumbnailUrl);
         course.setLevel(courseCreateDto.getLevel());
-        course.setStatus(CourseStatus.DRAFT);
-        course.setCreatedAt(LocalDateTime.now());
-        course.setInstructor(user);
+        course.setUpdateAt(LocalDateTime.now());
         return repository.save(course);
     }
 
@@ -297,11 +311,7 @@ public class CourseService {
     // ACADEMIC MANAGER (QUẢN LÝ HỌC THUẬT) SECTION
     // =========================================================================
 
-    /**
-     * Tìm kiếm và lọc danh sách khóa học cho manager duyệt.
-     */
-    public Page<CourseDto> searchAndFilter(String keyword, String statusStr, Integer categoryId, Pageable pageable) {
-        CourseStatus status = (statusStr == null || statusStr.isEmpty()) ? null : CourseStatus.valueOf(statusStr);
+    public Page<CourseDto> searchAndFilter(String keyword, CourseStatus status, Integer categoryId, Pageable pageable) {
         return repository.searchAndFilter(keyword, status, categoryId, pageable)
                 .map(dtoMapper::toCourseDto);
     }
@@ -320,9 +330,49 @@ public class CourseService {
      */
     @Transactional
     public void updateCourseStatus(Integer id, CourseStatus status) {
+        updateCourseStatus(id, status, null);
+    }
+
+    @Transactional
+    public void updateCourseStatus(Integer id, CourseStatus status, String rejectionReason) {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
         course.setStatus(status);
+        if (status == CourseStatus.REJECTED) {
+            course.setRejectionReason(rejectionReason);
+        } else if (status == CourseStatus.PUBLISHED) {
+            course.setRejectionReason(null); // Clear rejection reason if approved
+        }
         repository.save(course);
+    }
+
+    @Transactional
+    public void resubmitCourse(Integer id) {
+        Course course = repository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        if (course.getStatus() == CourseStatus.REJECTED) {
+            course.setStatus(CourseStatus.PENDING);
+            repository.save(course);
+        }
+    }
+
+    @Transactional
+    public void submitForApproval(Integer id) {
+        Course course = repository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        if (course.getStatus() == CourseStatus.DRAFT) {
+            course.setStatus(CourseStatus.PENDING);
+            repository.save(course);
+        }
+    }
+
+    @Transactional
+    public void withdrawCourse(Integer id) {
+        Course course = repository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        if (course.getStatus() == CourseStatus.PENDING) {
+            course.setStatus(CourseStatus.DRAFT);
+            repository.save(course);
+        }
     }
 }

@@ -24,6 +24,7 @@ public interface DtoMapper {
     @Mapping(target = "firstLessonVideoUrl", expression = "java(course.getFirstLessonVideoUrl())")
     @Mapping(target = "firstLessonId", expression = "java(course.getFirstLessonId())")
     @Mapping(target = "thumbnailPath", expression = "java(course.getThumbnailPath())")
+    @Mapping(target = "rejectionReason", source = "rejectionReason")
     CourseDto toCourseDto(Course course);
 
     @Mapping(target = "courseCount", expression = "java(category.getCourses() != null ? category.getCourses().size() : 0)")

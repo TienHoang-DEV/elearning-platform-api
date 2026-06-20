@@ -36,7 +36,7 @@ public class ManagerCourseController {
     @GetMapping("/list")
     public String listCourses(
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "") String status,
+            @RequestParam(required = false) CourseStatus status,
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size,
@@ -72,11 +72,11 @@ public class ManagerCourseController {
     @PostMapping("/edit/{id}")
     public String updateCourseStatus(
             @PathVariable Integer id,
-            @RequestParam("status") String status,
+            @RequestParam("status") CourseStatus status,
+            @RequestParam(value = "rejectionReason", required = false) String rejectionReason,
             RedirectAttributes redirectAttributes) {
 
-        CourseStatus courseStatus = CourseStatus.valueOf(status);
-        courseService.updateCourseStatus(id, courseStatus);
+        courseService.updateCourseStatus(id, status, rejectionReason);
         redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái khóa học thành công.");
 
         return "redirect:/manager/course/detail/" + id;

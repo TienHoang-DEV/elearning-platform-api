@@ -23,6 +23,7 @@ public class UserDto {
     private RoleType role;
     private UserStatus status;
 
+
     public String getFullAvatarUrl() {
         if (avatarUrl == null || avatarUrl.isBlank()) {
             return null;

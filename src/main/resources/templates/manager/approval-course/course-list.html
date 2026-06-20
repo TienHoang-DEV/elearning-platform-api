@@ -18,10 +18,10 @@
             <div class="header-actions">
                 <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm khóa học..." class="search-input form-control">
                 <select name="status" class="search-input search-select form-select" onchange="this.form.submit()">
-                    <option value="" th:selected="${status == null or status == ''}">Tất cả trạng thái</option>
-                    <option value="PENDING" th:selected="${status == 'PENDING'}">Đang chờ duyệt</option>
-                    <option value="PUBLISHED" th:selected="${status == 'PUBLISHED'}">Đã duyệt</option>
-                    <option value="REJECTED" th:selected="${status == 'REJECTED'}">Từ chối</option>
+                    <option value="" th:selected="${status == null}">Tất cả trạng thái</option>
+                    <option value="PENDING" th:selected="${status != null && status.name() == 'PENDING'}">Đang chờ duyệt</option>
+                    <option value="PUBLISHED" th:selected="${status != null && status.name() == 'PUBLISHED'}">Đã duyệt</option>
+                    <option value="REJECTED" th:selected="${status != null && status.name() == 'REJECTED'}">Từ chối</option>
                 </select>
                 <select name="categoryId" class="search-input search-select form-select" onchange="this.form.submit()">
                     <option value="" th:selected="${categoryId == null}">Tất cả danh mục</option>
@@ -36,9 +36,9 @@
                 <img th:src="${course.thumbnailPath}" class="course-image" alt="Course Thumbnail">
                 <div class="course-body">
                     <div class="course-meta">
-                        <span th:if="${course.status == 'PENDING'}" class="badge badge-warning">Đang chờ duyệt</span>
-                        <span th:if="${course.status == 'PUBLISHED'}" class="badge badge-success">Đã duyệt</span>
-                        <span th:if="${course.status == 'REJECTED'}" class="badge badge-danger">Từ chối</span>
+                        <span th:if="${course.status != null && course.status.name() == 'PENDING'}" class="badge badge-warning">Đang chờ duyệt</span>
+                        <span th:if="${course.status != null && course.status.name() == 'PUBLISHED'}" class="badge badge-success">Đã duyệt</span>
+                        <span th:if="${course.status != null && course.status.name() == 'REJECTED'}" class="badge badge-danger">Từ chối</span>
                         <span class="course-price" th:text="${course.price != null ? #numbers.formatDecimal(course.price, 0, 'POINT', 0, 'COMMA') + ' đ' : 'Miễn phí'}">$49.99</span>
                     </div>
                     <div class="course-title" th:text="${course.title}">Các Mẫu React Nâng Cao</div>

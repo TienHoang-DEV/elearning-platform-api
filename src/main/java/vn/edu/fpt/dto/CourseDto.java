@@ -1,6 +1,7 @@
 package vn.edu.fpt.dto;
 
 import lombok.*;
+import vn.edu.fpt.enums.CourseStatus;
 import java.math.BigDecimal;
 import java.util.Set;
 
@@ -18,9 +19,10 @@ public class CourseDto {
     private String thumbnailUrl;
     private BigDecimal price;
     private String level;
-    private String status;
+    private CourseStatus status;
     private Set<CourseSectionDto> sections;
     private Set<FeedbackDto> feedbacks;
+    private String rejectionReason;
 
     private double averageRating;
     private int ratingCount;

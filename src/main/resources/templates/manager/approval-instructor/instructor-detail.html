@@ -25,11 +25,6 @@
             <i class="ph ph-check-circle"></i>
             <span th:text="${successMessage}"></span>
         </div>
-        <div th:if="${errorMessage}" class="flash-alert error">
-            <i class="ph ph-warning-circle"></i>
-            <span th:text="${errorMessage}"></span>
-        </div>
-
         <div class="split-layout-container">
             <!-- LEFT: Detail -->
             <div class="detail-card">
@@ -43,8 +38,8 @@
                         </div>
 
                         <span
-                            th:class="${'badge badge-' + (request.status?.name() == T(vn.edu.fpt.enums.UserStatus).ACTIVE.name() ? 'success' : 'danger')}"
-                            th:text="${request.status?.name() == T(vn.edu.fpt.enums.UserStatus).ACTIVE.name() ? 'Hoạt động' : 'Bị khóa'}">ACTIVE</span>
+                            th:class="${'badge badge-' + (request.status.name() == 'ACTIVE' ? 'success' : 'danger')}"
+                            th:text="${request.status.name() == 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}">ACTIVE</span>
                     </div>
                 </div>
 
@@ -78,8 +73,8 @@
                                     <td class="detail-courses-td-title" th:text="${course.title}">Tên khóa học</td>
                                     <td class="detail-courses-td" th:text="${course.level != null ? course.level : 'N/A'}">Cấp độ</td>
                                     <td class="detail-courses-td">
-                                        <span th:class="${'badge badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : course.status.name() == 'PENDING' ? 'warning' : 'secondary')}"
-                                              th:text="${course.status.name() == 'PUBLISHED' ? 'Đã xuất bản' : course.status.name() == 'PENDING' ? 'Chờ duyệt' : 'Bản nháp'}">Trạng thái</span>
+                                        <span th:class="${'badge badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : course.status.name() == 'PENDING' ? 'warning' : course.status.name() == 'REJECTED' ? 'danger' : 'secondary')}"
+                                              th:text="${course.status.name() == 'PUBLISHED' ? 'Đã duyệt' : course.status.name() == 'PENDING' ? 'Chờ duyệt' : course.status.name() == 'REJECTED' ? 'Từ chối' : 'Bản nháp'}">Trạng thái</span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -94,17 +89,17 @@
             <!-- RIGHT: Action Card -->
             <div>
                 <div class="action-card">
-                    <div class="action-card-title"><i class="ph ph-shield-check"></i> Thiết lập tài khoản</div>
+                    <div class="action-card-title"> Thiết lập tài khoản</div>
                     <form th:action="@{/manager/instructor/edit/{id}(id=${request.id})}" method="post">
                         <div class="mb-3">
                             <label class="form-label text-start d-block status-form-label" for="status">Trạng thái tài khoản</label>
                             <select id="status" name="status" class="form-select status-form-select">
-                                <option value="ACTIVE" th:selected="${request.status?.name() == T(vn.edu.fpt.enums.UserStatus).ACTIVE.name()}">Hoạt động</option>
-                                <option value="BANNED" th:selected="${request.status?.name() == T(vn.edu.fpt.enums.UserStatus).BANNED.name()}">Bị khóa</option>
+                                <option value="ACTIVE" th:selected="${request.status.name() == 'ACTIVE'}">Hoạt động</option>
+                                <option value="BANNED" th:selected="${request.status.name() == 'BANNED'}">Bị khóa</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 status-form-submit-btn">
-                            <i class="ph ph-floppy-disk"></i> Lưu thay đổi
+                            Lưu thay đổi
                         </button>
                     </form>
                     <div class="action-card-footer">

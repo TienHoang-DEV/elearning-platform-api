@@ -27,21 +27,7 @@
 
 .empty-grid-message { text-align: center; padding: 40px; color: var(--text-gray); font-size: 1.05rem; width: 100%; grid-column: 1 / -1; }
 
-/* ── Pagination ── */
-.pagination-circle-container { display: flex; justify-content: center; align-items: center; margin-top: 28px; }
-.pagination-circle-buttons { display: flex; align-items: center; gap: 10px; }
-.page-circle-btn {
-    width: 42px; height: 42px; border-radius: 50%;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 0.95rem; font-weight: 600; font-family: var(--font-family);
-    text-decoration: none; color: var(--text-main);
-    background-color: var(--white); border: 1.5px solid var(--border-color);
-    cursor: pointer; transition: all 0.2s ease;
-}
-.page-circle-btn:hover:not(.active):not(.disabled) { border-color: var(--primary-blue); color: var(--primary-blue); background: #f0f7ff; transform: translateY(-1px); }
-.page-circle-btn.active { background-color: var(--primary-blue); border-color: var(--primary-blue); color: var(--white); cursor: default; }
-.page-circle-btn.disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
-.page-circle-btn i { font-size: 1.1rem; }
+
 
 @media (max-width: 768px) {
     .course-grid { grid-template-columns: 1fr; }

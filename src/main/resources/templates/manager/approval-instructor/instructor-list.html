@@ -19,9 +19,9 @@
                 <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm giảng viên..."
                     class="search-input form-control">
                 <select name="status" class="search-input search-select form-select" onchange="this.form.submit()">
-                    <option value="" th:selected="${status == null or status == ''}">Tất cả trạng thái</option>
-                    <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">Hoạt động</option>
-                    <option value="BANNED" th:selected="${status == 'BANNED'}">Bị khóa</option>
+                    <option value="" th:selected="${status == null}">Tất cả trạng thái</option>
+                    <option value="ACTIVE" th:selected="${status != null && status.name() == 'ACTIVE'}">Hoạt động</option>
+                    <option value="BANNED" th:selected="${status != null && status.name() == 'BANNED'}">Bị khóa</option>
                 </select>
                 <button type="submit" class="d-none">Search</button>
             </div>
@@ -48,8 +48,8 @@
                         <td th:text="${request.phone != null ? request.phone : 'N/A'}">0123456789</td>
                         <td>
                             <span
-                                th:class="${'badge badge-' + (request.status?.name() == T(vn.edu.fpt.enums.UserStatus).ACTIVE.name() ? 'success' : 'danger')}"
-                                th:text="${request.status?.name() == T(vn.edu.fpt.enums.UserStatus).ACTIVE.name() ? 'Hoạt động' : 'Bị khóa'}">
+                                th:class="${'badge badge-' + (request.status.name() == 'ACTIVE' ? 'success' : 'danger')}"
+                                th:text="${request.status.name() == 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}">
                                 Hoạt động
                             </span>
                         </td>
