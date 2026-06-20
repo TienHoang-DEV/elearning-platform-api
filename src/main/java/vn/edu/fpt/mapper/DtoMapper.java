@@ -33,6 +33,18 @@ public interface DtoMapper {
     @Mapping(target = "instructor", qualifiedByName = "toSimpleUserDto")
     CourseDto toCourseDto(Course course);
 
+    @Named("toSimpleCourseDto")
+    @Mapping(target = "sections", ignore = true)
+    @Mapping(target = "feedbacks", ignore = true)
+    @Mapping(target = "averageRating", ignore = true)
+    @Mapping(target = "ratingCount", ignore = true)
+    @Mapping(target = "totalLessonsCount", ignore = true)
+    @Mapping(target = "firstLessonVideoUrl", ignore = true)
+    @Mapping(target = "firstLessonId", ignore = true)
+    @Mapping(target = "category", qualifiedByName = "toSimpleCategoryDto")
+    @Mapping(target = "instructor", qualifiedByName = "toSimpleUserDto")
+    CourseDto toSimpleCourseDto(Course course);
+
     @Mapping(target = "courseCount", expression = "java(category.getCourses() != null ? category.getCourses().size() : 0)")
     @Mapping(
             target = "parentId",
@@ -66,7 +78,9 @@ public interface DtoMapper {
 
     CartDto toCartDto(Cart cart);
 
+    @Mapping(target = "course", qualifiedByName = "toSimpleCourseDto")
     CartItemDto toCartItemDto(CartItem cartItem);
+
     OrderDto toOrderDto(Order order);
     OrderItemDto toOrderItemDto(OrderItem orderItem);
     LessonMaterialDto toLessonMaterialDto(LessonMaterial lessonMaterial);
