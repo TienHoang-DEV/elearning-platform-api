@@ -197,7 +197,7 @@ public class CourseService {
     }
 
     public CourseDto getCourseDetail(Integer id) {
-        Course course = repository.findById(id)
+        Course course = repository.findByIdWithDetails(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
         return dtoMapper.toCourseDto(course);
     }
