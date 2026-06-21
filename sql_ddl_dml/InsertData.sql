@@ -1385,7 +1385,14 @@ INSERT INTO orders (
 VALUES
     (1, 1000, 'PAID', 'PAYOS'),
     (2, 2000, 'PAID', 'PAYOS'),
-    (3, 5000, 'PENDING', 'PAYOS');
+    (3, 5000, 'PENDING', 'PAYOS'),
+(3, 5000, 'PENDING', 'PAYOS'),
+(3, 5000, 'PENDING', 'PAYOS'),
+(3, 5000, 'PENDING', 'PAYOS'),
+(3, 5000, 'PENDING', 'PAYOS'),
+(3, 5000, 'PENDING', 'PAYOS'),
+(3, 5000, 'PENDING', 'PAYOS'),
+(3, 5000, 'PENDING', 'PAYOS');
 
 INSERT INTO payments (
     order_id,
