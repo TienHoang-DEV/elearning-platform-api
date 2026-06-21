@@ -41,6 +41,7 @@ public interface DtoMapper {
     @Mapping(target = "totalLessonsCount", ignore = true)
     @Mapping(target = "firstLessonVideoUrl", ignore = true)
     @Mapping(target = "firstLessonId", ignore = true)
+    @Mapping(target = "enrollmentsCount", ignore = true)
     @Mapping(target = "category", qualifiedByName = "toSimpleCategoryDto")
     @Mapping(target = "instructor", qualifiedByName = "toSimpleUserDto")
     CourseDto toSimpleCourseDto(Course course);
@@ -76,6 +77,7 @@ public interface DtoMapper {
 
     EnrollmentDto toEnrollmentDto(Enrollment enrollment);
 
+    @Mapping(target = "user", qualifiedByName = "toSimpleUserDto")
     CartDto toCartDto(Cart cart);
 
     @Mapping(target = "course", qualifiedByName = "toSimpleCourseDto")
