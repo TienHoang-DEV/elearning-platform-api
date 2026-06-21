@@ -6,6 +6,7 @@ import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
+import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.CourseSectionRepository;
 
 import java.util.List;
@@ -20,9 +21,12 @@ import vn.edu.fpt.dto.LessonDto;
 @Transactional
 public class CourseSectionService {
     private final CourseSectionRepository repository;
+    private final DtoMapper dtoMapper;
 
-    public CourseSectionService(CourseSectionRepository courseSectionRepository) {
+
+    public CourseSectionService(CourseSectionRepository courseSectionRepository, DtoMapper dtoMapper) {
         this.repository = courseSectionRepository;
+        this.dtoMapper = dtoMapper;
     }
 
     public List<CourseSection> findAll() {
@@ -75,5 +79,13 @@ public class CourseSectionService {
             }
         }
         return sectionCompletedMap;
+    }
+
+    public CourseSection findBySectionId(Integer courseSectionId){
+        return repository.findCourseSectionById(courseSectionId);
+    }
+
+    public CourseSectionDto findByCourseSectionId(Integer courseSectionId){
+        return dtoMapper.toCourseSectionDto(repository.findCourseSectionById(courseSectionId));
     }
 }

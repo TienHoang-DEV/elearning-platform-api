@@ -32,6 +32,7 @@ public interface DtoMapper {
     )
     CategoryDto toCategoryDto(Category category);
 
+    @Mapping(source = "lesson.id", target = "lessonId")
     QuizDTO toQuizDto(Quiz quiz);
 
     Set<QuizDTO> toQuizDtos(Set<Quiz> quizzes);

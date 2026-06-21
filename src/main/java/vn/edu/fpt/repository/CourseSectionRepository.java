@@ -16,4 +16,6 @@ public interface CourseSectionRepository extends JpaRepository<CourseSection, In
     select cs.course.id from CourseSection cs where cs.id = :id
 """)
     Optional<Integer> findBySectionId(@Param("id") Integer sectionId);
+
+    CourseSection findCourseSectionById(Integer courseSectionId);
 }

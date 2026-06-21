@@ -42,13 +42,22 @@ public interface LessonRepository extends JpaRepository<Lesson, Integer> {
     Integer findFirstLessonIdByCourseId(@Param("id") Integer attr2);
 
     @Query("""
-        select count(l.id) from Lesson l where l.courseSection.course.id = :courseId 
-""")
+                    select count(l.id) from Lesson l where l.courseSection.course.id = :courseId 
+            """)
     Integer findNumberOfLessonByCourseId(@Param("courseId") Integer courseId);
 
     @Query("""
-        select l from Lesson l where l.courseSection.course.id = :#{#lesson.courseSection.course.id}
-        and l.id not in (select lp.lesson.id from LessonProgress lp where lp.enrollment.user.id = :#{#user.id} and lp.completed = true )
-""")
+                    select l from Lesson l where l.courseSection.course.id = :#{#lesson.courseSection.course.id}
+                    and l.id not in (select lp.lesson.id from LessonProgress lp where lp.enrollment.user.id = :#{#user.id} and lp.completed = true )
+            """)
     List<Lesson> findNotCompletedLessons(@Param("user") User user, @Param("lesson") Lesson lesson);
+
+    @Query("""
+    SELECT l
+    FROM Lesson l
+    JOIN FETCH l.courseSection s
+    JOIN FETCH s.course
+    WHERE l.id = :lessonId
+""")
+    Lesson findDetailById(Integer lessonId);
 }

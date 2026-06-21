@@ -1,6 +1,7 @@
 package vn.edu.fpt.dto;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import vn.edu.fpt.enums.CouponStatus;
 import vn.edu.fpt.enums.DiscountType;
 
@@ -23,6 +24,7 @@ public class CouponDto {
     private Integer usageLimit; // Để Integer (chấp nhận NULL nếu người dùng không nhập)
 
     // Thuộc tính xử lý ngày hết hạn từ thẻ <input type="date"> gửi lên
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate expiredAt;
 
     private CouponStatus status; // 'ACTIVE' hoặc 'INACTIVE'

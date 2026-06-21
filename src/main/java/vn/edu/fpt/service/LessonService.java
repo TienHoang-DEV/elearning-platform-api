@@ -3,11 +3,13 @@ package vn.edu.fpt.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.dto.LessonDto;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
+import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.LessonRepository;
 import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.SecurityUtils;
@@ -23,6 +25,7 @@ public class LessonService {
 
     private final LessonRepository repository;
     private final AzureBlobService azureBlobService;
+    private final DtoMapper dtoMapper;
 
     public List<Lesson> findAll() {
         return repository.findAll();
@@ -119,4 +122,15 @@ public class LessonService {
         }
         return null;
     }
+
+    public LessonDto getLessonById(Integer lessonId){
+
+        return dtoMapper.toLessonDto(repository.findDetailById(lessonId));
+    }
+
+    public Lesson findLessonById(Integer lessonId){
+        return repository.findDetailById(lessonId);
+    }
+
+
 }

@@ -1,5 +1,8 @@
 package vn.edu.fpt.service;
 
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.CouponDto;
@@ -29,6 +32,10 @@ public class CouponService {
     public Coupon save(Coupon entity) { return repository.save(entity); }
     public void deleteById(Integer id) { repository.deleteById(id); }
     public boolean existsById(Integer id) { return repository.existsById(id); }
+    public Page<Coupon> findAll(Pageable pageable){
+        return repository.findAll(pageable);
+    }
+
 
     public Coupon createCoupon(CouponDto dto) {
         User instructor = SecurityUtils.getCurrentUser();
@@ -62,4 +69,6 @@ public class CouponService {
 
         return code;
     }
+
+
 }

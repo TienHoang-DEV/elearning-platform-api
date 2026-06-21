@@ -3,31 +3,29 @@ package vn.edu.fpt.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.CategoryDto;
 import vn.edu.fpt.dto.CourseCreateDto;
 import vn.edu.fpt.dto.CourseDto;
+import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.CourseService;
+import vn.edu.fpt.service.quizservice.QuizService;
 import vn.edu.fpt.util.SecurityUtils;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Controller
 @RequestMapping("/instructorcourse")
 public class InstructorCourseController {
-    private CategoryService categoryService;
-    private CourseService courseService;
+    private final CategoryService categoryService;
+    private final CourseService courseService;
 
     public InstructorCourseController(CategoryService categoryService, CourseService courseService) {
         this.categoryService = categoryService;
@@ -73,6 +71,20 @@ public class InstructorCourseController {
             return "redirect:/instructorcourse/create";
         }
     }
+
+    @GetMapping("/create-quizz")
+    String quizzCreate(Model model){
+        User currentUser = SecurityUtils.getCurrentUser();
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("quiz", new QuizDTO());
+
+        return "instructor_course/quizz-create";
+    }
+
+
+
+
+
 
 
 
