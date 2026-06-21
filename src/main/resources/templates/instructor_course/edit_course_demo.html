@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Learning Hub - Chỉnh Sửa Khóa Học</title>
+    <link rel="stylesheet" th:href="@{/css/course_manage.css}"/>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div th:replace="~{instructor_course/sidebar :: sidebar(activePage='courses')}"></div>
+
+<!-- MAIN -->
+<main class="main-content">
+    <div class="page-header">
+        <h1>
+            <span class="icon">✏️</span> Chỉnh Sửa Khóa Học (Demo)
+        </h1>
+        <a href="#" class="btn btn-outline">← Quay lại danh sách</a>
+    </div>
+
+    <form action="#" method="POST" enctype="multipart/form-data" id="courseInfoForm">
+        <input type="hidden" name="id" value="1">
+        <div class="card">
+            <div class="card-title">📝 Thông Tin Chung</div>
+
+            <!-- Tiêu đề -->
+            <div class="form-group" style="margin-bottom:16px;">
+                <label>Tiêu Đề Khóa Học <span class="required">*</span></label>
+                <input type="text" name="title" class="form-control" id="courseTitleInput"
+                       value="Lập Trình Java Spring Boot Thực Chiến" required/>
+                <div class="form-hint">Tối đa 60 ký tự</div>
+            </div>
+
+            <!-- Mô tả -->
+            <div class="form-group" style="margin-bottom:16px;">
+                <label>Mô Tả Khóa Học</label>
+                <div class="rich-toolbar">
+                    <button data-cmd="bold" type="button"><b>B</b></button>
+                    <button data-cmd="italic" type="button"><i>I</i></button>
+                    <button data-cmd="underline" type="button"><u>U</u></button>
+                </div>
+                <div class="rich-editor" id="courseDescEditor" contenteditable="true"
+                     data-placeholder="Nhập mô tả đầy đủ cho khóa học...">
+                    Khóa học này sẽ hướng dẫn bạn từ cơ bản đến nâng cao về lập trình Web với Java Spring Boot.
+                </div>
+                <input type="hidden" name="description" id="descHidden" value="Khóa học này sẽ hướng dẫn bạn từ cơ bản đến nâng cao về lập trình Web với Java Spring Boot." required/>
+            </div>
+
+            <!-- Level & Category -->
+            <div class="form-grid" style="margin-top:16px;">
+                <div class="form-group">
+                    <label>Trình Độ Khóa Học</label>
+                    <select name="level" class="form-control">
+                        <option value="BEGINNER">Người mới bắt đầu</option>
+                        <option value="INTERMEDIATE" selected>Trung cấp</option>
+                        <option value="ADVANCED">Nâng cao</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Danh Mục Chính Khóa Học</label>
+                    <select name="parentCategory" class="form-control" id="parentCategory">
+                        <option value="1" selected>Lập trình Web</option>
+                        <option value="2">Thiết kế đồ họa</option>
+                    </select>
+                    <label>Danh Mục Phụ Khóa Học</label>
+                    <select name="categoryId" class="form-control" id="categoryId">
+                        <option value="11" selected>Backend Framework</option>
+                        <option value="12">Frontend Framework</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Giá khóa học -->
+            <div class="form-group" style="margin-top:16px;">
+                <label>Giá Khóa Học</label>
+                <input type="number"
+                       class="form-control"
+                       name="price"
+                       value="399000"
+                       min="0"/>
+                <div class="form-hint">Nhập 0 nếu khóa học miễn phí</div>
+            </div>
+
+            <!-- Thumbnail -->
+            <div class="form-group" style="margin-top:16px;">
+                <label>Hình Thu Nhỏ Của Khóa Học</label>
+                <div class="thumbnail-upload" onclick="document.getElementById('thumbnailInput').click()">
+                    <img id="thumbnailPreview"
+                         src="https://via.placeholder.com/300x200?text=Khóa+Học+Demo"
+                         style="display:block;"
+                         alt="Thumbnail Preview"/>
+                    <div id="uploadPlaceholder" style="display:none;">
+                        <div class="upload-icon"></div>
+                        <p>Nhấn để chọn ảnh thumbnail</p>
+                        <small>Khuyến nghị tỉ lệ 16:9</small>
+                    </div>
+                    <div class="overlay">
+                        <span>📷 Thay đổi ảnh</span>
+                    </div>
+                </div>
+                <input type="file" id="thumbnailInput" name="thumbnailFile" accept="image/*" style="display:none;">
+            </div>
+        </div>
+
+        <!-- Nút Lưu -->
+        <div style="text-align:right;margin-top:16px;">
+            <button type="submit" class="btn btn-primary btn-lg" name="trangthai" value="save">Lưu Thay Đổi</button>
+        </div>
+    </form>
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById('courseInfoForm');
+        const editor = document.getElementById('courseDescEditor');
+
+        if (form && editor) {
+            form.addEventListener('submit', function () {
+                document.getElementById('descHidden').value = editor.innerHTML;
+            });
+        }
+
+        // thumbnail preview
+        document.getElementById("thumbnailInput").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById("thumbnailPreview").src = e.target.result;
+                    document.getElementById("thumbnailPreview").style.display = "block";
+                    document.getElementById("uploadPlaceholder").style.display = "none";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+</script>
+</body>
+</html>
