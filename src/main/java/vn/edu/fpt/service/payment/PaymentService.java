@@ -2,9 +2,14 @@ package vn.edu.fpt.service.payment;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.CartPageDetailsDto;
+import vn.edu.fpt.dto.transaction_manager.TransactionCountByStatusDTO;
+import vn.edu.fpt.dto.transaction_manager.TransactionListDTO;
 import vn.edu.fpt.entity.*;
 import vn.edu.fpt.enums.OrderStatus;
 import vn.edu.fpt.enums.PaymentStatus;
@@ -19,6 +24,7 @@ import vn.payos.PayOS;
 import vn.payos.model.v2.paymentRequests.PaymentLink;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
@@ -207,5 +213,39 @@ public class PaymentService {
 
         // Hủy liên kết thanh toán phía cổng PayOS và cập nhật trạng thái cục bộ thành CANCELLED
         payOsService.cancelPaymentAndInvalidatePayOs(payment);
+    }
+
+    public Integer getNumberAllPayment() {
+        return repository.getNumberAllPayment();
+    }
+
+    public Integer getNumberAllPaymentWithStatus(PaymentStatus paymentStatus) {
+        return repository.getNumberAllPaymentWithStatus(paymentStatus);
+    }
+
+    public TransactionCountByStatusDTO gettransactionCountByStatusDTO() {
+        List<Object[]> result = repository.gettransactionCountByStatusDTO();
+        TransactionCountByStatusDTO dto = new TransactionCountByStatusDTO(0,0,0,0,0);
+        for (Object[] o : result) {
+            PaymentStatus paymentStatus = (PaymentStatus) o[0];
+            Long count = (Long) o[1];
+            if (paymentStatus == PaymentStatus.PENDING) {
+                dto.setNumberOfTransactionPending(count.intValue());
+            } else if (paymentStatus == PaymentStatus.PAID) {
+                dto.setNumberOfTransactionSuccess(count.intValue());
+            } else if (paymentStatus == PaymentStatus.CANCELLED) {
+                dto.setNumberOfTransactionCanceled(count.intValue());
+            }  else if (paymentStatus == PaymentStatus.EXPIRED) {
+                dto.setNumberOfTransactionExpired(count.intValue());
+            } else if (paymentStatus == PaymentStatus.FAILED) {
+                dto.setNumberOfTransactionFailed(count.intValue());
+            }
+        }
+        return dto;
+    }
+
+    public Page<TransactionListDTO> getTransactionByFilter(PaymentStatus status, LocalDate fromDate, LocalDate toDate, String keyword, int page) {
+        Pageable pageable = PageRequest.of(page, AppConstants.NUMBER_PAYMENT_RECORD_PER_PAGE);
+        return repository.getTransactionByFilter(status, fromDate, toDate, keyword, pageable);
     }
 }

@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="app-container">
-    <aside th:replace="~{manager/fragments/sidebar :: sidebar(activePage='revenue')}"></aside>
+    <aside th:replace="~{manager/fragments/sidebar :: sidebar(activePage='transaction')}"></aside>
 
     <div class="main-wrapper">
         <main class="content">
@@ -28,29 +28,30 @@
             <div class="rev-grid trans-stats-grid mb-4">
                 <div class="rev-card">
                     <h3>Tổng giao dịch</h3>
-                    <div class="rev-val">1,245</div>
+                    <div class="rev-val" th:text="${#numbers.formatInteger(totalTransaction, 0)}">1,245</div>
                 </div>
                 <div class="rev-card">
                     <h3>Thành công</h3>
-                    <div class="rev-val text-success">1,120</div>
+                    <div class="rev-val text-success" th:text="${#numbers.formatInteger(transactionCountByStatusDTO.getNumberOfTransactionSuccess(), 0)}">1,120</div>
                 </div>
                 <div class="rev-card">
                     <h3>Chờ xử lý</h3>
-                    <div class="rev-val text-warning">85</div>
+                    <div class="rev-val text-warning" th:text="${#numbers.formatInteger(transactionCountByStatusDTO.getNumberOfTransactionPending(), 0)}">85</div>
                 </div>
             </div>
 
             <div class="filter-search-wrapper mb-4">
-                <form th:action="@{/manager/revenue/transactions}" method="get" class="row g-3 align-items-end">
+                <form th:action="@{/manager/transaction-history/list}" method="get" class="row g-3 align-items-end">
 
                     <div class="col-12 col-md-3">
                         <label class="form-label fw-medium text-secondary small">Trạng thái</label>
                         <select name="status" class="form-select custom-select shadow-none">
                             <option value="">Tất cả trạng thái</option>
-                            <option value="SUCCESS">Thành công</option>
+                            <option value="PAID">Thành công</option>
                             <option value="PENDING">Chờ xử lý</option>
                             <option value="FAILED">Thất bại</option>
                             <option value="CANCELLED">Đã hủy</option>
+                            <option value="EXPIRED">Hết hạn</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-2">
@@ -96,47 +97,17 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td><strong class="text-primary">TX001</strong></td>
+                        <tr th:each="transaction : ${pageTransaction}">
+                            <td><strong class="text-primary" th:text="${transaction.transactionCode}">TX001</strong></td>
                             <td>
-                                <div class="fw-semibold">Nguyễn Văn A</div>
-                                <small class="text-muted">nva@gmail.com</small>
-                            </td>
-                            <td>
-                                <div class="fw-semibold text-success">+500,000 đ</div>
-                                <small class="text-muted">Khóa học Java Web</small>
-                            </td>
-                            <td><span class="badge badge-paid">PAID</span></td>
-                            <td class="text-center">
-                                <button class="btn-action" title="Xem chi tiết"><i class="ph ph-eye"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong class="text-primary">TX002</strong></td>
-                            <td>
-                                <div class="fw-semibold">Trần Thị B</div>
-                                <small class="text-muted">ttb@gmail.com</small>
+                                <div class="fw-semibold" th:text="${transaction.customerName}">Nguyễn Văn A</div>
+                                <small class="text-muted" th:text="${transaction.customerEmail}">nva@gmail.com</small>
                             </td>
                             <td>
-                                <div class="fw-semibold text-success">+1,200,000 đ</div>
-                                <small class="text-muted">Khóa học Spring Boot</small>
+                                <div class="fw-semibold text-success" th:text="${transaction.amount}">+500,000 đ</div>
+                                <small class="text-muted" th:text="${transaction.description}">Khóa học Java Web</small>
                             </td>
-                            <td><span class="badge badge-paid">PAID</span></td>
-                            <td class="text-center">
-                                <button class="btn-action" title="Xem chi tiết"><i class="ph ph-eye"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong class="text-primary">TX003</strong></td>
-                            <td>
-                                <div class="fw-semibold">Lê Văn C</div>
-                                <small class="text-muted">lvc@gmail.com</small>
-                            </td>
-                            <td>
-                                <div class="fw-semibold text-danger">0 đ</div>
-                                <small class="text-muted">Khóa học Node.js</small>
-                            </td>
-                            <td><span class="badge badge-fail">FAIL</span></td>
+                            <td><span class="badge badge-paid" th:text="${transaction.paymentStatus}">PAID</span></td>
                             <td class="text-center">
                                 <button class="btn-action" title="Xem chi tiết"><i class="ph ph-eye"></i></button>
                             </td>

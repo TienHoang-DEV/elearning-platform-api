@@ -3,13 +3,21 @@ package vn.edu.fpt.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import vn.edu.fpt.dto.ManagerDashboardDTO;
+import vn.edu.fpt.dto.transaction_manager.TransactionCountByStatusDTO;
 import vn.edu.fpt.dto.revenue_manager.MonthlyRevenueForManagerDTO;
+import vn.edu.fpt.dto.transaction_manager.TransactionListDTO;
+import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.service.ManagerDashboardService;
+import vn.edu.fpt.service.payment.PaymentService;
+import vn.edu.fpt.util.AppConstants;
 
 import java.time.LocalDate;
 
@@ -19,6 +27,7 @@ import java.time.LocalDate;
 public class ManagerDashboardController {
 
     private final ManagerDashboardService managerDashboardService;
+    private final PaymentService paymentService;
 
     @GetMapping({"", "/dashboard"})
     public String dashboard(Model model) {
@@ -53,9 +62,23 @@ public class ManagerDashboardController {
         model.addAttribute("weeklyRevenueJson", mapper.writeValueAsString(monthlyRevenueForManagerDTO.getRevenueByPerWeek()));
         return "manager/revenue/revenue-list";
     }
-    
-    @GetMapping("transaction-history")
-    public String showTransaction() {
+
+    @GetMapping("/transaction-history/list")
+    public String showTransaction(Model model, @RequestParam(required = false) PaymentStatus status, @RequestParam(required = false) LocalDate fromDate, @RequestParam(required = false) LocalDate toDate, @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "0") int page) {
+
+        TransactionCountByStatusDTO transactionCountByStatusDTO = paymentService.gettransactionCountByStatusDTO();
+        Integer totalTransaction = transactionCountByStatusDTO.getAllTransaction();
+
+        Page<TransactionListDTO> pageTransaction = paymentService.getTransactionByFilter(status, fromDate, toDate, keyword, page);
+
+        int startPage = (pageTransaction.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
+        int endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, pageTransaction.getTotalPages() - 1);
+
+        model.addAttribute("pageTransaction", pageTransaction);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        model.addAttribute("transactionCountByStatusDTO", transactionCountByStatusDTO);
+        model.addAttribute("totalTransaction", totalTransaction);
         return "manager/transaction-history/transaction-history";
     }
 }

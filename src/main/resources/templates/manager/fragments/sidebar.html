@@ -30,6 +30,12 @@
                     <span>Doanh thu</span>
                 </a>
             </li>
+            <li th:classappend="${activePage == 'transaction'} ? 'active' : ''">
+                <a th:href="@{/manager/transaction-history/list}">
+                    <i class="ph ph-receipt"></i>
+                    <span>Giao dịch</span>
+                </a>
+            </li>
             <li th:classappend="${activePage == 'feedback'} ? 'active' : ''">
                 <a th:href="@{/manager/feedback-report/list}">
                     <i class="ph ph-chat-circle-dots"></i>
