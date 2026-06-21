@@ -14,8 +14,8 @@ import vn.edu.fpt.entity.QuizQuestion;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.QuestionType;
 import vn.edu.fpt.service.LessonService;
-import vn.edu.fpt.service.quizservice.QuizQuestionService;
-import vn.edu.fpt.service.quizservice.QuizService;
+import vn.edu.fpt.service.quiz.QuizQuestionService;
+import vn.edu.fpt.service.quiz.QuizService;
 import vn.edu.fpt.util.SecurityUtils;
 
 import java.util.ArrayList;
