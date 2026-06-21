@@ -14,6 +14,7 @@ import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.util.AppConstants;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
@@ -150,5 +151,23 @@ public class ManagerDashboardService {
             monthlyRevenueForManagerDTO.setRevenueByPerWeek(revenueByPerWeek);
         }
         return monthlyRevenueForManagerDTO;
+    }
+
+    public Double getGrowthRate(BigDecimal monthlyRevenue) {
+        if (monthlyRevenue == null) {
+            monthlyRevenue = BigDecimal.ZERO;
+        }
+        LocalDate startDateOfLastMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
+        LocalDate endDateOfLastMonth = startDateOfLastMonth.withDayOfMonth(startDateOfLastMonth.lengthOfMonth());
+        MonthlyRevenueForManagerDTO revenueLastMonthDto = paymentRepository.getMonthlyRevenueTotal(startDateOfLastMonth, endDateOfLastMonth);
+        BigDecimal revenueLastMonth = revenueLastMonthDto.getMonthlyRevenue();
+        if  (revenueLastMonth == null || revenueLastMonth.compareTo(BigDecimal.ZERO) <= 0) {
+            if (monthlyRevenue.compareTo(BigDecimal.ZERO) == 0) {
+                return 0D;
+            }
+            return 100D;
+        }
+        // tốc độ tăng trưởng là = ((doanh thu tháng này - doanh thu tháng trước) / daoanh thu tháng trước) * 100
+        return ((monthlyRevenue.subtract(revenueLastMonth)).divide(revenueLastMonth, 2, RoundingMode.HALF_UP)).multiply(BigDecimal.valueOf(100)).doubleValue();
     }
 }

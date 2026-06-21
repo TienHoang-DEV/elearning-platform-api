@@ -53,34 +53,33 @@
             <main class="content">
                 <div class="page-header d-flex justify-content-between align-items-end">
                     <div>
-                        <h1>Báo cáo Doanh thu</h1>
+                        <h1 th:text="'Báo cáo Doanh thu tháng ' + ${today.getMonthValue()} + '/' + ${today.getYear()}"></h1>
                         <p>Tổng quan về tài chính và doanh thu của hệ thống.</p>
                     </div>
                     <button class="btn btn-outline">Xem tất cả giao dịch <i class="ph ph-arrow-right"></i></button>
                 </div>
                 <div class="rev-grid">
-                    <div class="rev-card primary">
+                    <div class="rev-card">
                         <h3>Tổng doanh thu (Tháng)</h3>
-                        <div class="rev-val" th:text="${monthlyRevenue.monthlyRevenue} + 'VND'"></div>
-                        <div class="rev-sub">↗ +15.3% so với tháng trước</div>
+                        <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.monthlyRevenue, 0, 'COMMA', 2, 'POINT')} + ' VND'"></div>
+                        <div th:classappend="${growthRate >= 0 ? ' text-success' : ' text-danger'}" class="rev-sub" th:text="${'↗' + (growthRate > 0 ? '+' + growthRate : '') + ' % so với tháng trước'}"></div>
                     </div>
                     <div class="rev-card">
                         <h3>Thanh toán cho Giảng viên</h3>
-                        <div class="rev-val" th:text="${monthlyRevenue.instructorRevenue} + 'VND'"></div>
+                        <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.instructorRevenue, 0, 'COMMA', 2, 'POINT')} + ' VND'"></div>
                     </div>
                     <div class="rev-card">
                         <h3>Phí nền tảng (Thực nhận)</h3>
-                        <div class="rev-val" th:text="${monthlyRevenue.platformRevenue} + 'VND'"></div>
+                        <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.platformRevenue, 0, 'COMMA', 2, 'POINT')} + ' VND'"></div>
                     </div>
                 </div>
                 <div class="chart-section mt-4">
-                    <h2>Xu hướng Doanh thu hàng tháng</h2>
+                    <h2 th:text="'Xu hướng Doanh thu tháng ' + ${today.getMonthValue()} + '/' + ${today.getYear()}"></h2>
                     <div class="chart-container" id="chart-container-id" th:data-total-revenue="${monthlyRevenue.monthlyRevenue}" th:data-week-revenue="${weeklyRevenueJson}">
                         <canvas id="revLineChart"></canvas>
                     </div>
                 </div>
             </main>
-            <!-- Chart.js setup for revenue -->
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
@@ -115,9 +114,9 @@
                         },
                         options: {
                             responsive: true, maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
+                            plugins: { legend: { display: true } },
                             scales: {
-                                y: { beginAtZero: true, max: max, ticks: { stepSize: stepSize, callback: value => value.toLocaleString('vi-VN') + ' đ'} },
+                                y: { beginAtZero: true, ticks: {callback: value => value.toLocaleString('vi-VN') + ' đ'} },
                                 x: { grid: { display: false } }
                             }
                         }

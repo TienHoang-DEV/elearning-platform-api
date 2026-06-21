@@ -11,6 +11,8 @@ import vn.edu.fpt.dto.ManagerDashboardDTO;
 import vn.edu.fpt.dto.revenue_manager.MonthlyRevenueForManagerDTO;
 import vn.edu.fpt.service.ManagerDashboardService;
 
+import java.time.LocalDate;
+
 @Controller
 @RequestMapping("/manager")
 @RequiredArgsConstructor
@@ -43,8 +45,17 @@ public class ManagerDashboardController {
     public String revenueList(Model model) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         MonthlyRevenueForManagerDTO monthlyRevenueForManagerDTO = managerDashboardService.getMonthlyRevenueForManager();
+        Double growthRate = managerDashboardService.getGrowthRate(monthlyRevenueForManagerDTO.getMonthlyRevenue());
+        LocalDate today = LocalDate.now();
         model.addAttribute("monthlyRevenue", monthlyRevenueForManagerDTO);
+        model.addAttribute("growthRate", growthRate);
+        model.addAttribute("today", today);
         model.addAttribute("weeklyRevenueJson", mapper.writeValueAsString(monthlyRevenueForManagerDTO.getRevenueByPerWeek()));
         return "manager/revenue/revenue-list";
+    }
+    
+    @GetMapping("transaction-history")
+    public String showTransaction() {
+        return "manager/transaction-history/transaction-history";
     }
 }
