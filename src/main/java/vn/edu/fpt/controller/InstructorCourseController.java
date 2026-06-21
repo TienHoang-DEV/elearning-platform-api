@@ -174,6 +174,15 @@ public class InstructorCourseController {
             model.addAttribute("sections", courseSectionService.findByCourseAndLesson(courseId));
             return "instructor_course/editcourse";
         }
+    // --- MOCKUP DEMO ENDPOINTS ---
+    @GetMapping("/demo/view")
+    public String viewCourseDemo() {
+        return "instructor_course/view_course_demo";
+    }
 
+    @GetMapping("/demo/edit")
+    public String editCourseDemo() {
+        return "instructor_course/edit_course_demo";
+    }
 
 }
