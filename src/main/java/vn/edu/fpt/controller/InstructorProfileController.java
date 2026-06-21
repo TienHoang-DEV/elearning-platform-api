@@ -24,6 +24,7 @@ import vn.edu.fpt.util.SecurityUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RequestMapping("/instructor")
 @Controller
@@ -39,7 +40,8 @@ public class InstructorProfileController {
     @GetMapping("/sidebar")
     public String Sidebar(Model model) {
         User user = SecurityUtils.getCurrentUser();
-        ProfileDto profileDto = new ProfileDto();profileDto.setFirstname(user.getFirstName());
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setFirstname(user.getFirstName());
         profileDto.setLastname(user.getLastName());
         profileDto.setBio(user.getBio());
         profileDto.setAvatar_url(user.getAvatarUrl());
@@ -57,7 +59,7 @@ public class InstructorProfileController {
             BindingResult result,
             RedirectAttributes redirectAttributes
     ) {
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             return "instructor_course/profile";
         }
         try {
@@ -67,7 +69,7 @@ public class InstructorProfileController {
             redirectAttributes.addFlashAttribute("success", "Thay đổi thành công!!!");
             return "redirect:/instructor/sidebar";
         } catch (UserValidationException e) {
-            result.rejectValue(e.getFeild() , "error", e.getMessage());
+            result.rejectValue(e.getFeild(), "error", e.getMessage());
             return "instructor_course/profile";
         }
 

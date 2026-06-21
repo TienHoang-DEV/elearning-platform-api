@@ -9,9 +9,15 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.*;
 
+import vn.edu.fpt.dto.CategoryDto;
+import vn.edu.fpt.dto.CourseCreateDto;
+import vn.edu.fpt.dto.CourseDto;
+import vn.edu.fpt.dto.quizdto.QuizDTO;
+import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.User;
@@ -23,12 +29,15 @@ import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
+import vn.edu.fpt.service.quiz.QuizService;
 import vn.edu.fpt.service.LessonService;
 import vn.edu.fpt.util.SecurityUtils;
 
 
 import java.util.Arrays;
 import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
 
 @Controller
 @RequestMapping("/instructorcourse")
@@ -183,6 +192,15 @@ public class InstructorCourseController {
     @GetMapping("/demo/edit")
     public String editCourseDemo() {
         return "instructor_course/edit_course_demo";
+    }
+
+    @GetMapping("/create-quizz")
+    String quizzCreate(Model model){
+        User currentUser = SecurityUtils.getCurrentUser();
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("quiz", new QuizDTO());
+
+        return "instructor_course/quizz-create";
     }
 
 }
