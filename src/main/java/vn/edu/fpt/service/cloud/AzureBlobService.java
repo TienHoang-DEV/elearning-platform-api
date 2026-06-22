@@ -1,4 +1,4 @@
-package vn.edu.fpt.service;
+package vn.edu.fpt.service.cloud;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
@@ -29,6 +29,13 @@ public class AzureBlobService {
 
     public AzureBlobService() {
         String connectionString = System.getProperty("AZURE_STORAGE_CONNECTION_STRING");
+        if (connectionString == null || connectionString.isBlank()) {
+            connectionString = System.getenv("AZURE_STORAGE_CONNECTION_STRING");
+        }
+        if (connectionString == null || connectionString.isBlank()) {
+            // Sử dụng chuỗi kết nối giả lập để tránh lỗi khởi tạo ApplicationContext khi chạy kiểm thử (Unit Test) hoặc khởi động không cấu hình môi trường
+            connectionString = "UseDevelopmentStorage=true";
+        }
         this.blobServiceClient = new BlobServiceClientBuilder()
                 .connectionString(connectionString)
                 .buildClient();

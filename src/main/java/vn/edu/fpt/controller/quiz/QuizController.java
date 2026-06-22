@@ -1,4 +1,4 @@
-package vn.edu.fpt.controller;
+package vn.edu.fpt.controller.quiz;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +14,8 @@ import vn.edu.fpt.entity.*;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.service.LessonService;
-import vn.edu.fpt.service.quizservice.QuizService;
-import vn.edu.fpt.service.quizservice.QuizAttemptService;
+import vn.edu.fpt.service.quiz.QuizService;
+import vn.edu.fpt.service.quiz.QuizAttemptService;
 import vn.edu.fpt.util.SecurityUtils;
 
 import java.math.BigDecimal;

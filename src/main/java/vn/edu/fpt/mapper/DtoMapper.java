@@ -59,6 +59,7 @@ public interface DtoMapper {
     @Mapping(target = "parentId", expression = "java(category.getParent() != null ? category.getParent().getId() : null)")
     CategoryDto toSimpleCategoryDto(Category category);
 
+    @Mapping(source = "lesson.id", target = "lessonId")
     QuizDTO toQuizDto(Quiz quiz);
 
     Set<QuizDTO> toQuizDtos(Set<Quiz> quizzes);

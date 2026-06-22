@@ -1,4 +1,4 @@
-package vn.edu.fpt.controller;
+package vn.edu.fpt.controller.payment;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,6 @@ import vn.edu.fpt.entity.Payment;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.repository.PaymentRepository;
 import vn.edu.fpt.util.SecurityUtils;
-import vn.payos.PayOS;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-public class PageController {
+public class PaymentPageController {
 
     private final PaymentRepository paymentRepository;
 

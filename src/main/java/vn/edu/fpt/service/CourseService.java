@@ -22,6 +22,7 @@ import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.CourseRepository;
 
 import vn.edu.fpt.dto.*;
+import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 
 import java.math.BigDecimal;
@@ -312,5 +313,7 @@ public class CourseService {
         return repository.findByCourseIdAndUserId(courseId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
     }
+
+
 
 }

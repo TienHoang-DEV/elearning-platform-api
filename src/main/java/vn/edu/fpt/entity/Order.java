@@ -36,9 +36,8 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItem> items = new HashSet<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Payment> payments = new HashSet<>();
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Payment payment;
 
     public void addItem(OrderItem item) {
         items.add(item);
@@ -50,14 +49,18 @@ public class Order extends BaseEntity {
         item.setOrder(null);
     }
 
-    public void addPayment(Payment payment) {
-        payments.add(payment);
-        payment.setOrder(this);
+    public void setPayment(Payment payment) {
+        this.payment = payment;
+        if (payment != null) {
+            payment.setOrder(this);
+        }
     }
 
-    public void removePayment(Payment payment) {
-        payments.remove(payment);
-        payment.setOrder(null);
+    public void removePayment() {
+        if (this.payment != null) {
+            this.payment.setOrder(null);
+        }
+        this.payment = null;
     }
 }
 

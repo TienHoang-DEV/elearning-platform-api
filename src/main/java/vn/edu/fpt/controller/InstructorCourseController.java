@@ -9,9 +9,15 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.*;
 
+import vn.edu.fpt.dto.CategoryDto;
+import vn.edu.fpt.dto.CourseCreateDto;
+import vn.edu.fpt.dto.CourseDto;
+import vn.edu.fpt.dto.quizdto.QuizDTO;
+import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.User;
@@ -23,12 +29,15 @@ import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
+import vn.edu.fpt.service.quiz.QuizService;
 import vn.edu.fpt.service.LessonService;
 import vn.edu.fpt.util.SecurityUtils;
 
 
 import java.util.Arrays;
 import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
 
 @Controller
 @RequestMapping("/instructorcourse")
@@ -174,85 +183,24 @@ public class InstructorCourseController {
             model.addAttribute("sections", courseSectionService.findByCourseAndLesson(courseId));
             return "instructor_course/editcourse";
         }
-
-
-        @PostMapping("/{id}/sections")
-        public String CreateSection(@PathVariable("id") Integer course_id,
-                                    @Valid @ModelAttribute("section") CourseSectionDto courseSectionDto,
-                                    BindingResult bindingResult,
-                                    Model model,
-                                    RedirectAttributes redirectAttributes
-                                    ){
-           Course currentCourse = courseService.findById(course_id);
-            if(bindingResult.hasErrors()){
-                model.addAttribute("courseId", course_id);
-                model.addAttribute("courseRequest", courseService.findById(course_id));
-                model.addAttribute("section", new CourseSectionDto());
-                model.addAttribute("activeStep", "curriculum");
-                return "instructor_course/editcourse";
-            }
-
-            try {
-                Course tmp = courseService.findById(course_id);
-                courseSectionService.SaveSection(courseSectionDto, tmp);
-                redirectAttributes.addFlashAttribute("success", "Sucess");
-                return "redirect:/instructorcourse/" + course_id + "/curriculum";
-            }catch (CourseSectionValidation e){
-                bindingResult.rejectValue(e.getField(), "error", e.getMessage());
-                model.addAttribute("section", new CourseSectionDto());
-                return "instructor_course/editcourse";
-            }
-
-        }
-
-
-
-    @PostMapping("/sections/{sectionId}/lessons")
-    public String createLesson(@PathVariable("sectionId") Integer sectionId,
-                               @RequestParam("courseId") Integer courseId,
-                               @RequestParam(value = "videoFile", required = false) org.springframework.web.multipart.MultipartFile videoFile,
-                               @Valid @ModelAttribute("lesson") LessonDto lessonDto,
-                               BindingResult bindingResult,
-                               RedirectAttributes redirectAttributes,
-                               Model model) {
-
-        if (videoFile != null && !videoFile.isEmpty()) {
-            lessonDto.setVideoUrl(videoFile.getOriginalFilename());
-        }
-
-        if (bindingResult.hasErrors()) {
-            System.err.println(">>> Form Binding Errors: " + bindingResult.getAllErrors());
-            model.addAttribute("courseId", courseId);
-            model.addAttribute("courseRequest", courseService.findById(courseId));
-            model.addAttribute("sections", courseSectionService.findByCourseAndLesson(courseId));
-            model.addAttribute("section", new CourseSectionDto());
-            model.addAttribute("activeStep", "curriculum");
-            return "instructor_course/editcourse";
-        }
-
-        try {
-            lessonService.saveLesson(sectionId, lessonDto); // bỏ gán vào lesson
-            System.out.println(">>> Lesson saved, courseId = " + courseId);
-
-            redirectAttributes.addFlashAttribute("success", "Thêm bài giảng thành công!");
-            return "redirect:/instructorcourse/" + courseId + "/curriculum"; // dùng courseId từ @RequestParam
-
-        } catch (RuntimeException e) {
-            System.err.println(">>> ERROR saving lesson: " + e.getMessage());
-            e.printStackTrace();
-
-            model.addAttribute("courseId", courseId);
-            model.addAttribute("courseRequest", courseService.findById(courseId));
-            model.addAttribute("sections", courseSectionService.findByCourseAndLesson(courseId));
-            model.addAttribute("section", new CourseSectionDto());
-            model.addAttribute("activeStep", "curriculum");
-            model.addAttribute("error", "Lỗi: " + e.getMessage());
-            return "instructor_course/editcourse";
-        }
+    // --- MOCKUP DEMO ENDPOINTS ---
+    @GetMapping("/demo/view")
+    public String viewCourseDemo() {
+        return "instructor_course/view_course_demo";
     }
 
+    @GetMapping("/demo/edit")
+    public String editCourseDemo() {
+        return "instructor_course/edit_course_demo";
+    }
 
+    @GetMapping("/create-quizz")
+    String quizzCreate(Model model){
+        User currentUser = SecurityUtils.getCurrentUser();
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("quiz", new QuizDTO());
 
-
+        return "instructor_course/quizz-create";
+    }
 
 }

@@ -14,84 +14,65 @@
 </head>
 <body>
     <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>Hệ thống Quản lý</h2>
-            </div>
-            <nav class="sidebar-nav">
-                <ul>
-                    <li>
-                        <a th:href="@{/manager/dashboard}"><i class="ph ph-squares-four"></i><span>Tổng quan</span></a>
-                    </li>
-                    <li>
-                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Quản lý giảng viên</span></a>
-                    </li>
-                    <li>
-                        <a th:href="@{/manager/course/list}"><i class="ph ph-book-open"></i><span>Phê duyệt khóa học</span></a>
-                    </li>
-                    <li class="active">
-                        <a th:href="@{/manager/revenue/list}"><i class="ph ph-currency-circle-dollar"></i><span>Doanh thu</span></a>
-                    </li>
-                    <li>
-                        <a th:href="@{/manager/feedback-report/list}"><i class="ph ph-chat-circle-dots"></i><span>Phản hồi</span></a>
-                    </li>
-                </ul>
-            </nav>
-            <div class="sidebar-footer">
-                <div class="avatar footer-avatar">
-                    <img th:if="${currentUser != null and currentUser.avatarUrl != null}" th:src="${currentUser.avatarUrl}" alt="Avatar" class="w-100 h-100 object-fit-cover" />
-                    <span th:if="${currentUser == null or currentUser.avatarUrl == null}" th:text="${currentUser != null and currentUser.firstName != null and !currentUser.firstName.isEmpty() ? #strings.substring(currentUser.firstName, 0, 1).toUpperCase() : 'M'}">M</span>
-                </div>
-                <div class="profile-info">
-                    <div class="profile-name" th:text="${currentUser != null ? (currentUser.lastName + ' ' + currentUser.firstName) : 'Quản trị viên'}">Quản trị viên</div>
-                    <div class="profile-email" th:text="${currentUser != null ? currentUser.email : 'admin@system.com'}">admin@system.com</div>
-                </div>
-            </div>
-        </aside>
+        <aside th:replace="~{manager/fragments/sidebar :: sidebar(activePage='revenue')}"></aside>
 
         <div class="main-wrapper">
             <main class="content">
                 <div class="page-header d-flex justify-content-between align-items-end">
                     <div>
-                        <h1>Báo cáo Doanh thu</h1>
+                        <h1 th:text="'Báo cáo Doanh thu tháng ' + ${today.getMonthValue()} + '/' + ${today.getYear()}"></h1>
                         <p>Tổng quan về tài chính và doanh thu của hệ thống.</p>
                     </div>
                     <button class="btn btn-outline">Xem tất cả giao dịch <i class="ph ph-arrow-right"></i></button>
                 </div>
                 <div class="rev-grid">
-                    <div class="rev-card primary">
+                    <div class="rev-card">
                         <h3>Tổng doanh thu (Tháng)</h3>
-                        <div class="rev-val">$12,450.00</div>
-                        <div class="rev-sub">↗ +15.3% so với tháng trước</div>
+                        <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.monthlyRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></div>
+                        <div th:classappend="${growthRate >= 0 ? ' text-success' : ' text-danger'}" class="rev-sub" th:text="${'↗' + (growthRate > 0 ? '+' + growthRate : '') + ' % so với tháng trước'}"></div>
                     </div>
                     <div class="rev-card">
                         <h3>Thanh toán cho Giảng viên</h3>
-                        <div class="rev-val">$8,715.00</div>
+                        <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.instructorRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></div>
                     </div>
                     <div class="rev-card">
                         <h3>Phí nền tảng (Thực nhận)</h3>
-                        <div class="rev-val">$3,735.00</div>
+                        <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.platformRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></div>
                     </div>
                 </div>
                 <div class="chart-section mt-4">
-                    <h2>Xu hướng Doanh thu hàng tháng</h2>
-                    <div class="chart-container">
+                    <h2 th:text="'Xu hướng Doanh thu tháng ' + ${today.getMonthValue()} + '/' + ${today.getYear()}"></h2>
+                    <div class="chart-container" id="chart-container-id" th:data-total-revenue="${monthlyRevenue.monthlyRevenue}" th:data-week-revenue="${weeklyRevenueJson}">
                         <canvas id="revLineChart"></canvas>
                     </div>
                 </div>
             </main>
-            <!-- Chart.js setup for revenue -->
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
+                    const weeklyRevenue = JSON.parse(document.querySelector("#chart-container-id").dataset.weekRevenue);
+                    const labels = [];
+                    const revenues = [];
+                    let max = 0;
+                    const totalRevenue = document.querySelector("#chart-container-id").dataset.totalRevenue;
+                    for (const week in weeklyRevenue) {
+                        labels.push("Tuần " + week);
+                        revenues.push(weeklyRevenue[week]);
+                        // weeklyRevenue[week] là lấy value theo key week
+                        // for in là duyệt theo key
+                        if (weeklyRevenue[week] > max) {
+                            max = weeklyRevenue[week];
+                        }
+                    }
+                    const stepSize = totalRevenue / labels.length;
                     const ctx = document.getElementById('revLineChart').getContext('2d');
                     new Chart(ctx, {
                         type: 'line',
                         data: {
-                            labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
+                            labels: labels,
                             datasets: [{
                                 label: 'Doanh thu',
-                                data: [700, 1400, 2100, 2800],
+                                data: revenues,
                                 borderColor: '#0056b3',
                                 backgroundColor: 'rgba(0, 86, 179, 0.1)',
                                 fill: true,
@@ -100,9 +81,9 @@
                         },
                         options: {
                             responsive: true, maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
+                            plugins: { legend: { display: true } },
                             scales: {
-                                y: { beginAtZero: true, max: 2800, ticks: { stepSize: 700, callback: v => '$' + v } },
+                                y: { beginAtZero: true, ticks: {callback: value => value.toLocaleString('vi-VN') + ' đ'} },
                                 x: { grid: { display: false } }
                             }
                         }

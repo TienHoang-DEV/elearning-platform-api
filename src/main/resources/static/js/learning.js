@@ -136,9 +136,6 @@ function initializeMaterial() {
 
         fetch(`/material/${materialId}`)
             .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`Fetch /material/${materialId} failed: ${response.status}`);
-                }
                 return response.text();
             })
             .then(url => {
