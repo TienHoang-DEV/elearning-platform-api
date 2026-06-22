@@ -1,5 +1,21 @@
 
 
+USE master;
+GO
+
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ElearningPlatform')
+BEGIN
+    ALTER DATABASE ElearningPlatform SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE ElearningPlatform;
+END
+GO
+
+CREATE DATABASE ElearningPlatform;
+GO
+
+USE ElearningPlatform;
+GO
+
 -- =========================
 -- ROLES
 -- =========================
@@ -68,6 +84,9 @@ CREATE TABLE users (
                            CHECK (status IN ('ACTIVE', 'BANNED')),
     -- Trạng thái: active (hoạt động), banned (cấm)
 
+                       favorite_setup_completed BIT NOT NULL DEFAULT 0,
+    -- Đã thiết lập danh mục sở thích hay chưa (0: chưa, 1: rồi)
+
                        created_at DATETIME DEFAULT GETDATE(),
     -- Thời gian tạo tài khoản (mặc định là thời chạy lệnh CREATE)
 
@@ -96,6 +115,7 @@ CREATE TABLE user_roles (
                             CONSTRAINT FK_user_roles_role
                                 FOREIGN KEY (role_id) REFERENCES roles(id)
 );
+
 -- =========================
 -- PASSWORD RESET TOKENS
 -- =========================
@@ -184,6 +204,17 @@ CREATE TABLE categories (
 
                             CONSTRAINT FK_categories_parent
                                 FOREIGN KEY (parent_id) REFERENCES categories(id)
+);
+
+-- Bảng trung gian lưu danh mục yêu thích của người dùng (Many-to-Many)
+CREATE TABLE user_favorite_categories (
+    user_id INT NOT NULL,
+    category_id INT NOT NULL,
+    PRIMARY KEY (user_id, category_id),
+    CONSTRAINT FK_user_favorite_categories_user
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT FK_user_favorite_categories_category
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
 
 

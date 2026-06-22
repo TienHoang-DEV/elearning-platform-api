@@ -19,6 +19,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.*;
+import vn.edu.fpt.service.CourseService;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,17 +32,20 @@ public class StudentProfileController {
     private final EnrollmentRepository enrollmentRepository;
     private final CourseRepository courseRepository;
     private final DtoMapper dtoMapper;
+    private final CourseService courseService;
 
     public StudentProfileController(UserRepository userRepository,
                                     OrderService orderService,
                                     EnrollmentRepository enrollmentRepository,
                                     CourseRepository courseRepository,
-                                    DtoMapper dtoMapper) {
+                                    DtoMapper dtoMapper,
+                                    CourseService courseService) {
         this.userRepository = userRepository;
         this.orderService = orderService;
         this.enrollmentRepository = enrollmentRepository;
         this.courseRepository = courseRepository;
         this.dtoMapper = dtoMapper;
+        this.courseService = courseService;
     }
 
     private User getSessionUser() {
@@ -66,7 +70,15 @@ public class StudentProfileController {
     @GetMapping("/")
     public String showHomePage(Model model) {
         User currentUser = getSessionUser();
-        model.addAttribute("currentUser", currentUser);
+        if (currentUser != null) {
+            if (!currentUser.isFavoriteSetupCompleted()) {
+                return "redirect:/student/favorites/step1";
+            }
+            HomeDto homeData = courseService.getHomeData(currentUser);
+            model.addAttribute("homeData", homeData);
+        } else {
+            model.addAttribute("homeData", HomeDto.builder().hasFavorites(false).build());
+        }
         return "home/home";
     }
 

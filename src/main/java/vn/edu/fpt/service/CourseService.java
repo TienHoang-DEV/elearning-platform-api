@@ -24,6 +24,11 @@ import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.repository.UserRepository;
+import org.springframework.data.domain.PageRequest;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -32,19 +37,21 @@ import java.util.List;
 @Service
 @Transactional
 public class CourseService {
-    private CourseRepository repository;
+    private final CourseRepository repository;
     private final DtoMapper dtoMapper;
     private final CategoryRepository categoryRepository;
     private final AzureBlobService azureBlobService;
     private final CategoryService categoryService;
+    private final UserRepository userRepository;
 
     public CourseService(CourseRepository courseRepository, DtoMapper dtoMapper, CategoryRepository categoryRepository,
-            AzureBlobService azureBlobService, CategoryService categoryService) {
+            AzureBlobService azureBlobService, CategoryService categoryService, UserRepository userRepository) {
         this.categoryService = categoryService;
         this.repository = courseRepository;
         this.dtoMapper = dtoMapper;
         this.categoryRepository = categoryRepository;
         this.azureBlobService = azureBlobService;
+        this.userRepository = userRepository;
     }
 
     // ben manager duyet khoa hoc
@@ -314,6 +321,75 @@ public class CourseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
     }
 
+    public HomeDto getHomeData(User currentUser) {
+        if (currentUser == null) {
+            return HomeDto.builder().hasFavorites(false).build();
+        }
 
+        User user = userRepository.findById(currentUser.getId()).orElse(currentUser);
+        if (!user.isFavoriteSetupCompleted()) {
+            return HomeDto.builder().hasFavorites(false).build();
+        }
 
+        Set<Category> favorites = user.getFavoriteCategories();
+        if (favorites == null || favorites.isEmpty()) {
+            return HomeDto.builder().hasFavorites(false).build();
+        }
+
+        // Lấy danh mục con yêu thích (dùng for thay cho stream)
+        List<CategoryDto> favoriteChildren = new java.util.ArrayList<>();
+        for (Category c : favorites) {
+            if ("ACTIVE".equals(c.getStatus()) && c.getParent() != null) {
+                favoriteChildren.add(dtoMapper.toCategoryDto(c));
+            }
+        }
+
+        if (favoriteChildren.isEmpty()) {
+            return HomeDto.builder().hasFavorites(false).build();
+        }
+
+        // Lấy danh mục cha của các danh mục con yêu thích (dùng for thay cho stream)
+        Category parent = null;
+        for (Category c : favorites) {
+            if (c.getParent() != null) {
+                parent = c.getParent();
+                break;
+            }
+        }
+
+        if (parent == null) {
+            return HomeDto.builder().hasFavorites(false).build();
+        }
+
+        CategoryDto parentCategoryDto = dtoMapper.toCategoryDto(parent);
+
+        Map<Integer, List<CourseListDto>> coursesMap = new HashMap<>();
+
+        // 1. Lấy top 4 khóa học cho từng danh mục con
+        for (CategoryDto child : favoriteChildren) {
+            List<CourseListDto> top4 = repository.findTop4ByCategoryIdsOrderByAverageRatingDesc(
+                    java.util.Collections.singletonList(child.getId()), 
+                    PageRequest.of(0, 4)
+            );
+            coursesMap.put(child.getId(), top4);
+        }
+
+        // 2. Lấy top 4 khóa học cho tab "Tất cả" (tổng hợp các danh mục con yêu thích) (dùng for thay cho stream)
+        List<Integer> childIds = new java.util.ArrayList<>();
+        for (CategoryDto child : favoriteChildren) {
+            childIds.add(child.getId());
+        }
+        List<CourseListDto> allFavorites = repository.findTop4ByCategoryIdsOrderByAverageRatingDesc(
+                childIds, 
+                PageRequest.of(0, 4)
+        );
+        coursesMap.put(0, allFavorites);
+
+        return HomeDto.builder()
+                .hasFavorites(true)
+                .parentCategory(parentCategoryDto)
+                .favoriteChildren(favoriteChildren)
+                .coursesMap(coursesMap)
+                .build();
+    }
 }

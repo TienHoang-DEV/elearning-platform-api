@@ -721,3 +721,57 @@ body {
 .header-logo:hover .logo-text {
     color: #1d4ed8 !important;
 }
+
+/* --- Rating Stars & Course Card styling (sync with recommendations) --- */
+.course-card {
+    border-radius: 12px !important;
+    border: 1px solid #e2e8f0 !important;
+    transition: var(--transition) !important;
+    background-color: #ffffff;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
+    border-color: #cbd5e1 !important;
+}
+
+.course-card img {
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.course-card:hover img {
+    transform: scale(1.04);
+}
+
+.course-card-title {
+    font-size: 15.5px !important;
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--text-main);
+    height: 44px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    transition: var(--transition);
+}
+
+.course-card:hover .course-card-title {
+    color: var(--primary);
+}
+
+.star-icon {
+    width: 14px;
+    height: 14px;
+}
+
+.star-filled {
+    color: #f59e0b !important; /* Warm gold */
+    fill: #f59e0b !important;
+}
+
+.star-empty {
+    color: #e2e8f0 !important; /* Slate light gray */
+    fill: #e2e8f0 !important;
+}

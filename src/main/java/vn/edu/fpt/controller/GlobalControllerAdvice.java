@@ -61,7 +61,7 @@ public class GlobalControllerAdvice {
     }
 
     @ModelAttribute("currentUser")
-    public User getCurrentUser(HttpServletRequest request) {
+    public UserDto getCurrentUser(HttpServletRequest request) {
         if (!isHtmlRequest(request)) {
             return null;
         }
@@ -76,7 +76,7 @@ public class GlobalControllerAdvice {
                     }
                 }
             }
-            return user;
+            return user != null ? dtoMapper.toUserDto(user) : null;
         } catch (Exception ignored) {
         }
         return null;

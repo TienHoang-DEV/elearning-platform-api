@@ -12,6 +12,7 @@ import vn.edu.fpt.enums.CourseStatus;
 
 import java.util.List;
 import java.util.Optional;
+import vn.edu.fpt.dto.CourseListDto;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Integer>, CourseRepositoryCustom {
@@ -77,6 +78,17 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
             Pageable pageable);
 
     Course findCourseById(Integer id);
+
+    @Query("SELECT new vn.edu.fpt.dto.CourseListDto(c.id, c.title, c.thumbnailUrl, c.price, c.level, i.firstName, i.lastName, cat.id, cat.name, " +
+            "COALESCE((SELECT AVG(f.rating) FROM Feedback f WHERE f.course.id = c.id), 0.0), " +
+            "(SELECT COUNT(f.id) FROM Feedback f WHERE f.course.id = c.id), " +
+            "(SELECT COUNT(l.id) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id), " +
+            "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id)) " +
+            "FROM Course c JOIN c.instructor i JOIN c.category cat " +
+            "WHERE c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED " +
+            "AND cat.id IN :categoryIds " +
+            "ORDER BY COALESCE((SELECT AVG(f.rating) FROM Feedback f WHERE f.course.id = c.id), 0.0) DESC, c.id DESC")
+    List<CourseListDto> findTop4ByCategoryIdsOrderByAverageRatingDesc(@Param("categoryIds") List<Integer> categoryIds, Pageable pageable);
 }
 
 

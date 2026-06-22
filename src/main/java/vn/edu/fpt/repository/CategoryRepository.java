@@ -15,6 +15,8 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
     List<Category> findByParentIsNotNullAndStatus(String status);
 
+    List<Category> findByParentIdAndStatus(Integer parentId, String status);
+
     Optional<Category> findByIdAndStatus(Integer id, String status);
 
     @Query("SELECT c FROM Category c LEFT JOIN FETCH c.parent WHERE c.status = :status")
