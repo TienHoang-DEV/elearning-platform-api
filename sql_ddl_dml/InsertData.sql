@@ -1318,7 +1318,6 @@ IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = @UserId10 AND role_id = 
 -- 5. DỮ LIỆU TEST DASHBOARD MẪU (KHÓA HỌC CHỜ DUYỆT, BÁO CÁO VI PHẠM, BIỂU ĐỒ)
 -- =========================================================================
 
-DELETE FROM feedback_reports WHERE reason IN (N'Bình luận thô tục, xúc phạm giảng viên', N'Spam nội dung quảng cáo');
 DELETE FROM feedbacks WHERE comment IN (N'Khoá học rất hay, nhưng bài 3 video hơi mờ.', N'Quá tệ, giảng viên nói tục tĩu.', N'Giảng viên lười trả lời câu hỏi, khoá học cũ kỹ.');
 DELETE FROM courses WHERE title IN (N'Lập trình Java Web với Spring Boot', N'Thiết kế giao diện nâng cao với Figma');
 DELETE FROM payments WHERE gateway = 'TEST_GATEWAY';
@@ -1330,7 +1329,7 @@ VALUES
 (5, 9, N'Lập trình Java Web với Spring Boot', N'Học Spring MVC, JPA, Security và xây dựng Restful API hoàn chỉnh.', N'Lập trình Java Web với Spring Boot.jpg', 1000, 'ADVANCED', 'PENDING', NULL, NULL, DATEADD(hour, -5, GETDATE())),
 (6, 5, N'Thiết kế giao diện nâng cao với Figma', N'Làm chủ Figma, AutoLayout, Component, Variable và Design System.', N'Thiết kế giao diện nâng cao với Figma.jpg', 1000, 'INTERMEDIATE', 'PENDING', NULL, NULL, DATEADD(hour, -1, GETDATE()));
 
--- Tạo feedback & báo cáo vi phạm
+-- Tạo feedback
 DECLARE @FeedbackId1 INT, @FeedbackId2 INT, @FeedbackId3 INT;
 
 INSERT INTO feedbacks (user_id, course_id, rating, comment, status, created_at)
@@ -1344,11 +1343,6 @@ SET @FeedbackId2 = SCOPE_IDENTITY();
 INSERT INTO feedbacks (user_id, course_id, rating, comment, status, created_at)
 VALUES (7, 3, 2, N'Giảng viên lười trả lời câu hỏi, khoá học cũ kỹ.', 'VISIBLE', GETDATE());
 SET @FeedbackId3 = SCOPE_IDENTITY();
-
-INSERT INTO feedback_reports (feedback_id, reporter_id, reason, status, resolved_by, created_at)
-VALUES 
-(@FeedbackId2, 7, N'Bình luận thô tục, xúc phạm giảng viên', 'PENDING', NULL, DATEADD(hour, -3, GETDATE())),
-(@FeedbackId3, 8, N'Spam nội dung quảng cáo', 'PENDING', NULL, DATEADD(hour, -1, GETDATE()));
 
 
 -- =========================

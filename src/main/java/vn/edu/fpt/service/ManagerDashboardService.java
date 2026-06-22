@@ -7,7 +7,6 @@ import vn.edu.fpt.dto.MonthlyRevenueDTO;
 import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.repository.CourseRepository;
-import vn.edu.fpt.repository.FeedbackReportRepository;
 import vn.edu.fpt.repository.PaymentRepository;
 import vn.edu.fpt.repository.UserRepository;
 
@@ -23,17 +22,14 @@ public class ManagerDashboardService {
 
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
-    private final FeedbackReportRepository feedbackReportRepository;
     private final PaymentRepository paymentRepository;
 
     public ManagerDashboardService(
             UserRepository userRepository,
             CourseRepository courseRepository,
-            FeedbackReportRepository feedbackReportRepository,
             PaymentRepository paymentRepository) {
         this.userRepository = userRepository;
         this.courseRepository = courseRepository;
-        this.feedbackReportRepository = feedbackReportRepository;
         this.paymentRepository = paymentRepository;
     }
 
@@ -42,12 +38,12 @@ public class ManagerDashboardService {
         // Đếm tổng số lượng giảng viên
         long totalInstructors = userRepository.countInstructors();
         dto.setTotalInstructors(totalInstructors);
+        // Đếm tổng số lượng học viên
+        long totalLearners = userRepository.countLearners();
+        dto.setTotalLearners(totalLearners);
         //Đếm số lượng khóa học đang ở trạng thái "PENDING"
         long pendingCourses = courseRepository.countByStatus(CourseStatus.PENDING);
         dto.setPendingCourses(pendingCourses);
-        //Đếm số lượng phản hồi/chủ đề đang ở trạng thái "PENDING"
-        long pendingFeedbacks = feedbackReportRepository.countByStatus("PENDING");
-        dto.setPendingFeedbacks(pendingFeedbacks);
         //Tính doanh thu từ đầu tháng đến thời điểm hiện tại (status = SUCCESS)
         LocalDateTime startOfMonth = LocalDateTime.now()
                 .with(TemporalAdjusters.firstDayOfMonth())

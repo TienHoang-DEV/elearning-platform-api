@@ -23,8 +23,8 @@ public class ManagerDashboardController {
 
         // Add attributes to model
         model.addAttribute("totalInstructors", data.getTotalInstructors());
+        model.addAttribute("totalLearners", data.getTotalLearners());
         model.addAttribute("pendingCourses", data.getPendingCourses());
-        model.addAttribute("pendingFeedbacks", data.getPendingFeedbacks());
         model.addAttribute("monthlyRevenue", data.getMonthlyRevenue());
         model.addAttribute("chartLabels", data.getChartLabels());
         model.addAttribute("chartData", data.getChartData());
@@ -35,10 +35,5 @@ public class ManagerDashboardController {
     @GetMapping("/revenue/list")
     public String revenueList() {
         return "manager/revenue/revenue-list";
-    }
-
-    @GetMapping("/feedback-report/list")
-    public String feedbackReportList() {
-        return "manager/feedback-report/feedback-report-list";
     }
 }

@@ -1,4 +1,18 @@
+-- -- RESET DATABASE: Xóa database cũ nếu đã tồn tại để tránh xung đột dữ liệu cũ và cập nhật DDL mới
+-- USE master;
+-- GO
+-- IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ElearningPlatform')
+-- BEGIN
+--     ALTER DATABASE ElearningPlatform SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+--     DROP DATABASE ElearningPlatform;
+-- END
+-- GO
+--
+-- CREATE DATABASE ElearningPlatform;
+-- GO
 
+USE ElearningPlatform;
+GO
 
 -- =========================
 -- ROLES
@@ -16,7 +30,7 @@ CREATE TABLE roles (
 
                        created_at DATETIME DEFAULT GETDATE(),
     -- Thời gian tạo vai trò
-                       updated_at DATETIME NULL,
+                       updated_at DATETIME NULL
     -- Thời gian cập nhật gần nhất
 );
 
@@ -750,27 +764,7 @@ CREATE TABLE feedbacks (
                                FOREIGN KEY (course_id) REFERENCES courses(id)
 );
 
--- =========================
--- FEEDBACK REPORTS
--- =========================
-CREATE TABLE feedback_reports (
-                                  id INT PRIMARY KEY IDENTITY(1,1),
-                                  feedback_id INT NOT NULL,
-                                  reporter_id INT NOT NULL,
-                                  reason NVARCHAR(MAX) NULL,
-                                  status VARCHAR(20)
-                                      CHECK (status IN ('PENDING', 'RESOLVED')),
-                                  resolved_by INT NULL,
-                                  created_at DATETIME DEFAULT GETDATE(),
-                                  updated_at DATETIME NULL,
 
-                                  CONSTRAINT FK_reports_feedback
-                                      FOREIGN KEY (feedback_id) REFERENCES feedbacks(id),
-                                  CONSTRAINT FK_reports_reporter
-                                      FOREIGN KEY (reporter_id) REFERENCES users(id),
-                                  CONSTRAINT FK_reports_resolved_by
-                                      FOREIGN KEY (resolved_by) REFERENCES users(id)
-);
 
 -- ==========================================
 -- PERFORMANCE INDEXES (MỚI - TỐI ƯU HÓA TRUY VẤN)

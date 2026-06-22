@@ -9,8 +9,8 @@ import java.util.List;
 @Setter
 public class ManagerDashboardDTO {
     private long totalInstructors;
+    private long totalLearners;
     private long pendingCourses;
-    private long pendingFeedbacks;
     private String monthlyRevenue;
     private List<String> chartLabels;
     private List<BigDecimal> chartData;
