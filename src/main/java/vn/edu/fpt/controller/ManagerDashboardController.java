@@ -87,4 +87,10 @@ public class ManagerDashboardController {
         model.addAttribute("totalTransaction", totalTransaction);
         return "manager/transaction-history/transaction-history";
     }
+
+    @GetMapping("/transaction-detail/{paymentId}")
+    public String getTransactionDetail() {
+        return "manager/transaction-history/detail-transaction";
+    }
+    
 }
