@@ -8,7 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.CartPageDetailsDto;
+import vn.edu.fpt.dto.transaction_manager.CourseDTO;
 import vn.edu.fpt.dto.transaction_manager.TransactionCountByStatusDTO;
+import vn.edu.fpt.dto.transaction_manager.TransactionDetailDTO;
 import vn.edu.fpt.dto.transaction_manager.TransactionListDTO;
 import vn.edu.fpt.entity.*;
 import vn.edu.fpt.enums.OrderStatus;
@@ -252,5 +254,15 @@ public class PaymentService {
         }
         Pageable pageable = PageRequest.of(page, AppConstants.NUMBER_PAYMENT_RECORD_PER_PAGE);
         return repository.getTransactionByFilter(status, fromDate, toDate, keyword, pageable);
+    }
+
+    public TransactionDetailDTO getTransactionDetailByPaymentId(Integer paymentId) {
+        TransactionDetailDTO transactionDetailDTO = repository.getTransactionDetailByPaymentId(paymentId);
+        List<CourseDTO> courseDTOS = repository.getListItemByPaymentId(paymentId);
+        for (CourseDTO courseDTO : courseDTOS) {
+            courseDTO.setThumbnailUrl(AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + courseDTO.getThumbnailUrl());
+        }
+        transactionDetailDTO.setCourses(courseDTOS);
+        return transactionDetailDTO;
     }
 }

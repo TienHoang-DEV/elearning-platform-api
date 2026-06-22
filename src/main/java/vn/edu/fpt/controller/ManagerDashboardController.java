@@ -8,11 +8,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import vn.edu.fpt.dto.ManagerDashboardDTO;
 import vn.edu.fpt.dto.transaction_manager.TransactionCountByStatusDTO;
 import vn.edu.fpt.dto.revenue_manager.MonthlyRevenueForManagerDTO;
+import vn.edu.fpt.dto.transaction_manager.TransactionDetailDTO;
 import vn.edu.fpt.dto.transaction_manager.TransactionListDTO;
 import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.service.ManagerDashboardService;
@@ -89,7 +91,9 @@ public class ManagerDashboardController {
     }
 
     @GetMapping("/transaction-detail/{paymentId}")
-    public String getTransactionDetail() {
+    public String getTransactionDetail(@PathVariable(name = "paymentId") Integer paymentId, Model model) {
+        TransactionDetailDTO transactionDetailDTO = paymentService.getTransactionDetailByPaymentId(paymentId);
+        model.addAttribute("transactionDetail", transactionDetailDTO);
         return "manager/transaction-history/detail-transaction";
     }
     

@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.edu.fpt.dto.revenue_manager.MonthlyRevenueForManagerDTO;
+import vn.edu.fpt.dto.transaction_manager.CourseDTO;
+import vn.edu.fpt.dto.transaction_manager.TransactionDetailDTO;
 import vn.edu.fpt.dto.transaction_manager.TransactionListDTO;
 import vn.edu.fpt.entity.Payment;
 import vn.edu.fpt.enums.PaymentStatus;
@@ -69,4 +71,14 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
         order by p.createdAt desc 
 """)
     Page<TransactionListDTO> getTransactionByFilter(PaymentStatus status, LocalDateTime fromDate, LocalDateTime toDate, String keyword, Pageable pageable);
+
+    @Query("""
+        SELECT new vn.edu.fpt.dto.transaction_manager.TransactionDetailDTO(p.id, (concat(p.order.user.firstName, ' ', p.order.user.lastName)), p.order.user.email, p.amount, p.description, p.gatewayOrderCode, p.status, p.createdAt, p.updatedAt, p.expiredAt, p.paidAt, p.gateway, p.paymentUrl, p.webhookReceivedAt, p.webhookReceived, null) FROM Payment p WHERE p.id = :paymentId
+""")
+    TransactionDetailDTO getTransactionDetailByPaymentId(@Param("paymentId") Integer paymentId);
+
+    @Query("""
+           SELECT new vn.edu.fpt.dto.transaction_manager.CourseDTO(oi.course.id, oi.course.title, oi.course.price, oi.course.thumbnailUrl) FROM Payment p JOIN p.order.items oi WHERE p.id = :paymentId
+""")
+    List<CourseDTO> getListItemByPaymentId(@Param("paymentId") Integer paymentId);
 }
