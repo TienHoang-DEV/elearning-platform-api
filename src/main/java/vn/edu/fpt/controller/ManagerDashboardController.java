@@ -45,15 +45,7 @@ public class ManagerDashboardController {
         return "manager/dashboard/dashboard";
     }
 
-    @GetMapping("/revenue/list")
-    public String revenueList() {
-        return "manager/revenue/revenue-list";
-    }
 
-    @GetMapping("/feedback-report/list")
-    public String feedbackReportList() {
-        return "manager/feedback-report/feedback-report-list";
-    }
 
     @GetMapping("/revenue/list")
     public String revenueList(Model model) throws JsonProcessingException {
