@@ -4,73 +4,94 @@
       layout:decorate="~{layout/manager-layout}">
 <head>
     <title>Academic Manager - Quản lý Doanh thu</title>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <th:block layout:fragment="page-css">
-        <link rel="stylesheet" th:href="@{/css/manager/revenue.css}">
-    </th:block>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="../../../static/css/manager/revenue.css" th:href="@{/css/manager/revenue.css}">
 </head>
 <body>
-    <div layout:fragment="content">
-        <div class="page-header d-flex justify-content-between align-items-end">
-            <div>
-                <h1>Báo cáo Doanh thu</h1>
-                <p>Tổng quan về tài chính và doanh thu của hệ thống.</p>
-            </div>
-            <button class="btn btn-outline">Xem tất cả giao dịch <i class="ph ph-arrow-right"></i></button>
-        </div>
-        <div class="rev-grid">
-            <div class="rev-card primary">
-                <h3>Tổng doanh thu (Tháng)</h3>
-                <div class="rev-val">$12,450.00</div>
-                <div class="rev-sub">↗ +15.3% so với tháng trước</div>
-            </div>
-            <div class="rev-card">
-                <h3>Thanh toán cho Giảng viên</h3>
-                <div class="rev-val">$8,715.00</div>
-            </div>
-            <div class="rev-card">
-                <h3>Phí nền tảng (Thực nhận)</h3>
-                <div class="rev-val">$3,735.00</div>
-            </div>
-        </div>
-        <div class="chart-section mt-4">
-            <h2>Xu hướng Doanh thu hàng tháng</h2>
-            <div class="chart-container">
-                <canvas id="revLineChart"></canvas>
-            </div>
-        </div>
-    </div>
+    <div class="app-container">
+        <aside th:replace="~{manager/fragments/sidebar :: sidebar(activePage='revenue')}"></aside>
 
-    <th:block layout:fragment="page-js">
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('revLineChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
-                        datasets: [{
-                            label: 'Doanh thu',
-                            data: [700, 1400, 2100, 2800],
-                            borderColor: '#0056b3',
-                            backgroundColor: 'rgba(0, 86, 179, 0.1)',
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, max: 2800, ticks: { stepSize: 700, callback: v => '$' + v } },
-                            x: { grid: { display: false } }
+        <div class="main-wrapper">
+            <main class="content">
+                <div class="page-header d-flex justify-content-between align-items-end">
+                    <div>
+                        <h1 th:text="'Báo cáo Doanh thu tháng ' + ${today.getMonthValue()} + '/' + ${today.getYear()}"></h1>
+                        <p>Tổng quan về tài chính và doanh thu của hệ thống.</p>
+                    </div>
+                    <button class="btn btn-outline">Xem tất cả giao dịch <i class="ph ph-arrow-right"></i></button>
+                </div>
+                <div class="rev-grid">
+                    <div class="rev-card">
+                        <h3>Tổng doanh thu (Tháng)</h3>
+                        <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.monthlyRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></div>
+                        <div th:classappend="${growthRate >= 0 ? ' text-success' : ' text-danger'}" class="rev-sub" th:text="${'↗' + (growthRate > 0 ? '+' + growthRate : '') + ' % so với tháng trước'}"></div>
+                    </div>
+                    <div class="rev-card">
+                        <h3>Thanh toán cho Giảng viên</h3>
+                        <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.instructorRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></div>
+                    </div>
+                    <div class="rev-card">
+                        <h3>Phí nền tảng (Thực nhận)</h3>
+                        <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.platformRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></div>
+                    </div>
+                </div>
+                <div class="chart-section mt-4">
+                    <h2 th:text="'Xu hướng Doanh thu tháng ' + ${today.getMonthValue()} + '/' + ${today.getYear()}"></h2>
+                    <div class="chart-container" id="chart-container-id" th:data-total-revenue="${monthlyRevenue.monthlyRevenue}" th:data-week-revenue="${weeklyRevenueJson}">
+                        <canvas id="revLineChart"></canvas>
+                    </div>
+                </div>
+            </main>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const weeklyRevenue = JSON.parse(document.querySelector("#chart-container-id").dataset.weekRevenue);
+                    const labels = [];
+                    const revenues = [];
+                    let max = 0;
+                    const totalRevenue = document.querySelector("#chart-container-id").dataset.totalRevenue;
+                    for (const week in weeklyRevenue) {
+                        labels.push("Tuần " + week);
+                        revenues.push(weeklyRevenue[week]);
+                        // weeklyRevenue[week] là lấy value theo key week
+                        // for in là duyệt theo key
+                        if (weeklyRevenue[week] > max) {
+                            max = weeklyRevenue[week];
                         }
                     }
+                    const stepSize = totalRevenue / labels.length;
+                    const ctx = document.getElementById('revLineChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Doanh thu',
+                                data: revenues,
+                                borderColor: '#0056b3',
+                                backgroundColor: 'rgba(0, 86, 179, 0.1)',
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { display: true } },
+                            scales: {
+                                y: { beginAtZero: true, ticks: {callback: value => value.toLocaleString('vi-VN') + ' đ'} },
+                                x: { grid: { display: false } }
+                            }
+                        }
+                    });
                 });
-            });
-        </script>
-    </th:block>
+            </script>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1369,3 +1369,132 @@ VALUES
     (5, 7, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
     (5, 8, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
     (5, 9, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576);
+
+INSERT INTO orders (
+    user_id,
+    total_amount,
+    status,
+    payment_method
+)
+VALUES
+    (1, 1000, 'PAID', 'PAYOS'),
+    (2, 2000, 'PAID', 'PAYOS'),
+    (3, 5000, 'PENDING', 'PAYOS'),
+    (4, 10000, 'PENDING', 'PAYOS'),
+    (5, 2000, 'PENDING', 'PAYOS'),
+    (6, 1000, 'PENDING', 'PAYOS'),
+    (7, 1000, 'PENDING', 'PAYOS'),
+    (8, 190000, 'CANCELLED', 'PAYOS'),
+    (9, 350000, 'PAID', 'PAYOS'),
+    (10, 250000, 'PAID', 'PAYOS');
+
+INSERT INTO payments (
+    order_id,
+    gateway,
+    gateway_order_code,
+    amount,
+    payment_url,
+    qr_code_url,
+    status,
+    webhook_received,
+    webhook_received_at,
+    paid_at,
+    expired_at
+)
+VALUES
+
+-- Thanh toán thành công
+(1, 'PAYOS', 'PAYOS_100001', 1000,
+ 'https://pay.payos.vn/100001',
+ 'https://qr.payos.vn/100001',
+ 'PAID',
+ 1,
+ DATEADD(MINUTE, 1, GETDATE()),
+ GETDATE(),
+ DATEADD(HOUR, 2, GETDATE())),
+
+(2, 'PAYOS', 'PAYOS_100002', 1000,
+ 'https://pay.payos.vn/100002',
+ 'https://qr.payos.vn/100002',
+ 'PAID',
+ 1,
+ DATEADD(MINUTE, 2, GETDATE()),
+ GETDATE(),
+ DATEADD(HOUR, 2, GETDATE())),
+
+(3, 'PAYOS', 'PAYOS_100003', 5000,
+ 'https://pay.payos.vn/100003',
+ 'https://qr.payos.vn/100003',
+ 'PAID',
+ 1,
+ DATEADD(MINUTE, 3, GETDATE()),
+ GETDATE(),
+ DATEADD(HOUR, 2, GETDATE())),
+
+-- Đang chờ thanh toán
+(4, 'PAYOS', 'PAYOS_100004', 10000,
+ 'https://pay.payos.vn/100004',
+ 'https://qr.payos.vn/100004',
+ 'PENDING',
+ 0,
+ NULL,
+ NULL,
+ DATEADD(HOUR, 2, GETDATE())),
+
+(5, 'PAYOS', 'PAYOS_100005', 2000,
+ 'https://pay.payos.vn/100005',
+ 'https://qr.payos.vn/100005',
+ 'PENDING',
+ 0,
+ NULL,
+ NULL,
+ DATEADD(HOUR, 2, GETDATE())),
+
+-- Hết hạn
+(6, 'PAYOS', 'PAYOS_100006', 1000,
+ 'https://pay.payos.vn/100006',
+ 'https://qr.payos.vn/100006',
+ 'EXPIRED',
+ 0,
+ NULL,
+ NULL,
+ DATEADD(HOUR, -1, GETDATE())),
+
+-- Thanh toán thất bại
+(7, 'PAYOS', 'PAYOS_100007', 1000,
+ 'https://pay.payos.vn/100007',
+ 'https://qr.payos.vn/100007',
+ 'FAILED',
+ 1,
+ GETDATE(),
+ NULL,
+ DATEADD(HOUR, 2, GETDATE())),
+
+-- Bị hủy
+(8, 'PAYOS', 'PAYOS_100008', 190000,
+ 'https://pay.payos.vn/100008',
+ 'https://qr.payos.vn/100008',
+ 'CANCELLED',
+ 0,
+ NULL,
+ NULL,
+ DATEADD(HOUR, 2, GETDATE())),
+
+-- Thành công
+(9, 'PAYOS', 'PAYOS_100009', 350000,
+ 'https://pay.payos.vn/100009',
+ 'https://qr.payos.vn/100009',
+ 'PAID',
+ 1,
+ GETDATE(),
+ GETDATE(),
+ DATEADD(HOUR, 2, GETDATE())),
+
+(10, 'PAYOS', 'PAYOS_100010', 250000,
+ 'https://pay.payos.vn/100010',
+ 'https://qr.payos.vn/100010',
+ 'PAID',
+ 1,
+ GETDATE(),
+ GETDATE(),
+ DATEADD(HOUR, 2, GETDATE()));

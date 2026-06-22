@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Learning Hub - Chi Tiết Khóa Học</title>
+    <link rel="stylesheet" th:href="@{/css/course_manage.css}"/>
+    <style>
+        .course-view-container {
+            background: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .course-header {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .course-thumbnail {
+            width: 300px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .course-info h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .info-item label {
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 14px;
+            display: block;
+        }
+        .info-item span {
+            color: #34495e;
+            font-size: 16px;
+        }
+        .section-title {
+            font-size: 18px;
+            color: #2980b9;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+        .curriculum-list {
+            list-style: none;
+            padding: 0;
+        }
+        .curriculum-section {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            border: 1px solid #e9ecef;
+        }
+        .curriculum-section h4 {
+            margin: 0 0 12px 0;
+            color: #2c3e50;
+        }
+        .lesson-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: #fff;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .lesson-item:last-child {
+            margin-bottom: 0;
+        }
+        .lesson-icon {
+            margin-right: 12px;
+            color: #e74c3c;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-success { background: #d4edda; color: #155724; }
+        .action-buttons {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div th:replace="~{instructor_course/sidebar :: sidebar(activePage='courses')}"></div>
+
+<!-- MAIN -->
+<main class="main-content">
+    <div class="page-header">
+        <h1>
+            <span class="icon">👁️</span> Chi Tiết Khóa Học
+        </h1>
+        <a href="#" class="btn btn-outline">← Quay lại danh sách</a>
+    </div>
+
+    <div class="course-view-container">
+        <!-- Thông tin chung -->
+        <div class="course-header">
+            <img src="https://via.placeholder.com/300x200?text=Khóa+Học+Demo" alt="Thumbnail" class="course-thumbnail"/>
+            <div class="course-info">
+                <h2>Lập Trình Java Spring Boot Thực Chiến (Demo)</h2>
+                <span class="badge badge-success">Đang Xuất Bản</span>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Giá Bán:</label>
+                        <span>399,000 VNĐ</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Giá Gốc:</label>
+                        <span style="text-decoration: line-through; color: #95a5a6;">500,000 VNĐ</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Danh Mục:</label>
+                        <span>Lập trình Web</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Ngày Tạo:</label>
+                        <span>22-06-2026</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary">✏️ Chỉnh Sửa Khóa Học</button>
+                    <button class="btn btn-outline">Ẩn Khóa Học</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mô tả -->
+        <h3 class="section-title">Mô Tả Khóa Học</h3>
+        <p style="color: #34495e; line-height: 1.6;">
+            Khóa học này sẽ hướng dẫn bạn từ cơ bản đến nâng cao về lập trình Web với Java Spring Boot.
+            Bạn sẽ tự tay xây dựng một hệ thống E-learning hoàn chỉnh, tích hợp thanh toán, xác thực OAuth2,
+            quản lý video bài giảng và deploy lên server thật.
+        </p>
+
+        <!-- Chương trình giảng dạy -->
+        <h3 class="section-title">Chương Trình Giảng Dạy</h3>
+        <ul class="curriculum-list">
+            <li class="curriculum-section">
+                <h4>Chương 1: Giới thiệu Spring Boot</h4>
+                <div class="lesson-item">
+                    <span class="lesson-icon">▶️</span>
+                    <span style="flex-grow: 1;">Bài 1: Cài đặt môi trường</span>
+                    <span style="color: #7f8c8d; font-size: 14px;">10:25</span>
+                </div>
+                <div class="lesson-item">
+                    <span class="lesson-icon">▶️</span>
+                    <span style="flex-grow: 1;">Bài 2: Cấu trúc thư mục dự án</span>
+                    <span style="color: #7f8c8d; font-size: 14px;">15:40</span>
+                </div>
+            </li>
+            
+            <li class="curriculum-section">
+                <h4>Chương 2: Xây dựng RESTful API</h4>
+                <div class="lesson-item">
+                    <span class="lesson-icon">▶️</span>
+                    <span style="flex-grow: 1;">Bài 3: Controller và Service</span>
+                    <span style="color: #7f8c8d; font-size: 14px;">22:15</span>
+                </div>
+                <div class="lesson-item">
+                    <span class="lesson-icon">📝</span>
+                    <span style="flex-grow: 1;">Bài 4: Quiz Ôn Tập Spring Web</span>
+                    <span style="color: #7f8c8d; font-size: 14px;">10 câu</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+</main>
+
+</body>
+</html>

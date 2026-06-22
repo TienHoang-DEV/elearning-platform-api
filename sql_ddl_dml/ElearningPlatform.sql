@@ -404,26 +404,35 @@ CREATE TABLE video_moderation_flags (
 -- QUIZZES
 -- =========================
 CREATE TABLE quizzes (
-                         id INT PRIMARY KEY IDENTITY(1,1),
-    -- Mã định danh bài quiz
+    id INT PRIMARY KEY IDENTITY(1,1),
 
-                         lesson_id INT NOT NULL,
-    -- Tham chiếu đến bảng lessons, quiz nằm trong bài học nào
+    lesson_id INT NOT NULL,
 
-                         title NVARCHAR(255) NOT NULL,
-    -- Tên bài quiz (ví dụ: 'Quiz: Kiểu dữ liệu và biến')
+    title NVARCHAR(255) NOT NULL,
 
-                         pass_score_percent  INT NOT NULL CHECK (pass_score_percent  >= 0),
-    -- Phần trăm Điểm tối thiểu để pass quiz (ví dụ: 70)
+    description NVARCHAR(MAX) NULL,
 
-                         created_at DATETIME DEFAULT GETDATE(),
-    -- Thời gian tạo quiz
+    pass_score_percent INT NOT NULL
+        CHECK(pass_score_percent BETWEEN 0 AND 100),
 
-                         updated_at DATETIME NULL,
-    -- Thời gian cập nhật gần nhất
+    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT'
+        CHECK(status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED')),
 
-                         CONSTRAINT FK_quizzes_lesson
-                             FOREIGN KEY (lesson_id) REFERENCES lessons(id)
+    time_limit_minutes INT NULL,
+
+    is_random_question BIT NOT NULL DEFAULT 0,
+
+    is_random_answer BIT NOT NULL DEFAULT 0,
+
+    created_at DATETIME DEFAULT GETDATE(),
+
+    updated_at DATETIME NULL,
+
+    published_at DATETIME NULL,
+
+    CONSTRAINT FK_quizzes_lesson
+        FOREIGN KEY (lesson_id)
+        REFERENCES lessons(id)
 );
 
 -- =========================
@@ -448,6 +457,9 @@ CREATE TABLE quiz_questions (
 
                                 position INT NULL,
     -- Thứ tự câu hỏi trong quiz
+	 explanation NVARCHAR(MAX) NULL,
+
+
 
                                 created_at DATETIME DEFAULT GETDATE(),
     -- Thời gian tạo câu hỏi
@@ -639,8 +651,8 @@ CREATE TABLE payments (
                           id INT PRIMARY KEY IDENTITY(1,1),
     -- Mã định danh duy nhất của giao dịch thanh toán
 
-                          order_id INT NOT NULL,
-    -- Mỗi đơn hàng chỉ có một giao dịch thanh toán
+                          order_id INT NOT NULL UNIQUE,
+    -- Mỗi đơn hàng chỉ có một giao dịch thanh toán (1-1 relationship)
 
                           gateway VARCHAR(50) NOT NULL,
     -- PAYOS, MOMO, VNPAY,...

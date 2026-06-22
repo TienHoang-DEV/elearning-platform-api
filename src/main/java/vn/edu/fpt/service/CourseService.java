@@ -22,6 +22,7 @@ import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.CourseRepository;
 
 import vn.edu.fpt.dto.CourseDto;
+import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 
 import java.math.BigDecimal;
@@ -45,9 +46,6 @@ public class CourseService {
         this.categoryRepository = categoryRepository;
         this.azureBlobService = azureBlobService;
     }
-
-
-
     // Page course của mỗi instructor
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
         return repository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);

@@ -1,6 +1,7 @@
 package vn.edu.fpt.service;
 
 import org.junit.jupiter.api.Test;
+import vn.edu.fpt.service.cloud.AzureBlobService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
