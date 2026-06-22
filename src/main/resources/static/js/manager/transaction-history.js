@@ -38,138 +38,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Mở modal
+    // Fetch modal và mở popup
     document.querySelectorAll('.btn-action[title="Xem chi tiết"]').forEach(btn => {
         btn.addEventListener('click', e => {
             e.preventDefault();
-            const row = btn.closest('tr');
-            const paymentId = row.dataset.paymentId;
+            let container = document.getElementById('transactionContainer');
             
+            // Tạo container nếu chưa tồn tại
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'transactionContainer';
+                document.body.appendChild(container);
+            }
+            
+            const paymentId = btn.closest('tr').dataset.paymentId;
             fetch(`/manager/transaction-detail/${paymentId}`)
                 .then(r => r.text())
                 .then(html => {
-                    // Remove existing modal
-                    const existing = document.getElementById('transactionDetailModal');
-                    if (existing) existing.remove();
-                    
-                    // Insert HTML
-                    document.body.insertAdjacentHTML('beforeend', html);
-                    
-                    // Open modal with data from table
-                    setTimeout(() => {
-                        openTransactionModal({
-                            transactionCode: row.cells[0].textContent.trim(),
-                            customerName: row.cells[1].querySelector('.fw-semibold').textContent.trim(),
-                            customerEmail: row.cells[1].querySelector('.text-muted').textContent.trim(),
-                            amount: parseInt(row.cells[2].querySelector('.fw-semibold').textContent.replace(/[^\d]/g, '')) || 0,
-                            description: row.cells[2].querySelector('.text-muted').textContent.trim(),
-                            paymentStatus: row.dataset.status,
-                            gateway: row.dataset.gateway || 'PAYOS',
-                            gatewayOrderCode: row.dataset.gatewayOrderCode || '-',
-                            createdAt: row.dataset.createdAt || new Date().toISOString(),
-                            paidAt: row.dataset.paidAt || null,
-                            webhookReceived: row.dataset.webhookReceived === 'true',
-                            orderItems: JSON.parse(row.dataset.orderItems || '[]')
-                        });
-                    }, 100);
+                    container.innerHTML = html;
+                    document.getElementById('transactionDetailModal').classList.add('active');
                 })
                 .catch(e => console.error('Lỗi:', e));
         });
     });
-});
 
-// ====== MODAL FUNCTIONS ======
-function openTransactionModal(data) {
-    const modal = document.getElementById('transactionDetailModal');
-    
-    document.getElementById('transactionCode').textContent = data.transactionCode || '-';
-    document.getElementById('customerName').textContent = data.customerName || '-';
-    document.getElementById('customerEmail').textContent = data.customerEmail || '-';
-    document.getElementById('transactionAmount').textContent = (data.amount || 0).toLocaleString('vi-VN') + ' VND';
-    document.getElementById('paymentGateway').textContent = data.gateway || '-';
-    document.getElementById('createdDate').textContent = formatDate(data.createdAt);
-    document.getElementById('createdTime').textContent = formatTime(data.createdAt);
-    document.getElementById('gatewayOrderCode').textContent = data.gatewayOrderCode || '-';
-    document.getElementById('paymentDescription').textContent = data.description || '-';
-    
-    const statusEl = document.getElementById('transactionStatus');
-    statusEl.textContent = getStatusText(data.paymentStatus);
-    statusEl.className = 'info-value status-badge ' + getStatusClass(data.paymentStatus);
-    document.getElementById('transactionTime').textContent = data.paidAt ? 'Thanh toán lúc: ' + formatDateTime(data.paidAt) : 'Chưa thanh toán';
-    document.getElementById('webhookStatus').textContent = data.webhookReceived ? '✓ Đã nhận' : '✗ Chưa nhận';
-    
-    displayOrderItems(data.orderItems || []);
-    
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
+    // Close modal khi click outside
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('transactionDetailModal');
+        if (modal && e.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
 
-function closeTransactionModal() {
-    const modal = document.getElementById('transactionDetailModal');
-    modal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
-
-function displayOrderItems(items) {
-    const itemsList = document.getElementById('orderItemsList');
-    const itemCount = document.getElementById('itemCount');
-    
-    if (!items || items.length === 0) {
-        itemsList.innerHTML = '<div class="empty-items"><i class="ph ph-package"></i><p>Không có khóa học</p></div>';
-        itemCount.textContent = '0 khóa học';
-        return;
-    }
-    
-    itemCount.textContent = items.length + ' khóa học';
-    itemsList.innerHTML = items.map(item => `
-        <div class="order-item">
-            <div class="order-item-thumbnail"><i class="ph ph-book"></i></div>
-            <div class="order-item-content">
-                <p class="order-item-title" title="${item.courseTitleSnapshot || '-'}">${item.courseTitleSnapshot || '-'}</p>
-                <span class="order-item-price">${(item.priceSnapshot || 0).toLocaleString('vi-VN')} VND</span>
-            </div>
-        </div>
-    `).join('');
-}
-
-function formatDate(dateString) {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' });
-}
-
-function formatTime(dateString) {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-}
-
-function formatDateTime(dateString) {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleString('vi-VN');
-}
-
-function getStatusText(status) {
-    const map = { 'PAID': 'Đã thanh toán', 'PENDING': 'Chờ thanh toán', 'FAILED': 'Thất bại', 'CANCELLED': 'Đã hủy', 'EXPIRED': 'Hết hạn' };
-    return map[status] || 'Không xác định';
-}
-
-function getStatusClass(status) {
-    const map = { 'PAID': 'status-paid', 'PENDING': 'status-pending', 'FAILED': 'status-failed', 'CANCELLED': 'status-cancelled', 'EXPIRED': 'status-expired' };
-    return map[status] || '';
-}
-
-function printTransaction() {
-    window.print();
-}
-
-// Close modal on outside click
-document.addEventListener('click', function(e) {
-    const modal = document.getElementById('transactionDetailModal');
-    if (modal && e.target === modal) closeTransactionModal();
-});
-
-// Close modal on ESC
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeTransactionModal();
+    // Close modal khi nhấn ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('transactionDetailModal');
+            if (modal) modal.classList.remove('active');
+        }
+    });
 });

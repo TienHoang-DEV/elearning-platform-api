@@ -1,13 +1,14 @@
-<!-- Modal Xem Chi Tiết Giao Dịch -->
+<!-- Modal Xem Chi Tiết Giao Dịch - Dữ Liệu Giả -->
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <div id="transactionDetailModal" class="transaction-modal-overlay">
     <div class="transaction-modal-content">
         <!-- Modal Header -->
         <div class="modal-header-custom">
             <div class="header-title">
                 <h2 id="modalTitle">Chi Tiết Giao Dịch</h2>
-                <p id="modalSubtitle" class="text-muted">Mã GD: <span id="transactionCode">-</span></p>
+                <p id="modalSubtitle" class="transaction-code-header">Mã GD: <span id="transactionCode" th:text="${transactionDetail.gateWayOrderCode}"></span></p>
             </div>
-            <button class="btn-close-modal" onclick="closeTransactionModal()" title="Đóng">
+            <button class="btn-close-modal" onclick="document.getElementById('transactionDetailModal').classList.remove('active')" title="Đóng">
                 <i class="ph ph-x"></i>
             </button>
         </div>
@@ -17,46 +18,37 @@
             <!-- Transaction Info Grid -->
             <div class="transaction-info-grid">
                 <div class="info-card">
-                    <div class="info-icon customer-icon">
-                        <i class="ph ph-user"></i>
-                    </div>
+                    <div class="info-icon customer-icon"><i class="ph ph-user"></i></div>
                     <div class="info-content">
                         <span class="info-label">Khách hàng</span>
-                        <p class="info-value" id="customerName">-</p>
-                        <small class="info-detail" id="customerEmail">-</small>
+                        <p class="info-value" th:text="${transactionDetail.customerName}">Nguyễn Văn A</p>
                     </div>
                 </div>
 
                 <div class="info-card">
-                    <div class="info-icon payment-icon">
-                        <i class="ph ph-credit-card"></i>
-                    </div>
+                    <div class="info-icon payment-icon"><i class="ph ph-credit-card"></i></div>
                     <div class="info-content">
                         <span class="info-label">Số tiền</span>
-                        <p class="info-value amount" id="transactionAmount">0 VND</p>
-                        <small class="info-detail" id="paymentGateway">-</small>
+                        <p class="info-value amount" th:text="${#numbers.formatDecimal(transactionDetail.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">1.000 VND</p>
+                        <small class="info-detail" th:text="${transactionDetail.gateWay}">PAYOS</small>
                     </div>
                 </div>
 
                 <div class="info-card">
-                    <div class="info-icon status-icon">
-                        <i class="ph ph-check-circle"></i>
-                    </div>
+                    <div class="info-icon status-icon"><i class="ph ph-check-circle"></i></div>
                     <div class="info-content">
                         <span class="info-label">Trạng thái</span>
-                        <p class="info-value status-badge" id="transactionStatus">-</p>
-                        <small class="info-detail" id="transactionTime">-</small>
+                        <p class="info-value status-badge status-paid" th:text="${transactionDetail.status}">Đã thanh toán</p>
+                        <small th:if="${transactionDetail.paidAt != null}" class="info-detail" th:text="${'Thanh toán lúc: ' + #temporals.format(transactionDetail.paidAt, 'dd/MM/yyyy HH:mm')}">Thanh toán lúc: 22/06/2026 10:05</small>
                     </div>
                 </div>
 
                 <div class="info-card">
-                    <div class="info-icon time-icon">
-                        <i class="ph ph-calendar"></i>
-                    </div>
+                    <div class="info-icon time-icon"><i class="ph ph-calendar"></i></div>
                     <div class="info-content">
                         <span class="info-label">Thời gian tạo</span>
-                        <p class="info-value" id="createdDate">-</p>
-                        <small class="info-detail" id="createdTime">-</small>
+                        <p class="info-value" th:text="${#temporals.format(transactionDetail.createdAt, 'dd/MM/yyyy')}">22/06/2026</p>
+                        <small class="info-detail" th:text="${#temporals.format(transactionDetail.createdAt, 'HH:mm')}">10:00</small>
                     </div>
                 </div>
             </div>
@@ -66,33 +58,91 @@
             <div class="order-items-section">
                 <div class="section-header">
                     <h3><i class="ph ph-book"></i> Khóa học trong đơn hàng</h3>
-                    <span class="item-count" id="itemCount">0 khóa học</span>
+                    <span class="item-count" th:text="${transactionDetail.courses.size()} + ' khóa học'">1 khóa học</span>
                 </div>
-                <div class="order-items-list" id="orderItemsList"></div>
+                <div class="order-items-list">
+                    <div class="order-item" th:each="course : ${transactionDetail.courses}">
+                        <div class="order-item-thumbnail"><img th:src="${course.thumbnailUrl}"  class="w-100 h-100 object-fit-cover"></img></div>
+                        <div class="order-item-content">
+                            <p class="order-item-title" th:text="${course.title}">Java Core Từ Cơ Bản Đến Nâng Cao</p>
+                            <span class="order-item-price" th:text="${#numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' VND'}">1.000 VND</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="modal-divider"></div>
+
+            <!-- All Transaction Details -->
             <div class="additional-details">
+                <div class="detail-row detail-row-large">
+                    <span class="detail-label-large">Mã GD:</span>
+                    <span class="detail-value-large">TX001</span>
+                </div>
+                <div class="detail-row detail-row-large">
+                    <span class="detail-label-large">Mã đơn hàng cổng thanh toán:</span>
+                    <span class="detail-value-large">PAYOS_100001</span>
+                </div>
+                <div class="detail-row detail-row-large">
+                    <span class="detail-label-large">Gateway:</span>
+                    <span class="detail-value-large">PAYOS</span>
+                </div>
                 <div class="detail-row">
-                    <span class="detail-label">Mã đơn hàng cổng thanh toán:</span>
-                    <span class="detail-value" id="gatewayOrderCode">-</span>
+                    <span class="detail-label">Payment URL:</span>
+                    <span class="detail-value">https://pay.payos.vn/100001</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">QR Code URL:</span>
+                    <span class="detail-value">https://qr.payos.vn/100001</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Nội dung thanh toán:</span>
-                    <span class="detail-value" id="paymentDescription">-</span>
+                    <span class="detail-value">Khóa học Java Web</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Trạng thái thanh toán:</span>
+                    <span class="detail-value">Đã thanh toán</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Thời gian tạo:</span>
+                    <span class="detail-value">22/06/2026 10:00</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Thời gian thanh toán:</span>
+                    <span class="detail-value">22/06/2026 10:05</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Thời gian hết hạn:</span>
+                    <span class="detail-value">22/06/2026 12:00</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Webhook nhận được:</span>
-                    <span class="detail-value" id="webhookStatus">-</span>
+                    <span class="detail-value">✓ Đã nhận</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Thời gian webhook:</span>
+                    <span class="detail-value">22/06/2026 10:05</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Error Code:</span>
+                    <span class="detail-value">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Error Message:</span>
+                    <span class="detail-value">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Gateway Response:</span>
+                    <span class="detail-value detail-value-code">{"status": "success", "transactionId": "100001"}</span>
                 </div>
             </div>
         </div>
 
         <div class="modal-footer-custom">
-            <button class="btn btn-secondary-modal" onclick="closeTransactionModal()">
+            <button class="btn btn-secondary-modal" onclick="document.getElementById('transactionDetailModal').classList.remove('active')">
                 <i class="ph ph-arrow-left me-1"></i> Quay lại
             </button>
-            <button class="btn btn-primary-modal" onclick="printTransaction()">
+            <button class="btn btn-primary-modal" onclick="window.print()">
                 <i class="ph ph-printer me-1"></i> In chi tiết
             </button>
         </div>
@@ -126,11 +176,9 @@
 
     .transaction-modal-content {
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
         width: 100%;
-        max-width: 700px;
-        max-height: 90vh;
+        max-width: 900px;
+        max-height: 800px;
         overflow-y: auto;
         animation: slideUp 0.3s ease-out;
     }
@@ -142,7 +190,6 @@
         padding: 28px 28px 20px;
         border-bottom: 1px solid #f0f0f0;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 12px 12px 0 0;
     }
 
     .header-title h2 {
@@ -152,10 +199,18 @@
         margin: 0 0 6px;
     }
 
-    .header-title .text-muted {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 13px;
+    .transaction-code-header {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
         margin: 0;
+        font-weight: 600;
+    }
+
+    .transaction-code-header span {
+        color: #fff;
+        font-weight: 800;
+        font-size: 16px;
+        letter-spacing: 0.5px;
     }
 
     .btn-close-modal {
@@ -163,7 +218,7 @@
         border: none;
         width: 40px;
         height: 40px;
-        border-radius: 8px;
+        border-radius: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -178,11 +233,15 @@
         transform: rotate(90deg);
     }
 
-    .modal-body-custom { padding: 28px; }
+    .modal-body-custom {
+        padding: 28px;
+        overflow-y: auto;
+        flex: 1;
+    }
 
     .transaction-info-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 16px;
         margin-bottom: 24px;
     }
@@ -192,7 +251,6 @@
         gap: 12px;
         padding: 16px;
         background: #f8f9fb;
-        border-radius: 10px;
         border: 1px solid #efefef;
         transition: all 0.3s ease;
     }
@@ -206,7 +264,7 @@
     .info-icon {
         width: 40px;
         height: 40px;
-        border-radius: 8px;
+        border-radius: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -223,11 +281,12 @@
 
     .info-label {
         display: block;
-        font-size: 11px;
-        font-weight: 600;
+        font-size: 10px;
+        font-weight: 700;
         color: #999;
         text-transform: uppercase;
         margin-bottom: 4px;
+        letter-spacing: 0.5px;
     }
 
     .info-value {
@@ -237,7 +296,8 @@
         margin: 0;
     }
 
-    .info-value.amount { color: #2e7d32; font-size: 16px; }
+    .info-value.amount { color: #2e7d32; font-size: 16px; font-weight: 800; }
+
     .info-value.status-badge {
         display: inline-block;
         padding: 4px 8px;
@@ -286,7 +346,7 @@
         color: #999;
         background: #f5f5f5;
         padding: 4px 10px;
-        border-radius: 12px;
+        border-radius: 4px;
     }
 
     .order-items-list { display: flex; flex-direction: column; gap: 12px; }
@@ -296,7 +356,6 @@
         gap: 12px;
         padding: 12px;
         background: #f9f9f9;
-        border-radius: 8px;
         border-left: 3px solid #667eea;
     }
 
@@ -333,30 +392,75 @@
     .additional-details {
         background: #f8f9fb;
         padding: 16px;
-        border-radius: 8px;
         border: 1px solid #efefef;
     }
 
     .detail-row {
         display: flex;
         justify-content: space-between;
-        padding: 8px 0;
+        align-items: flex-start;
+        padding: 12px 0;
         font-size: 12px;
     }
 
     .detail-row:not(:last-child) {
         border-bottom: 1px solid #efefef;
-        padding-bottom: 12px;
-        margin-bottom: 12px;
     }
 
-    .detail-label { color: #666; font-weight: 600; }
+    .detail-label {
+        color: #666;
+        font-weight: 600;
+        min-width: 180px;
+        flex-shrink: 0;
+    }
+
     .detail-value {
         color: #333;
         font-weight: 500;
         text-align: right;
         flex: 1;
-        margin-left: 16px;
+        word-break: break-word;
+    }
+
+    /* Large detail rows for important IDs */
+    .detail-row-large {
+        padding: 16px 0;
+        background: #f0f2f7;
+        margin: 0 -16px;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .detail-label-large {
+        color: #333;
+        font-weight: 700;
+        font-size: 14px;
+        min-width: 220px;
+    }
+
+    .detail-value-large {
+        color: #667eea;
+        font-weight: 800;
+        font-size: 15px;
+        text-align: right;
+        flex: 1;
+        word-break: break-word;
+    }
+
+    .detail-value-highlight {
+        color: #667eea;
+        font-weight: 800;
+        font-size: 13px;
+    }
+
+    .detail-value-code {
+        font-family: 'Courier New', monospace;
+        background: #f0f0f0;
+        padding: 4px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        max-width: 300px;
+        overflow: auto;
     }
 
     .modal-footer-custom {
@@ -365,13 +469,12 @@
         padding: 20px 28px;
         border-top: 1px solid #f0f0f0;
         background: #f9f9f9;
-        border-radius: 0 0 12px 12px;
         justify-content: flex-end;
     }
 
     .btn {
         padding: 10px 18px;
-        border-radius: 8px;
+        border-radius: 4px;
         border: none;
         font-size: 13px;
         font-weight: 600;
@@ -398,14 +501,9 @@
     @media (max-width: 600px) {
         .transaction-modal-overlay { padding: 10px; }
         .transaction-modal-content { max-width: 100%; }
-        .transaction-info-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .transaction-info-grid { grid-template-columns: repeat(2, 1fr); }
         .modal-footer-custom { flex-direction: column-reverse; }
         .btn { width: 100%; justify-content: center; }
-    }
-
-    .empty-items {
-        text-align: center;
-        padding: 30px 20px;
-        color: #999;
+        .detail-label { min-width: 120px; }
     }
 </style>

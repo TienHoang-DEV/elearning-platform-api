@@ -112,7 +112,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="transaction : ${pageTransaction}">
+                        <tr th:each="transaction : ${pageTransaction}" th:data-payment-id="${transaction.id}">
                             <td><strong class="text-primary" th:text="${transaction.transactionCode}">TX001</strong>
                             </td>
                             <td>
