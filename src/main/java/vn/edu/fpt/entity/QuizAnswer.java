@@ -23,5 +23,8 @@ public class QuizAnswer extends BaseEntity {
     @Builder.Default
     @Column(name = "is_correct")
     private Boolean correct = false;
+
+    @Column(name = "position")
+    private Integer position;
 }
 

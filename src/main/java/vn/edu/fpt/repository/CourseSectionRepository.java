@@ -21,6 +21,8 @@ public interface CourseSectionRepository extends JpaRepository<CourseSection, In
 """)
     Optional<Integer> findBySectionId(@Param("id") Integer sectionId);
 
+    CourseSection findCourseSectionById(Integer courseSectionId);
+
     @Query(""" 
          SELECT COALESCE(MAX(s.position), 0) from CourseSection s where s.course.id = :courseid
           """)

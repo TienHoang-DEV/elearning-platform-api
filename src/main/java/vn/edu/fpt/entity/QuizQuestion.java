@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -34,7 +36,11 @@ public class QuizQuestion extends BaseEntity {
 
     @Builder.Default
     @OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<QuizAnswer> answers = new HashSet<>();
+    private List<QuizAnswer> answers = new ArrayList<>();
+
+    @Column(name = "explanation",
+            columnDefinition = "NVARCHAR(MAX)")
+    private String explanation;
 
     public void addAnswer(QuizAnswer answer) {
         answers.add(answer);
