@@ -59,10 +59,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     List<Object[]> gettransactionCountByStatusDTO();
 
     @Query("""
-        SELECT new vn.edu.fpt.dto.transaction_manager.TransactionListDTO(p.gatewayOrderCode, concat(p.order.user.lastName,' ', p.order.user.firstName), p.order.user.email, p.amount, p.description, p.status) FROM Payment p
+        SELECT new vn.edu.fpt.dto.transaction_manager.TransactionListDTO(p.id ,p.gatewayOrderCode, concat(p.order.user.lastName,' ', p.order.user.firstName), p.order.user.email, p.amount, p.description, p.status) FROM Payment p
         where (:status is null or p.status = :status)
         and (:fromDate is null or p.createdAt >= :fromDate)
-        and (:toDate is null or p.createdAt <= :toDate)
+        and (:toDate is null or p.createdAt < :toDate)
         and (:keyword is null or lower(coalesce(p.description, '') ) like lower(concat('%', :keyword, '%')) or lower(p.gatewayOrderCode) like lower(concat('%', :keyword, '%')) or lower(p.order.user.firstName) like 
         lower(concat('%', :keyword, '%')) or lower(p.order.user.lastName) like 
         lower(concat('%', :keyword, '%')) or lower(p.order.user.email) like lower(concat('%', :keyword, '%')))

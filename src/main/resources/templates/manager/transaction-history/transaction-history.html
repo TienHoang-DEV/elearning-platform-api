@@ -49,12 +49,12 @@
             <div class="filter-search-wrapper mb-4">
                 <form th:action="@{/manager/transaction-history/list}" method="get" class="row g-3 align-items-end">
 
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-2">
                         <label class="form-label fw-medium text-secondary small">Trạng thái</label>
                         <select name="status" class="form-select custom-select shadow-none">
                             <option th:selected="${status == null || status == ''}" value="">Tất cả trạng thái</option>
                             <option th:selected="${status == 'PAID'}" value="PAID">Thành công</option>
-                            <option th:selected="${status == 'PENDING'}" value="PENDING">Chờ xử lý</option>
+                            <option th:selected="${status == 'PENDING'}" value="PENDING">Chờ thanh toán</option>
                             <option th:selected="${status == 'FAILED'}" value="FAILED">Thất bại</option>
                             <option th:selected="${status == 'CANCELLED'}" value="CANCELLED">Đã hủy</option>
                             <option th:selected="${status == 'EXPIRED'}" value="EXPIRED">Hết hạn</option>
@@ -72,20 +72,26 @@
                                class="form-control custom-input shadow-none">
                     </div>
 
-                    <div class="col-12 col-md-5">
+                    <div class="col-12 col-md-3">
                         <label class="form-label fw-medium text-secondary small">Từ khóa tìm kiếm</label>
                         <div class="input-group search-group">
-                <span class="input-group-text bg-white border-end-0 text-muted">
-                    <i class="ph ph-magnifying-glass"></i>
-                </span>
+                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                <i class="ph ph-magnifying-glass"></i>
+                            </span>
                             <input type="text" name="keyword"
                                    th:value="${keyword}"
-                                   class="form-control border-start-0 border-end-0 ps-0 shadow-none"
+                                   class="form-control border-start-0 ps-0 shadow-none"
                                    placeholder="Mã GD, tên học viên, nội dung...">
-                            <button type="submit" class="btn btn-search-submit">
-                                <i class="ph ph-funnel me-1"></i> Lọc Kết Quả
-                            </button>
                         </div>
+                    </div>
+
+                    <div class="col-12 col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-submit-filter">
+                            <i class="ph ph-funnel me-1"></i> Lọc kết quả
+                        </button>
+                        <button type="reset" id="btnResetFilter" class="btn btn-reset-filter">
+                            <i class="ph ph-arrow-counter-clockwise me-1"></i> Xóa bộ lọc
+                        </button>
                     </div>
                 </form>
             </div>
@@ -114,10 +120,9 @@
                                 <small class="text-muted" th:text="${transaction.customerEmail}">nva@gmail.com</small>
                             </td>
                             <td>
-                                <div class="fw-semibold "
-                                     th:classappend="${transaction.isPositive() ? ' text-success' : ' text-danger'}"
-                                     th:text="${transaction.isPositive() ? '+' + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT')  : transaction.amount} + ' VND'">
-                                    +500,000 đ
+                                <div class="fw-semibold"
+                                     th:classappend="${transaction.paymentStatus.name() == 'PAID' ? ' text-success' : ' text-danger'}"
+                                     th:text="${(transaction.paymentStatus.name() == 'PAID' ? '+' : '') + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') + ' VND'}">
                                 </div>
                                 <small class="text-muted" th:text="${transaction.description}">Khóa học Java Web</small>
                             </td>
@@ -139,7 +144,7 @@
             </div>
 
             <nav class="d-flex justify-content-center mt-4">
-                <ul class="pagination-custom d-flex align-items-center gap-1 list-unstyled">
+                <ul class="pagination-custom d-flex align-items-center gap-1 list-unstyled" th:if="${pageTransaction != null && !pageTransaction.isEmpty()}">
                     <li th:if="${!pageTransaction.first}">
                         <a class="page-link-nav"
                            th:href="@{/manager/transaction-history/list(page=${pageTransaction.number - 1}, status=${status}, fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword})}">
@@ -165,5 +170,7 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/manager/transaction-history.js">
+</script>
 </body>
 </html>

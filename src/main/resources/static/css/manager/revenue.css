@@ -263,6 +263,43 @@ body { font-family: var(--font-family); background-color: var(--bg-body); color:
     color: var(--white);
 }
 
+.btn-submit-filter {
+    background-color: var(--primary-blue);
+    color: var(--white) !important;
+    height: 42px;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.btn-submit-filter:hover {
+    background-color: #004494;
+}
+
+.btn-reset-filter {
+    background-color: var(--white);
+    color: var(--text-gray) !important;
+    border: 1px solid var(--border-color);
+    height: 42px;
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.btn-reset-filter:hover {
+    background-color: var(--bg-light);
+    color: var(--text-main) !important;
+    border-color: var(--text-gray);
+}
+
 
 
 /* ── Chart ── */

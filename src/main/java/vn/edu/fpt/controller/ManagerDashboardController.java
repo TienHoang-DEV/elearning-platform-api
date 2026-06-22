@@ -70,7 +70,7 @@ public class ManagerDashboardController {
         TransactionCountByStatusDTO transactionCountByStatusDTO = paymentService.gettransactionCountByStatusDTO();
         Integer totalTransaction = transactionCountByStatusDTO.getAllTransaction();
 
-        Page<TransactionListDTO> pageTransaction = paymentService.getTransactionByFilter(status, (fromDate == null ? null : fromDate.atStartOfDay()), (toDate == null ? null : toDate.atStartOfDay()), keyword, page);
+        Page<TransactionListDTO> pageTransaction = paymentService.getTransactionByFilter(status, (fromDate == null ? null : fromDate.atStartOfDay()), (toDate == null ? null : toDate.plusDays(1).atStartOfDay()), keyword, page);
 
         int startPage = (pageTransaction.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
         int endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, pageTransaction.getTotalPages() - 1);

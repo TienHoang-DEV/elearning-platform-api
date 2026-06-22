@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 @Setter
 public class TransactionListDTO {
 
+    private Integer id;
     private String transactionCode;
     private String customerName;
     private String customerEmail;
@@ -17,7 +18,8 @@ public class TransactionListDTO {
     private String description;
     private PaymentStatus paymentStatus;
 
-    public TransactionListDTO(String transactionCode, String customerName, String customerEmail, BigDecimal amount, String description, PaymentStatus paymentStatus) {
+    public TransactionListDTO(Integer id, String transactionCode, String customerName, String customerEmail, BigDecimal amount, String description, PaymentStatus paymentStatus) {
+        this.id = id;
         this.transactionCode = transactionCode;
         this.customerName = customerName;
         this.customerEmail = customerEmail;
@@ -29,4 +31,5 @@ public class TransactionListDTO {
     public boolean isPositive() {
         return amount.compareTo(BigDecimal.ZERO) > 0;
     }
+
 }
