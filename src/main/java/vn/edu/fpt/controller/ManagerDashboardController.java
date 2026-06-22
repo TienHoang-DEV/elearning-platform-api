@@ -20,6 +20,7 @@ import vn.edu.fpt.service.payment.PaymentService;
 import vn.edu.fpt.util.AppConstants;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/manager")
@@ -64,15 +65,20 @@ public class ManagerDashboardController {
     }
 
     @GetMapping("/transaction-history/list")
-    public String showTransaction(Model model, @RequestParam(required = false) PaymentStatus status, @RequestParam(required = false) LocalDate fromDate, @RequestParam(required = false) LocalDate toDate, @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "0") int page) {
+    public String showTransaction(Model model, @RequestParam(required = false) String status, @RequestParam(required = false) LocalDate fromDate, @RequestParam(required = false) LocalDate toDate, @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "0") int page) {
 
         TransactionCountByStatusDTO transactionCountByStatusDTO = paymentService.gettransactionCountByStatusDTO();
         Integer totalTransaction = transactionCountByStatusDTO.getAllTransaction();
 
-        Page<TransactionListDTO> pageTransaction = paymentService.getTransactionByFilter(status, fromDate, toDate, keyword, page);
+        Page<TransactionListDTO> pageTransaction = paymentService.getTransactionByFilter(status, (fromDate == null ? null : fromDate.atStartOfDay()), (toDate == null ? null : toDate.atStartOfDay()), keyword, page);
 
         int startPage = (pageTransaction.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
         int endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, pageTransaction.getTotalPages() - 1);
+
+        model.addAttribute("status", status);
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
+        model.addAttribute("keyword", keyword);
 
         model.addAttribute("pageTransaction", pageTransaction);
         model.addAttribute("startPage", startPage);

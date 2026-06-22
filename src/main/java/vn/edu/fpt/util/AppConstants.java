@@ -35,7 +35,7 @@ public final class AppConstants {
             "970407", "Techcombank"
     );
 
-    public static final int NUMBER_PAYMENT_RECORD_PER_PAGE = 3;
+    public static final int NUMBER_PAYMENT_RECORD_PER_PAGE = 6;
     public static final int NUMBER_PAGE_PER_BLOCK = 5;
 
 }

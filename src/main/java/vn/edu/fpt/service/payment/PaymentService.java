@@ -25,6 +25,7 @@ import vn.payos.model.v2.paymentRequests.PaymentLink;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -244,7 +245,11 @@ public class PaymentService {
         return dto;
     }
 
-    public Page<TransactionListDTO> getTransactionByFilter(PaymentStatus status, LocalDate fromDate, LocalDate toDate, String keyword, int page) {
+    public Page<TransactionListDTO> getTransactionByFilter(String statuss, LocalDateTime fromDate, LocalDateTime toDate, String keyword, int page) {
+        PaymentStatus status = null;
+        if (statuss != null && !statuss.isBlank()) {
+           status = PaymentStatus.valueOf(statuss);
+        }
         Pageable pageable = PageRequest.of(page, AppConstants.NUMBER_PAYMENT_RECORD_PER_PAGE);
         return repository.getTransactionByFilter(status, fromDate, toDate, keyword, pageable);
     }

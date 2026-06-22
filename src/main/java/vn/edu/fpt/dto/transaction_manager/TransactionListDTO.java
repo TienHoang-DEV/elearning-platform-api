@@ -25,4 +25,8 @@ public class TransactionListDTO {
         this.description = description;
         this.paymentStatus = paymentStatus;
     }
+
+    public boolean isPositive() {
+        return amount.compareTo(BigDecimal.ZERO) > 0;
+    }
 }

@@ -32,11 +32,17 @@
                 </div>
                 <div class="rev-card">
                     <h3>Thành công</h3>
-                    <div class="rev-val text-success" th:text="${#numbers.formatInteger(transactionCountByStatusDTO.getNumberOfTransactionSuccess(), 0)}">1,120</div>
+                    <div class="rev-val text-success"
+                         th:text="${#numbers.formatInteger(transactionCountByStatusDTO.getNumberOfTransactionSuccess(), 0)}">
+                        1,120
+                    </div>
                 </div>
                 <div class="rev-card">
                     <h3>Chờ xử lý</h3>
-                    <div class="rev-val text-warning" th:text="${#numbers.formatInteger(transactionCountByStatusDTO.getNumberOfTransactionPending(), 0)}">85</div>
+                    <div class="rev-val text-warning"
+                         th:text="${#numbers.formatInteger(transactionCountByStatusDTO.getNumberOfTransactionPending(), 0)}">
+                        85
+                    </div>
                 </div>
             </div>
 
@@ -46,22 +52,24 @@
                     <div class="col-12 col-md-3">
                         <label class="form-label fw-medium text-secondary small">Trạng thái</label>
                         <select name="status" class="form-select custom-select shadow-none">
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="PAID">Thành công</option>
-                            <option value="PENDING">Chờ xử lý</option>
-                            <option value="FAILED">Thất bại</option>
-                            <option value="CANCELLED">Đã hủy</option>
-                            <option value="EXPIRED">Hết hạn</option>
+                            <option th:selected="${status == null || status == ''}" value="">Tất cả trạng thái</option>
+                            <option th:selected="${status == 'PAID'}" value="PAID">Thành công</option>
+                            <option th:selected="${status == 'PENDING'}" value="PENDING">Chờ xử lý</option>
+                            <option th:selected="${status == 'FAILED'}" value="FAILED">Thất bại</option>
+                            <option th:selected="${status == 'CANCELLED'}" value="CANCELLED">Đã hủy</option>
+                            <option th:selected="${status == 'EXPIRED'}" value="EXPIRED">Hết hạn</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-2">
                         <label class="form-label fw-medium text-secondary small">Từ ngày</label>
-                        <input type="date" name="fromDate" class="form-control custom-input shadow-none">
+                        <input type="date" th:value="${fromDate}" name="fromDate"
+                               class="form-control custom-input shadow-none">
                     </div>
 
                     <div class="col-6 col-md-2">
                         <label class="form-label fw-medium text-secondary small">Đến ngày</label>
-                        <input type="date" name="toDate" class="form-control custom-input shadow-none">
+                        <input type="date" th:value="${toDate}" name="toDate"
+                               class="form-control custom-input shadow-none">
                     </div>
 
                     <div class="col-12 col-md-5">
@@ -71,10 +79,11 @@
                     <i class="ph ph-magnifying-glass"></i>
                 </span>
                             <input type="text" name="keyword"
+                                   th:value="${keyword}"
                                    class="form-control border-start-0 border-end-0 ps-0 shadow-none"
                                    placeholder="Mã GD, tên học viên, nội dung...">
                             <button type="submit" class="btn btn-search-submit">
-                                <i class="ph ph-funnel me-1"></i> Tìm kiếm
+                                <i class="ph ph-funnel me-1"></i> Lọc Kết Quả
                             </button>
                         </div>
                     </div>
@@ -98,16 +107,28 @@
                         </thead>
                         <tbody>
                         <tr th:each="transaction : ${pageTransaction}">
-                            <td><strong class="text-primary" th:text="${transaction.transactionCode}">TX001</strong></td>
+                            <td><strong class="text-primary" th:text="${transaction.transactionCode}">TX001</strong>
+                            </td>
                             <td>
                                 <div class="fw-semibold" th:text="${transaction.customerName}">Nguyễn Văn A</div>
                                 <small class="text-muted" th:text="${transaction.customerEmail}">nva@gmail.com</small>
                             </td>
                             <td>
-                                <div class="fw-semibold text-success" th:text="${transaction.amount}">+500,000 đ</div>
+                                <div class="fw-semibold "
+                                     th:classappend="${transaction.isPositive() ? ' text-success' : ' text-danger'}"
+                                     th:text="${transaction.isPositive() ? '+' + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT')  : transaction.amount} + ' VND'">
+                                    +500,000 đ
+                                </div>
                                 <small class="text-muted" th:text="${transaction.description}">Khóa học Java Web</small>
                             </td>
-                            <td><span class="badge badge-paid" th:text="${transaction.paymentStatus}">PAID</span></td>
+                            <td th:switch="${transaction.paymentStatus.name()}">
+                                <span th:case="'PAID'" class="text-success fw-semibold">Đã thanh toán</span>
+                                <span th:case="'PENDING'" class="text-warning fw-semibold">Chờ thanh toán</span>
+                                <span th:case="'FAILED'" class="text-danger fw-semibold">Thất bại</span>
+                                <span th:case="'CANCELLED'" class="text-secondary fw-semibold">Đã hủy</span>
+                                <span th:case="'EXPIRED'" class="text-dark fw-semibold">Hết hạn</span>
+                                <span th:case="*" class="text-muted">Không xác định</span>
+                            </td>
                             <td class="text-center">
                                 <button class="btn-action" title="Xem chi tiết"><i class="ph ph-eye"></i></button>
                             </td>
@@ -119,13 +140,24 @@
 
             <nav class="d-flex justify-content-center mt-4">
                 <ul class="pagination-custom d-flex align-items-center gap-1 list-unstyled">
-                    <li><a href="#" class="page-link-nav"><i class="ph ph-caret-left"></i></a></li>
-                    <li><a href="#" class="page-item-num active">1</a></li>
-                    <li><a href="#" class="page-item-num">2</a></li>
-                    <li><a href="#" class="page-item-num">3</a></li>
-                    <li><a href="#" class="page-item-num">4</a></li>
-                    <li><a href="#" class="page-item-num">5</a></li>
-                    <li><a href="#" class="page-link-nav"><i class="ph ph-caret-right"></i></a></li>
+                    <li th:if="${!pageTransaction.first}">
+                        <a class="page-link-nav"
+                           th:href="@{/manager/transaction-history/list(page=${pageTransaction.number - 1}, status=${status}, fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword})}">
+                            <i class="ph ph-caret-left"></i>
+                        </a>
+                    </li>
+                    <li th:each="pageNum : ${#numbers.sequence(startPage, endPage)}">
+                        <a th:href="@{/manager/transaction-history/list(page=${pageNum}, status=${status}, fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword})}"
+                           th:text="${pageNum + 1}"
+                           th:class="${pageNum == pageTransaction.number ? 'page-item-num active' : 'page-item-num'}">
+                        </a>
+                    </li>
+                    <li th:if="${!pageTransaction.last}">
+                        <a class="page-link-nav"
+                           th:href="@{/manager/transaction-history/list(page=${pageTransaction.number + 1}, status=${status}, fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword})}">
+                            <i class="ph ph-caret-right"></i>
+                        </a>
+                    </li>
                 </ul>
             </nav>
 
