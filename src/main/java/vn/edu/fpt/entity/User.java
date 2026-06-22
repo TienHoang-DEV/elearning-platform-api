@@ -66,6 +66,19 @@ public class User extends BaseEntity {
     private UserStatus status;
 
     @Builder.Default
+    @Column(name = "favorite_setup_completed", nullable = false)
+    private boolean favoriteSetupCompleted = false;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_favorite_categories",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    @Builder.Default
+    private Set<Category> favoriteCategories = new HashSet<>();
+
+    @Builder.Default
     @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)
     private Set<Course> courses = new HashSet<>();
 

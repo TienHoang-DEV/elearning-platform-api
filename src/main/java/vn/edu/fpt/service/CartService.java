@@ -43,6 +43,11 @@ public class CartService {
                 .orElseGet(() -> repository.save(Cart.builder().user(user).build()));
     }
 
+    public Cart getOrCreateCartForUserWithDetails(User user) {
+        return repository.findByUserWithItemsAndCourses(user)
+                .orElseGet(() -> repository.save(Cart.builder().user(user).build()));
+    }
+
     public List<Cart> findAll() {
         return repository.findAll();
     }
@@ -64,7 +69,7 @@ public class CartService {
     }
 
     public CartPageDetailsDto getCartPageDetails(User user) {
-        Cart cart = getOrCreateCartForUser(user);
+        Cart cart = getOrCreateCartForUserWithDetails(user);
         CartDto cartDto = dtoMapper.toCartDto(cart);
 
         // Nhóm các CartItemDto theo Giảng viên của khóa học
