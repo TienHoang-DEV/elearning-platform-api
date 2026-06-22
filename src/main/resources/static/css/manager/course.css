@@ -122,12 +122,12 @@
     transition: all 0.2s ease;
 }
 .btn-approve {
-    background-color: #0056D2;
+    background-color: var(--primary-blue);
     color: #fff;
     border: none;
 }
 .btn-approve:hover {
-    background-color: #00409E;
+    background-color: var(--primary-blue-hover);
     color: #fff;
 }
 .btn-reject {
