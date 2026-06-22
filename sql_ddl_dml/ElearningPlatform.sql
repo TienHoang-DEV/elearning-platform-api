@@ -637,8 +637,8 @@ CREATE TABLE payments (
                           id INT PRIMARY KEY IDENTITY(1,1),
     -- Mã định danh duy nhất của giao dịch thanh toán
 
-                          order_id INT NOT NULL,
-    -- Mỗi đơn hàng chỉ có một giao dịch thanh toán
+                          order_id INT NOT NULL UNIQUE,
+    -- Mỗi đơn hàng chỉ có một giao dịch thanh toán (1-1 relationship)
 
                           gateway VARCHAR(50) NOT NULL,
     -- PAYOS, MOMO, VNPAY,...

@@ -1386,13 +1386,13 @@ VALUES
     (1, 1000, 'PAID', 'PAYOS'),
     (2, 2000, 'PAID', 'PAYOS'),
     (3, 5000, 'PENDING', 'PAYOS'),
-(3, 5000, 'PENDING', 'PAYOS'),
-(3, 5000, 'PENDING', 'PAYOS'),
-(3, 5000, 'PENDING', 'PAYOS'),
-(3, 5000, 'PENDING', 'PAYOS'),
-(3, 5000, 'PENDING', 'PAYOS'),
-(3, 5000, 'PENDING', 'PAYOS'),
-(3, 5000, 'PENDING', 'PAYOS');
+    (4, 10000, 'PENDING', 'PAYOS'),
+    (5, 2000, 'PENDING', 'PAYOS'),
+    (6, 1000, 'PENDING', 'PAYOS'),
+    (7, 1000, 'PENDING', 'PAYOS'),
+    (8, 190000, 'CANCELLED', 'PAYOS'),
+    (9, 350000, 'PAID', 'PAYOS'),
+    (10, 250000, 'PAID', 'PAYOS');
 
 INSERT INTO payments (
     order_id,

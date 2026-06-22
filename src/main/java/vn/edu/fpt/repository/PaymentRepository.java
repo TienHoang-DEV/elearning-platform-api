@@ -66,6 +66,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
         and (:keyword is null or lower(coalesce(p.description, '') ) like lower(concat('%', :keyword, '%')) or lower(p.gatewayOrderCode) like lower(concat('%', :keyword, '%')) or lower(p.order.user.firstName) like 
         lower(concat('%', :keyword, '%')) or lower(p.order.user.lastName) like 
         lower(concat('%', :keyword, '%')) or lower(p.order.user.email) like lower(concat('%', :keyword, '%')))
+        order by p.createdAt desc 
 """)
     Page<TransactionListDTO> getTransactionByFilter(PaymentStatus status, LocalDateTime fromDate, LocalDateTime toDate, String keyword, Pageable pageable);
 }
