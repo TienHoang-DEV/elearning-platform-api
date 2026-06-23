@@ -60,11 +60,11 @@ public class CustomOAuth2UserService
                     oAuth2User.getAttribute("family_name");
 
             if (firstName == null || firstName.isBlank()) {
-                firstName = "Google";
+                firstName = "";
             }
 
             if (lastName == null || lastName.isBlank()) {
-                lastName = "User";
+                lastName = "";
             }
 
             String picture =

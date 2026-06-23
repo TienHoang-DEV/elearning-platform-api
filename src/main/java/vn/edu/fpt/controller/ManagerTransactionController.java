@@ -16,6 +16,7 @@ import vn.edu.fpt.service.payment.PaymentService;
 import vn.edu.fpt.util.AppConstants;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/manager")
@@ -45,7 +46,7 @@ public class ManagerTransactionController {
         model.addAttribute("transactionCountByStatusDTO", transactionCountByStatusDTO);
         model.addAttribute("totalTransaction", totalTransaction);
         return "manager/transaction-history/transaction-history";
-    }dd
+    }
 
     @GetMapping("/transaction-detail/{paymentId}")
     public String getTransactionDetail(@PathVariable(name = "paymentId") Integer paymentId, Model model) {

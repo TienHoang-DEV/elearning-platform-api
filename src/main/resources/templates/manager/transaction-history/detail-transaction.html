@@ -6,9 +6,12 @@
         <div class="modal-header-custom">
             <div class="header-title">
                 <h2 id="modalTitle">Chi Tiết Giao Dịch</h2>
-                <p id="modalSubtitle" class="transaction-code-header">Mã GD: <span id="transactionCode" th:text="${transactionDetail.gateWayOrderCode}"></span></p>
+                <p id="modalSubtitle" class="transaction-code-header">Mã GD: <span id="transactionCode"
+                                                                                   th:text="${transactionDetail.gateWayOrderCode}"></span>
+                </p>
             </div>
-            <button class="btn-close-modal" onclick="document.getElementById('transactionDetailModal').classList.remove('active')" title="Đóng">
+            <button class="btn-close-modal"
+                    onclick="document.getElementById('transactionDetailModal').classList.remove('active')" title="Đóng">
                 <i class="ph ph-x"></i>
             </button>
         </div>
@@ -29,7 +32,9 @@
                     <div class="info-icon payment-icon"><i class="ph ph-credit-card"></i></div>
                     <div class="info-content">
                         <span class="info-label">Số tiền</span>
-                        <p class="info-value amount" th:text="${#numbers.formatDecimal(transactionDetail.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">1.000 VND</p>
+                        <p class="info-value amount"
+                           th:text="${#numbers.formatDecimal(transactionDetail.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+                            1.000 VND</p>
                         <small class="info-detail" th:text="${transactionDetail.gateWay}">PAYOS</small>
                     </div>
                 </div>
@@ -38,8 +43,11 @@
                     <div class="info-icon status-icon"><i class="ph ph-check-circle"></i></div>
                     <div class="info-content">
                         <span class="info-label">Trạng thái</span>
-                        <p class="info-value status-badge status-paid" th:text="${transactionDetail.status}">Đã thanh toán</p>
-                        <small th:if="${transactionDetail.paidAt != null}" class="info-detail" th:text="${'Thanh toán lúc: ' + #temporals.format(transactionDetail.paidAt, 'dd/MM/yyyy HH:mm')}">Thanh toán lúc: 22/06/2026 10:05</small>
+                        <p class="info-value status-badge status-paid" th:text="${transactionDetail.status}">Đã thanh
+                            toán</p>
+                        <small th:if="${transactionDetail.paidAt != null}" class="info-detail"
+                               th:text="${'Thanh toán lúc: ' + #temporals.format(transactionDetail.paidAt, 'dd/MM/yyyy HH:mm')}">Thanh
+                            toán lúc: 22/06/2026 10:05</small>
                     </div>
                 </div>
 
@@ -47,7 +55,8 @@
                     <div class="info-icon time-icon"><i class="ph ph-calendar"></i></div>
                     <div class="info-content">
                         <span class="info-label">Thời gian tạo</span>
-                        <p class="info-value" th:text="${#temporals.format(transactionDetail.createdAt, 'dd/MM/yyyy')}">22/06/2026</p>
+                        <p class="info-value" th:text="${#temporals.format(transactionDetail.createdAt, 'dd/MM/yyyy')}">
+                            22/06/2026</p>
                         <small class="info-detail" th:text="${#temporals.format(transactionDetail.createdAt, 'HH:mm')}">10:00</small>
                     </div>
                 </div>
@@ -58,14 +67,20 @@
             <div class="order-items-section">
                 <div class="section-header">
                     <h3><i class="ph ph-book"></i> Khóa học trong đơn hàng</h3>
-                    <span class="item-count" th:text="${transactionDetail.courses.size()} + ' khóa học'">1 khóa học</span>
+                    <span class="item-count"
+                          th:text="${transactionDetail.courses.size()} + ' khóa học'">1 khóa học</span>
                 </div>
                 <div class="order-items-list">
-                    <div class="order-item" th:each="course : ${transactionDetail.courses}">
-                        <div class="order-item-thumbnail"><img th:src="${course.thumbnailUrl}"  class="w-100 h-100 object-fit-cover"></img></div>
+                    <div class="order-item" th:each="course : ${transactionDetail.courses}"
+                         th:onclick="|window.open('@{/course/detail(id=${course.id})}', '_blank')|">
+                        <div class="order-item-thumbnail">
+                            <img th:src="${course.thumbnailUrl}" class="w-100 h-100 object-fit-cover"></img>
+                        </div>
                         <div class="order-item-content">
-                            <p class="order-item-title" th:text="${course.title}">Java Core Từ Cơ Bản Đến Nâng Cao</p>
-                            <span class="order-item-price" th:text="${#numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' VND'}">1.000 VND</span>
+                            <p class="order-item-title" th:text="${course.title}">Java Core Từ Cơ Bản Đến Nâng
+                                Cao</p>
+                            <span class="order-item-price"
+                                  th:text="${#numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' VND'}">1.000 VND</span>
                         </div>
                     </div>
                 </div>
@@ -73,73 +88,102 @@
 
             <div class="modal-divider"></div>
 
-            <!-- All Transaction Details -->
             <div class="additional-details">
-                <div class="detail-row detail-row-large">
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.paymentUrl != null}">
+                    <span class="detail-label-large">Link thanh toán:</span>
+                    <span class="detail-value-large">
+                    <a th:href="${transactionDetail.paymentUrl}"
+                       target="_blank"
+                       th:text="${transactionDetail.paymentUrl}">
+                    </a>
+                    </span>
+                </div>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.id != null}">
                     <span class="detail-label-large">Mã GD:</span>
-                    <span class="detail-value-large">TX001</span>
+                    <span class="detail-value-large" th:text="${transactionDetail.id}"></span>
                 </div>
-                <div class="detail-row detail-row-large">
-                    <span class="detail-label-large">Mã đơn hàng cổng thanh toán:</span>
-                    <span class="detail-value-large">PAYOS_100001</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.customerName != null}">
+                    <span class="detail-label-large">Khách hàng:</span>
+                    <span class="detail-value-large" th:text="${transactionDetail.customerName}"></span>
                 </div>
-                <div class="detail-row detail-row-large">
-                    <span class="detail-label-large">Gateway:</span>
-                    <span class="detail-value-large">PAYOS</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.customerEmail != null}">
+                    <span class="detail-label-large">Email:</span>
+                    <span class="detail-value-large" th:text="${transactionDetail.customerEmail}"></span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Payment URL:</span>
-                    <span class="detail-value">https://pay.payos.vn/100001</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.amount != null}">
+                    <span class="detail-label-large">Số tiền:</span>
+                    <span class="detail-value-large"
+                          th:text="${#numbers.formatDecimal(transactionDetail.amount, 0, 'COMMA', 0, 'POINT')}"></span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">QR Code URL:</span>
-                    <span class="detail-value">https://qr.payos.vn/100001</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.description != null}">
+                    <span class="detail-label-large">Mô tả:</span>
+                    <span class="detail-value-large" th:text="${transactionDetail.description}"></span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Nội dung thanh toán:</span>
-                    <span class="detail-value">Khóa học Java Web</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.gateWayOrderCode != null}">
+                    <span class="detail-label-large">Mã đơn cổng thanh toán:</span>
+                    <span class="detail-value-large" th:text="${transactionDetail.gateWayOrderCode}"></span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Trạng thái thanh toán:</span>
-                    <span class="detail-value">Đã thanh toán</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.status != null}">
+                    <span class="detail-label-large">Trạng thái:</span>
+                    <span class="detail-value-large" th:text="${transactionDetail.status}"></span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Thời gian tạo:</span>
-                    <span class="detail-value">22/06/2026 10:00</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.createdAt != null}">
+                    <span class="detail-label-large">Ngày tạo:</span>
+                    <span class="detail-value-large"
+                          th:text="${#temporals.format(transactionDetail.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Thời gian thanh toán:</span>
-                    <span class="detail-value">22/06/2026 10:05</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.updatedAt != null}">
+                    <span class="detail-label-large">Ngày cập nhật:</span>
+                    <span class="detail-value-large"
+                          th:text="${#temporals.format(transactionDetail.updatedAt, 'dd/MM/yyyy HH:mm:ss')}"></span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Thời gian hết hạn:</span>
-                    <span class="detail-value">22/06/2026 12:00</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.expiredAt != null}">
+                    <span class="detail-label-large">Hết hạn:</span>
+                    <span class="detail-value-large"
+                          th:text="${#temporals.format(transactionDetail.expiredAt, 'dd/MM/yyyy HH:mm:ss')}"></span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Webhook nhận được:</span>
-                    <span class="detail-value">✓ Đã nhận</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.paidAt != null}">
+                    <span class="detail-label-large">Thanh toán lúc:</span>
+                    <span class="detail-value-large"
+                          th:text="${#temporals.format(transactionDetail.paidAt, 'dd/MM/yyyy HH:mm:ss')}"></span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Thời gian webhook:</span>
-                    <span class="detail-value">22/06/2026 10:05</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.gateWay != null}">
+                    <span class="detail-label-large">Cổng thanh toán:</span>
+                    <span class="detail-value-large" th:text="${transactionDetail.gateWay}"></span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Error Code:</span>
-                    <span class="detail-value">-</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.webhookReceivedAt != null}">
+                    <span class="detail-label-large">Webhook nhận lúc:</span>
+                    <span class="detail-value-large"
+                          th:text="${#temporals.format(transactionDetail.webhookReceivedAt, 'dd/MM/yyyy HH:mm:ss')}">
+                    </span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Error Message:</span>
-                    <span class="detail-value">-</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Gateway Response:</span>
-                    <span class="detail-value detail-value-code">{"status": "success", "transactionId": "100001"}</span>
+
+                <div class="detail-row detail-row-large" th:if="${transactionDetail.webhookReceive != null}">
+                    <span class="detail-label-large">Đã nhận webhook:</span>
+                    <span class="detail-value-large"
+                          th:text="${transactionDetail.webhookReceive ? 'Có' : 'Không'}">
+                    </span>
                 </div>
             </div>
         </div>
 
         <div class="modal-footer-custom">
-            <button class="btn btn-secondary-modal" onclick="document.getElementById('transactionDetailModal').classList.remove('active')">
+            <button class="btn btn-secondary-modal"
+                    onclick="document.getElementById('transactionDetailModal').classList.remove('active')">
                 <i class="ph ph-arrow-left me-1"></i> Quay lại
             </button>
             <button class="btn btn-primary-modal" onclick="window.print()">
@@ -153,7 +197,10 @@
     .transaction-modal-overlay {
         display: none;
         position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         background: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(4px);
         z-index: 10000;
@@ -168,10 +215,24 @@
         justify-content: center;
     }
 
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
     @keyframes slideUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .transaction-modal-content {
@@ -272,12 +333,30 @@
         flex-shrink: 0;
     }
 
-    .customer-icon { background: #e3f2fd; color: #1976d2; }
-    .payment-icon { background: #f3e5f5; color: #7b1fa2; }
-    .status-icon { background: #e8f5e9; color: #388e3c; }
-    .time-icon { background: #fff3e0; color: #f57c00; }
+    .customer-icon {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
 
-    .info-content { flex: 1; min-width: 0; }
+    .payment-icon {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .status-icon {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .time-icon {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+
+    .info-content {
+        flex: 1;
+        min-width: 0;
+    }
 
     .info-label {
         display: block;
@@ -296,7 +375,11 @@
         margin: 0;
     }
 
-    .info-value.amount { color: #2e7d32; font-size: 16px; font-weight: 800; }
+    .info-value.amount {
+        color: #2e7d32;
+        font-size: 16px;
+        font-weight: 800;
+    }
 
     .info-value.status-badge {
         display: inline-block;
@@ -314,15 +397,40 @@
         margin-top: 4px;
     }
 
-    .status-paid { background: #e8f5e9; color: #2e7d32; }
-    .status-pending { background: #fff3e0; color: #e65100; }
-    .status-failed { background: #ffebee; color: #c62828; }
-    .status-cancelled { background: #f5f5f5; color: #616161; }
-    .status-expired { background: #ede7f6; color: #512da8; }
+    .status-paid {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
 
-    .modal-divider { height: 1px; background: #f0f0f0; margin: 24px 0; }
+    .status-pending {
+        background: #fff3e0;
+        color: #e65100;
+    }
 
-    .order-items-section { margin-bottom: 24px; }
+    .status-failed {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .status-cancelled {
+        background: #f5f5f5;
+        color: #616161;
+    }
+
+    .status-expired {
+        background: #ede7f6;
+        color: #512da8;
+    }
+
+    .modal-divider {
+        height: 1px;
+        background: #f0f0f0;
+        margin: 24px 0;
+    }
+
+    .order-items-section {
+        margin-bottom: 24px;
+    }
 
     .section-header {
         display: flex;
@@ -349,14 +457,24 @@
         border-radius: 4px;
     }
 
-    .order-items-list { display: flex; flex-direction: column; gap: 12px; }
+    .order-items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
 
     .order-item {
         display: flex;
+        cursor: pointer;
         gap: 12px;
         padding: 12px;
         background: #f9f9f9;
         border-left: 3px solid #667eea;
+    }
+
+    .order-item:hover {
+        background: #ede7f6;
+        color: #fff;
     }
 
     .order-item-thumbnail {
@@ -372,7 +490,10 @@
         flex-shrink: 0;
     }
 
-    .order-item-content { flex: 1; min-width: 0; }
+    .order-item-content {
+        flex: 1;
+        min-width: 0;
+    }
 
     .order-item-title {
         font-size: 13px;
@@ -485,8 +606,15 @@
         gap: 6px;
     }
 
-    .btn-secondary-modal { background: #f0f0f0; color: #333; }
-    .btn-secondary-modal:hover { background: #e0e0e0; transform: translateY(-2px); }
+    .btn-secondary-modal {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .btn-secondary-modal:hover {
+        background: #e0e0e0;
+        transform: translateY(-2px);
+    }
 
     .btn-primary-modal {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -499,11 +627,29 @@
     }
 
     @media (max-width: 600px) {
-        .transaction-modal-overlay { padding: 10px; }
-        .transaction-modal-content { max-width: 100%; }
-        .transaction-info-grid { grid-template-columns: repeat(2, 1fr); }
-        .modal-footer-custom { flex-direction: column-reverse; }
-        .btn { width: 100%; justify-content: center; }
-        .detail-label { min-width: 120px; }
+        .transaction-modal-overlay {
+            padding: 10px;
+        }
+
+        .transaction-modal-content {
+            max-width: 100%;
+        }
+
+        .transaction-info-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .modal-footer-custom {
+            flex-direction: column-reverse;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .detail-label {
+            min-width: 120px;
+        }
     }
 </style>
