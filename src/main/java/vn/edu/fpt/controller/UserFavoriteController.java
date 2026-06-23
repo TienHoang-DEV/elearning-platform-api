@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import vn.edu.fpt.dto.CategoryDto;
+import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.mapper.DtoMapper;

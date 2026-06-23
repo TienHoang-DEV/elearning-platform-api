@@ -4,10 +4,18 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import vn.edu.fpt.dto.*;
+import vn.edu.fpt.dto.cart.CartDto;
+import vn.edu.fpt.dto.cart.CartItemDto;
+import vn.edu.fpt.dto.cart.OrderDto;
+import vn.edu.fpt.dto.course.CategoryDto;
+import vn.edu.fpt.dto.course.CourseDto;
+import vn.edu.fpt.dto.course.FeedbackDto;
+import vn.edu.fpt.dto.course.OrderItemDto;
 import vn.edu.fpt.dto.quizdto.QuizAnswerDTO;
 import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
+import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.*;
 
 import java.util.Set;

@@ -1,4 +1,4 @@
-package vn.edu.fpt.dto;
+package vn.edu.fpt.dto.user;
 
 import lombok.*;
 import vn.edu.fpt.enums.RoleType;

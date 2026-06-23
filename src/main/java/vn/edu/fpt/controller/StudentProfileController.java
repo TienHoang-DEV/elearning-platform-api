@@ -3,9 +3,11 @@ package vn.edu.fpt.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import vn.edu.fpt.dto.cart.OrderDto;
+import vn.edu.fpt.dto.course.CourseDto;
+import vn.edu.fpt.dto.home.HomeDto;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.entity.Enrollment;
-import vn.edu.fpt.entity.Order;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.OrderService;
@@ -22,7 +24,6 @@ import vn.edu.fpt.dto.*;
 import vn.edu.fpt.service.CourseService;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Controller
 public class StudentProfileController {

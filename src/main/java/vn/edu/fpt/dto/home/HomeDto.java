@@ -1,6 +1,9 @@
-package vn.edu.fpt.dto;
+package vn.edu.fpt.dto.home;
 
 import lombok.*;
+import vn.edu.fpt.dto.course.CategoryDto;
+import vn.edu.fpt.dto.course.CourseListDto;
+
 import java.util.List;
 import java.util.Map;
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import vn.edu.fpt.dto.UserDto;
+import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.service.UserService;
