@@ -30,7 +30,6 @@ import java.time.LocalDateTime;
 public class ManagerDashboardController {
 
     private final ManagerDashboardService managerDashboardService;
-    private final PaymentService paymentService;
 
     @GetMapping({"", "/dashboard"})
     public String dashboard(Model model) {
@@ -62,35 +61,5 @@ public class ManagerDashboardController {
         return "manager/revenue/revenue-list";
     }
 
-    @GetMapping("/transaction-history/list")
-    public String showTransaction(Model model, @RequestParam(required = false) String status, @RequestParam(required = false) LocalDate fromDate, @RequestParam(required = false) LocalDate toDate, @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "0") int page) {
-
-        TransactionCountByStatusDTO transactionCountByStatusDTO = paymentService.gettransactionCountByStatusDTO();
-        Integer totalTransaction = transactionCountByStatusDTO.getAllTransaction();
-
-        Page<TransactionListDTO> pageTransaction = paymentService.getTransactionByFilter(status, (fromDate == null ? null : fromDate.atStartOfDay()), (toDate == null ? null : toDate.plusDays(1).atStartOfDay()), keyword, page);
-
-        int startPage = (pageTransaction.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
-        int endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, pageTransaction.getTotalPages() - 1);
-
-        model.addAttribute("status", status);
-        model.addAttribute("fromDate", fromDate);
-        model.addAttribute("toDate", toDate);
-        model.addAttribute("keyword", keyword);
-
-        model.addAttribute("pageTransaction", pageTransaction);
-        model.addAttribute("startPage", startPage);
-        model.addAttribute("endPage", endPage);
-        model.addAttribute("transactionCountByStatusDTO", transactionCountByStatusDTO);
-        model.addAttribute("totalTransaction", totalTransaction);
-        return "manager/transaction-history/transaction-history";
-    }
-
-    @GetMapping("/transaction-detail/{paymentId}")
-    public String getTransactionDetail(@PathVariable(name = "paymentId") Integer paymentId, Model model) {
-        TransactionDetailDTO transactionDetailDTO = paymentService.getTransactionDetailByPaymentId(paymentId);
-        model.addAttribute("transactionDetail", transactionDetailDTO);
-        return "manager/transaction-history/detail-transaction";
-    }
 
 }
