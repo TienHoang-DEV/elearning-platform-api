@@ -4,16 +4,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import vn.edu.fpt.dto.cart.OrderDto;
-import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.home.HomeDto;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.entity.Enrollment;
-import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.OrderService;
 import vn.edu.fpt.repository.EnrollmentRepository;
-import vn.edu.fpt.repository.CourseRepository;
-import vn.edu.fpt.enums.CourseStatus;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -31,20 +27,17 @@ public class StudentProfileController {
     private final UserRepository userRepository;
     private final OrderService orderService;
     private final EnrollmentRepository enrollmentRepository;
-    private final CourseRepository courseRepository;
     private final DtoMapper dtoMapper;
     private final CourseService courseService;
 
     public StudentProfileController(UserRepository userRepository,
                                     OrderService orderService,
                                     EnrollmentRepository enrollmentRepository,
-                                    CourseRepository courseRepository,
                                     DtoMapper dtoMapper,
                                     CourseService courseService) {
         this.userRepository = userRepository;
         this.orderService = orderService;
         this.enrollmentRepository = enrollmentRepository;
-        this.courseRepository = courseRepository;
         this.dtoMapper = dtoMapper;
         this.courseService = courseService;
     }
@@ -180,32 +173,5 @@ public class StudentProfileController {
         return "purchase_history/purchase_history";
     }
 
-    @org.springframework.transaction.annotation.Transactional
-    @GetMapping("/student/recommendations")
-    public String showRecommendations(Model model) {
-        User user = getSessionUser();
-        if (user == null) {
-            return "redirect:/login_no";
-        }
-        
-        Set<Integer> enrolledCourseIds = new java.util.HashSet<>();
-        for (Enrollment e : user.getEnrollments()) {
-            if (e.getCourse() != null) {
-                enrolledCourseIds.add(e.getCourse().getId());
-            }
-        }
-                
-        List<CourseDto> recommendedCourses = new java.util.ArrayList<>();
-        for (Course c : courseRepository.findAll()) {
-            if (!enrolledCourseIds.contains(c.getId()) && c.getStatus() == CourseStatus.PUBLISHED) {
-                recommendedCourses.add(dtoMapper.toCourseDto(c));
-            }
-        }
-                
-        model.addAttribute("currentUser", dtoMapper.toUserDto(user));
-        model.addAttribute("recommendedCourses", recommendedCourses);
-        
-        return "recommendations/recommendations";
-    }
 }
 
