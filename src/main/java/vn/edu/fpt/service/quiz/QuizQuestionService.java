@@ -53,7 +53,7 @@ public class QuizQuestionService {
         return repository.existsById(id);
     }
 
-    public void saveQuestion(QuizQuestionDTO dto, Integer quizId) {
+    public void createQuestion(QuizQuestionDTO dto, Integer quizId) {
 
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow();
@@ -109,12 +109,8 @@ public class QuizQuestionService {
 
             QuizAnswer answer = new QuizAnswer();
 
-            if(answerDTO.getId() != null){
-                answer.setId(answerDTO.getId());
-            }
-
             answer.setAnswerText(answerDTO.getAnswerText());
-            answer.setCorrect(answerDTO.getCorrect());
+            answer.setCorrect(Boolean.TRUE.equals(answerDTO.getCorrect()));
 
             answer.setPosition(i + 1);
 
@@ -122,6 +118,15 @@ public class QuizQuestionService {
         }
 
         repository.save(question);
+    }
+
+    public void saveQuestion(QuizQuestionDTO quizQuestionDto, Integer quizId){
+        if(quizQuestionDto.getId() == null){
+            createQuestion(quizQuestionDto, quizId);
+        }
+        else{
+            updateQuestion(quizQuestionDto);
+        }
     }
 
     public Page<QuizQuestionDTO> getQuestionsByQuizId(Integer quizId, int page, int size) {
@@ -142,4 +147,28 @@ public class QuizQuestionService {
                 quizQuestionPage.getTotalElements()
         );
     }
+
+    public void deleteQuesion(Integer questionId){
+        QuizQuestion quizQuestion = repository.findQuizQuestionById(questionId);
+        if(quizQuestion == null){
+            System.out.println("Quiz not found !");
+            return;
+        }
+
+        repository.delete(quizQuestion);
+    }
+
+    public void copyQuestion(){
+        return;
+    }
+
+    public QuizQuestionDTO findQuizQuestionById(Integer quizQuestionId){
+        return dtoMapper.toQuizQuestionDto(repository.findQuizQuestionById(quizQuestionId));
+    }
+
+    public Integer getTotalQuestionsByQuizId(Integer quizId){
+        return repository.countByQuizId(quizId);
+    }
+
+
 }

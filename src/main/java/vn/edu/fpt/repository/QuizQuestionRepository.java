@@ -22,4 +22,8 @@ public interface QuizQuestionRepository extends JpaRepository<QuizQuestion, Inte
     );
 
     Page<QuizQuestion> findAllByQuizId(Integer quizId, Pageable pageable);
+
+    QuizQuestion findQuizQuestionById(Integer questionId);
+
+    Integer countByQuizId(Integer quizId);
 }
