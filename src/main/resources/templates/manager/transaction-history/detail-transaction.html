@@ -43,8 +43,31 @@
                     <div class="info-icon status-icon"><i class="ph ph-check-circle"></i></div>
                     <div class="info-content">
                         <span class="info-label">Trạng thái</span>
-                        <p class="info-value status-badge status-paid" th:text="${transactionDetail.status}">Đã thanh
-                            toán</p>
+                        <div th:switch="${transactionDetail.status.name()}">
+                            <p class="info-value status-badge status-paid text-success" th:case="'PAID'">
+                                Đã thanh toán
+                            </p>
+
+                            <p class="info-value status-badge status-pending text-warning" th:case="'PENDING'">
+                                Chờ thanh toán
+                            </p>
+
+                            <p class="info-value status-badge status-failed text-danger" th:case="'FAILED'">
+                                Thất bại
+                            </p>
+
+                            <p class="info-value status-badge status-cancelled text-secondary" th:case="'CANCELLED'">
+                                Đã hủy
+                            </p>
+
+                            <p class="info-value status-badge status-expired text-dark" th:case="'EXPIRED'">
+                                Hết hạn
+                            </p>
+
+                            <span th:case="*" class="text-muted">
+                                Không xác định
+                            </span>
+                        </div>
                         <small th:if="${transactionDetail.paidAt != null}" class="info-detail"
                                th:text="${'Thanh toán lúc: ' + #temporals.format(transactionDetail.paidAt, 'dd/MM/yyyy HH:mm')}">Thanh
                             toán lúc: 22/06/2026 10:05</small>
@@ -124,22 +147,6 @@
                 <div class="detail-row detail-row-large" th:if="${transactionDetail.description != null}">
                     <span class="detail-label-large">Mô tả:</span>
                     <span class="detail-value-large" th:text="${transactionDetail.description}"></span>
-                </div>
-
-                <div class="detail-row detail-row-large" th:if="${transactionDetail.gateWayOrderCode != null}">
-                    <span class="detail-label-large">Mã đơn cổng thanh toán:</span>
-                    <span class="detail-value-large" th:text="${transactionDetail.gateWayOrderCode}"></span>
-                </div>
-
-                <div class="detail-row detail-row-large" th:if="${transactionDetail.status != null}">
-                    <span class="detail-label-large">Trạng thái:</span>
-                    <span class="detail-value-large" th:text="${transactionDetail.status}"></span>
-                </div>
-
-                <div class="detail-row detail-row-large" th:if="${transactionDetail.createdAt != null}">
-                    <span class="detail-label-large">Ngày tạo:</span>
-                    <span class="detail-value-large"
-                          th:text="${#temporals.format(transactionDetail.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></span>
                 </div>
 
                 <div class="detail-row detail-row-large" th:if="${transactionDetail.updatedAt != null}">
