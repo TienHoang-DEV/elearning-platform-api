@@ -213,27 +213,58 @@
                         trong tổng số <span class="text-dark" th:text="${quizPage.totalElements}">12</span> bài trắc nghiệm
                     </div>
 
-                    <nav aria-label="Page navigation">
-                        <ul class="custom-pagination">
-                            <li class="page-item" th:classappend="${quizPage.first} ? 'disabled'">
-                                <a class="page-link" href="javascript:void(0)" th:onclick="'fetchQuizPage(' + ${quizPage.number - 1} + ')'">
-                                    <i data-lucide="chevron-left" style="width:16px; height:16px;"></i>
-                                </a>
-                            </li>
+                    <th:block th:with="
+        maxVisiblePages=5,
+        halfVisible=2,
+        startPage=${quizPage.number - halfVisible < 0 ? 0 : (quizPage.number + halfVisible >= quizPage.totalPages ? quizPage.totalPages - maxVisiblePages : quizPage.number - halfVisible)},
+        startPageValid=${startPage < 0 ? 0 : startPage},
+        endPage=${startPageValid + maxVisiblePages - 1 >= quizPage.totalPages ? quizPage.totalPages - 1 : startPageValid + maxVisiblePages - 1}
+    ">
+                        <nav aria-label="Page navigation">
+                            <ul class="custom-pagination">
 
-                            <li class="page-item"
-                                th:each="pageNumber : ${#numbers.sequence(0, quizPage.totalPages - 1)}"
-                                th:classappend="${pageNumber == quizPage.number} ? 'active'">
-                                <a class="page-link" href="javascript:void(0)" th:onclick="'fetchQuizPage(' + ${pageNumber} + ')'" th:text="${pageNumber + 1}">1</a>
-                            </li>
+                                <li class="page-item" th:classappend="${quizPage.first} ? 'disabled'">
+                                    <a class="page-link" href="javascript:void(0)" th:onclick="'fetchQuizPage(0)'" title="Về trang đầu">
+                                        <i data-lucide="chevrons-left" style="width:16px; height:16px;"></i>
+                                    </a>
+                                </li>
 
-                            <li class="page-item" th:classappend="${quizPage.last} ? 'disabled'">
-                                <a class="page-link" href="javascript:void(0)" th:onclick="'fetchQuizPage(' + ${quizPage.number + 1} + ')'">
-                                    <i data-lucide="chevron-right" style="width:16px; height:16px;"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
+                                <li class="page-item" th:classappend="${quizPage.first} ? 'disabled'">
+                                    <a class="page-link" href="javascript:void(0)" th:onclick="'fetchQuizPage(' + ${quizPage.number - 1} + ')'" aria-label="Previous">
+                                        <i data-lucide="chevron-left" style="width:16px; height:16px;"></i>
+                                    </a>
+                                </li>
+
+                                <li class="page-item disabled" th:if="${startPageValid > 0}">
+                                    <span class="page-link text-muted border-0">...</span>
+                                </li>
+
+                                <li class="page-item"
+                                    th:each="pageNumber : ${#numbers.sequence(startPageValid, endPage)}"
+                                    th:classappend="${pageNumber == quizPage.number} ? 'active'">
+                                    <a class="page-link" href="javascript:void(0)"
+                                       th:onclick="'fetchQuizPage(' + ${pageNumber} + ')'"
+                                       th:text="${pageNumber + 1}">1</a>
+                                </li>
+
+                                <li class="page-item disabled" th:if="${endPage < quizPage.totalPages - 1}">
+                                    <span class="page-link text-muted border-0">...</span>
+                                </li>
+
+                                <li class="page-item" th:classappend="${quizPage.last} ? 'disabled'">
+                                    <a class="page-link" href="javascript:void(0)" th:onclick="'fetchQuizPage(' + ${quizPage.number + 1} + ')'" aria-label="Next">
+                                        <i data-lucide="chevron-right" style="width:16px; height:16px;"></i>
+                                    </a>
+                                </li>
+
+                                <li class="page-item" th:classappend="${quizPage.last} ? 'disabled'">
+                                    <a class="page-link" href="javascript:void(0)" th:onclick="'fetchQuizPage(' + ${quizPage.totalPages - 1} + ')'" title="Đến trang cuối">
+                                        <i data-lucide="chevrons-right" style="width:16px; height:16px;"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </th:block>
                 </div>
             </div> <div id="quiz-form-inner-wrapper" class="d-none animate-slide-up">
             <div class="coupon-form-card bg-white p-4 rounded-4 border-0 shadow-sm">
@@ -298,6 +329,8 @@
     </div>
 </div>
 
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // Hàm khởi tạo Bootstrap Tooltips (giúp hiển thị text giải thích khi hover vào icon)
@@ -318,6 +351,17 @@
             lucide.createIcons();
         }
         initTooltips();
+
+        // --- ĐOẠN THÊM MỚI: Tự động bắt sự kiện từ trang quản lý câu hỏi quay về ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const statusParam = urlParams.get('status');
+
+        if (statusParam === 'DRAFT') {
+            showToast("Đã lưu bản nháp bài trắc nghiệm thành công!", 'success');
+        } else if (statusParam === 'PUBLISHED') {
+            showToast("Bài trắc nghiệm đã được xuất bản công khai.", 'success');
+        }
+        // -----------------------------------------------------------------------
     });
 
     function toggleQuizInlineForm(showForm) {
@@ -379,8 +423,7 @@
             if (btn.getAttribute('data-status') === activeStatus) {
                 btn.classList.add('active');
             } else {
-                btn.classList.remove('remove'); // Hoặc btn.classList.remove('active'); dựa theo logic cũ của bạn
-                btn.classList.remove('active');
+                btn.classList.remove('active'); // Đã sửa sạch sẽ
             }
         });
     }
