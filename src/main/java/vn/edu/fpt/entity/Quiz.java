@@ -29,7 +29,7 @@ public class Quiz extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
-    @Column(name = "pass_score", nullable = false)
+    @Column(name = "pass_score_percent", nullable = false)
     private Integer passScorePercent;
 
     @Builder.Default
