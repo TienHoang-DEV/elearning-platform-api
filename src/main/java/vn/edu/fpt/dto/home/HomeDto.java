@@ -17,4 +17,11 @@ public class HomeDto {
     private CategoryDto parentCategory;
     private List<CategoryDto> favoriteChildren;
     private Map<Integer, List<CourseListDto>> coursesMap;
+
+    // Các chỉ số thống kê từ cơ sở dữ liệu
+    private Long totalCourses;
+    private Long totalInstructors;
+    private Long totalLearners;
+    private Integer fiveStarRatingPercent;
 }
+

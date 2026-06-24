@@ -40,7 +40,7 @@
                     <h1 class="hero-headline font-heading animate-fadeInUp">
                         Khám Phá
                         <span class="hero-number-highlight">
-                                2500+
+                                [[${homeData.totalCourses ?: 0}]]+
                                 <svg class="underline-svg" viewBox="0 0 200 16" fill="none"
                                      xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                     <path class="underline-path" d="M4 10 C 40 4, 100 14, 196 6" stroke="#f5a623"
@@ -77,7 +77,7 @@
                             <img th:src="@{/images/student1.png}" alt="Học viên" class="avatar-img" loading="lazy">
                             <img th:src="@{/images/student2.png}" alt="Học viên" class="avatar-img" loading="lazy">
                             <img th:src="@{/images/avatar.png}" alt="Học viên" class="avatar-img" loading="lazy">
-                            <div class="avatar-more">+2k</div>
+                            <div class="avatar-more" th:text="${'+' + (homeData.totalLearners ?: 0)}">+2k</div>
                         </div>
                         <p class="students-text m-0">Tham gia cùng hàng nghìn <br><strong>học viên mỗi ngày</strong></p>
                     </div>
@@ -125,7 +125,7 @@
                                                                              style="width:12px; height:12px;"></i></div>
                             </div>
                             <div class="instructor-count-info mt-1">
-                                <span class="inst-count">200+</span>
+                                <span class="inst-count" th:text="${(homeData.totalInstructors ?: 0) + '+'}">200+</span>
                                 <span class="inst-label">Chuyên gia đồng hành</span>
                             </div>
                         </div>
@@ -133,7 +133,7 @@
                         <div class="stat-badge glass-card stat-badge-top">
                             <i data-lucide="graduation-cap" style="width:18px; height:18px; color: var(--primary);"></i>
                             <div>
-                                <span class="stat-num">120k+</span>
+                                <span class="stat-num" th:text="${(homeData.totalLearners ?: 0) + '+'}">120k+</span>
                                 <span class="stat-lbl">Học Viên</span>
                             </div>
                         </div>
@@ -148,20 +148,20 @@
         <div class="container">
             <div class="row g-4 text-center justify-content-center">
                 <div class="col-md-3 col-6 stat-item">
-                    <h2 class="stat-number font-heading">500+</h2>
+                    <h2 class="stat-number font-heading" th:text="${(homeData.totalCourses ?: 0) + '+'}">500+</h2>
                     <p class="stat-desc">Khóa học chuyên sâu</p>
                 </div>
                 <div class="col-md-3 col-6 stat-item">
-                    <h2 class="stat-number font-heading">120k</h2>
+                    <h2 class="stat-number font-heading" th:text="${homeData.totalLearners ?: 0}">120k</h2>
                     <p class="stat-desc">Học viên năng động</p>
                 </div>
                 <div class="col-md-3 col-6 stat-item">
-                    <h2 class="stat-number font-heading">200+</h2>
+                    <h2 class="stat-number font-heading" th:text="${(homeData.totalInstructors ?: 0) + '+'}">200+</h2>
                     <p class="stat-desc">Giảng viên ưu tú</p>
                 </div>
                 <div class="col-md-3 col-6 stat-item">
-                    <h2 class="stat-number font-heading">98%</h2>
-                    <p class="stat-desc">Đánh giá 5 sao</p>
+                    <h2 class="stat-number font-heading" th:text="${(homeData.fiveStarRatingPercent ?: 98) + '%'}">98%</h2>
+                    <p class="stat-desc">Từ 4 sao trở lên</p>
                 </div>
             </div>
         </div>

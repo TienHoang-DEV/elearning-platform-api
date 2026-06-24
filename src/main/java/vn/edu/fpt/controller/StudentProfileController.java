@@ -68,11 +68,9 @@ public class StudentProfileController {
             if (!currentUser.isFavoriteSetupCompleted()) {
                 return "redirect:/student/favorites/step1";
             }
-            HomeDto homeData = courseService.getHomeData(currentUser);
-            model.addAttribute("homeData", homeData);
-        } else {
-            model.addAttribute("homeData", HomeDto.builder().hasFavorites(false).build());
         }
+        HomeDto homeData = courseService.getHomeData(currentUser);
+        model.addAttribute("homeData", homeData);
         return "home/home";
     }
 
