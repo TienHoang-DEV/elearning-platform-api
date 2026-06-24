@@ -87,8 +87,11 @@
                      th:data-payment-id="${payment != null ? payment.id : ''}" 
                      th:data-expired-at="${payment != null ? payment.expiredAt : ''}">
                     <div class="qr-container-wrapper" style="display: flex; justify-content: center; align-items: center; position: relative;">
-                        <div id="qrCodeContainer" class="qr-svg-wrap" style="display: flex; justify-content: center; align-items: center;"></div>
-                        <div class="qr-logo-overlay" style="position: absolute; width: 50px; height: 50px;">
+                        <div id="qrCodeContainer" class="qr-svg-wrap" style="display: flex; justify-content: center; align-items: center;">
+                            <img th:if="${qrCode != null}" th:src="${qrCode}" style="width: 180px; height: 180px; display: block">
+                            <p th:unless="${qrCode != null}" style="color:red; padding:20px;">Lỗi tải mã QR</p>
+                        </div>
+                        <div class="qr-logo-overlay" style="position: absolute; width: 35px; height: 35px;">
                             <img th:src="${paymentGatewayLogo != null ? paymentGatewayLogo : '/images/logo.png'}" 
                                  alt="Payment Gateway Logo" style="width: 100%; height: 100%; object-fit: contain;">
                         </div>
@@ -204,10 +207,7 @@
 <script th:inline="javascript">
     // Global variables for payment processing
     const paymentId = [[${payment != null ? payment.id : null}]];
-    const qrCodeUrl = [[${payment != null ? payment.qrCodeUrl : null}]] || '';
-    const amount = [[${payment != null ? payment.amount : 0}]] || 0;
     const expiredAtStr = [[${payment != null ? payment.expiredAt : null}]] || '';
-    const gatewayOrderCode = [[${payment != null ? payment.gatewayOrderCode : null}]] || '';
 </script>
 
 <script>
@@ -221,9 +221,7 @@
             window.location.href = '/cart';
             return;
         }
-        
-        // Initialize page components
-        renderQRCode();
+
         setupEventListeners();
         
         if (expiredAtStr) {
@@ -232,41 +230,6 @@
         
         checkPaymentStatus();
     });
-
-    // ============================================================
-    // QR CODE RENDERING
-    // ============================================================
-    function renderQRCode() {
-        const qrContainer = document.getElementById('qrCodeContainer');
-        
-        if (!qrCodeUrl || String(qrCodeUrl).trim() === '' || String(qrCodeUrl) === 'null') {
-            qrContainer.innerHTML = '<p style="color:#999; padding:20px;">Chờ tải...</p>';
-            return;
-        }
-
-        try {
-            const img = document.createElement('img');
-            img.width = 180;
-            img.height = 180;
-            img.style.display = 'block';
-            
-            // Generate QR code via qrserver API
-            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(String(qrCodeUrl));
-            
-            img.onload = function() {
-                qrContainer.innerHTML = '';
-                qrContainer.appendChild(img);
-            };
-            
-            img.onerror = function() {
-                qrContainer.innerHTML = '<p style="color:red; padding:20px;">Lỗi tải mã QR</p>';
-            };
-            
-            img.src = qrUrl;
-        } catch (error) {
-            qrContainer.innerHTML = '<p style="color:red; padding:20px;">Lỗi tạo mã QR</p>';
-        }
-    }
 
     // ============================================================
     // EVENT LISTENERS
@@ -389,7 +352,7 @@
                 showNotification('Hủy giao dịch thành công!', 'Quay lại giỏ hàng.');
                 setTimeout(() => {
                     window.location.href = '/cart';
-                }, 2000);
+                }, 1000);
             } else {
                 showError(data.error || 'Không thể hủy giao dịch.');
                 proceedBtn.disabled = false;
