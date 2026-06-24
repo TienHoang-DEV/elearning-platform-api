@@ -734,6 +734,14 @@ CREATE TABLE payments (
                           paid_at DATETIME NULL,
     -- Thời điểm thanh toán thành công
 
+                          last_synced_at DATETIME NULL,
+    -- Thời điểm sync gần nhất với PayOS
+    -- Dùng để tránh query PayOS quá tần suất (skip nếu < 5 phút)
+
+                          webhook_retry_count INT NOT NULL DEFAULT 0,
+    -- Số lần retry webhook (tối đa 3 lần)
+    -- Tăng mỗi khi scheduled task retry
+
                           created_at DATETIME NOT NULL DEFAULT GETDATE(),
     -- Thời điểm tạo giao dịch
 
@@ -823,4 +831,18 @@ CREATE INDEX IX_orders_user ON orders(user_id);
 CREATE INDEX IX_order_items_order ON order_items(order_id);
 CREATE INDEX IX_payments_order ON payments(order_id);
 CREATE INDEX IX_enrollments_lookup ON enrollments(user_id, course_id);
-GO
+
+-- ==========================================
+-- PAYMENT SYNCHRONIZATION INDEXES (MỚI)
+-- ==========================================
+-- Index 1: Tối ưu query tìm các payment hết hạn (expirePaymentsByTimeout)
+CREATE INDEX IX_payment_status_expired_at ON payments(status, expired_at, updated_at);
+
+-- Index 2: Tối ưu query tìm PENDING cần sync từ PayOS (syncPendingPaymentsFromPayOs)
+CREATE INDEX IX_payment_status_created_at ON payments(status, created_at, webhook_received, last_synced_at);
+
+-- Index 3: Tối ưu query tìm webhook cần retry (retryFailedWebhooks)
+CREATE INDEX IX_payment_webhook_retry ON payments(status, webhook_received, webhook_retry_count, created_at);
+
+
+GO

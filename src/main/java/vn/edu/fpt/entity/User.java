@@ -31,13 +31,11 @@ public class User extends BaseEntity {
     @Builder.Default
     private Set<UserRole> userRoles = new HashSet<>();
 
-    @NotBlank
-    @Size(min = 2, max = 50)
+    @Size(min = 0, max = 50)
     @Column(columnDefinition = "Nvarchar(255)", nullable = false)
     private String firstName;
 
-    @NotBlank
-    @Size(min = 2, max = 50)
+    @Size(min = 0, max = 50)
     @Column(columnDefinition = "Nvarchar(255)", nullable = false)
     private String lastName;
 

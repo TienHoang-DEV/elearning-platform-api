@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.*;
 import vn.edu.fpt.enums.OrderStatus;
 import vn.edu.fpt.enums.PaymentStatus;
+import vn.edu.fpt.exception.PaymentCallApiException;
+import vn.edu.fpt.exception.PaymentCreateException;
 import vn.edu.fpt.repository.*;
 import vn.payos.PayOS;
 import vn.payos.exception.PayOSException;
@@ -65,7 +67,7 @@ public class PayOsService {
                 response = payOS.paymentRequests().create(request);
             } catch (PayOSException e) {
                 log.error("{} API error: {}", AppConstants.PAYMENT_GATEWAY, e.getMessage());
-                throw new RuntimeException(AppConstants.PAYMENT_GATEWAY + " API call failed: " + e.getMessage());
+                throw new PaymentCallApiException("Fail to call PayOS Service", e);
             }
 
             log.info("Tạo liên kết thanh toán thành công: {}", response.toString());
@@ -110,7 +112,7 @@ public class PayOsService {
 
         } catch (Exception e) {
             log.error("Lỗi khi tạo đơn hàng PayOS", e);
-            throw new RuntimeException("Lỗi khi khởi tạo thanh toán: " + e.getMessage());
+            throw new PaymentCreateException("Lỗi khi khởi tạo thanh toán: " + e);
         }
     }
 

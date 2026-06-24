@@ -128,6 +128,21 @@ public class Payment extends BaseEntity {
      */
     @Column(name = "account_holder", length = 255)
     private String accountHolder;
+
+    /**
+     * Timestamp of the last sync with PayOS.
+     * Used to avoid querying the same payment too frequently during scheduled sync tasks.
+     * Null until the first sync attempt.
+     */
+    @Column(name = "last_synced_at")
+    private LocalDateTime lastSyncedAt;
+
+    /**
+     * Retry counter for webhook processing.
+     * Tracks how many times we attempted to process or retry a webhook for this payment.
+     * Incremented each time a webhook retry is attempted.
+     */
+    @Builder.Default
+    @Column(name = "webhook_retry_count", nullable = false)
+    private Integer webhookRetryCount = 0;
 }
-
-
