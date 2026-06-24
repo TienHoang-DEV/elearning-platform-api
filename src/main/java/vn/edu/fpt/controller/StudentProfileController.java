@@ -3,43 +3,43 @@ package vn.edu.fpt.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import vn.edu.fpt.dto.cart.OrderDto;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import vn.edu.fpt.dto.home.HomeDto;
+import vn.edu.fpt.dto.user.StudentLearningDto;
+import vn.edu.fpt.dto.user.StudentProfileDashboardDto;
+import vn.edu.fpt.dto.user.StudentPurchaseHistoryDto;
 import vn.edu.fpt.entity.User;
-import vn.edu.fpt.entity.Enrollment;
 import vn.edu.fpt.repository.UserRepository;
-import vn.edu.fpt.service.OrderService;
-import vn.edu.fpt.repository.EnrollmentRepository;
+import vn.edu.fpt.service.CourseService;
+import vn.edu.fpt.service.HistoryOrderService;
+import vn.edu.fpt.service.MyCourseService;
+import vn.edu.fpt.service.StudentProfileService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import vn.edu.fpt.mapper.DtoMapper;
-import vn.edu.fpt.dto.*;
-import vn.edu.fpt.service.CourseService;
-import java.util.List;
-import java.util.Set;
 
 @Controller
 public class StudentProfileController {
 
     private final UserRepository userRepository;
-    private final OrderService orderService;
-    private final EnrollmentRepository enrollmentRepository;
-    private final DtoMapper dtoMapper;
     private final CourseService courseService;
+    private final StudentProfileService studentProfileService;
+    private final MyCourseService myCourseService;
+    private final HistoryOrderService historyOrderService;
 
     public StudentProfileController(UserRepository userRepository,
-                                    OrderService orderService,
-                                    EnrollmentRepository enrollmentRepository,
-                                    DtoMapper dtoMapper,
-                                    CourseService courseService) {
+                                    CourseService courseService,
+                                    StudentProfileService studentProfileService,
+                                    MyCourseService myCourseService,
+                                    HistoryOrderService historyOrderService) {
         this.userRepository = userRepository;
-        this.orderService = orderService;
-        this.enrollmentRepository = enrollmentRepository;
-        this.dtoMapper = dtoMapper;
         this.courseService = courseService;
+        this.studentProfileService = studentProfileService;
+        this.myCourseService = myCourseService;
+        this.historyOrderService = historyOrderService;
     }
 
     private User getSessionUser() {
@@ -74,7 +74,6 @@ public class StudentProfileController {
         return "home/home";
     }
 
-    @org.springframework.transaction.annotation.Transactional
     @GetMapping("/student/profile")
     public String showStudentProfile(Model model) {
         User user = getSessionUser();
@@ -82,94 +81,54 @@ public class StudentProfileController {
             return "redirect:/login_no";
         }
         
-        int enrollmentsCount = user.getEnrollments().size();
-        long certificatesCount = 0;
-        for (Enrollment e : user.getEnrollments()) {
-            if (e.getProgressPercent() != null && e.getProgressPercent().doubleValue() >= 100) {
-                certificatesCount++;
-            }
-        }
-                
-        int totalHours = 0;
-        for (Enrollment en : user.getEnrollments()) {
-            double pct = en.getProgressPercent() != null ? en.getProgressPercent().doubleValue() : 0.0;
-            totalHours += (int) (pct * 8.0 / 100.0);
-        }
-        if (totalHours == 0 && enrollmentsCount > 0) {
-            totalHours = 2;
-        }
+        StudentProfileDashboardDto dashboardData = studentProfileService.getDashboardData(user);
 
-        model.addAttribute("currentUser", dtoMapper.toUserDto(user));
-        model.addAttribute("enrollmentsCount", enrollmentsCount);
-        model.addAttribute("certificatesCount", certificatesCount);
-        model.addAttribute("studyHours", totalHours);
+        model.addAttribute("currentUser", dashboardData.getCurrentUser());
+        model.addAttribute("enrollmentsCount", dashboardData.getEnrollmentsCount());
+        model.addAttribute("certificatesCount", dashboardData.getCertificatesCount());
+        model.addAttribute("studyHours", dashboardData.getStudyHours());
         
         return "student_profile/student_profile";
     }
 
-    @org.springframework.transaction.annotation.Transactional
     @GetMapping("/student/my-learning")
     public String showMyLearning(
-            @org.springframework.web.bind.annotation.RequestParam(value = "filter", defaultValue = "all") String filter,
-            @org.springframework.web.bind.annotation.RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "filter", defaultValue = "all") String filter,
+            @RequestParam(value = "page", defaultValue = "1") int page,
             Model model) {
         User user = getSessionUser();
         if (user == null) {
             return "redirect:/login_no";
         }
-        List<Enrollment> enrollments = enrollmentRepository.findByUser(user);
         
-        List<EnrollmentDto> enrollmentDtos = new java.util.ArrayList<>();
-        for (Enrollment enrollment : enrollments) {
-            EnrollmentDto dto = dtoMapper.toEnrollmentDto(enrollment);
-            if ("incomplete".equalsIgnoreCase(filter)) {
-                if (dto.getProgressPercent() != null && dto.getProgressPercent().doubleValue() >= 100.0) {
-                    continue;
-                }
-            }
-            enrollmentDtos.add(dto);
-        }
+        StudentLearningDto learningData = myCourseService.getLearningData(user, filter, page);
         
-        int pageSize = 6;
-        int totalItems = enrollmentDtos.size();
-        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
-        if (totalPages == 0) {
-            totalPages = 1;
-        }
-        
-        int currentPage = Math.max(1, Math.min(page, totalPages));
-        int fromIndex = (currentPage - 1) * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, totalItems);
-        
-        List<EnrollmentDto> pagedEnrollments = new java.util.ArrayList<>();
-        if (fromIndex < totalItems) {
-            pagedEnrollments = enrollmentDtos.subList(fromIndex, toIndex);
-        }
-        
-        model.addAttribute("currentUser", dtoMapper.toUserDto(user));
-        model.addAttribute("enrollments", pagedEnrollments);
-        model.addAttribute("enrollmentsCount", totalItems);
-        model.addAttribute("filter", filter);
-        model.addAttribute("currentPage", currentPage);
-        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("currentUser", learningData.getCurrentUser());
+        model.addAttribute("enrollments", learningData.getEnrollments());
+        model.addAttribute("enrollmentsCount", learningData.getEnrollmentsCount());
+        model.addAttribute("filter", learningData.getFilter());
+        model.addAttribute("currentPage", learningData.getCurrentPage());
+        model.addAttribute("totalPages", learningData.getTotalPages());
         
         return "my_learning/my_learning";
     }
 
-    @org.springframework.transaction.annotation.Transactional
     @GetMapping("/student/purchase-history")
     public String showPurchaseHistory(Model model) {
         User user = getSessionUser();
         if (user == null) {
             return "redirect:/login_no";
         }
-        List<OrderDto> orderDtos = orderService.getPurchaseHistory(user);
         
-        model.addAttribute("currentUser", dtoMapper.toUserDto(user));
-        model.addAttribute("orders", orderDtos);
+        StudentPurchaseHistoryDto purchaseHistoryData = historyOrderService.getPurchaseHistoryData(user);
+        
+        model.addAttribute("currentUser", purchaseHistoryData.getCurrentUser());
+        model.addAttribute("orders", purchaseHistoryData.getOrders());
         
         return "purchase_history/purchase_history";
     }
 
 }
+
+
 
