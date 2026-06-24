@@ -226,7 +226,7 @@
                                 </a>
                                 <div class="card-body p-4 pt-1 d-flex align-items-end justify-content-between">
                                     <div class="price-box">
-                                        <span class="price-current fw-extrabold fs-6 text-primary" th:text="${course.price == null || course.price.compareTo(T(java.math.BigDecimal).ZERO) == 0 ? 'Miễn phí' : #numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">VND</span>
+                                        <span class="price-current fw-extrabold fs-6 text-primary" th:text="${course.price == null || course.price.compareTo(T(java.math.BigDecimal).ZERO) == 0 ? 'Miễn phí' : #numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' đ'}">VND</span>
                                     </div>
                                 </div>
                             </div>
@@ -279,7 +279,7 @@
                                 </a>
                                 <div class="card-body p-4 pt-1 d-flex align-items-end justify-content-between">
                                     <div class="price-box">
-                                        <span class="price-current fw-extrabold fs-6 text-primary" th:text="${course.price == null || course.price.compareTo(T(java.math.BigDecimal).ZERO) == 0 ? 'Miễn phí' : #numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">VND</span>
+                                        <span class="price-current fw-extrabold fs-6 text-primary" th:text="${course.price == null || course.price.compareTo(T(java.math.BigDecimal).ZERO) == 0 ? 'Miễn phí' : #numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' đ'}">VND</span>
                                     </div>
                                 </div>
                             </div>

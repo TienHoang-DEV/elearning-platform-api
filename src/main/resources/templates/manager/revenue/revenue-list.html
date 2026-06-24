@@ -21,16 +21,16 @@
         <div class="rev-grid">
             <div class="rev-card">
                 <h3>Tổng doanh thu (Tháng)</h3>
-                <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.monthlyRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></div>
+                <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.monthlyRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
                 <div th:classappend="${growthRate >= 0 ? ' text-success' : ' text-danger'}" class="rev-sub" th:text="${'↗' + (growthRate > 0 ? '+' + growthRate : '') + ' % so với tháng trước'}"></div>
             </div>
             <div class="rev-card">
                 <h3>Thanh toán cho Giảng viên</h3>
-                <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.instructorRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></div>
+                <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.instructorRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
             </div>
             <div class="rev-card">
                 <h3>Phí nền tảng (Thực nhận)</h3>
-                <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.platformRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></div>
+                <div class="rev-val" th:text="${#numbers.formatDecimal(monthlyRevenue.platformRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
             </div>
         </div>
         

@@ -533,11 +533,11 @@
                                         </div>
                                         <div class="text-end">
                                             <span class="text-primary fw-bold fs-5 d-block"
-                                                th:text="${#numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT')} + ' VND'">239,200
-                                                VND</span>
+                                                th:text="${#numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">239,200
+                                                đ</span>
                                             <span class="text-muted text-decoration-line-through d-block fs-8"
                                                 style="font-size:11px; margin-top:-2px;"
-                                                th:if="${course.price.doubleValue() > 0}">299,000 VND</span>
+                                                th:if="${course.price.doubleValue() > 0}">299,000 đ</span>
                                         </div>
                                     </li>
 
