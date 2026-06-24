@@ -518,6 +518,9 @@ CREATE TABLE quiz_answers (
                               is_correct BIT DEFAULT 0,
     -- Cờ đánh dấu đáp án đúng hay sai (1 = đúng, 0 = sai)
 
+                              position INT NULL,
+    -- Thứ tự hiển thị của đáp án
+
                               created_at DATETIME DEFAULT GETDATE(),
     -- Thời gian tạo đáp án
                               updated_at DATETIME NULL,

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${lesson.title}"></title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-background.png}">
     <meta name="description"
         content="Trình phát học tập trực tuyến khóa học Guitar điện cơ bản cùng Khoa tại Learning Hub.">
 
@@ -22,6 +23,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Central Stylesheet -->
     <link rel="stylesheet" th:href="@{/css/home.css}">
+    <!-- Header Custom Stylesheet -->
+    <link rel="stylesheet" th:href="@{/css/header.css}">
     <!-- Course Player Page Custom Stylesheet -->
     <link rel="stylesheet" th:href="@{/css/learning.css}">
 
@@ -55,9 +58,7 @@
 
                 <!-- Course Title & Actions -->
                 <div class="p-4 border-bottom">
-                    <h1 class="course-lesson-title fw-bold font-heading mb-3" th:text="${lesson.title}">Guitar điện cơ
-                        bản
-                        cùng Khoa (FPTU MUSIC)</h1>
+                    <h1 class="course-lesson-title fw-bold font-heading mb-3" th:text="${lesson.title}">Guitar điện cơ bản cùng Khoa (FPTU MUSIC)</h1>
 
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                         <!-- Student count list pile -->
@@ -97,15 +98,19 @@
                 <div class="border-bottom bg-light bg-opacity-25 px-4">
                     <ul class="nav player-nav-tabs gap-4 m-0 p-0" role="tablist">
                         <li class="nav-item">
-                            <button class="nav-link px-0 py-3 active" id="tab-overview-btn" role="tab">Tổng
-                                Quan</button>
+                            <button class="nav-link px-0 py-3 active" id="tab-overview-btn" role="tab">Tổng Quan</button>
                         </li>
                         <li class="nav-item">
                             <button class="nav-link px-0 py-3" id="tab-quiz-btn" role="tab">Câu Hỏi Ôn Tập</button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link px-0 py-3" id="tab-document-btn" role="tab">Tài Liệu Bài
-                                Học</button>
+                            <button class="nav-link px-0 py-3" id="tab-document-btn" role="tab">Tài Liệu Bài Học</button>
+                        </li>
+                        <!-- Đánh giá khóa học (Chỉ hiển thị khi hoàn thành >= 30%) -->
+                        <li class="nav-item" th:if="${progressPercent >= 30.0}">
+                            <button class="nav-link px-0 py-3 text-warning fw-bold d-flex align-items-center gap-1" id="tab-review-btn" role="tab" type="button">
+                                <i data-lucide="star" style="width: 16px; height: 16px; fill: currentColor;"></i> Đánh Giá
+                            </button>
                         </li>
                     </ul>
                 </div>
@@ -133,9 +138,7 @@
                     <div class="tab-panel-item d-none" id="panel-quiz">
                         <h3
                             class="tab-panel-subtitle fw-bold fs-6 mb-3 font-heading d-flex align-items-center gap-2 text-dark">
-                            <i data-lucide="help-circle" class="text-primary" style="width: 20px; height: 20px;"></i>
-                            Câu
-                            Hỏi Ôn Tập
+                            <i data-lucide="help-circle" class="text-primary" style="width: 20px; height: 20px;"></i>Câu Hỏi Ôn Tập
                         </h3>
                         <div
                             class="quiz-iframe-shell border border-light-subtle rounded-3 overflow-hidden bg-white shadow-sm">
@@ -219,8 +222,7 @@
                                 <div class="alert alert-info d-flex align-items-start gap-2 mt-3 mb-0 fs-8" role="note">
                                     <i data-lucide="info" class="flex-shrink-0 mt-0.5"
                                         style="width: 16px; height: 16px;"></i>
-                                    <span>Office Viewer yêu cầu URL tài liệu trên Azure có thể truy cập công khai hoặc
-                                        có SAS token hợp lệ.</span>
+                                    <span>Office Viewer yêu cầu URL tài liệu trên Azure có thể truy cập công khai hoặc có SAS token hợp lệ.</span>
                                 </div>
                             </div>
                         </div>
@@ -343,6 +345,109 @@
     </div>
     <footer th:replace="~{fragments/footer.html :: footer}"></footer>
 
+    <!-- Course Review Modal (Bootstrap 5 Modal) -->
+    <div class="modal fade" id="courseReviewModal" tabindex="-1" aria-labelledby="courseReviewModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <form id="ajaxReviewForm" method="POST">
+                    <input type="hidden" name="courseId" th:value="${course.id}">
+                    <div class="modal-header border-0 bg-light p-4" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                        <h5 class="modal-title fw-bold font-heading text-dark d-flex align-items-center gap-2" id="courseReviewModalLabel">
+                            ⭐ Đánh giá khóa học của bạn
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="text-muted fs-7 mb-4">Chúc mừng bạn đã hoàn thành hơn <strong th:text="${T(java.lang.Math).round(progressPercent) + '%'}">30%</strong> chặng đường! Hãy để lại cảm nhận của bạn để giúp chúng tôi cải thiện chất lượng nhé.</p>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark fs-7 mb-2">Đánh giá sao:</label>
+                            <div class="star-rating-css">
+                                <input type="radio" id="popup-star5" name="rating" value="5" required />
+                                <label for="popup-star5" title="5 sao"><i data-lucide="star" style="fill: currentColor; width: 32px; height: 32px;"></i></label>
+                                
+                                <input type="radio" id="popup-star4" name="rating" value="4" />
+                                <label for="popup-star4" title="4 sao"><i data-lucide="star" style="fill: currentColor; width: 32px; height: 32px;"></i></label>
+                                
+                                <input type="radio" id="popup-star3" name="rating" value="3" />
+                                <label for="popup-star3" title="3 sao"><i data-lucide="star" style="fill: currentColor; width: 32px; height: 32px;"></i></label>
+                                
+                                <input type="radio" id="popup-star2" name="rating" value="2" />
+                                <label for="popup-star2" title="2 sao"><i data-lucide="star" style="fill: currentColor; width: 32px; height: 32px;"></i></label>
+                                
+                                <input type="radio" id="popup-star1" name="rating" value="1" />
+                                <label for="popup-star1" title="1 sao"><i data-lucide="star" style="fill: currentColor; width: 32px; height: 32px;"></i></label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark fs-7 mb-2" for="popup-review-comment">Nhận xét của bạn:</label>
+                            <textarea name="comment" class="form-control fs-7 rounded-3 p-3" id="popup-review-comment" rows="4" 
+                                      placeholder="Viết cảm nhận của bạn về bài giảng, giảng viên hoặc tài liệu học tập..." style="resize: none; border-color: #e2e8f0;"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0 d-flex flex-wrap gap-2 justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" id="dontShowAgainBtn">
+                            Không hiển thị lại
+                        </button>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Gửi đánh giá</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Status Alert Modal (Success/Error Message) -->
+    <div class="modal fade" id="reviewStatusModal" tabindex="-1" aria-labelledby="reviewStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-body p-4 text-center">
+                    <div class="status-icon-wrapper mb-3 d-inline-flex align-items-center justify-content-center rounded-circle" id="statusIconBg" style="width: 60px; height: 60px;">
+                        <i id="statusIcon" style="width: 32px; height: 32px;"></i>
+                    </div>
+                    <h5 class="fw-bold font-heading text-dark mb-2" id="statusTitle">Thông báo</h5>
+                    <p class="text-muted fs-7 mb-4" id="statusMessage">Nội dung thông báo</p>
+                    <button type="button" class="btn w-100 rounded-pill py-2.5 fw-bold" id="statusConfirmBtn" data-bs-dismiss="modal">Đồng ý</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSS-only Star Rating Styles for Popup -->
+    <style>
+        .star-rating-css {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+        .star-rating-css input[type="radio"] {
+            display: none;
+        }
+        .star-rating-css label {
+            cursor: pointer;
+            padding: 2px;
+            color: #ccc;
+        }
+        .star-rating-css label svg {
+            fill: none !important;
+            stroke: #cbd5e1 !important;
+            transition: stroke 0.15s ease-in-out, fill 0.15s ease-in-out;
+        }
+        .star-rating-css input[type="radio"]:checked~label svg,
+        .star-rating-css input[type="radio"]:checked~label svg polygon,
+        .star-rating-css label:hover svg,
+        .star-rating-css label:hover svg polygon,
+        .star-rating-css label:hover~label svg,
+        .star-rating-css label:hover~label svg polygon {
+            fill: #ffc107 !important;
+            stroke: #ffc107 !important;
+        }
+    </style>
+
     <!-- Bootstrap 5 Bundle JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
@@ -350,7 +455,146 @@
 
     <!-- Custom JavaScript -->
     <script th:src="@{/js/learning.js}"></script>
-    <script>lucide.createIcons();</script>
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            lucide.createIcons();
+
+            // Lấy thông tin điều kiện hiển thị từ Model truyền qua
+            const showReviewPrompt = [[${showReviewPrompt}]];
+            const courseId = [[${course.id}]];
+
+            if (showReviewPrompt) {
+                // Kiểm tra xem người dùng đã chọn "Không hiển thị lại" hoặc đã từng đánh giá chưa
+                const dontShowKey = "dont_show_review_course_" + courseId;
+                const isHidden = localStorage.getItem(dontShowKey);
+
+                if (!isHidden) {
+                    // Trì hoãn hiển thị popup sau 3 giây để người học không bị đột ngột
+                    setTimeout(function () {
+                        const reviewModal = new bootstrap.Modal(document.getElementById('courseReviewModal'));
+                        reviewModal.show();
+                    }, 3000);
+                }
+            }
+
+            // Xử lý sự kiện khi click nút "Không hiển thị lại"
+            const dontShowBtn = document.getElementById("dontShowAgainBtn");
+            if (dontShowBtn) {
+                dontShowBtn.addEventListener("click", function () {
+                    const dontShowKey = "dont_show_review_course_" + courseId;
+                    localStorage.setItem(dontShowKey, "true");
+                    
+                    // Đóng modal
+                    const modalEl = document.getElementById('courseReviewModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+                });
+            }
+
+            // Hàm hiện Popup thông báo trạng thái thay cho alert()
+            function showStatusModal(success, message) {
+                const titleEl = document.getElementById("statusTitle");
+                const messageEl = document.getElementById("statusMessage");
+                const iconEl = document.getElementById("statusIcon");
+                const iconBgEl = document.getElementById("statusIconBg");
+                const confirmBtn = document.getElementById("statusConfirmBtn");
+
+                messageEl.textContent = message;
+
+                if (success) {
+                    titleEl.textContent = "Thành công!";
+                    titleEl.className = "fw-bold font-heading text-success mb-2";
+                    iconBgEl.style.background = "#e8f5e9";
+                    iconEl.className = "text-success";
+                    iconEl.setAttribute("data-lucide", "check-circle");
+                    confirmBtn.className = "btn btn-success w-100 rounded-pill py-2.5 fw-bold";
+                } else {
+                    titleEl.textContent = "Thất bại";
+                    titleEl.className = "fw-bold font-heading text-danger mb-2";
+                    iconBgEl.style.background = "#ffebee";
+                    iconEl.className = "text-danger";
+                    iconEl.setAttribute("data-lucide", "alert-circle");
+                    confirmBtn.className = "btn btn-danger w-100 rounded-pill py-2.5 fw-bold";
+                }
+
+                lucide.createIcons();
+                const statusModal = new bootstrap.Modal(document.getElementById('reviewStatusModal'));
+                statusModal.show();
+            }
+
+            // Xử lý gửi đánh giá bằng AJAX
+            const reviewForm = document.getElementById("ajaxReviewForm");
+            if (reviewForm) {
+                reviewForm.addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const ratingVal = reviewForm.querySelector('input[name="rating"]:checked').value;
+                    const commentVal = reviewForm.querySelector('textarea[name="comment"]').value;
+
+                    // CSRF Token
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute("content");
+                    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
+
+                    const formData = new URLSearchParams();
+                    formData.append("courseId", courseId);
+                    formData.append("rating", ratingVal);
+                    formData.append("comment", commentVal);
+
+                    const headers = {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    };
+                    if (csrfHeader && csrfToken) {
+                        headers[csrfHeader] = csrfToken;
+                    }
+
+                    fetch("/api/course/review/add", {
+                        method: "POST",
+                        headers: headers,
+                        body: formData.toString()
+                    })
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        // Đóng modal đánh giá
+                        const modalEl = document.getElementById('courseReviewModal');
+                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+
+                        if (data.success) {
+                            // Lưu cờ không hiển thị lại vì đã đánh giá thành công
+                            localStorage.setItem("dont_show_review_course_" + courseId, "true");
+                            showStatusModal(true, data.message);
+                        } else {
+                            showStatusModal(false, data.message);
+                        }
+                    })
+                    .catch(function (error) {
+                        console.error("Error submitting review:", error);
+                        // Đóng modal đánh giá nếu đang mở
+                        const modalEl = document.getElementById('courseReviewModal');
+                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+                        showStatusModal(false, "Có lỗi kết nối xảy ra khi gửi đánh giá.");
+                    });
+                });
+            }
+            // Xử lý click vào tab Đánh giá để hiển thị lại popup đánh giá
+            const tabReviewBtn = document.getElementById("tab-review-btn");
+            if (tabReviewBtn) {
+                tabReviewBtn.addEventListener("click", function () {
+                    const reviewModal = new bootstrap.Modal(document.getElementById('courseReviewModal'));
+                    reviewModal.show();
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

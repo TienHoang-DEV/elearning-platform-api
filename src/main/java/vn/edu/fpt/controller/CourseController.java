@@ -1,11 +1,13 @@
 package vn.edu.fpt.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.entity.Cart;
 import vn.edu.fpt.entity.Course;
@@ -19,7 +21,11 @@ import vn.edu.fpt.service.EnrollmentService;
 import vn.edu.fpt.service.CartService;
 import vn.edu.fpt.service.CartItemService;
 import vn.edu.fpt.service.FeedbackService;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class CourseController {
@@ -165,5 +171,41 @@ public class CourseController {
         feedbackService.save(feedback);
         redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
         return "redirect:/course/detail?id=" + courseId;
+    }
+
+    @PostMapping("/api/course/review/add")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> addCourseReviewApi(
+            @RequestParam("courseId") Integer courseId,
+            @RequestParam("rating") Integer rating,
+            @RequestParam(value = "comment", required = false, defaultValue = "") String comment) {
+        
+         Map<String, Object> response = new HashMap<>();
+        User user = getSessionUser();
+        if (user == null) {
+            response.put("success", false);
+            response.put("message", "Bạn cần đăng nhập để thực hiện đánh giá.");
+            return ResponseEntity.status(401).body(response);
+        }
+        
+        if (feedbackService.hasUserReviewedCourse(user.getId(), courseId)) {
+            response.put("success", false);
+            response.put("message", "Bạn đã đánh giá khóa học này trước đó rồi.");
+            return ResponseEntity.ok(response);
+        }
+        
+        Course course = courseService.findById(courseId);
+        Feedback feedback = Feedback.builder()
+                .user(user)
+                .course(course)
+                .rating(rating)
+                .comment(comment)
+                .createdAt(LocalDateTime.now())
+                .build();
+        feedbackService.save(feedback);
+        
+        response.put("success", true);
+        response.put("message", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
+        return ResponseEntity.ok(response);
     }
 }

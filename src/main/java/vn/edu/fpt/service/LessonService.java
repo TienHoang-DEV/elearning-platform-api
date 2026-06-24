@@ -42,6 +42,7 @@ public class LessonService {
         return repository.findByIdWithMaterials(id).orElseThrow(() -> new CourseNotFoundException("Bài học không tìm thấy"));
     }
 
+    @Transactional(readOnly = true)
     public Lesson findByIdWithQuizzes(Integer id) {
         return repository.findByIdWithQuizzes(id).orElseThrow(() -> new ResourceNotFoundException("Lesson with id " + id + " not found"));
     }

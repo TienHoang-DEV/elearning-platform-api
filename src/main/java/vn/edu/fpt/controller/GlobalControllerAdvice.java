@@ -41,7 +41,7 @@ public class GlobalControllerAdvice {
             return true;
         }
         String uri = request.getRequestURI();
-        if (uri.startsWith("/api/") || uri.startsWith("/api") || uri.contains("/material/") || uri.contains("/lesson")) {
+        if (uri.startsWith("/api/") || uri.startsWith("/api") || uri.contains("/material/url")) {
             return false;
         }
         String accept = request.getHeader("Accept");
