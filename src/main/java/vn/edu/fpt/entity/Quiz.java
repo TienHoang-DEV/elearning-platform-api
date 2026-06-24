@@ -85,5 +85,7 @@ public class Quiz extends BaseEntity {
         attempts.remove(attempt);
         attempt.setQuiz(null);
     }
+
+
 }
 

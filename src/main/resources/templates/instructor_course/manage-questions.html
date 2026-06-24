@@ -157,7 +157,7 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-2 execution-actions-zone">
-                    <a th:href="@{/instructor/quiz/clone-question(id=${q.id})}" class="btn-crud-action btn-copy"
+                    <a th:href="@{/instructor/quiz/copy-question/{questionId}(questionId=${q.id}, quizId=${quiz.id}, page=${currentPage}, size=${pageSize})}" class="btn-crud-action btn-copy"
                        data-bs-toggle="tooltip" title="Nhân bản câu hỏi">
                         <i data-lucide="copy"></i>
                     </a>

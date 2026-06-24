@@ -101,6 +101,37 @@ public class InstructorQuizController {
                 + "&size=" + size;
     }
 
+    @GetMapping("/copy-question/{questionId}")
+    public String copyQuestion(
+            @PathVariable Integer questionId,
+            @RequestParam Integer quizId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size,
+            RedirectAttributes redirectAttributes
+    ) {
+
+        Integer newPosition =
+                quizQuestionService.copyQuestion(questionId);
+
+        int targetPage =
+                (newPosition - 1) / size;
+
+        redirectAttributes.addFlashAttribute(
+                "toastMessage",
+                "sao chép câu hỏi thành công"
+        );
+
+        redirectAttributes.addFlashAttribute(
+                "toastType",
+                "success"
+        );
+
+        return "redirect:/instructor/quiz/quiz-manage/"
+                + quizId
+                + "?page=" + targetPage
+                + "&size=" + size;
+    }
+
     @GetMapping("delete-question/{questionId}")
     String deteleQuestion(@PathVariable("questionId") Integer questionId,
                           @RequestParam("quizId") Integer quizId,
@@ -108,7 +139,7 @@ public class InstructorQuizController {
                           @RequestParam(value = "size", defaultValue = "3") int size,
                           RedirectAttributes redirectAttributes,
                           Model model){
-        quizQuestionService.deleteQuesion(questionId);
+        quizQuestionService.deleteQuestion(questionId);
         int totalQuestions =
                 quizQuestionService.getTotalQuestionsByQuizId(quizId);
 
