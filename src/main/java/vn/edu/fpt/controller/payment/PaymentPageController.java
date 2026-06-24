@@ -55,7 +55,7 @@ public class PaymentPageController {
                 }
 
                 // Pass account number and description from DB first (saved at creation time)
-                model.addAttribute("qrCode", (payment.getPaymentUrl() != null) ? AppConstants.QR_CODE_BASE_URL + payment.getPaymentUrl() : null);
+                model.addAttribute("qrCode", (payment.getQrCodeUrl() != null) ? AppConstants.QR_CODE_BASE_URL + payment.getQrCodeUrl() : null);
                 model.addAttribute("payOsAccountNumber", payment.getAccountNumber());
                 model.addAttribute("payOsDescription", payment.getDescription());
                 model.addAttribute("payOsBankName", payment.getBankName());
