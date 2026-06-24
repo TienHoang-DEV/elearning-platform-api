@@ -42,7 +42,7 @@ public class PaymentSyncService {
 
     /**
      * Kiểm tra và đánh dấu tất cả các giao dịch PENDING đã hết hạn thành EXPIRED.
-     * 
+     *     @Transactional(propagation = Propagation.REQUIRES_NEW) để đánh dấu hàm này luôn phải chạy trong một transaction mới 
      * @return Số lượng giao dịch đã được đánh dấu EXPIRED
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)

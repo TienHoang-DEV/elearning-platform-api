@@ -38,8 +38,6 @@ public final class AppConstants {
     public static final int NUMBER_PAYMENT_RECORD_PER_PAGE = 6;
     public static final int NUMBER_PAGE_PER_BLOCK = 5;
 
-    // ==================== Payment Synchronization Scheduling ====================
-
     /**
      * Interval (in seconds) for checking and expiring PENDING payments that have passed their expiredAt time.
      * Runs frequently to quickly mark expired payments.

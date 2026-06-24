@@ -97,9 +97,10 @@ body {
 }
 .course-row:last-child { border-bottom: none; }
 .course-thumb {
-    width: 52px; height: 38px; border-radius: 6px;
+    width: 120px; height: 70px; border-radius: 10px;
     object-fit: cover; flex-shrink: 0;
     background: linear-gradient(135deg,#c8daf8,#a5c4f5);
+    background-size: cover; background-position: center;
 }
 .course-info { flex: 1; min-width: 0; }
 .course-name {
