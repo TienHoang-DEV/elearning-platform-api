@@ -2,14 +2,14 @@ package vn.edu.fpt.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.fpt.dto.ProfileDto;
+import vn.edu.fpt.dto.user.ProfileDto;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.UserValidationException;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.Validation;
 
-import vn.edu.fpt.dto.UserDto;
+import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.mapper.DtoMapper;

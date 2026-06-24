@@ -1,7 +1,7 @@
-package vn.edu.fpt.dto;
+package vn.edu.fpt.dto.cart;
 
 import lombok.*;
-import java.math.BigDecimal;
+import vn.edu.fpt.dto.course.CourseDto;
 
 @Getter
 @Setter

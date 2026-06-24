@@ -7,10 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.CartService;
-import vn.edu.fpt.dto.CartPageDetailsDto;
+import vn.edu.fpt.dto.cart.CartPageDetailsDto;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Controller
