@@ -137,4 +137,37 @@ public class UserService {
         instructor.setStatus(status);
         repository.save(instructor);
     }
+
+    // =========================================================================
+    // ADMIN SECTION
+    // =========================================================================
+
+    /**
+     * Tìm kiếm và lọc danh sách manager (hỗ trợ phân trang).
+     */
+    public Page<UserDto> searchAndFilterManagers(String keyword, UserStatus status, Pageable pageable) {
+        Page<User> managerPage = repository.searchAndFilterManagers(keyword, status, pageable);
+        return managerPage.map(dtoMapper::toUserDto);
+    }
+
+    /**
+     * Lấy thông tin chi tiết manager dưới dạng DTO.
+     */
+    public UserDto getManagerDetail(Integer id) {
+        User manager = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy manager với ID: " + id));
+        return dtoMapper.toUserDto(manager);
+    }
+
+    /**
+     * Cập nhật trạng thái tài khoản manager (ACTIVE / BANNED).
+     */
+    public void updateManagerStatus(Integer id, UserStatus status) {
+        User manager = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy manager với ID: " + id));
+        manager.setStatus(status);
+        repository.save(manager);
+    }
+
 }
+

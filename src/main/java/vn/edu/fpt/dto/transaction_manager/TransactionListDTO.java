@@ -32,4 +32,8 @@ public class TransactionListDTO {
         return amount.compareTo(BigDecimal.ZERO) > 0;
     }
 
+    public String getPaymentStatusLabel() {
+        return paymentStatus != null ? paymentStatus.getLabel() : "";
+    }
+
 }

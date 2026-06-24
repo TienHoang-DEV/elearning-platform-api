@@ -51,10 +51,6 @@ public class Lesson extends BaseEntity {
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<LessonMaterial> materials = new HashSet<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY)
-    private Set<VideoModerationFlag> moderationFlags = new HashSet<>();
-
     public void addQuiz(Quiz quiz) {
         quizzes.add(quiz);
         quiz.setLesson(this);
@@ -73,16 +69,6 @@ public class Lesson extends BaseEntity {
     public void removeMaterial(LessonMaterial material) {
         materials.remove(material);
         material.setLesson(null);
-    }
-
-    public void addModerationFlag(VideoModerationFlag flag) {
-        moderationFlags.add(flag);
-        flag.setLesson(this);
-    }
-
-    public void removeModerationFlag(VideoModerationFlag flag) {
-        moderationFlags.remove(flag);
-        flag.setLesson(null);
     }
 }
 

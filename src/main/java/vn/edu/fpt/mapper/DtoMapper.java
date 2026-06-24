@@ -16,11 +16,13 @@ import java.util.Set;
 public interface DtoMapper {
 
     @Mapping(target = "avatarUrl", expression = "java(user.getFullAvatarUrl())")
+    @Mapping(target = "courseCount", expression = "java(user.getCourses() != null ? user.getCourses().size() : 0)")
     UserDto toUserDto(User user);
 
     @Named("toSimpleUserDto")
     @Mapping(target = "avatarUrl", expression = "java(user.getFullAvatarUrl())")
     @Mapping(target = "role", ignore = true)
+    @Mapping(target = "courseCount", expression = "java(user.getCourses() != null ? user.getCourses().size() : 0)")
     UserDto toSimpleUserDto(User user);
 
     @Mapping(target = "averageRating", expression = "java(course.getAverageRating())")
@@ -88,4 +90,9 @@ public interface DtoMapper {
     OrderDto toOrderDto(Order order);
     OrderItemDto toOrderItemDto(OrderItem orderItem);
     LessonMaterialDto toLessonMaterialDto(LessonMaterial lessonMaterial);
+
+    @Mapping(target = "reporter", qualifiedByName = "toSimpleUserDto")
+    @Mapping(target = "reviewedBy", qualifiedByName = "toSimpleUserDto")
+    @Mapping(target = "friendlyReason", expression = "java(report.getFriendlyReason())")
+    ReportDto toReportDto(Report report);
 }

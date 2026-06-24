@@ -10,7 +10,9 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @Entity
-@Table(name = "feedbacks")
+@Table(name = "feedbacks", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "course_id"})
+})
 public class Feedback extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

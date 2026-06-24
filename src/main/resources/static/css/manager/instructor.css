@@ -21,6 +21,14 @@
 .data-table th:nth-child(4), .data-table td:nth-child(4) { width: 15%; }
 .data-table th:nth-child(5), .data-table td:nth-child(5) { width: 20%; }
 
+/* Widths for 6-column instructor table */
+.instructor-table th:nth-child(1), .instructor-table td:nth-child(1) { width: 20%; }
+.instructor-table th:nth-child(2), .instructor-table td:nth-child(2) { width: 25%; }
+.instructor-table th:nth-child(3), .instructor-table td:nth-child(3) { width: 15%; }
+.instructor-table th:nth-child(4), .instructor-table td:nth-child(4) { width: 13%; }
+.instructor-table th:nth-child(5), .instructor-table td:nth-child(5) { width: 12%; }
+.instructor-table th:nth-child(6), .instructor-table td:nth-child(6) { width: 15%; }
+
 .data-table td:nth-child(1),
 .data-table td:nth-child(2) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 

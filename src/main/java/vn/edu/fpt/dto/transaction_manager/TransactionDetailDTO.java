@@ -51,4 +51,8 @@ public class TransactionDetailDTO {
         this.webhookReceive = webhookReceive;
         this.courses = courses;
     }
+
+    public String getStatusLabel() {
+        return status != null ? status.getLabel() : "";
+    }
 }

@@ -83,6 +83,7 @@ public class ManagerDashboardController {
         model.addAttribute("endPage", endPage);
         model.addAttribute("transactionCountByStatusDTO", transactionCountByStatusDTO);
         model.addAttribute("totalTransaction", totalTransaction);
+        model.addAttribute("statuses", PaymentStatus.values());
         return "manager/transaction-history/transaction-history";
     }
 

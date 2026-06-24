@@ -45,11 +45,10 @@
                     <label class="form-label fw-medium text-secondary small">Trạng thái</label>
                     <select name="status" class="form-select custom-select shadow-none">
                         <option th:selected="${status == null || status == ''}" value="">Tất cả trạng thái</option>
-                        <option th:selected="${status == 'PAID'}" value="PAID">Thành công</option>
-                        <option th:selected="${status == 'PENDING'}" value="PENDING">Chờ thanh toán</option>
-                        <option th:selected="${status == 'FAILED'}" value="FAILED">Thất bại</option>
-                        <option th:selected="${status == 'CANCELLED'}" value="CANCELLED">Đã hủy</option>
-                        <option th:selected="${status == 'EXPIRED'}" value="EXPIRED">Hết hạn</option>
+                        <option th:each="st : ${statuses}" 
+                                th:value="${st.name()}" 
+                                th:text="${st.label}" 
+                                th:selected="${status == st.name()}"></option>
                     </select>
                 </div>
                 <div class="col-6 col-md-2">
@@ -115,13 +114,9 @@
                             </div>
                             <small class="text-muted" th:text="${transaction.description}">Khóa học Java Web</small>
                         </td>
-                        <td th:switch="${transaction.paymentStatus.name()}">
-                            <span th:case="'PAID'" class="text-success fw-semibold">Đã thanh toán</span>
-                            <span th:case="'PENDING'" class="text-warning fw-semibold">Chờ thanh toán</span>
-                            <span th:case="'FAILED'" class="text-danger fw-semibold">Thất bại</span>
-                            <span th:case="'CANCELLED'" class="text-secondary fw-semibold">Đã hủy</span>
-                            <span th:case="'EXPIRED'" class="text-dark fw-semibold">Hết hạn</span>
-                            <span th:case="*" class="text-muted">Không xác định</span>
+                        <td>
+                            <span th:class="${'fw-semibold ' + (transaction.paymentStatus.name() == 'PAID' ? 'text-success' : transaction.paymentStatus.name() == 'PENDING' ? 'text-warning' : transaction.paymentStatus.name() == 'FAILED' ? 'text-danger' : transaction.paymentStatus.name() == 'CANCELLED' ? 'text-secondary' : 'text-dark')}"
+                                  th:text="${transaction.getPaymentStatusLabel()}">Trạng thái</span>
                         </td>
                         <td class="text-center">
                             <button class="btn-action" title="Xem chi tiết"><i class="ph ph-eye"></i></button>

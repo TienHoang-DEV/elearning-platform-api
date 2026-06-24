@@ -250,4 +250,24 @@ public class Course extends BaseEntity {
                vn.edu.fpt.util.AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + 
                thumbnailUrl;
     }
+
+    public String getStatusLabel() {
+        return status != null ? status.getLabel() : "";
+    }
+
+    public java.util.List<LessonMaterial> getAllMaterials() {
+        java.util.List<LessonMaterial> list = new java.util.ArrayList<>();
+        if (sections != null) {
+            for (CourseSection section : sections) {
+                if (section.getLessons() != null) {
+                    for (Lesson lesson : section.getLessons()) {
+                        if (lesson.getMaterials() != null) {
+                            list.addAll(lesson.getMaterials());
+                        }
+                    }
+                }
+            }
+        }
+        return list;
+    }
 }

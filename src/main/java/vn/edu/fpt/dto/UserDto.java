@@ -22,6 +22,8 @@ public class UserDto {
     private String phone;
     private RoleType role;
     private UserStatus status;
+    private Integer courseCount;
+
 
 
     public String getFullAvatarUrl() {
@@ -41,5 +43,9 @@ public class UserDto {
 
     public String getFullName() {
         return (lastName != null ? lastName : "") + " " + (firstName != null ? firstName : "");
+    }
+
+    public String getStatusLabel() {
+        return status != null ? status.getLabel() : "";
     }
 }

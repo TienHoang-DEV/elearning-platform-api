@@ -50,6 +50,7 @@ public class ManagerCourseController {
         model.addAttribute("status", status);
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("categories", categoryService.findAll());
+        model.addAttribute("statuses", CourseStatus.values());
 
         return "manager/approval-course/course-list";
     }

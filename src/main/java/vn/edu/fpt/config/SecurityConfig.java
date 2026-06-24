@@ -52,22 +52,22 @@ public class SecurityConfig {
 
                 .authenticationProvider(authenticationProvider)
 
-//                    .authorizeHttpRequests(auth -> auth
-//                            .anyRequest().permitAll()
-//                    )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/login_no", "/register",
-                                "/css/**", "/js/**",
-                                "/images/**", "/oauth2/**",
-                                "/forgot-password",
-                                "/reset-password",
-                                "/password-reset-success",
-                                "/home"
-                        ).permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
+                    .authorizeHttpRequests(auth -> auth
+                            .anyRequest().permitAll()
+                    )
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(
+//                                "/login_no", "/register",
+//                                "/css/**", "/js/**",
+//                                "/images/**", "/oauth2/**",
+//                                "/forgot-password",
+//                                "/reset-password",
+//                                "/password-reset-success",
+//                                "/home"
+//                        ).permitAll()
+//                        .requestMatchers("/admin/**").hasRole("ADMIN")
+//                        .anyRequest().authenticated()
+//                )
 
                 .formLogin(form -> form
                         .loginPage("/login_no")
