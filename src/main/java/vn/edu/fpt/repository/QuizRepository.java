@@ -33,4 +33,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer> {
             @Param("status") String status,
             Pageable pageable);
 
+    Long countByLessonId(Integer lessonId);
+    Long countByLessonIdAndStatus(Integer lessonId, String status);
+
 }
