@@ -1,6 +1,7 @@
 package vn.edu.fpt.dto;
 
 import lombok.*;
+import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.enums.ReportStatus;
 import vn.edu.fpt.enums.ReportType;
 import java.time.LocalDateTime;

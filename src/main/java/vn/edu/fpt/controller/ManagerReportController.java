@@ -39,8 +39,6 @@ public class ManagerReportController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
         model.addAttribute("type", type);
-        
-        // Add enum arrays for filter select dropdowns
         model.addAttribute("statuses", ReportStatus.values());
         model.addAttribute("types", ReportType.values());
 
