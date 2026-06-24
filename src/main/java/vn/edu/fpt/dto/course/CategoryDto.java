@@ -1,4 +1,4 @@
-package vn.edu.fpt.dto;
+package vn.edu.fpt.dto.course;
 
 import lombok.*;
 import java.util.Set;

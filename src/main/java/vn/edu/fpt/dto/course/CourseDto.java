@@ -1,6 +1,8 @@
-package vn.edu.fpt.dto;
+package vn.edu.fpt.dto.course;
 
 import lombok.*;
+import vn.edu.fpt.dto.*;
+import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.enums.CourseStatus;
 import java.math.BigDecimal;
 import java.util.Set;

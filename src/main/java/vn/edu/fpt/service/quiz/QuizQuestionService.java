@@ -53,7 +53,7 @@ public class QuizQuestionService {
         return repository.existsById(id);
     }
 
-    public void saveQuestion(QuizQuestionDTO dto, Integer quizId) {
+    public void createQuestion(QuizQuestionDTO dto, Integer quizId) {
 
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow();
@@ -109,12 +109,8 @@ public class QuizQuestionService {
 
             QuizAnswer answer = new QuizAnswer();
 
-            if(answerDTO.getId() != null){
-                answer.setId(answerDTO.getId());
-            }
-
             answer.setAnswerText(answerDTO.getAnswerText());
-            answer.setCorrect(answerDTO.getCorrect());
+            answer.setCorrect(Boolean.TRUE.equals(answerDTO.getCorrect()));
 
             answer.setPosition(i + 1);
 
@@ -124,12 +120,21 @@ public class QuizQuestionService {
         repository.save(question);
     }
 
+    public void saveQuestion(QuizQuestionDTO quizQuestionDto, Integer quizId){
+        if(quizQuestionDto.getId() == null){
+            createQuestion(quizQuestionDto, quizId);
+        }
+        else{
+            updateQuestion(quizQuestionDto);
+        }
+    }
+
     public Page<QuizQuestionDTO> getQuestionsByQuizId(Integer quizId, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size);
 
         Page<QuizQuestion> quizQuestionPage =
-                repository.findAllByQuizId(quizId, pageable);
+                repository.findAllByQuizIdOrderByPositionAsc(quizId, pageable);
 
         List<QuizQuestionDTO> dtos = new ArrayList<>();
         for (QuizQuestion quizQ : quizQuestionPage.getContent()){
@@ -142,4 +147,77 @@ public class QuizQuestionService {
                 quizQuestionPage.getTotalElements()
         );
     }
+
+    public void deleteQuestion(Integer questionId){
+
+        QuizQuestion question =
+                repository.findQuizQuestionById(questionId);
+
+        if(question == null){
+            return;
+        }
+
+        Integer quizId = question.getQuiz().getId();
+        Integer position = question.getPosition();
+
+        repository.delete(question);
+
+        repository.decreasePositionsAfter(
+                quizId,
+                position
+        );
+    }
+
+    public Integer copyQuestion(Integer questionId){
+
+        QuizQuestion original =
+                repository.findQuizQuestionById(questionId);
+
+        if(original == null){
+            return null;
+        }
+
+        Integer newPosition =
+                original.getPosition() + 1;
+
+        repository.increasePositionsAfter(
+                original.getQuiz().getId(),
+                original.getPosition()
+        );
+
+        QuizQuestion copy = new QuizQuestion();
+
+        copy.setQuiz(original.getQuiz());
+        copy.setQuestionText(original.getQuestionText());
+        copy.setQuestionType(original.getQuestionType());
+        copy.setPoints(original.getPoints());
+        copy.setExplanation(original.getExplanation());
+
+        copy.setPosition(newPosition);
+
+        for(QuizAnswer answer : original.getAnswers()){
+
+            QuizAnswer answerCopy = new QuizAnswer();
+
+            answerCopy.setAnswerText(answer.getAnswerText());
+            answerCopy.setCorrect(answer.getCorrect());
+            answerCopy.setPosition(answer.getPosition());
+
+            copy.addAnswer(answerCopy);
+        }
+
+        repository.save(copy);
+
+        return newPosition;
+    }
+
+    public QuizQuestionDTO findQuizQuestionById(Integer quizQuestionId){
+        return dtoMapper.toQuizQuestionDto(repository.findQuizQuestionById(quizQuestionId));
+    }
+
+    public Integer getTotalQuestionsByQuizId(Integer quizId){
+        return repository.countByQuizId(quizId);
+    }
+
+
 }

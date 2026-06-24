@@ -1,6 +1,7 @@
 package vn.edu.fpt.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -15,13 +16,10 @@ import vn.edu.fpt.entity.User;
  * Global handler to convert exceptions into consistent HTTP responses.
  */
 @ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
     private final ViewResolver viewResolver;
-
-    public GlobalExceptionHandler(ViewResolver viewResolver) {
-        this.viewResolver = viewResolver;
-    }
 
     private boolean isApiRequest(HttpServletRequest request) {
         String accept = request.getHeader("Accept");
@@ -68,6 +66,24 @@ public class GlobalExceptionHandler {
     public Object handleOther(Exception ex, HttpServletRequest request) throws Exception {
         if (isApiRequest(request)) {
             ErrorResponse body = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error", ex.getMessage(), request.getRequestURI());
+            return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return "templates/error/500.html";
+    }
+
+    @ExceptionHandler(PaymentCallApiException.class)
+    public Object handlePaymetApiCallFailException(Exception ex, HttpServletRequest request) throws Exception {
+        if (isApiRequest(request)) {
+            ErrorResponse body = new ErrorResponse(HttpStatus.BAD_GATEWAY.value(),  "Bad Gateway", ex.getMessage(), request.getRequestURI());
+            return new ResponseEntity<>(body, HttpStatus.BAD_GATEWAY);
+        }
+        return "templates/error/500.html";
+    }
+
+    @ExceptionHandler(PaymentCreateException.class)
+    public Object handlePaymentCreateException(Exception ex, HttpServletRequest request) throws Exception {
+        if (isApiRequest(request)) {
+            ErrorResponse body = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),  "Create Payment Fail", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return "templates/error/500.html";

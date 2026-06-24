@@ -47,7 +47,7 @@
                         <i class="fa-regular fa-envelope"></i>
                         <input type="email"
                                th:field="*{email}"
-                               placeholder="nguyenvan@gmail.com"
+                               placeholder="Nhập email của bạn"
                                required>
                         <small class="error-message"
                                th:if="${#fields.hasErrors('email')}"
@@ -64,7 +64,7 @@
                                 type="password"
                                 id="password"
                                 th:field="*{password}"
-                                placeholder="••••••••"
+                                placeholder="Nhập mật khẩu của bạn"
                                 required>
                         <small class="error-message"
                                th:if="${#fields.hasErrors('password')}"

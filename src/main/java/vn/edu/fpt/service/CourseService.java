@@ -6,6 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.CourseCreateDto;
+import vn.edu.fpt.dto.course.CategoryDto;
+import vn.edu.fpt.dto.course.CourseDto;
+import vn.edu.fpt.dto.course.CourseListDto;
+import vn.edu.fpt.dto.home.HomeDto;
 import vn.edu.fpt.entity.Category;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.entity.Course;
@@ -21,10 +25,10 @@ import vn.edu.fpt.mapper.DtoMapper;
 
 import vn.edu.fpt.repository.CourseRepository;
 
-import vn.edu.fpt.dto.*;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.repository.UserRepository;
+import vn.edu.fpt.repository.FeedbackRepository;
 import org.springframework.data.domain.PageRequest;
 import java.util.Map;
 import java.util.HashMap;
@@ -43,15 +47,17 @@ public class CourseService {
     private final AzureBlobService azureBlobService;
     private final CategoryService categoryService;
     private final UserRepository userRepository;
+    private final FeedbackRepository feedbackRepository;
 
     public CourseService(CourseRepository courseRepository, DtoMapper dtoMapper, CategoryRepository categoryRepository,
-            AzureBlobService azureBlobService, CategoryService categoryService, UserRepository userRepository) {
+            AzureBlobService azureBlobService, CategoryService categoryService, UserRepository userRepository, FeedbackRepository feedbackRepository) {
         this.categoryService = categoryService;
         this.repository = courseRepository;
         this.dtoMapper = dtoMapper;
         this.categoryRepository = categoryRepository;
         this.azureBlobService = azureBlobService;
         this.userRepository = userRepository;
+        this.feedbackRepository = feedbackRepository;
     }
     // Page course của mỗi instructor
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
@@ -388,18 +394,35 @@ public class CourseService {
         }
     }
     public HomeDto getHomeData(User currentUser) {
+        long totalCourses = repository.countByStatus(CourseStatus.PUBLISHED);
+        long totalInstructors = userRepository.countInstructors();
+        long totalLearners = userRepository.countLearners();
+
+        long totalFeedbacks = feedbackRepository.count();
+        int ratingPercent = 98; // Mặc định là 98% nếu chưa có đánh giá nào trong DB
+        if (totalFeedbacks > 0) {
+            long highRatingFeedbacks = feedbackRepository.countByRatingGreaterThanEqual(4);
+            ratingPercent = (int) Math.round((double) highRatingFeedbacks / totalFeedbacks * 100);
+        }
+
+        HomeDto.HomeDtoBuilder builder = HomeDto.builder()
+                .totalCourses(totalCourses)
+                .totalInstructors(totalInstructors)
+                .totalLearners(totalLearners)
+                .fiveStarRatingPercent(ratingPercent);
+
         if (currentUser == null) {
-            return HomeDto.builder().hasFavorites(false).build();
+            return builder.hasFavorites(false).build();
         }
 
         User user = userRepository.findById(currentUser.getId()).orElse(currentUser);
         if (!user.isFavoriteSetupCompleted()) {
-            return HomeDto.builder().hasFavorites(false).build();
+            return builder.hasFavorites(false).build();
         }
 
         Set<Category> favorites = user.getFavoriteCategories();
         if (favorites == null || favorites.isEmpty()) {
-            return HomeDto.builder().hasFavorites(false).build();
+            return builder.hasFavorites(false).build();
         }
 
         // Lấy danh mục con yêu thích (dùng for thay cho stream)
@@ -411,7 +434,7 @@ public class CourseService {
         }
 
         if (favoriteChildren.isEmpty()) {
-            return HomeDto.builder().hasFavorites(false).build();
+            return builder.hasFavorites(false).build();
         }
 
         // Lấy danh mục cha của các danh mục con yêu thích (dùng for thay cho stream)
@@ -424,7 +447,7 @@ public class CourseService {
         }
 
         if (parent == null) {
-            return HomeDto.builder().hasFavorites(false).build();
+            return builder.hasFavorites(false).build();
         }
 
         CategoryDto parentCategoryDto = dtoMapper.toCategoryDto(parent);
@@ -451,7 +474,7 @@ public class CourseService {
         );
         coursesMap.put(0, allFavorites);
 
-        return HomeDto.builder()
+        return builder
                 .hasFavorites(true)
                 .parentCategory(parentCategoryDto)
                 .favoriteChildren(favoriteChildren)

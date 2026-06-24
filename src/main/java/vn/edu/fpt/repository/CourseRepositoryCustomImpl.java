@@ -8,7 +8,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import vn.edu.fpt.dto.CourseListDto;
+import vn.edu.fpt.dto.course.CourseListDto;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -118,7 +118,7 @@ public class CourseRepositoryCustomImpl implements CourseRepositoryCustom {
         }
 
         // Xây dựng câu truy vấn select lấy DTO
-        String selectJpql = "SELECT new vn.edu.fpt.dto.CourseListDto(c.id, c.title, c.thumbnailUrl, c.price, c.level, i.firstName, i.lastName, cat.id, cat.name, " +
+        String selectJpql = "SELECT new vn.edu.fpt.dto.course.CourseListDto(c.id, c.title, c.thumbnailUrl, c.price, c.level, i.firstName, i.lastName, cat.id, cat.name, " +
                 "(SELECT COALESCE(AVG(f.rating), 0.0) FROM Feedback f WHERE f.course.id = c.id), " +
                 "(SELECT COUNT(f.id) FROM Feedback f WHERE f.course.id = c.id), " +
                 "(SELECT COUNT(l.id) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id), " +

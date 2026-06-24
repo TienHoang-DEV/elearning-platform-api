@@ -58,10 +58,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 			@Param("keyword") String keyword,
 			@Param("status") UserStatus status,
 			Pageable pageable);
-
-
-
-	@Query("SELECT COUNT(u) FROM User u JOIN u.userRoles ur JOIN ur.role r WHERE r.name = 'INSTRUCTOR'")
+	@Query("SELECT COUNT(u) FROM User u JOIN u.userRoles ur JOIN ur.role r WHERE LOWER(r.name) = 'instructor'")
 	long countInstructors();
 
 	@Query("SELECT COUNT(u) FROM User u JOIN u.userRoles ur JOIN ur.role r WHERE LOWER(r.name) = 'learner'")

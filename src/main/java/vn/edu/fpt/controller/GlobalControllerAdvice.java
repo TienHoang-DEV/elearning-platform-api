@@ -4,13 +4,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import vn.edu.fpt.dto.CategoryDto;
-import vn.edu.fpt.dto.UserDto;
+import vn.edu.fpt.dto.course.CategoryDto;
+import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.Cart;
-import vn.edu.fpt.entity.CartItem;
-import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.User;
-import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.CartItemService;
@@ -41,7 +38,7 @@ public class GlobalControllerAdvice {
             return true;
         }
         String uri = request.getRequestURI();
-        if (uri.startsWith("/api/") || uri.startsWith("/api") || uri.contains("/material/") || uri.contains("/lesson")) {
+        if (uri.startsWith("/api/") || uri.startsWith("/api") || uri.contains("/material/url")) {
             return false;
         }
         String accept = request.getHeader("Accept");

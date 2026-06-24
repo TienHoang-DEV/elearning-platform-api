@@ -14,6 +14,7 @@ import vn.edu.fpt.enums.QuizStatus;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.LessonRepository;
+import vn.edu.fpt.repository.QuizQuestionRepository;
 import vn.edu.fpt.repository.QuizRepository;
 
 import java.util.*;
@@ -24,11 +25,13 @@ public class QuizService {
     private final QuizRepository repository;
     private final DtoMapper dtoMapper;
     private final LessonRepository lessonRepository;
+    private final QuizQuestionRepository quizQuestionRepository;
 
-    public QuizService(QuizRepository quizRepository, DtoMapper dtoMapper, LessonRepository lessonRepository) {
+    public QuizService(QuizRepository quizRepository, DtoMapper dtoMapper, LessonRepository lessonRepository, QuizQuestionRepository quizQuestionRepository) {
         this.repository = quizRepository;
         this.dtoMapper = dtoMapper;
         this.lessonRepository = lessonRepository;
+        this.quizQuestionRepository = quizQuestionRepository;
     }
 
     public List<Quiz> findAll() {
@@ -51,7 +54,7 @@ public class QuizService {
         return repository.existsById(id);
     }
 
-    public int totalQuestion(Set<QuizDTO> quizzes) {
+    public int totalQuestion(List<QuizDTO> quizzes) {
         int total = 0;
         for (QuizDTO quizDTO : quizzes) {
             if (quizDTO.getQuestions() == null || quizDTO.getQuestions().isEmpty()) {
@@ -155,14 +158,31 @@ public class QuizService {
         quiz.setStatus(QuizStatus.ARCHIVED.name());
     }
 
-    public void saveDraft(QuizDTO quizDto){
-        Quiz quiz = repository.findQuizById(quizDto.getId());
+    public void saveDraft(Integer quizId){
+        Quiz quiz = repository.findQuizById(quizId);
         if(quiz == null){
             System.out.println("Quiz not found !");
             return;
         }
 
         quiz.setStatus(QuizStatus.DRAFT.name());
+    }
+
+    public boolean publishQuiz(Integer quizId){
+        Quiz quiz = repository.findQuizById(quizId);
+        if(quiz == null){
+            System.out.println("Quiz not found");
+            return false;
+        }
+
+    long quizQuestionCount = quizQuestionRepository.countByQuizId(quizId);
+        if(quizQuestionCount < 1){
+            System.out.println("Quiz need at least 1 question to publish!");
+            return false;
+        }
+
+        quiz.setStatus(QuizStatus.PUBLISHED.name());
+        return true;
     }
 
     public void deleteQuiz(Integer quizId) {
@@ -174,6 +194,14 @@ public class QuizService {
         }
 
         repository.delete(quiz);
+    }
+
+    public Long getTotalQuizByLessonId(Integer lessonId){
+        return repository.countByLessonId(lessonId);
+    }
+
+    public Long getTotalQuizByLessonIdAndStatus(Integer lessonId,String status){
+        return repository.countByLessonIdAndStatus(lessonId, status);
     }
 
 

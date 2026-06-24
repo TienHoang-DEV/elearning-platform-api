@@ -12,7 +12,7 @@ import vn.edu.fpt.enums.CourseStatus;
 
 import java.util.List;
 import java.util.Optional;
-import vn.edu.fpt.dto.CourseListDto;
+import vn.edu.fpt.dto.course.CourseListDto;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Integer>, CourseRepositoryCustom {
@@ -81,7 +81,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
 
     Course findCourseById(Integer id);
 
-    @Query("SELECT new vn.edu.fpt.dto.CourseListDto(c.id, c.title, c.thumbnailUrl, c.price, c.level, i.firstName, i.lastName, cat.id, cat.name, " +
+    @Query("SELECT new vn.edu.fpt.dto.course.CourseListDto(c.id, c.title, c.thumbnailUrl, c.price, c.level, i.firstName, i.lastName, cat.id, cat.name, " +
             "COALESCE((SELECT AVG(f.rating) FROM Feedback f WHERE f.course.id = c.id), 0.0), " +
             "(SELECT COUNT(f.id) FROM Feedback f WHERE f.course.id = c.id), " +
             "(SELECT COUNT(l.id) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id), " +
