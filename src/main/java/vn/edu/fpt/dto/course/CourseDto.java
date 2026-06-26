@@ -79,4 +79,21 @@ public class CourseDto {
         }
         return list;
     }
+
+    public int getTotalDurationMinutes() {
+        if (sections == null) {
+            return 0;
+        }
+        int totalSeconds = 0;
+        for (CourseSectionDto section : sections) {
+            if (section.getLessons() != null) {
+                for (LessonDto lesson : section.getLessons()) {
+                    if (lesson.getDurationSeconds() != null) {
+                        totalSeconds += lesson.getDurationSeconds();
+                    }
+                }
+            }
+        }
+        return totalSeconds / 60;
+    }
 }
