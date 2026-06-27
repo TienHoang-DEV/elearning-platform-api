@@ -1,16 +1,20 @@
 package vn.edu.fpt.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import vn.edu.fpt.dto.course.CategoryDto;
+import vn.edu.fpt.dto.course.CourseDto;
+import vn.edu.fpt.dto.course.CourseListDto;
 import vn.edu.fpt.entity.User;
-import vn.edu.fpt.entity.Cart;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.Feedback;
-import vn.edu.fpt.dto.*;
+import org.springframework.data.domain.Page;
 import vn.edu.fpt.service.CourseService;
 import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.UserService;
@@ -18,7 +22,11 @@ import vn.edu.fpt.service.EnrollmentService;
 import vn.edu.fpt.service.CartService;
 import vn.edu.fpt.service.CartItemService;
 import vn.edu.fpt.service.FeedbackService;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class CourseController {
@@ -82,8 +90,8 @@ public class CourseController {
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             Model model) {
 
-        List<CourseDto> filteredCourses = courseService.getFilteredAndSortedCourses(search, categoryId, ratings, prices,
-                sort);
+        Page<CourseListDto> coursePage = courseService.getPagedCoursesSummary(
+                search, categoryId, ratings, prices, sort, page, 4);
         List<CategoryDto> categoryDtos = categoryService.getActiveParentCategories();
 
         model.addAttribute("parentCategories", categoryDtos);
@@ -93,49 +101,10 @@ public class CourseController {
         java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
         model.addAttribute("enrolledCourseIds", enrolledCourseIds);
 
-        // Lấy số lượng giỏ hàng hiển thị trên Header
-        int cartSize = 0;
-        if (user != null) {
-            try {
-                Cart cart = cartService.getOrCreateCartForUser(user);
-                cartSize = cartItemService.countItemsInCart(cart);
-            } catch (Exception ignored) {
-            }
-        }
-        model.addAttribute("cartSize", cartSize);
 
-        // --- PHÂN TRANG DANH SÁCH KHÓA HỌC (4 khóa học/trang) ---
-        // 1. Lấy tổng số lượng khóa học sau khi lọc
-        int totalCourses = filteredCourses.size();
-        int itemsPerPage = 4;
 
-        // 2. Tính toán tổng số trang cần thiết (làm tròn lên)
-        int totalPages = (int) Math.ceil((double) totalCourses / itemsPerPage);
-        if (totalPages < 1) {
-            totalPages = 1;
-        }
-
-        // 3. Ràng buộc trang hiện tại không vượt quá giới hạn hợp lệ
-        if (page > totalPages) {
-            page = totalPages;
-        }
-        if (page < 1) {
-            page = 1;
-        }
-
-        // 4. Tính chỉ số bắt đầu và kết thúc của trang hiện tại để cắt danh sách
-        int startIndex = (page - 1) * itemsPerPage;
-        int endIndex = Math.min(startIndex + itemsPerPage, totalCourses);
-
-        // 5. Cắt danh sách tổng thành danh sách con của trang hiện tại
-        List<CourseDto> pagedCourses = new java.util.ArrayList<>();
-        if (startIndex < totalCourses) {
-            pagedCourses = filteredCourses.subList(startIndex, endIndex);
-        }
-
-        // 6. Đưa dữ liệu trang hiện tại và các thuộc tính phân trang vào Model để
-        // render ra UI
-        model.addAttribute("courses", pagedCourses);
+        // Đưa dữ liệu trang hiện tại và các thuộc tính phân trang vào Model để render ra UI
+        model.addAttribute("courses", coursePage.getContent());
         model.addAttribute("search", search);
         model.addAttribute("categoryId", categoryId);
         if (categoryId != null) {
@@ -150,9 +119,9 @@ public class CourseController {
         model.addAttribute("selectedRatings", ratings);
         model.addAttribute("selectedPrices", prices);
         model.addAttribute("sort", sort);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("totalCourses", totalCourses);
+        model.addAttribute("currentPage", coursePage.getNumber() + 1);
+        model.addAttribute("totalPages", coursePage.getTotalPages());
+        model.addAttribute("totalCourses", coursePage.getTotalElements());
 
         return "course/list";
     }
@@ -175,12 +144,7 @@ public class CourseController {
             boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), id);
             model.addAttribute("hasReviewed", hasReviewed);
 
-            try {
-                Cart cart = cartService.getOrCreateCartForUser(user);
-                int cartSize = cartItemService.countItemsInCart(cart);
-                model.addAttribute("cartSize", cartSize);
-            } catch (Exception ignored) {
-            }
+
         }
         return "course/detail";
     }
@@ -208,5 +172,41 @@ public class CourseController {
         feedbackService.save(feedback);
         redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
         return "redirect:/course/detail?id=" + courseId;
+    }
+
+    @PostMapping("/api/course/review/add")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> addCourseReviewApi(
+            @RequestParam("courseId") Integer courseId,
+            @RequestParam("rating") Integer rating,
+            @RequestParam(value = "comment", required = false, defaultValue = "") String comment) {
+        
+         Map<String, Object> response = new HashMap<>();
+        User user = getSessionUser();
+        if (user == null) {
+            response.put("success", false);
+            response.put("message", "Bạn cần đăng nhập để thực hiện đánh giá.");
+            return ResponseEntity.status(401).body(response);
+        }
+        
+        if (feedbackService.hasUserReviewedCourse(user.getId(), courseId)) {
+            response.put("success", false);
+            response.put("message", "Bạn đã đánh giá khóa học này trước đó rồi.");
+            return ResponseEntity.ok(response);
+        }
+        
+        Course course = courseService.findById(courseId);
+        Feedback feedback = Feedback.builder()
+                .user(user)
+                .course(course)
+                .rating(rating)
+                .comment(comment)
+                .createdAt(LocalDateTime.now())
+                .build();
+        feedbackService.save(feedback);
+        
+        response.put("success", true);
+        response.put("message", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
+        return ResponseEntity.ok(response);
     }
 }

@@ -2,7 +2,7 @@ package vn.edu.fpt.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.fpt.dto.OrderDto;
+import vn.edu.fpt.dto.cart.OrderDto;
 import vn.edu.fpt.entity.Order;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.mapper.DtoMapper;
@@ -10,7 +10,6 @@ import vn.edu.fpt.repository.OrderRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional

@@ -2,14 +2,16 @@ package vn.edu.fpt.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.dto.cart.CartDto;
+import vn.edu.fpt.dto.cart.CartItemDto;
+import vn.edu.fpt.dto.cart.CartPageDetailsDto;
+import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.*;
-import vn.edu.fpt.dto.*;
 import vn.edu.fpt.enums.OrderStatus;
 import vn.edu.fpt.repository.*;
 import vn.edu.fpt.mapper.DtoMapper;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -43,6 +45,11 @@ public class CartService {
                 .orElseGet(() -> repository.save(Cart.builder().user(user).build()));
     }
 
+    public Cart getOrCreateCartForUserWithDetails(User user) {
+        return repository.findByUserWithItemsAndCourses(user)
+                .orElseGet(() -> repository.save(Cart.builder().user(user).build()));
+    }
+
     public List<Cart> findAll() {
         return repository.findAll();
     }
@@ -64,7 +71,7 @@ public class CartService {
     }
 
     public CartPageDetailsDto getCartPageDetails(User user) {
-        Cart cart = getOrCreateCartForUser(user);
+        Cart cart = getOrCreateCartForUserWithDetails(user);
         CartDto cartDto = dtoMapper.toCartDto(cart);
 
         // Nhóm các CartItemDto theo Giảng viên của khóa học

@@ -1,6 +1,7 @@
 package vn.edu.fpt.dto.quizdto;
 
 import lombok.*;
+import vn.edu.fpt.enums.QuestionType;
 
 import java.util.ArrayList;
 import java.time.LocalDateTime;
@@ -13,12 +14,20 @@ import java.util.List;
 @Builder
 public class QuizQuestionDTO {
     private String questionText;
-    private String questionType;
-    private Integer points;
+
+
+    @Builder.Default
+    private String questionType = QuestionType.SINGLE.name();
+    @Builder.Default
+    private Integer points = 1;
     private Integer position;
+
     @Builder.Default
     private List<QuizAnswerDTO> answers = new ArrayList<>();
+
     private Integer id;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String explanation;
+
 }

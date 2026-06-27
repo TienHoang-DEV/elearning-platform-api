@@ -6,6 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.CourseCreateDto;
+import vn.edu.fpt.dto.course.CategoryDto;
+import vn.edu.fpt.dto.course.CourseDto;
+import vn.edu.fpt.dto.course.CourseListDto;
+import vn.edu.fpt.dto.home.HomeDto;
 import vn.edu.fpt.entity.Category;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.entity.Course;
@@ -21,8 +25,14 @@ import vn.edu.fpt.mapper.DtoMapper;
 
 import vn.edu.fpt.repository.CourseRepository;
 
-import vn.edu.fpt.dto.CourseDto;
+import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.repository.UserRepository;
+import vn.edu.fpt.repository.FeedbackRepository;
+import org.springframework.data.domain.PageRequest;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,39 +41,52 @@ import java.util.List;
 @Service
 @Transactional
 public class CourseService {
-    private CourseRepository repository;
+    private final CourseRepository repository;
     private final DtoMapper dtoMapper;
     private final CategoryRepository categoryRepository;
     private final AzureBlobService azureBlobService;
     private final CategoryService categoryService;
+    private final UserRepository userRepository;
+    private final FeedbackRepository feedbackRepository;
 
     public CourseService(CourseRepository courseRepository, DtoMapper dtoMapper, CategoryRepository categoryRepository,
-            AzureBlobService azureBlobService, CategoryService categoryService) {
+            AzureBlobService azureBlobService, CategoryService categoryService, UserRepository userRepository, FeedbackRepository feedbackRepository) {
         this.categoryService = categoryService;
         this.repository = courseRepository;
         this.dtoMapper = dtoMapper;
         this.categoryRepository = categoryRepository;
         this.azureBlobService = azureBlobService;
+        this.userRepository = userRepository;
+        this.feedbackRepository = feedbackRepository;
     }
-
-    // ben manager duyet khoa hoc
-    public Page<CourseDto> searchAndFilter(String keyword, String statusStr, Pageable pageable) {
-        CourseStatus status = (statusStr == null || statusStr.isEmpty()) ? null : CourseStatus.valueOf(statusStr);
-        return repository.searchAndFilter(keyword, status, pageable)
-                .map(dtoMapper::toCourseDto);
-    }
-
     // Page course của mỗi instructor
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
         return repository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
     }
 
     public Course save(User user, CourseCreateDto courseCreateDto) {
+        Course course;
+        boolean isUpdate = courseCreateDto.getId() != null;
 
-        if (repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
-            throw new CourseValidationException(
-                    "title",
-                    "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
+        if (isUpdate) {
+            course = repository.findById(courseCreateDto.getId())
+                    .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+            if (!course.getTitle().equals(courseCreateDto.getTitle()) &&
+                repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
+                throw new CourseValidationException(
+                        "title",
+                        "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
+            }
+        } else {
+            course = new Course();
+            if (repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
+                throw new CourseValidationException(
+                        "title",
+                        "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
+            }
+            course.setCreatedAt(LocalDateTime.now());
+            course.setStatus(CourseStatus.DRAFT);
+            course.setInstructor(user);
         }
 
         if (courseCreateDto.getTitle().length() < 3) {
@@ -72,7 +95,7 @@ public class CourseService {
                     "Tiêu đề khóa học phải có ít nhất 3 ký tự.");
         }
 
-        String thumbnailUrl = null;
+        String thumbnailUrl = course.getThumbnailUrl();
         if (courseCreateDto.getThumbnailFile() != null && !courseCreateDto.getThumbnailFile().isEmpty()) {
             thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), "course-thumbnails");
         }
@@ -80,16 +103,13 @@ public class CourseService {
         Category category = categoryRepository.findById(courseCreateDto.getCategoryId())
                 .orElseThrow(() -> new CourseValidationException("categoryId", "Category không tồn tại"));
 
-        Course course = new Course();
         course.setTitle(courseCreateDto.getTitle());
         course.setDescription(courseCreateDto.getDescription());
         course.setCategory(category);
         course.setPrice(courseCreateDto.getPrice());
         course.setThumbnailUrl(thumbnailUrl);
         course.setLevel(courseCreateDto.getLevel());
-        course.setStatus(CourseStatus.DRAFT);
-        course.setCreatedAt(LocalDateTime.now());
-        course.setInstructor(user);
+        course.setUpdateAt(LocalDateTime.now());
         return repository.save(course);
     }
 
@@ -196,10 +216,22 @@ public class CourseService {
         return filteredCourses;
     }
 
+
     public CourseDto getCourseDetail(Integer id) {
-        Course course = repository.findById(id)
+        Course course = repository.findByIdWithDetails(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
         return dtoMapper.toCourseDto(course);
+    }
+
+    public Page<CourseListDto> getPagedCoursesSummary(
+            String search,
+            Integer categoryId,
+            List<Double> ratings,
+            List<String> prices,
+            String sort,
+            int page,
+            int size) {
+        return repository.getPagedCoursesSummary(search, categoryId, ratings, prices, sort, page, size);
     }
 
     public List<Course> findAll() {
@@ -302,4 +334,151 @@ public class CourseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
     }
 
+    // =========================================================================
+    // ACADEMIC MANAGER (QUẢN LÝ HỌC THUẬT) SECTION
+    // =========================================================================
+
+    public Page<CourseDto> searchAndFilter(String keyword, CourseStatus status, Integer categoryId, Pageable pageable) {
+        return repository.searchAndFilter(keyword, status, categoryId, pageable)
+                .map(dtoMapper::toCourseDto);
+    }
+
+    /**
+     * Cập nhật trạng thái khóa học (PHÊ DUYỆT, TỪ CHỐI, vv) từ phía manager.
+     */
+    @Transactional
+    public void updateCourseStatus(Integer id, CourseStatus status) {
+        updateCourseStatus(id, status, null);
+    }
+
+    @Transactional
+    public void updateCourseStatus(Integer id, CourseStatus status, String rejectionReason) {
+        Course course = repository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        course.setStatus(status);
+        if (status == CourseStatus.REJECTED) {
+            course.setRejectionReason(rejectionReason);
+        } else if (status == CourseStatus.PUBLISHED) {
+            course.setRejectionReason(null); // Clear rejection reason if approved
+        }
+        repository.save(course);
+    }
+
+    @Transactional
+    public void resubmitCourse(Integer id) {
+        Course course = repository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        if (course.getStatus() == CourseStatus.REJECTED) {
+            course.setStatus(CourseStatus.PENDING);
+            repository.save(course);
+        }
+    }
+
+    @Transactional
+    public void submitForApproval(Integer id) {
+        Course course = repository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        if (course.getStatus() == CourseStatus.DRAFT) {
+            course.setStatus(CourseStatus.PENDING);
+            repository.save(course);
+        }
+    }
+
+    @Transactional
+    public void withdrawCourse(Integer id) {
+        Course course = repository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        if (course.getStatus() == CourseStatus.PENDING) {
+            course.setStatus(CourseStatus.DRAFT);
+            repository.save(course);
+        }
+    }
+    public HomeDto getHomeData(User currentUser) {
+        long totalCourses = repository.countByStatus(CourseStatus.PUBLISHED);
+        long totalInstructors = userRepository.countInstructors();
+        long totalLearners = userRepository.countLearners();
+
+        long totalFeedbacks = feedbackRepository.count();
+        int ratingPercent = 98; // Mặc định là 98% nếu chưa có đánh giá nào trong DB
+        if (totalFeedbacks > 0) {
+            long highRatingFeedbacks = feedbackRepository.countByRatingGreaterThanEqual(4);
+            ratingPercent = (int) Math.round((double) highRatingFeedbacks / totalFeedbacks * 100);
+        }
+
+        HomeDto.HomeDtoBuilder builder = HomeDto.builder()
+                .totalCourses(totalCourses)
+                .totalInstructors(totalInstructors)
+                .totalLearners(totalLearners)
+                .fiveStarRatingPercent(ratingPercent);
+
+        if (currentUser == null) {
+            return builder.hasFavorites(false).build();
+        }
+
+        User user = userRepository.findById(currentUser.getId()).orElse(currentUser);
+        if (!user.isFavoriteSetupCompleted()) {
+            return builder.hasFavorites(false).build();
+        }
+
+        Set<Category> favorites = user.getFavoriteCategories();
+        if (favorites == null || favorites.isEmpty()) {
+            return builder.hasFavorites(false).build();
+        }
+
+        // Lấy danh mục con yêu thích (dùng for thay cho stream)
+        List<CategoryDto> favoriteChildren = new java.util.ArrayList<>();
+        for (Category c : favorites) {
+            if ("ACTIVE".equals(c.getStatus()) && c.getParent() != null) {
+                favoriteChildren.add(dtoMapper.toCategoryDto(c));
+            }
+        }
+
+        if (favoriteChildren.isEmpty()) {
+            return builder.hasFavorites(false).build();
+        }
+
+        // Lấy danh mục cha của các danh mục con yêu thích (dùng for thay cho stream)
+        Category parent = null;
+        for (Category c : favorites) {
+            if (c.getParent() != null) {
+                parent = c.getParent();
+                break;
+            }
+        }
+
+        if (parent == null) {
+            return builder.hasFavorites(false).build();
+        }
+
+        CategoryDto parentCategoryDto = dtoMapper.toCategoryDto(parent);
+
+        Map<Integer, List<CourseListDto>> coursesMap = new HashMap<>();
+
+        // 1. Lấy top 4 khóa học cho từng danh mục con
+        for (CategoryDto child : favoriteChildren) {
+            List<CourseListDto> top4 = repository.findTop4ByCategoryIdsOrderByAverageRatingDesc(
+                    java.util.Collections.singletonList(child.getId()), 
+                    PageRequest.of(0, 4)
+            );
+            coursesMap.put(child.getId(), top4);
+        }
+
+        // 2. Lấy top 4 khóa học cho tab "Tất cả" (tổng hợp các danh mục con yêu thích) (dùng for thay cho stream)
+        List<Integer> childIds = new java.util.ArrayList<>();
+        for (CategoryDto child : favoriteChildren) {
+            childIds.add(child.getId());
+        }
+        List<CourseListDto> allFavorites = repository.findTop4ByCategoryIdsOrderByAverageRatingDesc(
+                childIds, 
+                PageRequest.of(0, 4)
+        );
+        coursesMap.put(0, allFavorites);
+
+        return builder
+                .hasFavorites(true)
+                .parentCategory(parentCategoryDto)
+                .favoriteChildren(favoriteChildren)
+                .coursesMap(coursesMap)
+                .build();
+    }
 }

@@ -2,12 +2,12 @@ package vn.edu.fpt.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.fpt.dto.CourseDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
+import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.CourseSectionRepository;
 
 import java.time.LocalDateTime;
@@ -20,9 +20,12 @@ import vn.edu.fpt.dto.LessonDto;
 @Transactional
 public class CourseSectionService {
     private final CourseSectionRepository repository;
+    private final DtoMapper dtoMapper;
 
-    public CourseSectionService(CourseSectionRepository courseSectionRepository) {
+
+    public CourseSectionService(CourseSectionRepository courseSectionRepository, DtoMapper dtoMapper) {
         this.repository = courseSectionRepository;
+        this.dtoMapper = dtoMapper;
     }
 
     public List<CourseSection> findAll() {
@@ -140,4 +143,12 @@ public class CourseSectionService {
 
 
 
+
+    public CourseSection findBySectionId(Integer courseSectionId){
+        return repository.findCourseSectionById(courseSectionId);
+    }
+
+    public CourseSectionDto findByCourseSectionId(Integer courseSectionId){
+        return dtoMapper.toCourseSectionDto(repository.findCourseSectionById(courseSectionId));
+    }
 }

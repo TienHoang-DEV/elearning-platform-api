@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/manager-layout}">
+<head>
+    <title>Academic Manager - Chi tiết Khóa học</title>
+    <th:block layout:fragment="page-css">
+        <link rel="stylesheet" th:href="@{/css/manager/course.css}">
+    </th:block>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- ══════════ BREADCRUMB / BACK HEADER ══════════ -->
+        <div class="back-header">
+            <a th:href="@{/manager/course/list}" class="back-btn">
+                <i class="ph ph-arrow-left"></i>
+            </a>
+            <div class="back-title">
+                <h1>Chi tiết Khóa học</h1>
+                <p>Xem xét nội dung và trạng thái khóa học.</p>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert">
+            <i class="ph ph-check-circle fs-5"></i>
+            <span th:text="${successMessage}">Cập nhật thành công.</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- ══════════ COURSE DETAIL CARD ══════════ -->
+        <div class="course-detail-container">
+            <!-- Thumbnail Cover -->
+            <img th:src="${course.thumbnailPath}" class="detail-cover-image" alt="Course Thumbnail">
+
+            <!-- Meta info & Action buttons -->
+            <div class="detail-info-row">
+                <div class="detail-meta">
+                    <span th:if="${course.status != null}" 
+                          th:class="${'badge py-2 px-3 fs-6 badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : course.status.name() == 'PENDING' ? 'warning' : 'danger')}"
+                          th:text="${course.statusLabel}">Trạng thái</span>
+                    <span class="detail-price" th:text="${course.price != null ? #numbers.formatDecimal(course.price, 0, 'POINT', 0, 'COMMA') + ' đ' : 'Miễn phí'}">$49.99</span>
+                </div>
+
+                <!-- Action buttons form -->
+                <div class="detail-actions" th:if="${course.status != null && course.status.name() == 'PENDING'}">
+                    <!-- Phê duyệt (Approve) -->
+                    <form th:action="@{/manager/course/edit/{id}(id=${course.id})}" method="post" class="d-inline">
+                        <input type="hidden" name="status" value="PUBLISHED" />
+                        <button type="submit" class="btn btn-approve d-inline-flex align-items-center gap-1">
+                            <i class="ph ph-check-circle fs-5"></i> Phê duyệt
+                        </button>
+                    </form>
+
+                    <!-- Từ chối (Reject) -->
+                    <button type="button" class="btn btn-reject d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                        <i class="ph ph-x-circle fs-5"></i> Từ chối
+                    </button>
+                </div>
+            </div>
+
+            <!-- Title & Instructor -->
+            <h2 class="detail-title" th:text="${course.title}">Các Mẫu React Nâng Cao</h2>
+            <div class="detail-instructor">
+                <span>Bởi </span>
+                <strong th:text="${course.instructor != null ? (course.instructor.lastName + ' ' + course.instructor.firstName) : 'Không rõ'}">Michael Chang</strong>
+            </div>
+
+            <!-- Description -->
+            <div class="detail-section-title">
+                <i class="ph ph-text-align-left"></i>
+                <span>Mô tả</span>
+            </div>
+            <div class="detail-desc-content" th:utext="${course.description != null ? course.description : 'Không có mô tả cho khóa học này.'}">
+                Học các mẫu thiết kế nâng cao để xây dựng các ứng dụng React có khả năng mở rộng.
+            </div>
+
+            <!-- Split layout columns: Curriculum & Resources -->
+            <div class="detail-columns">
+                <!-- Left Column: Syllabus -->
+                <div class="detail-column-card">
+                    <div class="detail-section-title">
+                        <i class="ph ph-book-bookmark"></i>
+                        <span>Dàn ý nội dung</span>
+                    </div>
+                    <div class="syllabus-preview">
+                        <div class="syllabus-lessons-count" th:text="${'Tổng cộng ' + course.totalLessonsCount + ' bài học'}">
+                            Tổng cộng 24 bài học
+                        </div>
+                        <a href="#" class="syllabus-view-link" data-bs-toggle="modal" data-bs-target="#curriculumModal">
+                            Xem toàn bộ giáo trình <i class="ph ph-arrow-square-out"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Column: Resources -->
+                <div class="detail-column-card">
+                    <div class="detail-section-title">
+                        <i class="ph ph-paperclip"></i>
+                        <span>Tài liệu đính kèm</span>
+                    </div>
+                    <div class="attachment-list">
+                        <div th:if="${course.allMaterials == null or course.allMaterials.empty}" class="text-muted text-center py-3">
+                            Không có tài liệu nào cho khóa học này.
+                        </div>
+                        <a th:each="mat : ${course.allMaterials}" 
+                           th:href="@{/material/{id}/view(id=${mat.id})}" 
+                           target="_blank" 
+                           class="attachment-item">
+                            <div class="attachment-info">
+                                <i class="ph ph-file-text"></i>
+                                <span th:text="${mat.fileName}">Tài liệu</span>
+                            </div>
+                            <i class="ph ph-eye"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ CURRICULUM MODAL ══════════ -->
+        <div class="modal fade" id="curriculumModal" tabindex="-1" aria-labelledby="curriculumModalLabel" aria-hidden="true">
+            <div class="modal-dialog curriculum-modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="curriculumModalLabel">Dàn ý chi tiết giáo trình</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body curriculum-modal-body">
+                        <div th:if="${course.sections == null or course.sections.empty}" class="text-center py-4 text-muted">
+                            Chưa có bài học nào được tạo cho khóa học này.
+                        </div>
+                        <div th:each="section : ${course.sections}" class="section-item">
+                            <div class="section-header">
+                                <span th:text="${section.title}">Chương 1: Giới thiệu</span>
+                                <span class="badge badge-secondary" th:text="${section.lessons != null ? section.lessons.size() + ' bài học' : '0 bài học'}">3 bài học</span>
+                            </div>
+                            <ul class="lesson-list">
+                                <li th:each="lesson : ${section.lessons}" class="lesson-item d-block py-3">
+                                    <div class="d-flex justify-content-between align-items-center w-100">
+                                        <div class="lesson-title">
+                                            <i class="ph ph-play-circle fs-5 text-primary"></i>
+                                            <span th:text="${lesson.title}">Bài 1: Cài đặt môi trường</span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <span class="lesson-duration text-muted" th:if="${lesson.durationSeconds != null}" 
+                                                  th:text="${(lesson.durationSeconds / 60) + ' phút'}">5 phút</span>
+                                            <a th:if="${lesson.videoUrl != null and !lesson.videoUrl.isEmpty()}" 
+                                               th:href="@{/lesson/{id}/video(id=${lesson.id})}" 
+                                               target="_blank" 
+                                               class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1 px-2" style="font-size: 0.8rem;">
+                                                <i class="ph ph-video"></i> Xem Video
+                                            </a>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ REJECT MODAL ══════════ -->
+        <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form th:action="@{/manager/course/edit/{id}(id=${course.id})}" method="post">
+                        <input type="hidden" name="status" value="REJECTED" />
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="rejectModalLabel">Từ chối khóa học</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="rejectionReason" class="form-label font-weight-bold">Lý do từ chối (Reject Reason):</label>
+                                <textarea class="form-control" id="rejectionReason" name="rejectionReason" rows="4" placeholder="Nhập lý do từ chối... Ví dụ: Missing lesson videos" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-danger">Xác nhận từ chối</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

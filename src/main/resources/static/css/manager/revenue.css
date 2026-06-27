@@ -1,47 +1,7 @@
 /* ════════════════════════════════════════════
    Manager Revenue CSS — Bootstrap enhanced
    ════════════════════════════════════════════ */
-:root {
-    --primary-blue: #0056b3;
-    --bg-light: #f8f9fa;
-    --bg-body: #f4f6f9;
-    --white: #ffffff;
-    --text-main: #212529;
-    --text-gray: #6c757d;
-    --border-color: #dee2e6;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-    --border-radius: 8px;
-    --font-family: 'Inter', sans-serif;
-}
 
-body { font-family: var(--font-family); background-color: var(--bg-body); color: var(--text-main); }
-
-/* ── Layout ── */
-.app-container { display: flex; height: 100vh; overflow: hidden; }
-.sidebar { width: 250px; flex-shrink: 0; background: var(--white); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; }
-.sidebar-header { height: 60px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border-color); }
-.sidebar-header h2 { font-size: 1.1rem; font-weight: 600; color: var(--primary-blue); margin: 0; }
-
-.sidebar-nav { padding: 16px 10px; flex-grow: 1; }
-.sidebar-nav ul { list-style: none; padding: 0; margin: 0; }
-.sidebar-nav li { margin-bottom: 4px; }
-.sidebar-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 15px; text-decoration: none; color: var(--text-main); border-radius: var(--border-radius); transition: background-color 0.2s; font-weight: 500; }
-.sidebar-nav a i { font-size: 1.25rem; color: var(--text-gray); }
-.sidebar-nav a:hover { background-color: var(--bg-light); }
-.sidebar-nav li.active a { background-color: var(--primary-blue); color: var(--white); }
-.sidebar-nav li.active a i { color: var(--white); }
-
-.sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; }
-.footer-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--primary-blue); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; flex-shrink: 0; }
-.profile-info { overflow: hidden; }
-.profile-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.profile-email { font-size: 0.8rem; color: var(--text-gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.main-wrapper { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
-.content { padding: 28px 30px; }
-.page-header { margin-bottom: 24px; }
-.page-header h1 { font-size: 1.75rem; font-weight: 600; margin-bottom: 4px; }
-.page-header p { color: var(--text-gray); font-size: 0.95rem; }
 
 /* ── Buttons ── */
 .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 15px; border-radius: var(--border-radius); cursor: pointer; font-family: inherit; font-weight: 500; border: none; text-decoration: none; }
@@ -56,6 +16,252 @@ body { font-family: var(--font-family); background-color: var(--bg-body); color:
 .rev-card .rev-val { font-size: 2rem; font-weight: 700; margin-bottom: 4px; }
 .rev-card .rev-sub { font-size: 0.85rem; }
 
+/* ════════════════════════════════════════════
+   Bổ sung cho trang Lịch sử giao dịch
+   ════════════════════════════════════════════ */
+
+/* -- Bộ lọc trạng thái (Tabs) -- */
+.btn-filter {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.btn-filter:hover {
+    background: var(--bg-light);
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+.btn-filter.active {
+    background: var(--primary-blue);
+    color: var(--white);
+    border-color: var(--primary-blue);
+    box-shadow: 0 2px 4px rgba(0, 86, 179, 0.15);
+}
+
+/* -- Thanh tìm kiếm -- */
+.search-box-wrapper .input-group {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+.search-box-wrapper input {
+    height: 44px;
+    font-size: 0.95rem;
+}
+.search-box-wrapper .input-group-text {
+    border-color: var(--border-color);
+    padding-left: 16px;
+}
+
+/* -- Bảng danh sách giao dịch dạng Card -- */
+.transaction-card-table {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+.card-table-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--white);
+}
+.card-table-header h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.transaction-card-table .table th {
+    background-color: var(--bg-light);
+    color: var(--text-gray);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+.transaction-card-table .table td {
+    padding: 14px 20px;
+    font-size: 0.95rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* -- Badges Trạng thái -- */
+.badge-paid {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+.badge-fail {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+/* -- Nút hành động con mắt -- */
+.btn-action {
+    background: none;
+    border: none;
+    color: var(--text-gray);
+    font-size: 1.2rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-action:hover {
+    color: var(--primary-blue);
+    background-color: var(--bg-light);
+}
+
+/* -- Thanh phân trang Custom -- */
+.pagination-custom a {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+.page-item-num {
+    width: 36px;
+    height: 36px;
+    color: var(--text-main);
+    background: var(--white);
+    border: 1px solid var(--border-color);
+}
+.page-item-num:hover {
+    background: var(--bg-light);
+    color: var(--primary-blue);
+}
+.page-item-num.active {
+    background: var(--primary-blue);
+    color: var(--white);
+    border-color: var(--primary-blue);
+}
+.page-link-nav {
+    width: 36px;
+    height: 36px;
+    color: var(--text-gray);
+    background: transparent;
+}
+.page-link-nav:hover {
+    color: var(--text-main);
+}
+
+/* ── Khu vực bộ lọc nâng cao ── */
+.filter-search-wrapper {
+    background: var(--white);
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-search-wrapper .form-label {
+    margin-bottom: 6px;
+}
+
+/* Tùy biến ô Input và Select đồng bộ với hệ thống */
+.custom-input, .custom-select {
+    height: 42px;
+    font-size: 0.95rem;
+    border-color: var(--border-color);
+    border-radius: var(--border-radius);
+    color: var(--text-main);
+}
+
+.custom-input:focus, .custom-select:focus {
+    border-color: var(--primary-blue);
+}
+
+/* Group tìm kiếm kèm nút bấm liền dải */
+.search-group {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.search-group .input-group-text,
+.search-group input {
+    height: 42px;
+    border-color: var(--border-color);
+}
+
+/* Nút tìm kiếm góc phải Group */
+.btn-search-submit {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    padding: 0 20px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0 !important; /* Để khớp với input-group */
+    transition: background-color 0.2s;
+}
+
+.btn-search-submit:hover {
+    background-color: #004494;
+    color: var(--white);
+}
+
+.btn-submit-filter {
+    background-color: var(--primary-blue);
+    color: var(--white) !important;
+    height: 42px;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.btn-submit-filter:hover {
+    background-color: #004494;
+}
+
+.btn-reset-filter {
+    background-color: var(--white);
+    color: var(--text-gray) !important;
+    border: 1px solid var(--border-color);
+    height: 42px;
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.btn-reset-filter:hover {
+    background-color: var(--bg-light);
+    color: var(--text-main) !important;
+    border-color: var(--text-gray);
+}
+
+
+
 /* ── Chart ── */
 .chart-section { background: var(--white); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow-sm); }
 .chart-section h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; }
@@ -63,8 +269,5 @@ body { font-family: var(--font-family); background-color: var(--bg-body); color:
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-    .app-container { flex-direction: column; }
-    .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); }
-    .main-wrapper { overflow-y: visible; }
     .rev-grid { grid-template-columns: 1fr; }
 }

@@ -12,13 +12,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.*;
 
+import vn.edu.fpt.dto.CategoryDto;
+import vn.edu.fpt.dto.CourseCreateDto;
+import vn.edu.fpt.dto.CourseDto;
+
 import vn.edu.fpt.entity.Course;
-import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.enums.CourseStatus;
 
-import vn.edu.fpt.exception.CourseSectionValidation;
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.CourseSectionService;
@@ -174,6 +176,18 @@ public class InstructorCourseController {
             model.addAttribute("sections", courseSectionService.findByCourseAndLesson(courseId));
             return "instructor_course/editcourse";
         }
+    // --- MOCKUP DEMO ENDPOINTS ---
+    @GetMapping("/demo/view")
+    public String viewCourseDemo() {
+        return "instructor_course/view_course_demo";
+    }
+
+    @GetMapping("/demo/edit")
+    public String editCourseDemo() {
+        return "instructor_course/edit_course_demo";
+    }
+
+
 
 
 }

@@ -1318,7 +1318,6 @@ IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = @UserId10 AND role_id = 
 -- 5. DỮ LIỆU TEST DASHBOARD MẪU (KHÓA HỌC CHỜ DUYỆT, BÁO CÁO VI PHẠM, BIỂU ĐỒ)
 -- =========================================================================
 
-DELETE FROM feedback_reports WHERE reason IN (N'Bình luận thô tục, xúc phạm giảng viên', N'Spam nội dung quảng cáo');
 DELETE FROM feedbacks WHERE comment IN (N'Khoá học rất hay, nhưng bài 3 video hơi mờ.', N'Quá tệ, giảng viên nói tục tĩu.', N'Giảng viên lười trả lời câu hỏi, khoá học cũ kỹ.');
 DELETE FROM courses WHERE title IN (N'Lập trình Java Web với Spring Boot', N'Thiết kế giao diện nâng cao với Figma');
 DELETE FROM payments WHERE gateway = 'TEST_GATEWAY';
@@ -1330,7 +1329,7 @@ VALUES
 (5, 9, N'Lập trình Java Web với Spring Boot', N'Học Spring MVC, JPA, Security và xây dựng Restful API hoàn chỉnh.', N'Lập trình Java Web với Spring Boot.jpg', 1000, 'ADVANCED', 'PENDING', NULL, NULL, DATEADD(hour, -5, GETDATE())),
 (6, 5, N'Thiết kế giao diện nâng cao với Figma', N'Làm chủ Figma, AutoLayout, Component, Variable và Design System.', N'Thiết kế giao diện nâng cao với Figma.jpg', 1000, 'INTERMEDIATE', 'PENDING', NULL, NULL, DATEADD(hour, -1, GETDATE()));
 
--- Tạo feedback & báo cáo vi phạm
+-- Tạo feedback
 DECLARE @FeedbackId1 INT, @FeedbackId2 INT, @FeedbackId3 INT;
 
 INSERT INTO feedbacks (user_id, course_id, rating, comment, status, created_at)
@@ -1344,11 +1343,6 @@ SET @FeedbackId2 = SCOPE_IDENTITY();
 INSERT INTO feedbacks (user_id, course_id, rating, comment, status, created_at)
 VALUES (7, 3, 2, N'Giảng viên lười trả lời câu hỏi, khoá học cũ kỹ.', 'VISIBLE', GETDATE());
 SET @FeedbackId3 = SCOPE_IDENTITY();
-
-INSERT INTO feedback_reports (feedback_id, reporter_id, reason, status, resolved_by, created_at)
-VALUES 
-(@FeedbackId2, 7, N'Bình luận thô tục, xúc phạm giảng viên', 'PENDING', NULL, DATEADD(hour, -3, GETDATE())),
-(@FeedbackId3, 8, N'Spam nội dung quảng cáo', 'PENDING', NULL, DATEADD(hour, -1, GETDATE()));
 
 
 -- =========================
@@ -1375,3 +1369,144 @@ VALUES
     (5, 7, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
     (5, 8, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
     (5, 9, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576);
+
+INSERT INTO orders (
+    user_id,
+    total_amount,
+    status,
+    payment_method
+)
+VALUES
+    (1, 1000, 'PAID', 'PAYOS'),
+    (2, 2000, 'PAID', 'PAYOS'),
+    (3, 5000, 'PENDING', 'PAYOS'),
+    (4, 10000, 'PENDING', 'PAYOS'),
+    (5, 2000, 'PENDING', 'PAYOS'),
+    (6, 1000, 'PENDING', 'PAYOS'),
+    (7, 1000, 'PENDING', 'PAYOS'),
+    (8, 190000, 'CANCELLED', 'PAYOS'),
+    (9, 350000, 'PAID', 'PAYOS'),
+    (10, 250000, 'PAID', 'PAYOS');
+
+INSERT INTO payments (
+    order_id,
+    gateway,
+    gateway_order_code,
+    amount,
+    payment_url,
+    qr_code_url,
+    status,
+    webhook_received,
+    webhook_received_at,
+    paid_at,
+    expired_at
+)
+VALUES
+
+-- Thanh toán thành công
+(1, 'PAYOS', 'PAYOS_100001', 1000,
+ 'https://pay.payos.vn/100001',
+ 'https://qr.payos.vn/100001',
+ 'PAID',
+ 1,
+ DATEADD(MINUTE, 1, GETDATE()),
+ GETDATE(),
+ DATEADD(HOUR, 2, GETDATE())),
+
+(2, 'PAYOS', 'PAYOS_100002', 1000,
+ 'https://pay.payos.vn/100002',
+ 'https://qr.payos.vn/100002',
+ 'PAID',
+ 1,
+ DATEADD(MINUTE, 2, GETDATE()),
+ GETDATE(),
+ DATEADD(HOUR, 2, GETDATE())),
+
+(3, 'PAYOS', 'PAYOS_100003', 5000,
+ 'https://pay.payos.vn/100003',
+ 'https://qr.payos.vn/100003',
+ 'PAID',
+ 1,
+ DATEADD(MINUTE, 3, GETDATE()),
+ GETDATE(),
+ DATEADD(HOUR, 2, GETDATE())),
+
+-- Đang chờ thanh toán
+(4, 'PAYOS', 'PAYOS_100004', 10000,
+ 'https://pay.payos.vn/100004',
+ 'https://qr.payos.vn/100004',
+ 'PENDING',
+ 0,
+ NULL,
+ NULL,
+ DATEADD(HOUR, 2, GETDATE())),
+
+(5, 'PAYOS', 'PAYOS_100005', 2000,
+ 'https://pay.payos.vn/100005',
+ 'https://qr.payos.vn/100005',
+ 'PENDING',
+ 0,
+ NULL,
+ NULL,
+ DATEADD(HOUR, 2, GETDATE())),
+
+-- Hết hạn
+(6, 'PAYOS', 'PAYOS_100006', 1000,
+ 'https://pay.payos.vn/100006',
+ 'https://qr.payos.vn/100006',
+ 'EXPIRED',
+ 0,
+ NULL,
+ NULL,
+ DATEADD(HOUR, -1, GETDATE())),
+
+-- Thanh toán thất bại
+(7, 'PAYOS', 'PAYOS_100007', 1000,
+ 'https://pay.payos.vn/100007',
+ 'https://qr.payos.vn/100007',
+ 'FAILED',
+ 1,
+ GETDATE(),
+ NULL,
+ DATEADD(HOUR, 2, GETDATE())),
+
+-- Bị hủy
+(8, 'PAYOS', 'PAYOS_100008', 190000,
+ 'https://pay.payos.vn/100008',
+ 'https://qr.payos.vn/100008',
+ 'CANCELLED',
+ 0,
+ NULL,
+ NULL,
+ DATEADD(HOUR, 2, GETDATE())),
+
+-- Thành công
+(9, 'PAYOS', 'PAYOS_100009', 350000,
+ 'https://pay.payos.vn/100009',
+ 'https://qr.payos.vn/100009',
+ 'PAID',
+ 1,
+ GETDATE(),
+ GETDATE(),
+ DATEADD(HOUR, 2, GETDATE())),
+
+(10, 'PAYOS', 'PAYOS_100010', 250000,
+ 'https://pay.payos.vn/100010',
+ 'https://qr.payos.vn/100010',
+ 'PAID',
+ 1,
+ GETDATE(),
+ GETDATE(),
+ DATEADD(HOUR, 2, GETDATE()));
+
+-- =========================================================================
+-- 6. DỮ LIỆU TEST BÁO CÁO VI PHẠM (REPORTS) MẪU
+-- =========================================================================
+DELETE FROM reports;
+
+-- Chèn dữ liệu báo cáo vi phạm
+INSERT INTO reports (reporter_id, report_type, target_id, reason_type, description, status, reviewed_by, reviewed_at, created_at)
+VALUES 
+(7, 'LESSON', 1, 'VIDEO_ISSUE', N'Video bị mất tiếng từ phút thứ 5', 'PENDING', NULL, NULL, DATEADD(day, -2, GETDATE())),
+(8, 'LESSON', 2, 'AUDIO_ISSUE', N'Âm thanh rè và không nghe rõ lời giảng', 'PENDING', NULL, NULL, DATEADD(day, -1, GETDATE())),
+(9, 'FEEDBACK', @FeedbackId2, 'SPAM', N'Feedback này quảng cáo website cá nhân khác và nói xấu tục tĩu.', 'PENDING', NULL, NULL, GETDATE());

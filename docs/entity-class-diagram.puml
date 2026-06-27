@@ -186,17 +186,9 @@ class Feedback {
     {field} rating: Integer
     {field} comment: String
     {field} status: String
-    {method} + addReport(FeedbackReport)
-    {method} + removeReport(FeedbackReport)
 }
 
-class FeedbackReport {
-    {field} id: Integer
-    {field} feedback_id: Integer (FK)
-    {field} reportedBy: String
-    {field} reason: String
-    {field} status: String
-}
+
 
 ' ========== Shopping Cart ==========
 class Cart {
@@ -324,7 +316,6 @@ BaseEntity <|-- Payment
 BaseEntity <|-- Enrollment
 BaseEntity <|-- LessonProgress
 BaseEntity <|-- Feedback
-BaseEntity <|-- FeedbackReport
 BaseEntity <|-- Coupon
 BaseEntity <|-- CouponUsage
 BaseEntity <|-- SystemLog
@@ -359,7 +350,7 @@ Quiz o-- QuizAttempt : has
 Course o-- Enrollment : has
 Course o-- Feedback : receives
 Enrollment o-- LessonProgress : measures
-Feedback o-- FeedbackReport : has reports
+
 Coupon o-- CouponUsage : tracks
 User o-- Cart : owns
 
@@ -379,7 +370,6 @@ CouponUsage --> User : used by
 OrderItem --> Course : contains
 Payment --> Order : for order
 LessonProgress --> Lesson : tracks
-FeedbackReport --> User : reported by
 User --> Role : has role
 User --> InstructorRequest : makes request
 InstructorRequest --> User : reviewed by

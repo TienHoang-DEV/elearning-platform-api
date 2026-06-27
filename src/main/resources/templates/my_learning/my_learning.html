@@ -195,63 +195,7 @@
     </main>
 
     <!-- Footer Section -->
-    <footer class="footer bg-white pt-5 pb-4 border-top">
-        <div class="container">
-            <div class="row g-5 justify-content-between mb-5">
-
-                <!-- Footer Branding -->
-                <div class="col-lg-5 col-12">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <div class="logo-icon-box d-flex align-items-center justify-content-center bg-primary rounded text-white"
-                            style="width: 32px; height: 32px;">
-                            <i data-lucide="zap" style="width: 18px; height: 18px; fill: currentColor;"></i>
-                        </div>
-                        <span class="logo-text fw-bold text-primary font-heading fs-5">Learning Hub</span>
-                    </div>
-                    <p class="text-muted fs-7 mb-0 leading-relaxed" style="max-width: 380px;">
-                        Kiến thức là sức mạnh. Chúng tôi đồng hành cùng bạn trên con đường chinh phục đỉnh cao tri thức.
-                    </p>
-                </div>
-
-                <!-- Footer Menu 1 -->
-                <div class="col-lg-3 col-6">
-                    <h4 class="footer-title fw-bold text-primary fs-7 mb-4">HỌC TẬP</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-2 footer-links fs-7">
-                        <li><a href="#" class="text-muted text-decoration-none">Tất cả khóa học</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Thiết kế</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Lập trình</a></li>
-                    </ul>
-                </div>
-
-                <!-- Footer Menu 2 -->
-                <div class="col-lg-3 col-6">
-                    <h4 class="footer-title fw-bold text-primary fs-7 mb-4">HỖ TRỢ</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-2 footer-links fs-7">
-                        <li><a href="#" class="text-muted text-decoration-none">Trung tâm trợ giúp</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Điều khoản dịch vụ</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Chính sách bảo mật</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Footer Bottom -->
-            <div
-                class="footer-bottom border-top pt-4 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
-                <p class="text-muted fs-7 m-0">© 2024 Learning Hub. All rights reserved.</p>
-
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-light rounded-circle p-2 d-flex align-items-center justify-content-center"
-                        style="width: 36px; height: 36px;" aria-label="Ngôn ngữ">
-                        <i data-lucide="globe" style="width:18px; height:18px;" class="text-muted"></i>
-                    </button>
-                    <button class="btn btn-light rounded-circle p-2 d-flex align-items-center justify-content-center"
-                        style="width: 36px; height: 36px;" aria-label="Chia sẻ">
-                        <i data-lucide="share-2" style="width:18px; height:18px;" class="text-muted"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <footer th:replace="fragments/footer :: footer"></footer>
 
     <!-- Bootstrap 5 Bundle JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

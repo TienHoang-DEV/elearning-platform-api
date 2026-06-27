@@ -1,7 +1,7 @@
 package vn.edu.fpt.dto.quizdto;
 
 import lombok.*;
-import vn.edu.fpt.dto.UserDto;
+import vn.edu.fpt.dto.user.UserDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

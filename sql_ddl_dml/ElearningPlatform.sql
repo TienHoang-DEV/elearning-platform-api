@@ -1,4 +1,34 @@
+-- -- RESET DATABASE: Xóa database cũ nếu đã tồn tại để tránh xung đột dữ liệu cũ và cập nhật DDL mới
+-- USE master;
+-- GO
+-- IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ElearningPlatform')
+-- BEGIN
+--     ALTER DATABASE ElearningPlatform SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+--     DROP DATABASE ElearningPlatform;
+-- END
+-- GO
+--
+-- CREATE DATABASE ElearningPlatform;
+-- GO
 
+USE ElearningPlatform;
+GO
+
+USE master;
+GO
+
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ElearningPlatform')
+BEGIN
+    ALTER DATABASE ElearningPlatform SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE ElearningPlatform;
+END
+GO
+
+CREATE DATABASE ElearningPlatform;
+GO
+
+USE ElearningPlatform;
+GO
 
 -- =========================
 -- ROLES
@@ -16,7 +46,7 @@ CREATE TABLE roles (
 
                        created_at DATETIME DEFAULT GETDATE(),
     -- Thời gian tạo vai trò
-                       updated_at DATETIME NULL,
+                       updated_at DATETIME NULL
     -- Thời gian cập nhật gần nhất
 );
 
@@ -68,6 +98,9 @@ CREATE TABLE users (
                            CHECK (status IN ('ACTIVE', 'BANNED')),
     -- Trạng thái: active (hoạt động), banned (cấm)
 
+                       favorite_setup_completed BIT NOT NULL DEFAULT 0,
+    -- Đã thiết lập danh mục sở thích hay chưa (0: chưa, 1: rồi)
+
                        created_at DATETIME DEFAULT GETDATE(),
     -- Thời gian tạo tài khoản (mặc định là thời chạy lệnh CREATE)
 
@@ -96,6 +129,7 @@ CREATE TABLE user_roles (
                             CONSTRAINT FK_user_roles_role
                                 FOREIGN KEY (role_id) REFERENCES roles(id)
 );
+
 -- =========================
 -- PASSWORD RESET TOKENS
 -- =========================
@@ -184,6 +218,17 @@ CREATE TABLE categories (
 
                             CONSTRAINT FK_categories_parent
                                 FOREIGN KEY (parent_id) REFERENCES categories(id)
+);
+
+-- Bảng trung gian lưu danh mục yêu thích của người dùng (Many-to-Many)
+CREATE TABLE user_favorite_categories (
+    user_id INT NOT NULL,
+    category_id INT NOT NULL,
+    PRIMARY KEY (user_id, category_id),
+    CONSTRAINT FK_user_favorite_categories_user
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT FK_user_favorite_categories_category
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
 
 
@@ -311,38 +356,6 @@ CREATE TABLE lessons (
                              FOREIGN KEY (section_id) REFERENCES course_sections(id)
 );
 
--- =========================
--- VIDEO MODERATION FLAGS
--- =========================
--- Bảng lưu các dấu hiệu vi phạm được phát hiện bởi Azure AI cho từng video
--- Giups manager dễ dàng review những vị trí nhạy cảm trong video
-CREATE TABLE video_moderation_flags (
-                                        id INT PRIMARY KEY IDENTITY(1,1),
-    -- Mã định danh cờ (flag)
-
-                                        lesson_id INT NOT NULL,
-    -- Tham chiếu đến bảng lessons, video bị phát hiện vấn đề
-
-                                        flagged_at_second INT NOT NULL CHECK (flagged_at_second >= 0),
-    -- Vị trí giây thứ bao nhiêu trong video bị phát hiện (dùng cho skip trực tiếp)
-
-                                        category VARCHAR(100) NOT NULL,
-    -- Thể loại vấn đề: 'violence' (bạo lực), 'nudity' (khỏa thân), 'offensive_language' (từ ngữ kích động), ...
-
-                                        confidence_score DECIMAL(5,2) NOT NULL CHECK (confidence_score BETWEEN 0.00 AND 100.00),
-    -- Độ tin cậy của phát hiện Azure AI (0.00-100.00%)
-
-                                        description NVARCHAR(500) NULL,
-    -- Mô tả chi tiết về lỗi phát hiện bởi AI
-
-                                        created_at DATETIME DEFAULT GETDATE(),
-    -- Thời gian phát hiện
-                                        updated_at DATETIME NULL,
-    -- Thời gian cập nhật gần nhất
-
-                                        CONSTRAINT FK_moderation_flags_lesson
-                                            FOREIGN KEY (lesson_id) REFERENCES lessons(id)
-);
 
 -- =========================
 -- LESSON MATERIALS
@@ -390,26 +403,35 @@ CREATE TABLE video_moderation_flags (
 -- QUIZZES
 -- =========================
 CREATE TABLE quizzes (
-                         id INT PRIMARY KEY IDENTITY(1,1),
-    -- Mã định danh bài quiz
+    id INT PRIMARY KEY IDENTITY(1,1),
 
-                         lesson_id INT NOT NULL,
-    -- Tham chiếu đến bảng lessons, quiz nằm trong bài học nào
+    lesson_id INT NOT NULL,
 
-                         title NVARCHAR(255) NOT NULL,
-    -- Tên bài quiz (ví dụ: 'Quiz: Kiểu dữ liệu và biến')
+    title NVARCHAR(255) NOT NULL,
 
-                         pass_score_percent  INT NOT NULL CHECK (pass_score_percent  >= 0),
-    -- Phần trăm Điểm tối thiểu để pass quiz (ví dụ: 70)
+    description NVARCHAR(MAX) NULL,
 
-                         created_at DATETIME DEFAULT GETDATE(),
-    -- Thời gian tạo quiz
+    pass_score_percent INT NOT NULL
+        CHECK(pass_score_percent BETWEEN 0 AND 100),
 
-                         updated_at DATETIME NULL,
-    -- Thời gian cập nhật gần nhất
+    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT'
+        CHECK(status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED')),
 
-                         CONSTRAINT FK_quizzes_lesson
-                             FOREIGN KEY (lesson_id) REFERENCES lessons(id)
+    time_limit_minutes INT NULL,
+
+    is_random_question BIT NOT NULL DEFAULT 0,
+
+    is_random_answer BIT NOT NULL DEFAULT 0,
+
+    created_at DATETIME DEFAULT GETDATE(),
+
+    updated_at DATETIME NULL,
+
+    published_at DATETIME NULL,
+
+    CONSTRAINT FK_quizzes_lesson
+        FOREIGN KEY (lesson_id)
+        REFERENCES lessons(id)
 );
 
 -- =========================
@@ -434,6 +456,9 @@ CREATE TABLE quiz_questions (
 
                                 position INT NULL,
     -- Thứ tự câu hỏi trong quiz
+	 explanation NVARCHAR(MAX) NULL,
+
+
 
                                 created_at DATETIME DEFAULT GETDATE(),
     -- Thời gian tạo câu hỏi
@@ -460,6 +485,9 @@ CREATE TABLE quiz_answers (
 
                               is_correct BIT DEFAULT 0,
     -- Cờ đánh dấu đáp án đúng hay sai (1 = đúng, 0 = sai)
+
+                              position INT NULL,
+    -- Thứ tự hiển thị của đáp án
 
                               created_at DATETIME DEFAULT GETDATE(),
     -- Thời gian tạo đáp án
@@ -625,8 +653,8 @@ CREATE TABLE payments (
                           id INT PRIMARY KEY IDENTITY(1,1),
     -- Mã định danh duy nhất của giao dịch thanh toán
 
-                          order_id INT NOT NULL,
-    -- Mỗi đơn hàng chỉ có một giao dịch thanh toán
+                          order_id INT NOT NULL UNIQUE,
+    -- Mỗi đơn hàng chỉ có một giao dịch thanh toán (1-1 relationship)
 
                           gateway VARCHAR(50) NOT NULL,
     -- PAYOS, MOMO, VNPAY,...
@@ -676,6 +704,14 @@ CREATE TABLE payments (
 
                           paid_at DATETIME NULL,
     -- Thời điểm thanh toán thành công
+
+                          last_synced_at DATETIME NULL,
+    -- Thời điểm sync gần nhất với PayOS
+    -- Dùng để tránh query PayOS quá tần suất (skip nếu < 5 phút)
+
+                          webhook_retry_count INT NOT NULL DEFAULT 0,
+    -- Số lần retry webhook (tối đa 3 lần)
+    -- Tăng mỗi khi scheduled task retry
 
                           created_at DATETIME NOT NULL DEFAULT GETDATE(),
     -- Thời điểm tạo giao dịch
@@ -734,42 +770,33 @@ CREATE TABLE lesson_progress (
 -- FEEDBACKS
 -- =========================
 CREATE TABLE feedbacks (
-                           id INT PRIMARY KEY IDENTITY(1,1),
-                           user_id INT NOT NULL,
-                           course_id INT NOT NULL,
-                           rating INT CHECK (rating BETWEEN 1 AND 5),
-                           comment NVARCHAR(MAX) NULL,
-                           status VARCHAR(20)
-                               CHECK (status IN ('VISIBLE', 'HIDDEN', 'VIOLATION')),
-                           created_at DATETIME DEFAULT GETDATE(),
-                           updated_at DATETIME NULL,
-
-                           CONSTRAINT FK_feedbacks_user
-                               FOREIGN KEY (user_id) REFERENCES users(id),
-                           CONSTRAINT FK_feedbacks_course
-                               FOREIGN KEY (course_id) REFERENCES courses(id)
+    id INT PRIMARY KEY IDENTITY(1,1),
+    user_id INT NOT NULL,
+    course_id INT NOT NULL,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment NVARCHAR(2000) NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'VISIBLE' CHECK (status IN ('VISIBLE', 'HIDDEN')),
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME NULL,
+    CONSTRAINT FK_feedbacks_user FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT FK_feedbacks_course FOREIGN KEY (course_id) REFERENCES courses(id),
+    CONSTRAINT UQ_feedback_user_course UNIQUE(user_id, course_id)
 );
 
--- =========================
--- FEEDBACK REPORTS
--- =========================
-CREATE TABLE feedback_reports (
-                                  id INT PRIMARY KEY IDENTITY(1,1),
-                                  feedback_id INT NOT NULL,
-                                  reporter_id INT NOT NULL,
-                                  reason NVARCHAR(MAX) NULL,
-                                  status VARCHAR(20)
-                                      CHECK (status IN ('PENDING', 'RESOLVED')),
-                                  resolved_by INT NULL,
-                                  created_at DATETIME DEFAULT GETDATE(),
-                                  updated_at DATETIME NULL,
-
-                                  CONSTRAINT FK_reports_feedback
-                                      FOREIGN KEY (feedback_id) REFERENCES feedbacks(id),
-                                  CONSTRAINT FK_reports_reporter
-                                      FOREIGN KEY (reporter_id) REFERENCES users(id),
-                                  CONSTRAINT FK_reports_resolved_by
-                                      FOREIGN KEY (resolved_by) REFERENCES users(id)
+CREATE TABLE reports (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    reporter_id INT NOT NULL,
+    report_type VARCHAR(20) CHECK(report_type IN ('LESSON','FEEDBACK')),
+    target_id INT NOT NULL,
+    reason_type VARCHAR(50) NOT NULL,
+    description NVARCHAR(2000) NULL,
+    status VARCHAR(20) DEFAULT 'PENDING' CHECK(status IN ('PENDING','RESOLVED','REJECTED')),
+    reviewed_by INT NULL,
+    reviewed_at DATETIME NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME NULL,
+    CONSTRAINT FK_reports_reporter FOREIGN KEY (reporter_id) REFERENCES users(id),
+    CONSTRAINT FK_reports_reviewer FOREIGN KEY (reviewed_by) REFERENCES users(id)
 );
 
 -- ==========================================
@@ -781,9 +808,25 @@ CREATE INDEX IX_course_sections_course ON course_sections(course_id);
 CREATE INDEX IX_lessons_section ON lessons(section_id);
 CREATE INDEX IX_quiz_attempts_user_quiz ON quiz_attempts(user_id, quiz_id);
 CREATE INDEX IX_lesson_progress_lookup ON lesson_progress(enrollment_id, lesson_id);
-CREATE INDEX IX_video_moderation_lookup ON video_moderation_flags(lesson_id); -- Tối ưu hiển thị dòng thời gian nhạy cảm của video cho Manager
 CREATE INDEX IX_orders_user ON orders(user_id);
 CREATE INDEX IX_order_items_order ON order_items(order_id);
 CREATE INDEX IX_payments_order ON payments(order_id);
 CREATE INDEX IX_enrollments_lookup ON enrollments(user_id, course_id);
+
+-- ==========================================
+-- PAYMENT SYNCHRONIZATION INDEXES (MỚI)
+-- ==========================================
+-- Index 1: Tối ưu query tìm các payment hết hạn (expirePaymentsByTimeout)
+CREATE INDEX IX_payment_status_expired_at ON payments(status, expired_at, updated_at);
+
+-- Index 2: Tối ưu query tìm PENDING cần sync từ PayOS (syncPendingPaymentsFromPayOs)
+CREATE INDEX IX_payment_status_created_at ON payments(status, created_at, webhook_received, last_synced_at);
+
+-- Index 3: Tối ưu query tìm webhook cần retry (retryFailedWebhooks)
+CREATE INDEX IX_payment_webhook_retry ON payments(status, webhook_received, webhook_retry_count, created_at);
+
+
+CREATE INDEX IX_reports_status ON reports(status);
+CREATE INDEX IX_reports_target ON reports(target_id);
+CREATE INDEX IX_feedback_course ON feedbacks(course_id);
 GO

@@ -12,9 +12,10 @@ import vn.edu.fpt.enums.CourseStatus;
 
 import java.util.List;
 import java.util.Optional;
+import vn.edu.fpt.dto.course.CourseListDto;
 
 @Repository
-public interface CourseRepository extends JpaRepository<Course, Integer> {
+public interface CourseRepository extends JpaRepository<Course, Integer>, CourseRepositoryCustom {
 
     //Luu khoá học
     Course save(Course course);
@@ -43,6 +44,16 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     Optional<Course> findByIdWithSectionsAndLessons(@Param("id") Integer id);
 
     @Query("""
+            select distinct c from Course c 
+            left join fetch c.instructor i 
+            left join fetch c.category cat 
+            left join fetch c.sections s 
+            left join fetch s.lessons 
+            where c.id = :id
+            """)
+    Optional<Course> findByIdWithDetails(@Param("id") Integer id);
+
+    @Query("""
             select distinct c from Course c left join c.enrollments e
                         left join e.lessonProgresses
                                     where c.id = :id
@@ -59,14 +70,27 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     @Query("SELECT c FROM Course c " +
             "LEFT JOIN FETCH c.instructor i " +
-            "WHERE (:status IS NULL OR :status = '' OR c.status = :status) " +
+            "WHERE (:status IS NULL OR c.status = :status) " +
+            "AND (:categoryId IS NULL OR c.category.id = :categoryId) " +
             "AND (:keyword IS NULL OR :keyword = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Course> searchAndFilter(
             @Param("keyword") String keyword,
             @Param("status") CourseStatus status,
+            @Param("categoryId") Integer categoryId,
             Pageable pageable);
 
     Course findCourseById(Integer id);
+
+    @Query("SELECT new vn.edu.fpt.dto.course.CourseListDto(c.id, c.title, c.thumbnailUrl, c.price, c.level, i.firstName, i.lastName, cat.id, cat.name, " +
+            "COALESCE((SELECT AVG(f.rating) FROM Feedback f WHERE f.course.id = c.id), 0.0), " +
+            "(SELECT COUNT(f.id) FROM Feedback f WHERE f.course.id = c.id), " +
+            "(SELECT COUNT(l.id) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id), " +
+            "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id)) " +
+            "FROM Course c JOIN c.instructor i JOIN c.category cat " +
+            "WHERE c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED " +
+            "AND cat.id IN :categoryIds " +
+            "ORDER BY COALESCE((SELECT AVG(f.rating) FROM Feedback f WHERE f.course.id = c.id), 0.0) DESC, c.id DESC")
+    List<CourseListDto> findTop4ByCategoryIdsOrderByAverageRatingDesc(@Param("categoryIds") List<Integer> categoryIds, Pageable pageable);
 }
 
 

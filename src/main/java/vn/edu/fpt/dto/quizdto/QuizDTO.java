@@ -2,9 +2,9 @@ package vn.edu.fpt.dto.quizdto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -14,11 +14,30 @@ import java.time.LocalDateTime;
 public class QuizDTO {
 
     private Integer id;
+
     private String title;
-    private Double passScorePercent;
+
+    private String description;
+
+    private Integer passScorePercent;
+
+    private String status;
+
+    private Integer timeLimitMinutes;
+
+    private Boolean isRandomQuestion;
+
+    private Boolean isRandomAnswer;
+
+    private LocalDateTime publishedAt;
+
+    private Integer lessonId;
+
     @Builder.Default
     private List<QuizQuestionDTO> questions = new ArrayList<>();
+
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
 
     public Integer getQuestionCount() {
@@ -29,13 +48,16 @@ public class QuizDTO {
         if (questions == null || questions.isEmpty()) {
             return 0;
         }
+
         int totalPoints = 0;
+
         for (QuizQuestionDTO question : questions) {
             if (question == null || question.getPoints() == null) {
                 continue;
             }
             totalPoints += question.getPoints();
         }
+
         return totalPoints;
     }
 }

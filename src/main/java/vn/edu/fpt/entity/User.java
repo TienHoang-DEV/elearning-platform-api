@@ -31,13 +31,11 @@ public class User extends BaseEntity {
     @Builder.Default
     private Set<UserRole> userRoles = new HashSet<>();
 
-    @NotBlank
-    @Size(min = 2, max = 50)
+    @Size(min = 0, max = 50)
     @Column(columnDefinition = "Nvarchar(255)", nullable = false)
     private String firstName;
 
-    @NotBlank
-    @Size(min = 2, max = 50)
+    @Size(min = 0, max = 50)
     @Column(columnDefinition = "Nvarchar(255)", nullable = false)
     private String lastName;
 
@@ -64,6 +62,19 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private UserStatus status;
+
+    @Builder.Default
+    @Column(name = "favorite_setup_completed", nullable = false)
+    private boolean favoriteSetupCompleted = false;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_favorite_categories",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    @Builder.Default
+    private Set<Category> favoriteCategories = new HashSet<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)

@@ -148,7 +148,7 @@
                     <tr th:each="course, stat : ${listrejected}">
                         <td th:text="${rejectedPage.number * rejectedPage.size + stat.count}"></td>
                         <td th:text="${course.title}"></td>
-                        <td th:text="${course.rejectReason ?: '—'}"></td>
+                        <td th:text="${course.rejectionReason ?: '—'}"></td>
                         <td>
                             <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
                                class="btn btn-sm btn-outline">Xem Chi Tiết</a>

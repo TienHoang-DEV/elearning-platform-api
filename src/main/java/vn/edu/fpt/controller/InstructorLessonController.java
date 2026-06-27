@@ -9,11 +9,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.LessonDto;
 import vn.edu.fpt.service.LessonService;
 
-@Controller
-@RequestMapping("/instructorcourse/sections/{sectionId}/lessons")
-public class InstructorLessonController {
 
+@Controller
+public class InstructorLessonController {
     private final LessonService lessonService;
+
 
     public InstructorLessonController(LessonService lessonService) {
         this.lessonService = lessonService;
