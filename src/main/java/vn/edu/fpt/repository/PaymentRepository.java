@@ -26,6 +26,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = :status AND p.paidAt >= :startDate")
     BigDecimal sumAmountByStatusAndPaidAtAfter(@Param("status") PaymentStatus status, @Param("startDate") LocalDateTime startDate);
 
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = :status")
+    BigDecimal sumAmountByStatus(@Param("status") PaymentStatus status);
+
     @Query("SELECT new vn.edu.fpt.dto.MonthlyRevenueDTO(YEAR(p.paidAt), MONTH(p.paidAt), COALESCE(SUM(p.amount), 0)) " +
             "FROM Payment p " +
             "WHERE p.status = :status AND p.paidAt >= :startDate " +
@@ -92,7 +95,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
      */
     @Query("""
         SELECT p FROM Payment p 
-        WHERE p.status = 'PENDING' 
+        WHERE p.status = vn.edu.fpt.enums.PaymentStatus.PENDING 
           AND p.expiredAt <= CURRENT_TIMESTAMP 
           AND p.updatedAt < (CURRENT_TIMESTAMP - 5 MINUTE)
         ORDER BY p.expiredAt ASC
@@ -110,7 +113,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
      */
     @Query("""
         SELECT p FROM Payment p 
-        WHERE p.status = 'PENDING' 
+        WHERE p.status = vn.edu.fpt.enums.PaymentStatus.PENDING
           AND p.createdAt > (CURRENT_TIMESTAMP - 30 MINUTE)
           AND p.webhookReceived = false
           AND (p.lastSyncedAt IS NULL OR p.lastSyncedAt < (CURRENT_TIMESTAMP - 5 MINUTE))
@@ -129,7 +132,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
      */
     @Query("""
         SELECT p FROM Payment p 
-        WHERE p.status = 'PENDING' 
+        WHERE p.status = vn.edu.fpt.enums.PaymentStatus.PENDING
           AND p.webhookReceived = false 
           AND p.webhookRetryCount < 3
           AND p.createdAt > (CURRENT_TIMESTAMP - 30 MINUTE)

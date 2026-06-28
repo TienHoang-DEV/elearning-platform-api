@@ -6,6 +6,7 @@
     <title>Academic Manager - Lịch sử giao dịch</title>
     <th:block layout:fragment="page-css">
         <link rel="stylesheet" th:href="@{/css/manager/revenue.css}">
+        <link rel="stylesheet" th:href="@{/css/manager/detail-transaction.css}">
     </th:block>
 </head>
 <body>
@@ -45,11 +46,10 @@
                     <label class="form-label fw-medium text-secondary small">Trạng thái</label>
                     <select name="status" class="form-select custom-select shadow-none">
                         <option th:selected="${status == null || status == ''}" value="">Tất cả trạng thái</option>
-                        <option th:selected="${status == 'PAID'}" value="PAID">Thành công</option>
-                        <option th:selected="${status == 'PENDING'}" value="PENDING">Chờ thanh toán</option>
-                        <option th:selected="${status == 'FAILED'}" value="FAILED">Thất bại</option>
-                        <option th:selected="${status == 'CANCELLED'}" value="CANCELLED">Đã hủy</option>
-                        <option th:selected="${status == 'EXPIRED'}" value="EXPIRED">Hết hạn</option>
+                        <option th:each="st : ${statuses}" 
+                                th:value="${st.name()}" 
+                                th:text="${st.label}" 
+                                th:selected="${status == st.name()}"></option>
                     </select>
                 </div>
                 <div class="col-6 col-md-2">
@@ -111,17 +111,13 @@
                         <td>
                             <div class="fw-semibold"
                                  th:classappend="${transaction.paymentStatus.name() == 'PAID' ? ' text-success' : ' text-danger'}"
-                                 th:text="${(transaction.paymentStatus.name() == 'PAID' ? '+' : '') + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') + ' VND'}">
+                                 th:text="${(transaction.paymentStatus.name() == 'PAID' ? '+' : '') + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') + ' đ'}">
                             </div>
                             <small class="text-muted" th:text="${transaction.description}">Khóa học Java Web</small>
                         </td>
-                        <td th:switch="${transaction.paymentStatus.name()}">
-                            <span th:case="'PAID'" class="text-success fw-semibold">Đã thanh toán</span>
-                            <span th:case="'PENDING'" class="text-warning fw-semibold">Chờ thanh toán</span>
-                            <span th:case="'FAILED'" class="text-danger fw-semibold">Thất bại</span>
-                            <span th:case="'CANCELLED'" class="text-secondary fw-semibold">Đã hủy</span>
-                            <span th:case="'EXPIRED'" class="text-dark fw-semibold">Hết hạn</span>
-                            <span th:case="*" class="text-muted">Không xác định</span>
+                        <td>
+                            <span th:class="${'fw-semibold ' + (transaction.paymentStatus.name() == 'PAID' ? 'text-success' : transaction.paymentStatus.name() == 'PENDING' ? 'text-warning' : transaction.paymentStatus.name() == 'FAILED' ? 'text-danger' : transaction.paymentStatus.name() == 'CANCELLED' ? 'text-secondary' : 'text-dark')}"
+                                  th:text="${transaction.getPaymentStatusLabel()}">Trạng thái</span>
                         </td>
                         <td class="text-center">
                             <button class="btn-action" title="Xem chi tiết"><i class="ph ph-eye"></i></button>
@@ -132,29 +128,35 @@
             </div>
         </div>
 
-        <!-- Phân trang -->
-        <nav class="d-flex justify-content-center mt-4">
-            <ul class="pagination-custom d-flex align-items-center gap-1 list-unstyled" th:if="${pageTransaction != null && !pageTransaction.isEmpty()}">
-                <li th:if="${!pageTransaction.first}">
-                    <a class="page-link-nav"
-                       th:href="@{/manager/transaction-history/list(page=${pageTransaction.number - 1}, status=${status}, fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword})}">
-                        <i class="ph ph-caret-left"></i>
-                    </a>
-                </li>
-                <li th:each="pageNum : ${#numbers.sequence(startPage, endPage)}">
-                    <a th:href="@{/manager/transaction-history/list(page=${pageNum}, status=${status}, fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword})}"
-                       th:text="${pageNum + 1}"
-                       th:class="${pageNum == pageTransaction.number ? 'page-item-num active' : 'page-item-num'}">
-                    </a>
-                </li>
-                <li th:if="${!pageTransaction.last}">
-                    <a class="page-link-nav"
-                       th:href="@{/manager/transaction-history/list(page=${pageTransaction.number + 1}, status=${status}, fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword})}">
-                        <i class="ph ph-caret-right"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+        <div class="pagination-circle-container" th:if="${pageTransaction != null && !pageTransaction.isEmpty()}">
+            <div class="pagination-circle-buttons">
+                <!-- Previous -->
+                <a th:if="${!pageTransaction.first}"
+                    th:href="@{/manager/transaction-history/list(page=${pageTransaction.number - 1}, status=${status}, fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword})}"
+                    class="page-circle-btn">
+                    <i class="ph ph-caret-left"></i>
+                </a>
+                <span th:unless="${!pageTransaction.first}" class="page-circle-btn disabled">
+                    <i class="ph ph-caret-left"></i>
+                </span>
+
+                <!-- Page numbers -->
+                <a th:each="pageNum : ${#numbers.sequence(startPage, endPage)}"
+                    th:href="@{/manager/transaction-history/list(page=${pageNum}, status=${status}, fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword})}"
+                    th:class="${pageTransaction.number == pageNum ? 'page-circle-btn active' : 'page-circle-btn'}"
+                    th:text="${pageNum + 1}">1</a>
+
+                <!-- Next -->
+                <a th:if="${!pageTransaction.last}"
+                    th:href="@{/manager/transaction-history/list(page=${pageTransaction.number + 1}, status=${status}, fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword})}"
+                    class="page-circle-btn">
+                    <i class="ph ph-caret-right"></i>
+                </a>
+                <span th:unless="${!pageTransaction.last}" class="page-circle-btn disabled">
+                    <i class="ph ph-caret-right"></i>
+                </span>
+            </div>
+        </div>
 
         <!-- Container chứa Modal Xem chi tiết giao dịch (sẽ load dynamic qua Ajax) -->
         <div id="transactionContainer"></div>

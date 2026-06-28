@@ -322,38 +322,6 @@ CREATE TABLE lessons (
                              FOREIGN KEY (section_id) REFERENCES course_sections(id)
 );
 
--- =========================
--- VIDEO MODERATION FLAGS
--- =========================
--- Bảng lưu các dấu hiệu vi phạm được phát hiện bởi Azure AI cho từng video
--- Giups manager dễ dàng review những vị trí nhạy cảm trong video
-CREATE TABLE video_moderation_flags (
-                                        id INT PRIMARY KEY IDENTITY(1,1),
-    -- Mã định danh cờ (flag)
-
-                                        lesson_id INT NOT NULL,
-    -- Tham chiếu đến bảng lessons, video bị phát hiện vấn đề
-
-                                        flagged_at_second INT NOT NULL CHECK (flagged_at_second >= 0),
-    -- Vị trí giây thứ bao nhiêu trong video bị phát hiện (dùng cho skip trực tiếp)
-
-                                        category VARCHAR(100) NOT NULL,
-    -- Thể loại vấn đề: 'violence' (bạo lực), 'nudity' (khỏa thân), 'offensive_language' (từ ngữ kích động), ...
-
-                                        confidence_score DECIMAL(5,2) NOT NULL CHECK (confidence_score BETWEEN 0.00 AND 100.00),
-    -- Độ tin cậy của phát hiện Azure AI (0.00-100.00%)
-
-                                        description NVARCHAR(500) NULL,
-    -- Mô tả chi tiết về lỗi phát hiện bởi AI
-
-                                        created_at DATETIME DEFAULT GETDATE(),
-    -- Thời gian phát hiện
-                                        updated_at DATETIME NULL,
-    -- Thời gian cập nhật gần nhất
-
-                                        CONSTRAINT FK_moderation_flags_lesson
-                                            FOREIGN KEY (lesson_id) REFERENCES lessons(id)
-);
 
 -- =========================
 -- LESSON MATERIALS
@@ -868,23 +836,37 @@ CREATE TABLE lesson_progress (
 -- FEEDBACKS
 -- =========================
 CREATE TABLE feedbacks (
-                           id INT PRIMARY KEY IDENTITY(1,1),
-                           user_id INT NOT NULL,
-                           course_id INT NOT NULL,
-                           rating INT CHECK (rating BETWEEN 1 AND 5),
-                           comment NVARCHAR(MAX) NULL,
-                           status VARCHAR(20)
-                               CHECK (status IN ('VISIBLE', 'HIDDEN', 'VIOLATION')),
-                           created_at DATETIME DEFAULT GETDATE(),
-                           updated_at DATETIME NULL,
-
-                           CONSTRAINT FK_feedbacks_user
-                               FOREIGN KEY (user_id) REFERENCES users(id),
-                           CONSTRAINT FK_feedbacks_course
-                               FOREIGN KEY (course_id) REFERENCES courses(id)
+    id INT PRIMARY KEY IDENTITY(1,1),
+    user_id INT NOT NULL,
+    course_id INT NOT NULL,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment NVARCHAR(2000) NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'VISIBLE' CHECK (status IN ('VISIBLE', 'HIDDEN')),
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME NULL,
+    CONSTRAINT FK_feedbacks_user FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT FK_feedbacks_course FOREIGN KEY (course_id) REFERENCES courses(id),
+    CONSTRAINT UQ_feedback_user_course UNIQUE(user_id, course_id)
 );
 
-
+-- =========================
+-- REPORTS
+-- =========================
+CREATE TABLE reports (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    reporter_id INT NOT NULL,
+    report_type VARCHAR(20) CHECK(report_type IN ('LESSON','FEEDBACK')),
+    target_id INT NOT NULL,
+    reason_type VARCHAR(50) NOT NULL,
+    description NVARCHAR(2000) NULL,
+    status VARCHAR(20) DEFAULT 'PENDING' CHECK(status IN ('PENDING','RESOLVED','REJECTED')),
+    reviewed_by INT NULL,
+    reviewed_at DATETIME NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME NULL,
+    CONSTRAINT FK_reports_reporter FOREIGN KEY (reporter_id) REFERENCES users(id),
+    CONSTRAINT FK_reports_reviewer FOREIGN KEY (reviewed_by) REFERENCES users(id)
+);
 
 -- ==========================================
 -- PERFORMANCE INDEXES (MỚI - TỐI ƯU HÓA TRUY VẤN)
@@ -895,9 +877,11 @@ CREATE INDEX IX_course_sections_course ON course_sections(course_id);
 CREATE INDEX IX_lessons_section ON lessons(section_id);
 CREATE INDEX IX_quiz_attempts_user_quiz ON quiz_attempts(user_id, quiz_id);
 CREATE INDEX IX_lesson_progress_lookup ON lesson_progress(enrollment_id, lesson_id);
-CREATE INDEX IX_video_moderation_lookup ON video_moderation_flags(lesson_id); -- Tối ưu hiển thị dòng thời gian nhạy cảm của video cho Manager
 CREATE INDEX IX_orders_user ON orders(user_id);
 CREATE INDEX IX_order_items_order ON order_items(order_id);
 CREATE INDEX IX_payments_order ON payments(order_id);
 CREATE INDEX IX_enrollments_lookup ON enrollments(user_id, course_id);
+CREATE INDEX IX_reports_status ON reports(status);
+CREATE INDEX IX_reports_target ON reports(target_id);
+CREATE INDEX IX_feedback_course ON feedbacks(course_id);
 GO

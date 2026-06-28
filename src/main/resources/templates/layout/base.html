@@ -39,7 +39,6 @@
 
         <nav class="navbar-links">
             <a th:href="@{/courses}" class="nav-link">Khóa học</a>
-            <a th:href="@{/recommendations}" class="nav-link">Gợi ý</a>
 
             <!-- Guest links -->
             <div th:if="${!#authorization.expression('isAuthenticated()')}" class="auth-links">
@@ -101,7 +100,6 @@
                 <h4>Khóa học</h4>
                 <ul>
                     <li><a th:href="@{/courses}">Tất cả khóa học</a></li>
-                    <li><a th:href="@{/recommendations}">Gợi ý cho bạn</a></li>
                 </ul>
             </div>
             <div class="footer-col">

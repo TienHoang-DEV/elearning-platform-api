@@ -1,7 +1,7 @@
 package vn.edu.fpt.repository;
 
 import org.springframework.data.domain.Page;
-import vn.edu.fpt.dto.CourseListDto;
+import vn.edu.fpt.dto.course.CourseListDto;
 import java.util.List;
 
 public interface CourseRepositoryCustom {

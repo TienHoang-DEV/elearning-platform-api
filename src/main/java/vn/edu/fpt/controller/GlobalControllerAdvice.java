@@ -4,13 +4,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import vn.edu.fpt.dto.CategoryDto;
-import vn.edu.fpt.dto.UserDto;
+import vn.edu.fpt.dto.course.CategoryDto;
+import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.Cart;
-import vn.edu.fpt.entity.CartItem;
-import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.User;
-import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.CartItemService;
@@ -28,7 +25,8 @@ public class GlobalControllerAdvice {
     private final CategoryService categoryService;
     private final DtoMapper dtoMapper;
 
-    public GlobalControllerAdvice(CartService cartService, CartItemService cartItemService, UserRepository userRepository, CategoryService categoryService, DtoMapper dtoMapper) {
+    public GlobalControllerAdvice(CartService cartService, CartItemService cartItemService,
+            UserRepository userRepository, CategoryService categoryService, DtoMapper dtoMapper) {
         this.cartService = cartService;
         this.cartItemService = cartItemService;
         this.userRepository = userRepository;
@@ -41,11 +39,17 @@ public class GlobalControllerAdvice {
             return true;
         }
         String uri = request.getRequestURI();
-        if (uri.startsWith("/api/") || uri.startsWith("/api") || uri.contains("/material/") || uri.contains("/lesson")) {
+        if (uri.startsWith("/api/") || uri.startsWith("/api") || uri.contains("/material/url")) {
             return false;
         }
-        String accept = request.getHeader("Accept");
-        return accept != null && accept.contains("text/html");
+        // Loại trừ các file tĩnh phổ biến
+        if (uri.contains(".")) {
+            String ext = uri.substring(uri.lastIndexOf("."));
+            if (ext.matches("\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|map|json|html)$")) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @ModelAttribute("headerCategories")
@@ -67,7 +71,9 @@ public class GlobalControllerAdvice {
         }
         try {
             User user = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
-            if (user == null) {
+            if (user != null) {
+                user = userRepository.findById(user.getId()).orElse(null);
+            } else {
                 HttpSession session = request.getSession(false);
                 if (session != null) {
                     User sessionUser = (User) session.getAttribute("user");
@@ -77,7 +83,8 @@ public class GlobalControllerAdvice {
                 }
             }
             return user != null ? dtoMapper.toUserDto(user) : null;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -89,7 +96,9 @@ public class GlobalControllerAdvice {
         }
         try {
             User user = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
-            if (user == null) {
+            if (user != null) {
+                user = userRepository.findById(user.getId()).orElse(null);
+            } else {
                 HttpSession session = request.getSession(false);
                 if (session != null) {
                     User sessionUser = (User) session.getAttribute("user");
@@ -102,7 +111,8 @@ public class GlobalControllerAdvice {
                 Cart cart = cartService.getOrCreateCartForUser(user);
                 return cartItemService.countItemsInCart(cart);
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return 0;
     }

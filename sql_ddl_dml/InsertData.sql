@@ -1498,3 +1498,15 @@ VALUES
  GETDATE(),
  GETDATE(),
  DATEADD(HOUR, 2, GETDATE()));
+
+-- =========================================================================
+-- 6. DỮ LIỆU TEST BÁO CÁO VI PHẠM (REPORTS) MẪU
+-- =========================================================================
+DELETE FROM reports;
+
+-- Chèn dữ liệu báo cáo vi phạm
+INSERT INTO reports (reporter_id, report_type, target_id, reason_type, description, status, reviewed_by, reviewed_at, created_at)
+VALUES 
+(7, 'LESSON', 1, 'VIDEO_ISSUE', N'Video bị mất tiếng từ phút thứ 5', 'PENDING', NULL, NULL, DATEADD(day, -2, GETDATE())),
+(8, 'LESSON', 2, 'AUDIO_ISSUE', N'Âm thanh rè và không nghe rõ lời giảng', 'PENDING', NULL, NULL, DATEADD(day, -1, GETDATE())),
+(9, 'FEEDBACK', @FeedbackId2, 'SPAM', N'Feedback này quảng cáo website cá nhân khác và nói xấu tục tĩu.', 'PENDING', NULL, NULL, GETDATE());

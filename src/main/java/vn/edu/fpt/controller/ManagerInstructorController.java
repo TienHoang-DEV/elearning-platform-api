@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import vn.edu.fpt.dto.UserDto;
+import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.service.UserService;
@@ -47,6 +47,7 @@ public class ManagerInstructorController {
         model.addAttribute("requestPage", requestPage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
+        model.addAttribute("statuses", UserStatus.values());
 
         return "manager/approval-instructor/instructor-list";
     }
@@ -62,6 +63,7 @@ public class ManagerInstructorController {
 
         model.addAttribute("request", request);
         model.addAttribute("courses", courses);
+        model.addAttribute("statuses", UserStatus.values());
         return "manager/approval-instructor/instructor-detail";
     }
 

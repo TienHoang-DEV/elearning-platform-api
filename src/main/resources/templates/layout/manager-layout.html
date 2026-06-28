@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title layout:title-pattern="$CONTENT_TITLE - Academic Manager">Academic Manager</title>
+    <title layout:title-pattern="$CONTENT_TITLE - Quản lý Học thuật">Quản lý Học thuật</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,6 +50,9 @@
                     </li>
                     <li>
                         <a th:href="@{/manager/transaction-history/list}"><i class="ph ph-receipt"></i><span>Giao dịch</span></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/manager/reports/list}"><i class="ph ph-warning-octagon"></i><span>Báo cáo vi phạm</span></a>
                     </li>
                 </ul>
             </nav>

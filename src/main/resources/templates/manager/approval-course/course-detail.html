@@ -36,9 +36,9 @@
             <!-- Meta info & Action buttons -->
             <div class="detail-info-row">
                 <div class="detail-meta">
-                    <span th:if="${course.status != null && course.status.name() == 'PENDING'}" class="badge badge-warning py-2 px-3 fs-6">Đang chờ duyệt</span>
-                    <span th:if="${course.status != null && course.status.name() == 'PUBLISHED'}" class="badge badge-success py-2 px-3 fs-6">Đã duyệt</span>
-                    <span th:if="${course.status != null && course.status.name() == 'REJECTED'}" class="badge badge-danger py-2 px-3 fs-6">Từ chối</span>
+                    <span th:if="${course.status != null}" 
+                          th:class="${'badge py-2 px-3 fs-6 badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : course.status.name() == 'PENDING' ? 'warning' : 'danger')}"
+                          th:text="${course.statusLabel}">Trạng thái</span>
                     <span class="detail-price" th:text="${course.price != null ? #numbers.formatDecimal(course.price, 0, 'POINT', 0, 'COMMA') + ' đ' : 'Miễn phí'}">$49.99</span>
                 </div>
 

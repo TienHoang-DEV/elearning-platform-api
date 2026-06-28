@@ -1,18 +1,14 @@
 package vn.edu.fpt.service;
 
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.Category;
-import vn.edu.fpt.enums.CategoryStatus;
 import vn.edu.fpt.repository.CategoryRepository;
 import vn.edu.fpt.mapper.DtoMapper;
-import vn.edu.fpt.dto.CategoryDto;
+import vn.edu.fpt.dto.course.CategoryDto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional

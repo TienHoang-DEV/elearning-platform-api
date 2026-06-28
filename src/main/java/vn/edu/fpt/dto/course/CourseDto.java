@@ -1,6 +1,8 @@
-package vn.edu.fpt.dto;
+package vn.edu.fpt.dto.course;
 
 import lombok.*;
+import vn.edu.fpt.dto.*;
+import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.enums.CourseStatus;
 import java.math.BigDecimal;
 import java.util.Set;
@@ -33,6 +35,10 @@ public class CourseDto {
     private String thumbnailPath;
     private java.time.LocalDateTime createdAt;
     private java.time.LocalDateTime updatedAt;
+
+    public String getStatusLabel() {
+        return status != null ? status.getLabel() : "";
+    }
 
     // Đếm số lượng feedback đạt mức đánh giá sao tương ứng (star)
     public int getStarCount(int star) {

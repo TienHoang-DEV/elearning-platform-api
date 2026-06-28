@@ -2,14 +2,14 @@ package vn.edu.fpt.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.fpt.dto.ProfileDto;
+import vn.edu.fpt.dto.user.ProfileDto;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.UserValidationException;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.Validation;
 
-import vn.edu.fpt.dto.UserDto;
+import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.mapper.DtoMapper;
@@ -137,4 +137,37 @@ public class UserService {
         instructor.setStatus(status);
         repository.save(instructor);
     }
+
+    // =========================================================================
+    // ADMIN SECTION
+    // =========================================================================
+
+    /**
+     * Tìm kiếm và lọc danh sách manager (hỗ trợ phân trang).
+     */
+    public Page<UserDto> searchAndFilterManagers(String keyword, UserStatus status, Pageable pageable) {
+        Page<User> managerPage = repository.searchAndFilterManagers(keyword, status, pageable);
+        return managerPage.map(dtoMapper::toUserDto);
+    }
+
+    /**
+     * Lấy thông tin chi tiết manager dưới dạng DTO.
+     */
+    public UserDto getManagerDetail(Integer id) {
+        User manager = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy manager với ID: " + id));
+        return dtoMapper.toUserDto(manager);
+    }
+
+    /**
+     * Cập nhật trạng thái tài khoản manager (ACTIVE / BANNED).
+     */
+    public void updateManagerStatus(Integer id, UserStatus status) {
+        User manager = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy manager với ID: " + id));
+        manager.setStatus(status);
+        repository.save(manager);
+    }
+
 }
+

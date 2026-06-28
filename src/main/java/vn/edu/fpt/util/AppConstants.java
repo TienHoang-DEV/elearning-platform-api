@@ -27,6 +27,8 @@ public final class AppConstants {
 
     public static final String PAYMENT_GATEWAY = "PAYOS";
 
+    public static final String QR_CODE_BASE_URL = "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=";
+
     public static final Map<String, String> BANK_NAMES = Map.of(
             "970422", "MB Bank",
             "970436", "Vietcombank",
@@ -37,8 +39,6 @@ public final class AppConstants {
 
     public static final int NUMBER_PAYMENT_RECORD_PER_PAGE = 6;
     public static final int NUMBER_PAGE_PER_BLOCK = 5;
-
-    // ==================== Payment Synchronization Scheduling ====================
 
     /**
      * Interval (in seconds) for checking and expiring PENDING payments that have passed their expiredAt time.

@@ -11,6 +11,7 @@ import vn.edu.fpt.entity.OrderItem;
 import vn.edu.fpt.entity.Payment;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.repository.PaymentRepository;
+import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.SecurityUtils;
 
 import java.util.List;
@@ -54,6 +55,7 @@ public class PaymentPageController {
                 }
 
                 // Pass account number and description from DB first (saved at creation time)
+                model.addAttribute("qrCode", (payment.getQrCodeUrl() != null) ? AppConstants.QR_CODE_BASE_URL + payment.getQrCodeUrl() : null);
                 model.addAttribute("payOsAccountNumber", payment.getAccountNumber());
                 model.addAttribute("payOsDescription", payment.getDescription());
                 model.addAttribute("payOsBankName", payment.getBankName());
