@@ -17,6 +17,7 @@ import vn.edu.fpt.repository.LessonRepository;
 import vn.edu.fpt.repository.QuizQuestionRepository;
 import vn.edu.fpt.repository.QuizRepository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -182,6 +183,7 @@ public class QuizService {
         }
 
         quiz.setStatus(QuizStatus.PUBLISHED.name());
+        quiz.setPublishedAt(LocalDateTime.now());
         return true;
     }
 
