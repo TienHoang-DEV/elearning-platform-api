@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import vn.edu.fpt.dto.CourseDto;
+import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.CourseSectionDto;
 import vn.edu.fpt.dto.LessonDto;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
@@ -125,8 +125,8 @@ public class InstructorLessonController {
         }
 
         try {
-            Lesson tmp = lessonService.saveLesson(sectionId, lessonDto, videoFile);
-            lessonMaterialService.saveAllMaterial(materials,tmp.getId(), instrutor);
+            //Lesson tmp = lessonService.saveLesson(sectionId, lessonDto, videoFile);
+            //lessonMaterialService.saveAllMaterial(materials,tmp.getId(), instrutor);
             redirectAttributes.addFlashAttribute("success", "Thêm bài giảng thành công!");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());

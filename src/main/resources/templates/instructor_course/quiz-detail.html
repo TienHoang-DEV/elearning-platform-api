@@ -20,7 +20,7 @@
 
 <header class="editor-navbar d-flex align-items-center justify-content-between px-4">
     <div class="d-flex align-items-center gap-3">
-        <a th:href="@{/instructor/courses}" class="btn-nav-back" title="Quay lại danh sách">
+        <a th:href="@{/instructor/lesson-detail/{lessonId}(lessonId=${quiz.lessonId})}" class="btn-nav-back" title="Quay lại danh sách">
             <i data-lucide="arrow-left"></i>
         </a>
         <div class="editor-brand d-flex align-items-center gap-2">

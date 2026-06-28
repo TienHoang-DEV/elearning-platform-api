@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.*;
 
-import vn.edu.fpt.dto.CategoryDto;
+import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.dto.CourseCreateDto;
-import vn.edu.fpt.dto.CourseDto;
+import vn.edu.fpt.dto.course.CourseDto;
 
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.User;
