@@ -17,6 +17,7 @@ import vn.edu.fpt.repository.LessonRepository;
 import vn.edu.fpt.repository.QuizQuestionRepository;
 import vn.edu.fpt.repository.QuizRepository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -54,7 +55,7 @@ public class QuizService {
         return repository.existsById(id);
     }
 
-    public int totalQuestion(Set<QuizDTO> quizzes) {
+    public int totalQuestion(List<QuizDTO> quizzes) {
         int total = 0;
         for (QuizDTO quizDTO : quizzes) {
             if (quizDTO.getQuestions() == null || quizDTO.getQuestions().isEmpty()) {
@@ -182,6 +183,7 @@ public class QuizService {
         }
 
         quiz.setStatus(QuizStatus.PUBLISHED.name());
+        quiz.setPublishedAt(LocalDateTime.now());
         return true;
     }
 

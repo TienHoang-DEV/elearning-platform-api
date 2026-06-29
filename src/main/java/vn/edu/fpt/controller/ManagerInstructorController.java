@@ -47,6 +47,7 @@ public class ManagerInstructorController {
         model.addAttribute("requestPage", requestPage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
+        model.addAttribute("statuses", UserStatus.values());
 
         return "manager/approval-instructor/instructor-list";
     }
@@ -62,6 +63,7 @@ public class ManagerInstructorController {
 
         model.addAttribute("request", request);
         model.addAttribute("courses", courses);
+        model.addAttribute("statuses", UserStatus.values());
         return "manager/approval-instructor/instructor-detail";
     }
 

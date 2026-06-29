@@ -26,6 +26,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = :status AND p.paidAt >= :startDate")
     BigDecimal sumAmountByStatusAndPaidAtAfter(@Param("status") PaymentStatus status, @Param("startDate") LocalDateTime startDate);
 
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = :status")
+    BigDecimal sumAmountByStatus(@Param("status") PaymentStatus status);
+
     @Query("SELECT new vn.edu.fpt.dto.MonthlyRevenueDTO(YEAR(p.paidAt), MONTH(p.paidAt), COALESCE(SUM(p.amount), 0)) " +
             "FROM Payment p " +
             "WHERE p.status = :status AND p.paidAt >= :startDate " +

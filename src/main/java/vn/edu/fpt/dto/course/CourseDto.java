@@ -36,6 +36,10 @@ public class CourseDto {
     private java.time.LocalDateTime createdAt;
     private java.time.LocalDateTime updatedAt;
 
+    public String getStatusLabel() {
+        return status != null ? status.getLabel() : "";
+    }
+
     // Đếm số lượng feedback đạt mức đánh giá sao tương ứng (star)
     public int getStarCount(int star) {
         if (feedbacks == null) {

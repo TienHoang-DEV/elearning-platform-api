@@ -39,7 +39,7 @@ public class QuizController {
 
         User user = SecurityUtils.getCurrentUser();
         Lesson lesson = lessonService.findByIdWithQuizzes(lessonId);
-        Set<QuizDTO> quizzes = dtoMapper.toQuizDtos(lesson.getQuizzes());
+        List<QuizDTO> quizzes = dtoMapper.toQuizDtos(lesson.getQuizzes());
         int totalQuestions = quizService.totalQuestion(quizzes);
 
         Map<Integer, List<QuizAttempt>> quizAttemptsMap = new HashMap<>();

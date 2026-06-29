@@ -20,19 +20,22 @@
                     class="search-input form-control">
                 <select name="status" class="search-input search-select form-select" onchange="this.form.submit()">
                     <option value="" th:selected="${status == null}">Tất cả trạng thái</option>
-                    <option value="ACTIVE" th:selected="${status != null && status.name() == 'ACTIVE'}">Hoạt động</option>
-                    <option value="BANNED" th:selected="${status != null && status.name() == 'BANNED'}">Bị khóa</option>
+                    <option th:each="st : ${statuses}" 
+                            th:value="${st}" 
+                            th:text="${st.label}" 
+                            th:selected="${status == st}"></option>
                 </select>
-                <button type="submit" class="d-none">Search</button>
+                <button type="submit" class="d-none">Tìm kiếm</button>
             </div>
         </form>
         <div class="table-container">
-            <table class="data-table">
+            <table class="data-table instructor-table">
                 <thead>
                     <tr>
                         <th>Tên</th>
                         <th>Email</th>
                         <th>Điện thoại</th>
+                        <th class="text-center">Số khóa học</th>
                         <th>Trạng thái</th>
                         <th>Thao tác</th>
                     </tr>
@@ -46,10 +49,11 @@
                         </td>
                         <td th:text="${request.email}">nguyenvana@example.com</td>
                         <td th:text="${request.phone != null ? request.phone : 'N/A'}">0123456789</td>
+                        <td class="text-center" th:text="${request.courseCount != null ? request.courseCount : 0}">0</td>
                         <td>
                             <span
                                 th:class="${'badge badge-' + (request.status.name() == 'ACTIVE' ? 'success' : 'danger')}"
-                                th:text="${request.status.name() == 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}">
+                                th:text="${request.statusLabel}">
                                 Hoạt động
                             </span>
                         </td>
@@ -61,7 +65,7 @@
                         </td>
                     </tr>
                     <tr th:if="${requestPage.empty}">
-                        <td colspan="5" class="text-center py-4">Không tìm thấy giảng viên nào.</td>
+                        <td colspan="6" class="text-center py-4">Không tìm thấy giảng viên nào.</td>
                     </tr>
                 </tbody>
             </table>

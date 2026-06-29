@@ -143,6 +143,10 @@ public class Payment extends BaseEntity {
      * Incremented each time a webhook retry is attempted.
      */
     @Builder.Default
-    @Column(name = "webhook_retry_count", nullable = false)
+    @Column(name = "webhook_retry_count")
     private Integer webhookRetryCount = 0;
+
+    public Integer getWebhookRetryCount() {
+        return webhookRetryCount != null ? webhookRetryCount : 0;
+    }
 }

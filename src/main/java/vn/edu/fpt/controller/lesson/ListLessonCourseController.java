@@ -26,6 +26,7 @@ public class ListLessonCourseController {
     private final LessonProgressService lessonProgressService;
     private final EnrollmentService enrollmentService;
     private final CourseSectionService courseSectionService;
+    private final FeedbackService feedbackService;
     private final DtoMapper dtoMapper;
 
     @Transactional
@@ -69,6 +70,24 @@ public class ListLessonCourseController {
         // nếu next lesson bằng null tức là người học đã hoàn thành hết khóa học, không có bài học tiếp theo
         Lesson nextLesson = lessonService.findNextLessonByCurrentLesson(lesson, totalNumberOfLesson, totalNumberOfLessonCompleted);
 
+        // tính toán phần trăm tiến trình từ số bài học hoàn thành
+        double progressVal = 0.0;
+        if (totalNumberOfLesson != null && totalNumberOfLesson > 0 && totalNumberOfLessonCompleted != null) {
+            progressVal = ((double) totalNumberOfLessonCompleted * 100.0) / totalNumberOfLesson;
+        } else if (enrollment != null && enrollment.getProgressPercent() != null) {
+            progressVal = enrollment.getProgressPercent().doubleValue();
+        }
+
+        boolean showReviewPrompt = false;
+        if (progressVal >= 30.0) {
+            boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), courseId);
+            if (!hasReviewed) {
+                showReviewPrompt = true;
+            }
+        }
+
+        model.addAttribute("showReviewPrompt", showReviewPrompt);
+        model.addAttribute("progressPercent", progressVal);
         model.addAttribute("nextLesson", nextLesson);
         model.addAttribute("currentSectionId", sectionId);
         model.addAttribute("sectionCompletedMap", sectionCompletedMap);

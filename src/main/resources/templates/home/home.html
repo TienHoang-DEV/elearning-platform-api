@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Learning Hub - Nền Tảng Chia Sẻ Kỹ Năng Hàng Đầu Việt Nam</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-background.png}">
     <meta name="description"
           content="Chia sẻ các kỹ năng đời sống hằng ngày, giúp bạn tự tin và phát triển bản thân thông qua những khóa học thực tiễn nhất tại Learning Hub.">
 
@@ -226,7 +227,7 @@
                                 </a>
                                 <div class="card-body p-4 pt-1 d-flex align-items-end justify-content-between">
                                     <div class="price-box">
-                                        <span class="price-current fw-extrabold fs-6 text-primary" th:text="${course.price == null || course.price.compareTo(T(java.math.BigDecimal).ZERO) == 0 ? 'Miễn phí' : #numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">VND</span>
+                                        <span class="price-current fw-extrabold fs-6 text-primary" th:text="${course.price == null || course.price.compareTo(T(java.math.BigDecimal).ZERO) == 0 ? 'Miễn phí' : #numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' đ'}">VND</span>
                                     </div>
                                 </div>
                             </div>
@@ -279,7 +280,7 @@
                                 </a>
                                 <div class="card-body p-4 pt-1 d-flex align-items-end justify-content-between">
                                     <div class="price-box">
-                                        <span class="price-current fw-extrabold fs-6 text-primary" th:text="${course.price == null || course.price.compareTo(T(java.math.BigDecimal).ZERO) == 0 ? 'Miễn phí' : #numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">VND</span>
+                                        <span class="price-current fw-extrabold fs-6 text-primary" th:text="${course.price == null || course.price.compareTo(T(java.math.BigDecimal).ZERO) == 0 ? 'Miễn phí' : #numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' đ'}">VND</span>
                                     </div>
                                 </div>
                             </div>

@@ -22,6 +22,34 @@ public class LessonMaterialService {
     private final AzureBlobService azureBlobService;
 
 
+    public void saveAllMaterial(List<MultipartFile> file, Integer lessonId, User user){
+
+        if(file == null || file.isEmpty()) return;
+
+        Lesson lesson = lessonRepository.findById(lessonId).orElseThrow();
+
+        for(MultipartFile f : file){
+            if(f == null || f.isEmpty()) continue;
+
+            String fileName = f.getOriginalFilename();
+            String fileType = f.getContentType();
+            Long fileSize = f.getSize();
+
+            String url = azureBlobService.saveFile(f, "materials");
+            LessonMaterial lessonMaterial = new LessonMaterial();
+            lessonMaterial.setLesson(lesson);
+            lessonMaterial.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1));
+            lessonMaterial.setFileName(fileName);
+            lessonMaterial.setFileSize(fileSize);
+            lessonMaterial.setFileUrl(url);
+            lessonMaterial.setInstructor(user);
+            lesson.setCreatedAt(LocalDateTime.now());
+
+            repository.save(lessonMaterial);
+        }
+
+    }
+
     public List<LessonMaterial> findAll() {
         return repository.findAll();
     }
