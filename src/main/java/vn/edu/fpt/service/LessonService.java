@@ -59,7 +59,7 @@ public class LessonService {
         return repository.existsById(id);
     }
 
-    public Lesson saveLesson(Integer sectiondId, LessonDto lessonDto){
+    public Lesson saveLesson(Integer sectiondId, LessonDto lessonDto, MultipartFile file){
         boolean exist = courseSectionService.existsById(sectiondId);
         if(!exist){
             throw new RuntimeException("Tiêu đề khoá học không tìm thấy với id: " + sectiondId);
@@ -80,20 +80,26 @@ public class LessonService {
             throw new RuntimeException("Tiêu đề bài học đã dài quá mức cho phép");
         }
 
-        if(lessonDto.getVideoUrl() == null || lessonDto.getVideoUrl().isEmpty()){
+        if( file == null || file.isEmpty()){
             throw new RuntimeException("Video bài học không được để trống");
         }
 
         if(lessonDto.getDurationSeconds() == null || lessonDto.getDurationSeconds() <= 0){
-            lessonDto.setDurationSeconds(1); // Set a default value to prevent crash if not provided
+            lessonDto.setDurationSeconds(0);
         }
-        String video_url = azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lessonDto.getVideoUrl());
+
+        Integer po = findMaxPositionLesson(sectiondId);  
+
+        String video_url = azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, file.getOriginalFilename());
         Lesson l = new Lesson();
         l.setTitle(lessonDto.getTitle());
         l.setVideoUrl(video_url);
-        l.setPosition(lessonDto.getPosition());
+        l.setPosition(po + 1);
         l.setDurationSeconds(lessonDto.getDurationSeconds());
         l.setCreatedAt(LocalDateTime.now());
+        l.setPublished(false);
+
+        l.setModerationStatus(LessonModerationStatus.PENDING.toString());
         l.setCourseSection(courseSectionService.findById(sectiondId).orElseThrow());
         l.setIsFreePreview(lessonDto.getIsFreePreview() != null ? lessonDto.getIsFreePreview() : false);
         return repository.save(l);
