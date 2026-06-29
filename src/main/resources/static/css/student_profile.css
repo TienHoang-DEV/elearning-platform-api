@@ -73,14 +73,7 @@ body {
     box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.1) !important;
 }
 
-.nav-icon-btn {
-    transition: var(--transition);
-}
 
-.nav-icon-btn:hover {
-    background-color: #f1f5f9;
-    color: var(--text-main) !important;
-}
 
 /* Hide default bootstrap dropdown caret */
 .no-caret::after {
@@ -194,27 +187,3 @@ body {
     color: var(--primary) !important;
 }
 
-/* Premium Header Cart Count Badge */
-.cart-count-badge {
-    position: absolute !important;
-    top: 3px !important;
-    right: 3px !important;
-    left: auto !important;
-    transform: none !important;
-    font-family: var(--font-body), sans-serif !important;
-    font-size: 9px !important;
-    font-weight: 700 !important;
-    width: 15px !important;
-    height: 15px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border: 1.5px solid #ffffff !important;
-    background-color: #ef4444 !important; /* Premium bright red */
-    color: #ffffff !important;
-    padding: 0 !important;
-    border-radius: 50% !important;
-    line-height: 1 !important;
-    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.3) !important;
-    z-index: 5;
-}
