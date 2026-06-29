@@ -11,6 +11,11 @@ import vn.edu.fpt.repository.LessonMaterialRepository;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 
+import org.springframework.web.multipart.MultipartFile;
+import vn.edu.fpt.entity.User;
+import vn.edu.fpt.entity.Lesson;
+import vn.edu.fpt.repository.LessonRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +25,7 @@ import java.util.Optional;
 public class LessonMaterialService {
     private final LessonMaterialRepository repository;
     private final AzureBlobService azureBlobService;
+    private final LessonRepository lessonRepository;
 
 
     public void saveAllMaterial(List<MultipartFile> file, Integer lessonId, User user){
