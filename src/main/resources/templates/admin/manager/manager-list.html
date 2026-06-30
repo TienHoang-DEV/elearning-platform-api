@@ -41,7 +41,7 @@
                     <tr th:each="request : ${requestPage.content}">
                         <td>
                             <div class="user-info">
-                                <div class="avatar-sm me-2" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #e2e8f0;">
+                                <div class="avatar-sm me-2">
                                     <img th:if="${request.avatarUrl != null}" th:src="${request.avatarUrl}" alt="Avatar" class="w-100 h-100 object-fit-cover" />
                                     <span th:if="${request.avatarUrl == null}" th:text="${!request.firstName.isEmpty() ? #strings.substring(request.firstName, 0, 1).toUpperCase() : 'M'}">M</span>
                                 </div>

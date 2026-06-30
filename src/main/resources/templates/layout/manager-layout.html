@@ -63,7 +63,7 @@
             <header class="main-header shadow-sm">
                 <div class="header-left d-flex align-items-center gap-2">
                     <!-- Mobile Sidebar Toggle -->
-                    <button class="btn btn-link text-dark p-0 me-2 d-md-none" id="sidebarToggle" style="outline: none; box-shadow: none;">
+                    <button class="btn btn-link text-dark p-0 me-2 d-md-none" id="sidebarToggle">
                         <i class="ph ph-list fs-3"></i>
                     </button>
                     
@@ -72,7 +72,7 @@
                 <div class="header-right">
                     <!-- User Account Dropdown -->
                     <div class="dropdown user-dropdown">
-                        <button class="header-user-trigger btn border-0 p-0 d-flex align-items-center gap-2" id="headerUserDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; outline: none; box-shadow: none;">
+                        <button class="header-user-trigger btn border-0 p-0 d-flex align-items-center gap-2" id="headerUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="avatar header-avatar">
                                 <img th:if="${currentUser != null and currentUser.avatarUrl != null}" th:src="${currentUser.avatarUrl}" alt="Avatar" class="w-100 h-100 object-fit-cover" />
                                 <span th:if="${currentUser == null or currentUser.avatarUrl == null}" th:text="${currentUser != null and currentUser.firstName != null and !currentUser.firstName.isEmpty() ? #strings.substring(currentUser.firstName, 0, 1).toUpperCase() : 'M'}">M</span>

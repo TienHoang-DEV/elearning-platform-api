@@ -142,3 +142,15 @@
 .status-form-submit-btn:hover {
     background-color: var(--primary-blue-hover);
 }
+
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e2e8f0;
+    flex-shrink: 0;
+}

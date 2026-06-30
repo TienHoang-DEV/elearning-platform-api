@@ -253,3 +253,8 @@
         grid-template-columns: 1fr;
     }
 }
+
+.profile-container-sm {
+    max-width: 600px;
+    margin: 0 auto;
+}
