@@ -15,33 +15,10 @@
 
     <div class="page-header">
         <h1>Chỉnh Sửa Khóa Học</h1>
-        <a href="#" class="btn btn-outline">← Quay lại danh sách</a>
+        <a th:href="@{/instructorcourse/courses}" class="btn btn-outline">← Quay lại danh sách</a>
     </div>
 
-    <!-- ===== Wizard Steps (hardcode đang ở bước Chương trình giảng dạy) ===== -->
-<!--    <div class="wizard-steps">-->
-<!--        <a href="#" class="wizard-step active">-->
-<!--            <span class="step-dot">1</span>-->
-<!--            <span class="step-label">Thông tin chung</span>-->
-<!--        </a>-->
-<!--        <a href="#" class="wizard-step active">-->
-<!--            <span class="step-dot">2</span>-->
-<!--            <span class="step-label">Chương trình giảng dạy</span>-->
-<!--        </a>-->
-<!--        <a href="#" class="wizard-step">-->
-<!--            <span class="step-dot">3</span>-->
-<!--            <span class="step-label">Bài kiểm tra</span>-->
-<!--        </a>-->
-<!--        <a href="#" class="wizard-step">-->
-<!--            <span class="step-dot">4</span>-->
-<!--            <span class="step-label">Gửi duyệt</span>-->
-<!--        </a>-->
-<!--    </div>-->
-
-    <!-- =====================================================
-         PHẦN 1: THÔNG TIN CHUNG KHÓA HỌC
-    ====================================================== -->
-    <form action="#" method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${courseDto}">
+    <form action="#" method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${CourseRequest}">
         <!-- HARDCODE: id khóa học -->
         <input type="hidden" name="id" value="1">
 
@@ -70,7 +47,7 @@
                      data-placeholder="Nhập mô tả đầy đủ cho khóa học...">
                     Khóa học này sẽ hướng dẫn bạn từ cơ bản đến nâng cao về lập trình Web với Java Spring Boot.
                 </div>
-                <input type="hidden" th:filed="*{description}" id="descHidden"
+                <input type="hidden" th:field="*{description}" id="descHidden"
                        value="Khóa học này sẽ hướng dẫn bạn từ cơ bản đến nâng cao về lập trình Web với Java Spring Boot."
                        required/>
             </div>
@@ -80,23 +57,30 @@
                 <div class="form-group">
                     <label>Trình Độ Khóa Học</label>
                     <!-- HARDCODE: "Trung cấp" đang được chọn -->
-                    <select name="level" class="form-control">
-                        <option value="BEGINNER">Người mới bắt đầu</option>
-                        <option value="INTERMEDIATE" selected>Trung cấp</option>
-                        <option value="ADVANCED">Nâng cao</option>
+                    <select th:field="*{level}" class="form-control">
+                        <option value="">Chọn trình độ</option>
+                        <option th:each="l : ${courselevels}" th:value="${l}"
+                                th:text="${l == 'BEGINNER' ? 'Người mới bắt đầu' : (l == 'INTERMEDIATE' ? 'Trung cấp' : 'Nâng cao')}"></option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Danh Mục Chính Khóa Học</label>
-                    <!-- HARDCODE: danh mục chính + phụ -->
                     <select name="parentCategory" class="form-control" id="parentCategory">
-                        <option value="1" selected>Lập trình Web</option>
-                        <option value="2">Thiết kế đồ họa</option>
+                        <option value="">Chọn Danh Mục</option>
+                        <option th:each="ca : ${categoryparents}"
+                                th:value="${ca.id}"
+                                th:text="${ca.name}">
+
+                        </option>
                     </select>
-                    <label style="margin-top:10px;">Danh Mục Phụ Khóa Học</label>
-                    <select name="categoryId" class="form-control" id="categoryId">
-                        <option value="11" selected>Backend Framework</option>
-                        <option value="12">Frontend Framework</option>
+                    <label>Danh Mục Phụ Khóa Học</label>
+                    <select th:field="*{categoryId}" class="form-control" id="categoryId">
+                        <option value="">Chọn Danh Mục</option>
+                        <option th:each="c : ${categorychilds}"
+                                th:value="${c.id}"
+                                th:text="${c.name}"
+                                th:attr="data-parent-id=${c.parentId}">
+                        </option>
                     </select>
                 </div>
             </div>
@@ -105,7 +89,7 @@
             <div class="form-group" style="margin-top:16px;">
                 <label>Giá Khóa Học</label>
                 <!-- HARDCODE: giá khóa học -->
-                <input type="number" class="form-control" name="price" value="399000" min="0"/>
+                <input type="number" class="form-control" th:field="*{price}" value="399000" min="0"/>
                 <div class="form-hint">Nhập 0 nếu khóa học miễn phí</div>
             </div>
 
@@ -115,10 +99,11 @@
                 <div class="thumbnail-upload" onclick="document.getElementById('thumbnailInput').click()">
                     <!-- HARDCODE: ảnh thumbnail -->
                     <img id="thumbnailPreview"
-                         src="https://via.placeholder.com/360x200?text=Khóa+Học+Demo"
-                         style="display:block;" alt="Thumbnail Preview"/>
+                         th:src="${CourseRequest.thumbnailUrl}"
+                         th:style="${CourseRequest.thumbnailUrl == null or CourseRequest.thumbnailUrl == ''} ? 'display:none;' : ''"
+                         alt="Thumbnail Preview"/>
                     <div id="uploadPlaceholder" style="display:none;">
-                        <div class="upload-icon">🖼️</div>
+                        <div class="upload-icon"></div>
                         <p>Nhấn để chọn ảnh thumbnail</p>
                         <small>Khuyến nghị tỉ lệ 16:9</small>
                     </div>
@@ -144,78 +129,128 @@
         </div>
 
         <!-- HARDCODE: danh sách chương + bài giảng demo -->
+<!--        <div id="curriculumList">-->
+
+<!--            &lt;!&ndash; Chương 1 &ndash;&gt;-->
+<!--            <div class="section-item" data-section-id="101">-->
+<!--                <div class="section-header">-->
+<!--                    <span class="drag-handle">⠿</span>-->
+<!--                    <span class="section-number">Chương 1</span>-->
+<!--                    <span class="section-title">Giới thiệu Spring Boot</span>-->
+<!--                    <div class="section-actions">-->
+<!--                        <button type="button" class="btn btn-sm btn-outline"-->
+<!--                                data-section-id="101"-->
+<!--                                onclick="openAddLessonModal(this.dataset.sectionId)">-->
+<!--                            + Thêm Bài Giảng-->
+<!--                        </button>-->
+<!--                        <button type="button" class="btn btn-sm btn-danger"-->
+<!--                                data-section-id="101"-->
+<!--                                onclick="deleteSection(this.dataset.sectionId)">🗑</button>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <div class="lesson-list">-->
+<!--                    <div class="lesson-item" data-lesson-id="1001">-->
+<!--                        <span class="drag-handle">⠿</span>-->
+<!--                        <span class="lesson-icon">🎬</span>-->
+<!--                        <span class="lesson-title">Bài 1: Spring Boot là gì?</span>-->
+<!--                        <span class="badge badge-free">Miễn phí</span>-->
+<!--                        <div class="lesson-actions">-->
+<!--                            <button type="button" class="btn btn-sm btn-outline"-->
+<!--                                    data-lesson-id="1001" data-lesson-title="Spring Boot là gì?" data-lesson-free="true"-->
+<!--                                    onclick="openEditLessonModal(this.dataset)">✏️</button>-->
+<!--                            <button type="button" class="btn btn-sm btn-danger"-->
+<!--                                    data-lesson-id="1001"-->
+<!--                                    onclick="deleteLesson(this.dataset.lessonId)">🗑</button>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="lesson-item" data-lesson-id="1002">-->
+<!--                        <span class="drag-handle">⠿</span>-->
+<!--                        <span class="lesson-icon">🎬</span>-->
+<!--                        <span class="lesson-title">Bài 2: Cài đặt môi trường</span>-->
+<!--                        <div class="lesson-actions">-->
+<!--                            <button type="button" class="btn btn-sm btn-outline"-->
+<!--                                    data-lesson-id="1002" data-lesson-title="Cài đặt môi trường" data-lesson-free="false"-->
+<!--                                    onclick="openEditLessonModal(this.dataset)">✏️</button>-->
+<!--                            <button type="button" class="btn btn-sm btn-danger"-->
+<!--                                    data-lesson-id="1002"-->
+<!--                                    onclick="deleteLesson(this.dataset.lessonId)">🗑</button>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; Chương 2 &ndash;&gt;-->
+<!--            <div class="section-item" data-section-id="102">-->
+<!--                <div class="section-header">-->
+<!--                    <span class="drag-handle">⠿</span>-->
+<!--                    <span class="section-number">Chương 2</span>-->
+<!--                    <span class="section-title">REST API với Spring Boot</span>-->
+<!--                    <div class="section-actions">-->
+<!--                        <button type="button" class="btn btn-sm btn-outline"-->
+<!--                                data-section-id="102"-->
+<!--                                onclick="openAddLessonModal(this.dataset.sectionId)">-->
+<!--                            + Thêm Bài Giảng-->
+<!--                        </button>-->
+<!--                        <button type="button" class="btn btn-sm btn-danger"-->
+<!--                                data-section-id="102"-->
+<!--                                onclick="deleteSection(this.dataset.sectionId)">🗑</button>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; HARDCODE: chương chưa có bài giảng nào &ndash;&gt;-->
+<!--                <div class="lesson-list">-->
+<!--                    <div class="table-empty" style="padding:12px 16px;">-->
+<!--                        Chưa có bài giảng nào-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
         <div id="curriculumList">
-
-            <!-- Chương 1 -->
-            <div class="section-item" data-section-id="101">
+            <!-- Lặp qua từng Chương -->
+            <div th:each="section : ${sections}" class="section-item" th:data-section-id="${section.id}">
                 <div class="section-header">
                     <span class="drag-handle">⠿</span>
-                    <span class="section-number">Chương 1</span>
-                    <span class="section-title">Giới thiệu Spring Boot</span>
+                    <span class="section-number" th:text="'Chương ' + ${section.position}">Chương 1</span>
+                    <span class="section-title" th:text="${section.title}">Tên chương</span>
                     <div class="section-actions">
+                        <!-- Nút mở modal thêm bài giảng cấp ID chương -->
                         <button type="button" class="btn btn-sm btn-outline"
-                                data-section-id="101"
+                                th:data-section-id="${section.id}"
                                 onclick="openAddLessonModal(this.dataset.sectionId)">
                             + Thêm Bài Giảng
                         </button>
-                        <button type="button" class="btn btn-sm btn-danger"
-                                data-section-id="101"
-                                onclick="deleteSection(this.dataset.sectionId)">🗑</button>
+                        <!-- Form gửi yêu cầu xóa chương -->
+                        <form th:action="@{/instructorcourse/{courseId}/sections/{sectionId}/delete(courseId=${courseId}, sectionId=${section.id})}"
+                              method="POST" style="display:inline;" onsubmit="return confirm('Xóa chương này?')">
+                            <button type="submit" class="btn btn-sm btn-danger">🗑</button>
+                        </form>
                     </div>
                 </div>
 
+                <!-- Danh sách bài giảng trong chương -->
                 <div class="lesson-list">
-                    <div class="lesson-item" data-lesson-id="1001">
+                    <div th:each="lesson : ${section.lessons}" class="lesson-item" th:data-lesson-id="${lesson.id}">
                         <span class="drag-handle">⠿</span>
                         <span class="lesson-icon">🎬</span>
-                        <span class="lesson-title">Bài 1: Spring Boot là gì?</span>
-                        <span class="badge badge-free">Miễn phí</span>
+                        <span class="lesson-title" th:text="'Bài ' + ${lesson.position} + ': ' + ${lesson.title}">Bài 1</span>
+                        <span th:if="${lesson.isFreePreview}" class="badge badge-free">Miễn phí</span>
                         <div class="lesson-actions">
+                            <!-- Nút mở modal sửa bài giảng truyền thông tin qua dataset -->
                             <button type="button" class="btn btn-sm btn-outline"
-                                    data-lesson-id="1001" data-lesson-title="Spring Boot là gì?" data-lesson-free="true"
+                                    th:data-lesson-id="${lesson.id}"
+                                    th:data-lesson-title="${lesson.title}"
+                                    th:data-lesson-free="${lesson.isFreePreview}"
                                     onclick="openEditLessonModal(this.dataset)">✏️</button>
-                            <button type="button" class="btn btn-sm btn-danger"
-                                    data-lesson-id="1001"
-                                    onclick="deleteLesson(this.dataset.lessonId)">🗑</button>
+                            <!-- Form gửi yêu cầu xóa bài giảng -->
+                            <form th:action="@{/instructor/lessons/{lessonId}/delete(lessonId=${lesson.id})}"
+                                  method="POST" style="display:inline;" onsubmit="return confirm('Xóa bài giảng này?')">
+                                <button type="submit" class="btn btn-sm btn-danger">🗑</button>
+                            </form>
                         </div>
                     </div>
-                    <div class="lesson-item" data-lesson-id="1002">
-                        <span class="drag-handle">⠿</span>
-                        <span class="lesson-icon">🎬</span>
-                        <span class="lesson-title">Bài 2: Cài đặt môi trường</span>
-                        <div class="lesson-actions">
-                            <button type="button" class="btn btn-sm btn-outline"
-                                    data-lesson-id="1002" data-lesson-title="Cài đặt môi trường" data-lesson-free="false"
-                                    onclick="openEditLessonModal(this.dataset)">✏️</button>
-                            <button type="button" class="btn btn-sm btn-danger"
-                                    data-lesson-id="1002"
-                                    onclick="deleteLesson(this.dataset.lessonId)">🗑</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Chương 2 -->
-            <div class="section-item" data-section-id="102">
-                <div class="section-header">
-                    <span class="drag-handle">⠿</span>
-                    <span class="section-number">Chương 2</span>
-                    <span class="section-title">REST API với Spring Boot</span>
-                    <div class="section-actions">
-                        <button type="button" class="btn btn-sm btn-outline"
-                                data-section-id="102"
-                                onclick="openAddLessonModal(this.dataset.sectionId)">
-                            + Thêm Bài Giảng
-                        </button>
-                        <button type="button" class="btn btn-sm btn-danger"
-                                data-section-id="102"
-                                onclick="deleteSection(this.dataset.sectionId)">🗑</button>
-                    </div>
-                </div>
-
-                <!-- HARDCODE: chương chưa có bài giảng nào -->
-                <div class="lesson-list">
-                    <div class="table-empty" style="padding:12px 16px;">
+                    <div th:if="${#lists.isEmpty(section.lessons)}" class="table-empty" style="padding:12px 16px;">
                         Chưa có bài giảng nào
                     </div>
                 </div>
