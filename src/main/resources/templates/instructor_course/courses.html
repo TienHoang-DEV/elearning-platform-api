@@ -54,8 +54,8 @@
                         <td>
                             <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
                                class="btn btn-sm btn-outline">Xem Chi Tiết</a>
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
-                               class="btn btn-sm btn-outline">Chỉnh Sửa</a>
+                            <a th:href="@{/instructor/{id}/reviews(id=${course.id})}"
+                               class="btn btn-sm btn-outline">Xem Đánh Giá</a>
                         </td>
                     </tr>
                     </tbody>
@@ -85,9 +85,6 @@
                         <td>
                             <a th:href="@{/instructor/courses/{id}/view(id=${course.id})}"
                                class="btn btn-sm btn-outline">Xem Chi Tiết</a>
-
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
-                               class="btn btn-sm btn-outline">Thu Hồi Yêu Cầu</a>
                         </td>
                     </tr>
                     </tbody>
@@ -115,9 +112,9 @@
                         <td th:text="${course.title}"></td>
                         <td th:text="${course.updatedAt != null ? #temporals.format(course.updatedAt, 'dd-MM-yyyy') : ''}"></td>
                         <td>
-                            <a th:href="@{/instructor/courses/{id}/view(id=${course.id})}"
+                            <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}"
                                class="btn btn-sm btn-outline">Xem</a>
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}"
+                            <a th:href="@{/instructorcourses/{id}/edit(id=${course.id})}"
                                class="btn btn-sm btn-outline">Chỉnh Sửa</a>
                             <a th:href="@{/instructor/courses/{id}/request(id=${course.id})}"
                                class="btn btn-sm btn-outline">Gửi Duyệt</a>

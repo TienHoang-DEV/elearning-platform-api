@@ -167,7 +167,7 @@
                             <div class="quiz-actions-group d-flex align-items-center gap-2">
 
                                 <th:block th:if="${q.status == 'PUBLISHED'}">
-                                    <a th:href="@{/instructor/quiz/quiz-manage/{quizId}(quizId=${q.id}, lessonId=${lesson.id})}"
+                                    <a th:href="@{/instructor/quiz/view-detail/{quizId}(quizId=${q.id}, lessonId=${lesson.id})}"
                                        class="btn-action-icon btn-view" data-bs-toggle="tooltip" title="Biên soạn & Xem chi tiết">
                                         <i data-lucide="eye"></i>
                                     </a>
@@ -189,6 +189,10 @@
                                 </th:block>
 
                                 <th:block th:if="${q.status == 'ARCHIVED'}">
+                                    <a th:href="@{/instructor/quiz/view-detail/{quizId}(quizId=${q.id}, lessonId=${lesson.id})}"
+                                       class="btn-action-icon btn-view" data-bs-toggle="tooltip" title="Biên soạn & Xem chi tiết">
+                                        <i data-lucide="eye"></i>
+                                    </a>
                                     <a th:href="@{/instructor/quiz/quiz-manage/{quizId}(quizId=${q.id}, lessonId=${lesson.id})}"
                                        class="btn-action-icon btn-edit" data-bs-toggle="tooltip" title="Chỉnh sửa lại">
                                         <i data-lucide="edit-3"></i>

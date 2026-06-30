@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import vn.edu.fpt.dto.transaction_manager.TransactionCountByStatusDTO;
 import vn.edu.fpt.dto.transaction_manager.TransactionDetailDTO;
 import vn.edu.fpt.dto.transaction_manager.TransactionListDTO;
+import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.service.ManagerDashboardService;
 import vn.edu.fpt.service.payment.PaymentService;
 import vn.edu.fpt.util.AppConstants;
@@ -40,6 +41,7 @@ public class ManagerTransactionController {
         model.addAttribute("toDate", toDate);
         model.addAttribute("keyword", keyword);
 
+        model.addAttribute("statuses", PaymentStatus.values());
         model.addAttribute("pageTransaction", pageTransaction);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);

@@ -1032,7 +1032,6 @@ VALUES
 INSERT INTO feedbacks (user_id, course_id, rating, comment, status, created_at)
 VALUES
 -- Course 1 (Java Core): 5, 4, 3, 5, 4
-(7, 1, 5, N'Khóa học Java Core rất hay và chi tiết, phù hợp cho người mới bắt đầu.', 'VISIBLE', GETDATE()),
 (8, 1, 4, N'Nội dung rất ổn, tuy nhiên một số bài tập cuối chương hơi khó.', 'VISIBLE', GETDATE()),
 (9, 1, 3, N'Khóa học bình thường, phần giải thích OOP hơi nhanh quá.', 'VISIBLE', GETDATE()),
 (10, 1, 5, N'Giảng viên nhiệt tình, hỗ trợ Q&A rất nhanh.', 'VISIBLE', GETDATE()),
@@ -1040,13 +1039,11 @@ VALUES
 
 -- Course 2 (ReactJS): 5, 5, 4, 4, 5
 (7, 2, 5, N'ReactJS thực chiến đỉnh cao, học xong làm được dự án ngay.', 'VISIBLE', GETDATE()),
-(8, 2, 5, N'Khóa học quá tuyệt vời, đặc biệt là phần Redux Toolkit.', 'VISIBLE', GETDATE()),
 (9, 2, 4, N'Nội dung cập nhật mới, thực hành nhiều.', 'VISIBLE', GETDATE()),
 (10, 2, 4, N'Tốt, nhưng nên nói sâu hơn về Performance Optimization.', 'VISIBLE', GETDATE()),
 (11, 2, 5, N'Giảng viên có kiến thức thực tế sâu rộng, giải thích rất dễ thấm.', 'VISIBLE', GETDATE()),
 
 -- Course 3 (CSS): 3, 2, 4, 3, 2
-(7, 3, 3, N'Nội dung CSS cơ bản thì tốt nhưng phần Flexbox giảng hơi rối.', 'VISIBLE', GETDATE()),
 (8, 3, 2, N'Khóa học hơi ngắn, thiếu bài tập thực tế về Grid Layout.', 'VISIBLE', GETDATE()),
 (9, 3, 4, N'Responsive Design được giải thích khá ổn.', 'VISIBLE', GETDATE()),
 (10, 3, 3, N'Tạm được, chưa xứng đáng lắm với giá tiền.', 'VISIBLE', GETDATE()),
@@ -1198,6 +1195,180 @@ VALUES
 (9, 24, 2, N'Nhiều đoạn code bị lỗi do Firebase update SDK mới.', 'VISIBLE', GETDATE()),
 (10, 24, 3, N'Ở mức trung bình, xem để biết luồng đăng nhập.', 'VISIBLE', GETDATE()),
 (11, 24, 1, N'Không được hỗ trợ khi hỏi bài, code lỗi không chạy được.', 'VISIBLE', GETDATE());
+
+
+-- =========================
+-- ENROLLMENTS SAMPLE DATA
+-- =========================
+INSERT INTO enrollments (user_id, course_id, progress_percent, created_at)
+VALUES
+-- Course 1
+(7, 1, 50.00, GETDATE()),
+(8, 1, 40.00, GETDATE()),
+(9, 1, 35.00, GETDATE()),
+(10, 1, 80.00, GETDATE()),
+(11, 1, 100.00, GETDATE()),
+
+-- Course 2
+(7, 2, 55.00, GETDATE()),
+(8, 2, 60.00, GETDATE()),
+(9, 2, 30.00, GETDATE()),
+(10, 2, 75.00, GETDATE()),
+(11, 2, 100.00, GETDATE()),
+
+-- Course 3
+(7, 3, 20.00, GETDATE()),
+(8, 3, 10.00, GETDATE()),
+(9, 3, 45.00, GETDATE()),
+(10, 3, 5.00, GETDATE()),
+(11, 3, 15.00, GETDATE()),
+
+-- Course 4
+(7, 4, 90.00, GETDATE()),
+(8, 4, 85.00, GETDATE()),
+(9, 4, 70.00, GETDATE()),
+(10, 4, 65.00, GETDATE()),
+(11, 4, 100.00, GETDATE()),
+
+-- Course 5
+(7, 5, 45.00, GETDATE()),
+(8, 5, 50.00, GETDATE()),
+(9, 5, 60.00, GETDATE()),
+(10, 5, 55.00, GETDATE()),
+(11, 5, 30.00, GETDATE()),
+
+-- Course 6
+(7, 6, 12.00, GETDATE()),
+(8, 6, 8.00, GETDATE()),
+(9, 6, 15.00, GETDATE()),
+(10, 6, 20.00, GETDATE()),
+(11, 6, 5.00, GETDATE()),
+
+-- Course 7
+(7, 7, 95.00, GETDATE()),
+(8, 7, 100.00, GETDATE()),
+(9, 7, 88.00, GETDATE()),
+(10, 7, 70.00, GETDATE()),
+(11, 7, 100.00, GETDATE()),
+
+-- Course 8
+(7, 8, 40.00, GETDATE()),
+(8, 8, 30.00, GETDATE()),
+(9, 8, 45.00, GETDATE()),
+(10, 8, 50.00, GETDATE()),
+(11, 8, 60.00, GETDATE()),
+
+-- Course 9
+(7, 9, 80.00, GETDATE()),
+(8, 9, 70.00, GETDATE()),
+(9, 9, 60.00, GETDATE()),
+(10, 9, 90.00, GETDATE()),
+(11, 9, 50.00, GETDATE()),
+
+-- Course 10
+(7, 10, 25.00, GETDATE()),
+(8, 10, 15.00, GETDATE()),
+(9, 10, 30.00, GETDATE()),
+(10, 10, 40.00, GETDATE()),
+(11, 10, 20.00, GETDATE()),
+
+-- Course 11
+(7, 11, 100.00, GETDATE()),
+(8, 11, 95.00, GETDATE()),
+(9, 11, 85.00, GETDATE()),
+(10, 11, 90.00, GETDATE()),
+(11, 11, 100.00, GETDATE()),
+
+-- Course 12
+(7, 12, 60.00, GETDATE()),
+(8, 12, 50.00, GETDATE()),
+(9, 12, 70.00, GETDATE()),
+(10, 12, 65.00, GETDATE()),
+(11, 12, 80.00, GETDATE()),
+
+-- Course 13
+(7, 13, 10.00, GETDATE()),
+(8, 13, 15.00, GETDATE()),
+(9, 13, 20.00, GETDATE()),
+(10, 13, 5.00, GETDATE()),
+(11, 13, 12.00, GETDATE()),
+
+-- Course 14
+(7, 14, 90.00, GETDATE()),
+(8, 14, 85.00, GETDATE()),
+(9, 14, 95.00, GETDATE()),
+(10, 14, 100.00, GETDATE()),
+(11, 14, 80.00, GETDATE()),
+
+-- Course 15
+(7, 15, 75.00, GETDATE()),
+(8, 15, 80.00, GETDATE()),
+(9, 15, 70.00, GETDATE()),
+(10, 15, 60.00, GETDATE()),
+(11, 15, 90.00, GETDATE()),
+
+-- Course 16
+(7, 16, 30.00, GETDATE()),
+(8, 16, 25.00, GETDATE()),
+(9, 16, 40.00, GETDATE()),
+(10, 16, 35.00, GETDATE()),
+(11, 16, 20.00, GETDATE()),
+
+-- Course 17
+(7, 17, 100.00, GETDATE()),
+(8, 17, 90.00, GETDATE()),
+(9, 17, 80.00, GETDATE()),
+(10, 17, 95.00, GETDATE()),
+(11, 17, 85.00, GETDATE()),
+
+-- Course 18
+(7, 18, 50.00, GETDATE()),
+(8, 18, 60.00, GETDATE()),
+(9, 18, 40.00, GETDATE()),
+(10, 18, 55.00, GETDATE()),
+(11, 18, 45.00, GETDATE()),
+
+-- Course 19
+(7, 19, 15.00, GETDATE()),
+(8, 19, 20.00, GETDATE()),
+(9, 19, 10.00, GETDATE()),
+(10, 19, 25.00, GETDATE()),
+(11, 19, 30.00, GETDATE()),
+
+-- Course 20
+(7, 20, 100.00, GETDATE()),
+(8, 20, 95.00, GETDATE()),
+(9, 20, 100.00, GETDATE()),
+(10, 20, 85.00, GETDATE()),
+(11, 20, 90.00, GETDATE()),
+
+-- Course 21
+(7, 21, 70.00, GETDATE()),
+(8, 21, 65.00, GETDATE()),
+(9, 21, 80.00, GETDATE()),
+(10, 21, 75.00, GETDATE()),
+(11, 21, 60.00, GETDATE()),
+
+-- Course 22
+(7, 22, 40.00, GETDATE()),
+(8, 22, 35.00, GETDATE()),
+(9, 22, 45.00, GETDATE()),
+(10, 22, 30.00, GETDATE()),
+(11, 22, 50.00, GETDATE()),
+
+-- Course 23
+(7, 23, 90.00, GETDATE()),
+(8, 23, 95.00, GETDATE()),
+(9, 23, 80.00, GETDATE()),
+(10, 23, 85.00, GETDATE()),
+(11, 23, 100.00, GETDATE()),
+
+-- Course 24
+(7, 24, 20.00, GETDATE()),
+(8, 24, 25.00, GETDATE()),
+(9, 24, 15.00, GETDATE()),
+(10, 24, 30.00, GETDATE()),
+(11, 24, 10.00, GETDATE());
 
 
 -- =========================================================================
@@ -1502,7 +1673,7 @@ VALUES
 -- =========================================================================
 -- 6. DỮ LIỆU TEST BÁO CÁO VI PHẠM (REPORTS) MẪU
 -- =========================================================================
-DELETE FROM reports;
+DELETE FROM reports WHERE id > 0;
 
 -- Chèn dữ liệu báo cáo vi phạm
 INSERT INTO reports (reporter_id, report_type, target_id, reason_type, description, status, reviewed_by, reviewed_at, created_at)
