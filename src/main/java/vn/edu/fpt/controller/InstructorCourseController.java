@@ -191,14 +191,26 @@ public class InstructorCourseController {
     }
 
     @GetMapping("/{id}/edit")
-    public String viewEditCourse(){
-            return "";
+    public String viewEditCourse(@PathVariable("id") Integer courseId, Model model){
+            User u = SecurityUtils.getCurrentUser();
+            CourseCreateDto dto = courseService.getCourseForEdit(courseId, u);
+
+            List<CourseSectionDto> sections = courseSectionService.findByCourseAndLesson(courseId);
+
+            int totalesson = courseSectionService.totalLesson(sections);
+
+        model.addAttribute("CourseRequest", dto);
+        model.addAttribute("sections", sections);
+        model.addAttribute("totalLessons", totalesson);
+        model.addAttribute("courseId", courseId);
+
+        ///Object rộng để binding
+        loadFormModel(model);
+
+       return "instructor_course/edit_course";
     }
 
-    @GetMapping("/demo/edit")
-    public String editCourseDemo() {
-        return "instructor_course/edit_course_demoV2";
-    }
+
 
 
 }
