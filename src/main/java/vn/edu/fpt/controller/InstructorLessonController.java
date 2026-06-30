@@ -1,6 +1,8 @@
 package vn.edu.fpt.controller;
 
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -36,12 +38,41 @@ public class InstructorLessonController {
     private final CourseService courseService;
     private final LessonMaterialService lessonMaterialService;
 
+
     public InstructorLessonController(QuizService quizService, LessonService lessonService, CourseSectionService courseSectionService, CourseService courseService, LessonMaterialService lessonMaterialService) {
         this.quizService = quizService;
         this.lessonService = lessonService;
         this.courseSectionService = courseSectionService;
         this.courseService = courseService;
         this.lessonMaterialService = lessonMaterialService;
+    }
+
+
+    @PostMapping("/quiz/create-inline")
+    public String createQuizInline(@ModelAttribute("quiz") QuizDTO quizDTO,
+                                   @RequestParam("lessonId") Integer lessonId,
+                                   @RequestParam("actionTarget") String actionTarget,
+                                   RedirectAttributes attributes) {
+
+        QuizDTO savedQuiz =
+                quizService.createQuiz(
+                        lessonId,
+                        quizDTO);
+
+
+
+        attributes.addFlashAttribute(
+                "success",
+                "Khởi tạo quiz thành công");
+
+        if ("CONTINUE".equals(actionTarget)) {
+
+            return "redirect:/instructor/quiz/quiz-manage/"
+                    + savedQuiz.getId();
+        }
+
+        return "redirect:/instructor/lesson-detail/"
+                + lessonId;
     }
 
     @GetMapping("/lesson-detail/{id}")
@@ -109,13 +140,15 @@ public class InstructorLessonController {
 
 
     @PostMapping("/sections/{sectionId}/lessons")
-    public String createLesson(@PathVariable("sectionId") Integer sectionId,
+    public String createLesson(
+                               @PathVariable("sectionId") Integer sectionId,
                                @RequestParam("courseId") Integer courseId,
                                @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
                                @RequestParam(value = "materialFiles", required = false) List<MultipartFile> materials,
                                @Valid @ModelAttribute("lesson") LessonDto lessonDto,
                                BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) {
+
 
        User instrutor = SecurityUtils.getCurrentUser();
 
@@ -125,8 +158,8 @@ public class InstructorLessonController {
         }
 
         try {
-            //Lesson tmp = lessonService.saveLesson(sectionId, lessonDto, videoFile);
-            //lessonMaterialService.saveAllMaterial(materials,tmp.getId(), instrutor);
+            Lesson tmp = lessonService.saveLesson(sectionId, lessonDto, videoFile);
+            lessonMaterialService.saveAllMaterial(materials,tmp.getId(), instrutor);
             redirectAttributes.addFlashAttribute("success", "Thêm bài giảng thành công!");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());

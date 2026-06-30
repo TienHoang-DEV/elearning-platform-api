@@ -6,8 +6,12 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.LessonMaterial;
+import vn.edu.fpt.entity.User;
 import vn.edu.fpt.repository.LessonMaterialRepository;
+import vn.edu.fpt.repository.LessonRepository;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 

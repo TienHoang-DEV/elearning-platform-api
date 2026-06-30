@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.fpt.dto.CourseCreateDto;
+import vn.edu.fpt.dto.*;
 import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.course.CourseListDto;
@@ -112,6 +112,57 @@ public class CourseService {
         course.setUpdateAt(LocalDateTime.now());
         return repository.save(course);
     }
+
+    ///Show Chi tiết khoá học
+    public CourseRespon getCourseDetailToView(Integer courseId){
+        Course course = repository.findDetailById(courseId);
+        CourseRespon courseRespon = new CourseRespon();
+        courseRespon.setTittle(course.getTitle());
+        courseRespon.setId(course.getId());
+        courseRespon.setCategory(course.getCategory().getName());
+        courseRespon.setDescription(course.getDescription());
+        courseRespon.setPrice(course.getPrice());
+        courseRespon.setLevel(course.getLevel());
+        courseRespon.setCreateAt(course.getCreatedAt());
+        courseRespon.setThumnaiUrl(course.getThumbnailUrl());
+
+        List<SectionRespon> sections = course.getSections().
+                stream().map(section -> {
+                    SectionRespon sr = new SectionRespon();
+                    sr.setId(section.getId());
+                    sr.setPosition(section.getPosition());
+                    sr.setTitle(section.getTitle());
+                    sr.setCreateAt(section.getCreatedAt());
+
+                    List<LessonRespon> lessons = section.getLessons().
+                            stream().map(lesson -> {
+                                LessonRespon lr = new LessonRespon();
+                                lr.setId(lesson.getId());
+                                lr.setPosition(lesson.getPosition());
+                                lr.setTitle(lesson.getTitle());
+                                lr.setCreateAt(lesson.getCreatedAt());
+                                lr.setVideoUrl(lesson.getVideoUrl());
+                                lr.setDutationSecond(lesson.getDurationSeconds());
+
+                                List<LessonMaterialRespon> materials = lesson.getMaterials().
+                                        stream().map(material -> {
+                                            LessonMaterialRespon lms = new LessonMaterialRespon();
+                                            lms.setId(material.getId());
+                                            lms.setFile_name(material.getFileName());
+                                            return lms;
+                                        }).toList();
+                                lr.setMaterials(materials);
+                                return lr;
+                            }).toList();
+                    sr.setLessons(lessons);
+                    return sr;
+                }).toList();
+
+        courseRespon.setSections(sections);
+
+        return courseRespon;
+    }
+
 
     public List<CourseDto> getCoursesBySearch(String search) {
         List<Course> courses;

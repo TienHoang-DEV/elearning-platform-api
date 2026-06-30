@@ -9,28 +9,32 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.*;
 
 import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.dto.CourseCreateDto;
 import vn.edu.fpt.dto.course.CourseDto;
-
-import vn.edu.fpt.entity.Course;
-import vn.edu.fpt.entity.User;
+import vn.edu.fpt.dto.quizdto.QuizDTO;
+import vn.edu.fpt.entity.*;
 import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.enums.CourseStatus;
 
+import vn.edu.fpt.exception.CourseSectionValidation;
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
+import vn.edu.fpt.service.quiz.QuizService;
 import vn.edu.fpt.service.LessonService;
 import vn.edu.fpt.util.SecurityUtils;
 
 
 import java.util.Arrays;
 import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
 
 @Controller
 @RequestMapping("/instructorcourse")
@@ -47,11 +51,6 @@ public class InstructorCourseController {
         this.lessonService = lessonService;
     }
 
-
-    @GetMapping("/materials")
-    public String getMaterialPage(){
-        return "instructor_course/material_library";
-    }
 
 
     ///Danh sách khoá học theo từng status
@@ -112,18 +111,18 @@ public class InstructorCourseController {
         return "instructor_course/editcourse";
     }
 
-  ////Tạo khoá học
-  ///
-  ///
-  private void loadFormModel(Model model){
-      model.addAttribute("courselevels", Arrays.asList(CourseLevel.values()));
-      model.addAttribute("categoryparents",
-              categoryService.findByParentIsNullAndStatus("ACTIVE"));
-      model.addAttribute("categorychilds",
-              categoryService.findByParentIsNotNulAndStatus("ACTIVE"));
-      model.addAttribute("section", new CourseSectionDto());
-      model.addAttribute("lesson", new LessonDto());
-  }
+    ////Tạo khoá học
+    ///
+    ///
+    private void loadFormModel(Model model){
+        model.addAttribute("courselevels", Arrays.asList(CourseLevel.values()));
+        model.addAttribute("categoryparents",
+                categoryService.findByParentIsNullAndStatus("ACTIVE"));
+        model.addAttribute("categorychilds",
+                categoryService.findByParentIsNotNulAndStatus("ACTIVE"));
+        model.addAttribute("section", new CourseSectionDto());
+        model.addAttribute("lesson", new LessonDto());
+    }
 
     @PostMapping("/save")
     public String saveCourse(
@@ -164,30 +163,42 @@ public class InstructorCourseController {
         }
     }
 
-        @GetMapping("/{courseId}/curriculum")
-        public String getCurriculumPage(@PathVariable Integer courseId, Model model) {
-            model.addAttribute("courseId", courseId);
-            model.addAttribute("activeStep", "curriculum");
-            model.addAttribute("courseRequest",
-                    courseService.findById(courseId));
-//            model.addAttribute("sections", courseSectionService.FindSectionByCourseId(courseId));
-            model.addAttribute("section", new CourseSectionDto());
-            model.addAttribute("lesson", new LessonDto());
-            model.addAttribute("sections", courseSectionService.findByCourseAndLesson(courseId));
-            return "instructor_course/editcourse";
-        }
-    // --- MOCKUP DEMO ENDPOINTS ---
-    @GetMapping("/demo/view")
-    public String viewCourseDemo() {
+    @GetMapping("/{courseId}/curriculum")
+    public String getCurriculumPage(@PathVariable Integer courseId, Model model) {
+        List<CourseSectionDto> listSection = courseSectionService.findByCourseAndLesson(courseId);
+        model.addAttribute("courseId", courseId);
+        model.addAttribute("activeStep", "curriculum");
+        model.addAttribute("courseRequest",
+                courseService.findById(courseId));
+        model.addAttribute("section", new CourseSectionDto());
+        model.addAttribute("lesson", new LessonDto());
+        model.addAttribute("sections", listSection);
+        model.addAttribute("totalLessons", courseSectionService.totalLesson(listSection));
+        return "instructor_course/editcourse";
+    }
+
+    @GetMapping("/{id}/view")
+    public String viewCourse(@PathVariable("id") Integer courseId, Model model)
+    {
+        CourseRespon courseRespon = courseService.getCourseDetailToView(courseId);
+        // Trong controller
+        int totalLessons = courseRespon.getSections().stream()
+                .mapToInt(s -> s.getLessons().size())
+                .sum();
+        model.addAttribute("totalLessons", totalLessons);
+        model.addAttribute("courseDetal", courseRespon);
         return "instructor_course/view_course_demo";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String viewEditCourse(){
+            return "";
     }
 
     @GetMapping("/demo/edit")
     public String editCourseDemo() {
-        return "instructor_course/edit_course_demo";
+        return "instructor_course/edit_course_demoV2";
     }
-
-
 
 
 }

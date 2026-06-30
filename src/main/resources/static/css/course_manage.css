@@ -867,6 +867,9 @@ tbody tr:last-child td { border-bottom: none; }
     opacity: 1;
 }
 
+.cp-chev.open { transform: rotate(180deg); }
+.cp-lessons.open { display: block !important; }
+
 /* =====================================================
    RESPONSIVE
 ===================================================== */
