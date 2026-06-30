@@ -35,4 +35,7 @@ public class CourseCreateDto {
     private BigDecimal price;
 
     @NotNull(message = "Vui lòng chọn danh mục khóa học.")
-    private Integer categoryId;}
+    private Integer categoryId;
+
+    private String thumbnailUrl;
+}
