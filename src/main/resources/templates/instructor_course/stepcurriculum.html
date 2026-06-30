@@ -8,10 +8,10 @@
 <div th:fragment="content">
 
     <div class="card">
-        <div class="card-title">📖 Chương Trình Giảng Dạy</div>
+        <div class="card-title">Chương Trình Giảng Dạy</div>
 
         <div class="alert alert-info">
-            ℹ️ Thêm chương và bài giảng cho khóa học của bạn. Kéo thả để sắp xếp thứ tự.
+            Thêm chương và bài giảng cho khóa học của bạn. Kéo thả để sắp xếp thứ tự.
         </div>
 
         <!-- Danh sách chương từ backend -->
@@ -142,10 +142,15 @@
 
     <!-- Nút điều hướng -->
     <div class="gap-row" style="margin-top:16px;">
-        <a th:href="@{/instructor/courses/{id}/edit/pricing(id=${courseId})}"
-           class="btn btn-outline">← Quay Lại</a>
-        <a th:href="@{/instructor/courses/{id}/edit/quiz(id=${courseId})}"
-           class="btn btn-primary">Tiếp Theo →</a>
+        <a th:href="@{/instructorcourse/{id}/view(id=${courseId})}"
+           class="btn btn-outline">
+            ← Quay về khóa học
+        </a>
+
+        <a th:href="@{/instructor/lesson-detail/{id}(id=${courseId})}"
+           class="btn btn-primary">
+            Tiếp tục tạo bài kiểm tra →
+        </a>
     </div>
 
     <div th:insert="~{instructor_course/modals :: all}"></div>

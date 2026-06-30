@@ -48,6 +48,11 @@ public class CourseSectionService {
         return repository.existsById(id);
     }
 
+    public int totalLesson(List<CourseSectionDto> listSection){
+        if(listSection == null) return 0;
+        return listSection.stream().mapToInt(s -> s.getLessons().size()).sum();
+    }
+
     public Set<CourseSection> findSectionsByCourse(Course course) {
         if (course.getSections() == null || course.getSections().isEmpty()) {
             throw new CourseNotFoundException("Khóa học không có section nào");
@@ -121,21 +126,22 @@ public class CourseSectionService {
             courseSectionDto.setPosition(c.getPosition());
 
             List<LessonDto> lessons = c.getLessons().stream().
-                      map(l -> {
-                          LessonDto lessonDto = new LessonDto();
-                          lessonDto.setId(l.getId());
-                          lessonDto.setTitle(l.getTitle());
-                          lessonDto.setPosition(l.getPosition());
-                          lessonDto.setDurationSeconds(l.getDurationSeconds());
-                          lessonDto.setIsFreePreview(l.getIsFreePreview());
-                          return lessonDto;
-                      }).toList();
+                    map(l -> {
+                        LessonDto lessonDto = new LessonDto();
+                        lessonDto.setId(l.getId());
+                        lessonDto.setTitle(l.getTitle());
+                        lessonDto.setPosition(l.getPosition());
+                        lessonDto.setDurationSeconds(l.getDurationSeconds());
+                        lessonDto.setIsFreePreview(l.getIsFreePreview());
+                        lessonDto.setMaterials(l.getMaterials().stream().toList());
+                        return lessonDto;
+                    }).toList();
             courseSectionDto.setLessons(lessons);
 
             courseSectionDtos.add(courseSectionDto);
 
         }
-       return courseSectionDtos;
+        return courseSectionDtos;
     }
 
 

@@ -3,10 +3,12 @@ package vn.edu.fpt.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.dto.LessonDto;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.LessonModerationStatus;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
@@ -57,6 +59,10 @@ public class LessonService {
 
     public boolean existsById(Integer id) {
         return repository.existsById(id);
+    }
+
+    private Integer findMaxPositionLesson(Integer sectionId){
+        return repository.FindMaxPositionByCourseSectionId(sectionId);
     }
 
     public Lesson saveLesson(Integer sectiondId, LessonDto lessonDto, MultipartFile file){

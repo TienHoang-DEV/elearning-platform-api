@@ -39,6 +39,16 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
     Optional<Course> findFirstByOrderByIdAsc();
 
     @Query("""
+          select c distinct from Course c
+          LEFT JOIN FETCH c.category ca
+          LEFT JOIN FETCH c.sections s
+          LEFT JOIN FETCH s.lessons l
+          LEFT JOIN FETCH l.materials m
+          WHERE c.id = :courseId
+          """)
+    Course findDetailById(@Param("courseId") Integer courseId);
+
+    @Query("""
             select distinct c from Course c left join fetch c.sections s left join fetch s.lessons where c.id = :id
             """)
     Optional<Course> findByIdWithSectionsAndLessons(@Param("id") Integer id);

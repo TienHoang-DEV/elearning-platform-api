@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Learning Hub - Chi Tiết Khóa Học</title>
     <link rel="stylesheet" th:href="@{/css/course_manage.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
     <style>
         .course-view-container {
             background: #fff;
@@ -22,6 +23,7 @@
             height: 200px;
             object-fit: cover;
             border-radius: 8px;
+            background: #f0f0f0;
         }
         .course-info h2 {
             margin-top: 0;
@@ -52,37 +54,6 @@
             margin-top: 32px;
             margin-bottom: 16px;
         }
-        .curriculum-list {
-            list-style: none;
-            padding: 0;
-        }
-        .curriculum-section {
-            background: #f8f9fa;
-            padding: 16px;
-            border-radius: 6px;
-            margin-bottom: 12px;
-            border: 1px solid #e9ecef;
-        }
-        .curriculum-section h4 {
-            margin: 0 0 12px 0;
-            color: #2c3e50;
-        }
-        .lesson-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 12px;
-            background: #fff;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            border: 1px solid #dee2e6;
-        }
-        .lesson-item:last-child {
-            margin-bottom: 0;
-        }
-        .lesson-icon {
-            margin-right: 12px;
-            color: #e74c3c;
-        }
         .badge {
             display: inline-block;
             padding: 4px 8px;
@@ -91,11 +62,52 @@
             font-weight: 600;
         }
         .badge-success { background: #d4edda; color: #155724; }
+        .badge-free    { background: #cce5ff; color: #004085; }
         .action-buttons {
             margin-top: 24px;
             display: flex;
             gap: 12px;
         }
+
+        /* Curriculum accordion */
+        .cp-section { border-bottom: 0.5px solid #e9ecef; }
+        .cp-section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            cursor: pointer;
+            background: #fff;
+            user-select: none;
+        }
+        .cp-section-header:hover { background: #f8f9fa; }
+        .cp-chev {
+            font-size: 16px;
+            color: #7f8c8d;
+            transition: transform .2s;
+            display: inline-block;
+        }
+        .cp-chev.open { transform: rotate(180deg); }
+        .cp-lessons { display: none; border-top: 0.5px solid #e9ecef; }
+        .cp-lessons.open { display: block; }
+        .cp-lesson-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 18px 10px 48px;
+            border-bottom: 0.5px solid #e9ecef;
+        }
+        .cp-lesson-row:last-child { border-bottom: none; }
+        .cp-lesson-icon {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #E6F1FB;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            font-size: 13px;
+        }
+        .cp-chev.open { transform: rotate(180deg); }
+        .cp-lessons.open { display: block !important; }
     </style>
 </head>
 <body>
@@ -106,87 +118,142 @@
 <!-- MAIN -->
 <main class="main-content">
     <div class="page-header">
-        <h1>
-            <span class="icon">👁️</span> Chi Tiết Khóa Học
-        </h1>
-        <a href="#" class="btn btn-outline">← Quay lại danh sách</a>
+        <h1><span class="icon">👁️</span> Chi Tiết Khóa Học</h1>
+        <a href="/instructorcourse/courses" class="btn btn-outline">← Quay lại danh sách</a>
     </div>
 
     <div class="course-view-container">
+
         <!-- Thông tin chung -->
         <div class="course-header">
-            <img src="https://via.placeholder.com/300x200?text=Khóa+Học+Demo" alt="Thumbnail" class="course-thumbnail"/>
+            <img th:src="${courseDetal.thumnaiUrl != null} ? ${courseDetal.thumnaiUrl} : 'https://via.placeholder.com/300x200?text=Khóa+Học'"
+                 alt="Thumbnail" class="course-thumbnail"/>
+
             <div class="course-info">
-                <h2>Lập Trình Java Spring Boot Thực Chiến (Demo)</h2>
-                <span class="badge badge-success">Đang Xuất Bản</span>
-                
+                <h2 th:text="${courseDetal.tittle}">Tên khóa học</h2>
+                <span class="badge badge-success" th:text="${courseDetal.level}">Level</span>
+
                 <div class="info-grid">
                     <div class="info-item">
                         <label>Giá Bán:</label>
-                        <span>399,000 VNĐ</span>
-                    </div>
-                    <div class="info-item">
-                        <label>Giá Gốc:</label>
-                        <span style="text-decoration: line-through; color: #95a5a6;">500,000 VNĐ</span>
+                        <span th:text="${#numbers.formatInteger(courseDetal.price, 0, 'COMMA')} + ' VNĐ'">0 VNĐ</span>
                     </div>
                     <div class="info-item">
                         <label>Danh Mục:</label>
-                        <span>Lập trình Web</span>
+                        <span th:text="${courseDetal.category}">Danh mục</span>
                     </div>
                     <div class="info-item">
                         <label>Ngày Tạo:</label>
-                        <span>22-06-2026</span>
+                        <span th:text="${#temporals.format(courseDetal.createAt, 'dd-MM-yyyy')}">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Số Chương:</label>
+                        <span th:text="${#lists.size(courseDetal.sections)} + ' chương'">0 chương</span>
                     </div>
                 </div>
 
-                <div class="action-buttons">
-                    <button class="btn btn-primary">✏️ Chỉnh Sửa Khóa Học</button>
-                    <button class="btn btn-outline">Ẩn Khóa Học</button>
-                </div>
+<!--                <div class="action-buttons">-->
+<!--                    <a th:href="@{/instructor/courses/{id}/edit(id=${courseDetal.id})}"-->
+<!--                       class="btn btn-primary">✏️ Chỉnh Sửa</a>-->
+<!--                    <button class="btn btn-outline">Ẩn Khóa Học</button>-->
+<!--                </div>-->
             </div>
         </div>
 
         <!-- Mô tả -->
         <h3 class="section-title">Mô Tả Khóa Học</h3>
-        <p style="color: #34495e; line-height: 1.6;">
-            Khóa học này sẽ hướng dẫn bạn từ cơ bản đến nâng cao về lập trình Web với Java Spring Boot.
-            Bạn sẽ tự tay xây dựng một hệ thống E-learning hoàn chỉnh, tích hợp thanh toán, xác thực OAuth2,
-            quản lý video bài giảng và deploy lên server thật.
-        </p>
+        <p style="color: #34495e; line-height: 1.6;" th:text="${courseDetal.description}">Mô tả...</p>
 
         <!-- Chương trình giảng dạy -->
         <h3 class="section-title">Chương Trình Giảng Dạy</h3>
-        <ul class="curriculum-list">
-            <li class="curriculum-section">
-                <h4>Chương 1: Giới thiệu Spring Boot</h4>
-                <div class="lesson-item">
-                    <span class="lesson-icon">▶️</span>
-                    <span style="flex-grow: 1;">Bài 1: Cài đặt môi trường</span>
-                    <span style="color: #7f8c8d; font-size: 14px;">10:25</span>
+
+        <div style="background: #fff; border: 0.5px solid #e9ecef; border-radius: 12px; overflow: hidden;">
+
+            <!-- Header -->
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:0.5px solid #e9ecef; background:#f8f9fa;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:18px; color:#7f8c8d;">☰</span>
+                    <span style="font-size:13px; font-weight:500; color:#7f8c8d; text-transform:uppercase; letter-spacing:0.05em;">Chương trình giảng dạy</span>
                 </div>
-                <div class="lesson-item">
-                    <span class="lesson-icon">▶️</span>
-                    <span style="flex-grow: 1;">Bài 2: Cấu trúc thư mục dự án</span>
-                    <span style="color: #7f8c8d; font-size: 14px;">15:40</span>
+                <span th:if="${courseDetal.sections != null and !#lists.isEmpty(courseDetal.sections)}"
+                      style="font-size:12px; color:#7f8c8d;"
+                      th:text="${#lists.size(courseDetal.sections)} + ' Chương · ' + ${totalLessons} + ' bài học'">
+        </span>
+            </div>
+
+            <!-- Danh sách chương -->
+            <div th:each="section : ${courseDetal.sections}"
+                 style="border-bottom:0.5px solid #e9ecef;">
+
+                <!-- Header chương -->
+                <div style="display:flex; align-items:center; gap:12px; padding:14px 18px; cursor:pointer; background:#fff;"
+                     onclick="this.nextElementSibling.classList.toggle('open'); this.querySelector('.cp-chev').classList.toggle('open')">
+                    <i class="ti ti-chevron-down cp-chev"
+                       style="font-size:16px; color:#7f8c8d; transition:transform .2s;"></i>
+                    <div style="flex:1;">
+                        <div style="font-size:14px; font-weight:500;"
+                             th:text="'Chương ' + ${section.position} + ': ' + ${section.title}"></div>
+                        <div style="font-size:12px; color:#7f8c8d; margin-top:2px;"
+                             th:text="${#lists.size(section.lessons)} + ' bài học'"></div>
+                    </div>
                 </div>
-            </li>
-            
-            <li class="curriculum-section">
-                <h4>Chương 2: Xây dựng RESTful API</h4>
-                <div class="lesson-item">
-                    <span class="lesson-icon">▶️</span>
-                    <span style="flex-grow: 1;">Bài 3: Controller và Service</span>
-                    <span style="color: #7f8c8d; font-size: 14px;">22:15</span>
+
+                <!-- Danh sách bài học -->
+                <div class="cp-lessons"
+                     style="display:none; border-top:0.5px solid #e9ecef;">
+                    <div th:each="lesson : ${section.lessons}"
+                         style="display:flex; align-items:center; gap:12px; padding:10px 18px 10px 48px; border-bottom:0.5px solid #e9ecef;">
+
+                        <!-- Icon -->
+                        <div style="width:28px; height:28px; border-radius:50%; background:#E6F1FB; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i class="bi bi-play-circle"></i>
+                        </div>
+
+                        <!-- Thông tin bài -->
+                        <div style="flex:1;">
+                            <div style="font-size:13px;"
+                                 th:text="'Bài ' + ${lesson.position} + ': ' + ${lesson.title}"></div>
+                            <div style="font-size:12px; color:#7f8c8d; margin-top:2px; display:flex; align-items:center; gap:8px;">
+                        <span th:if="${lesson.dutationSecond != null}">
+                            <i class="bi bi-clock" style="font-size:11px;"></i>
+                            <span th:text="${lesson.dutationSecond / 60} + ':' +
+                                          (${lesson.dutationSecond % 60 < 10} ? '0' : '') +
+                                          ${lesson.dutationSecond % 60}"></span>
+                        </span>
+                                <span th:if="${lesson.materials != null and !#lists.isEmpty(lesson.materials)}"
+                                      style="display:flex; align-items:center; gap:4px;">
+                            <i class="bi bi-file-earmark" style="font-size:11px;"></i>
+                            <span th:text="${#lists.size(lesson.materials)} + ' tài liệu'"></span>
+                        </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty -->
+                    <div th:if="${#lists.isEmpty(section.lessons)}"
+                         style="padding:12px 48px; font-size:13px; color:#7f8c8d; font-style:italic;">
+                        Chưa có bài giảng nào
+                    </div>
                 </div>
-                <div class="lesson-item">
-                    <span class="lesson-icon">📝</span>
-                    <span style="flex-grow: 1;">Bài 4: Quiz Ôn Tập Spring Web</span>
-                    <span style="color: #7f8c8d; font-size: 14px;">10 câu</span>
-                </div>
-            </li>
-        </ul>
-    </div>
+            </div>
+
+            <!-- Empty state -->
+            <p th:if="${courseDetal.sections == null or #lists.isEmpty(courseDetal.sections)}"
+               style="padding:28px 18px; text-align:center; color:#7f8c8d; font-size:13px; font-style:italic; margin:0;">
+                Khóa học chưa có chương trình giảng dạy.
+            </p>
+        </div>
+    </div><!-- end course-view-container -->
 </main>
 
+<script>
+    function toggleSection(id) {
+        const lessons = document.getElementById(id);
+        const idx     = id.replace('sec-', '');
+        const chev    = document.getElementById('chev-sec-' + idx);
+        lessons.classList.toggle('open');
+        chev.classList.toggle('open');
+    }
+</script>
 </body>
 </html>
