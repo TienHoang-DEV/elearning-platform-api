@@ -86,7 +86,7 @@ public class CourseController {
             @RequestParam(value = "categoryId", required = false) Integer categoryId,
             @RequestParam(value = "ratings", required = false) List<Double> ratings,
             @RequestParam(value = "prices", required = false) List<String> prices,
-            @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort,
+            @RequestParam(value = "sort", required = false, defaultValue = "rating") String sort,
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             Model model) {
 

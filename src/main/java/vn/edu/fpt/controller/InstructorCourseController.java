@@ -15,7 +15,7 @@ import vn.edu.fpt.dto.*;
 import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.dto.CourseCreateDto;
 import vn.edu.fpt.dto.course.CourseDto;
-import vn.edu.fpt.dto.quizdto.QuizDTO;
+
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.CourseLevel;
@@ -187,13 +187,7 @@ public class InstructorCourseController {
         return "instructor_course/edit_course_demo";
     }
 
-    @GetMapping("/create-quizz")
-    String quizzCreate(Model model){
-        User currentUser = SecurityUtils.getCurrentUser();
-        model.addAttribute("currentUser", currentUser);
-        model.addAttribute("quiz", new QuizDTO());
 
-        return "instructor_course/quizz-create";
-    }
+
 
 }

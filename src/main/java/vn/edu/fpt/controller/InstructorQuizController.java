@@ -1,12 +1,16 @@
 package vn.edu.fpt.controller;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+//import vn.edu.fpt.dto.UserDto;
+import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
 import vn.edu.fpt.entity.Lesson;
@@ -16,14 +20,15 @@ import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.QuestionType;
 import vn.edu.fpt.enums.QuizStatus;
 import vn.edu.fpt.service.LessonService;
+import vn.edu.fpt.service.quiz.QuizAttemptService;
 import vn.edu.fpt.service.quiz.QuizQuestionService;
 import vn.edu.fpt.service.quiz.QuizService;
 import vn.edu.fpt.util.SecurityUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/instructor/quiz")
@@ -31,12 +36,14 @@ public class InstructorQuizController {
 
     private final QuizService quizService;
     private final QuizQuestionService quizQuestionService;
+    private final QuizAttemptService quizAttemptService;
 
 
-    public InstructorQuizController(QuizService quizService, QuizQuestionService quizQuestionService)
+    public InstructorQuizController(QuizService quizService, QuizQuestionService quizQuestionService, QuizAttemptService quizAttemptService)
     {
         this.quizService = quizService;
         this.quizQuestionService = quizQuestionService;
+        this.quizAttemptService = quizAttemptService;
     }
 
 
@@ -272,4 +279,53 @@ public class InstructorQuizController {
                     .body(Map.of("success", false, "message", "Lỗi: Không thể lưu trữ bài trắc nghiệm này."));
         }
     }
+
+    @GetMapping("/view-detail/{quizId}")
+    public String viewQuizDetail(
+            @PathVariable Integer quizId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int size, // Để dễ test phân trang nên để size nhỏ
+            @RequestParam(defaultValue = "questions") String tab,
+            @RequestParam(required = false) String searchKeyword,
+            @RequestParam(defaultValue = "submittedAtDesc") String sortBy,
+            @RequestParam(required = false) String status,
+            Model model) {
+
+        // 1. Giả lập thông tin Giảng viên hiện tại
+        User currentUser = SecurityUtils.getCurrentUser();
+        model.addAttribute("currentUser", currentUser);
+
+        // 2. Giả lập thông tin bộ Quiz tổng quan
+        QuizDTO quizDto = quizService.findQuizById(quizId);
+        model.addAttribute("quiz", quizDto);
+        Integer currentSize = null;
+        // 3. Xử lý logic Mock Data theo từng Tab để test phân trang chuẩn Spring Data
+        if ("attempts".equals(tab)) {
+            currentSize = (size == 1) ? 10 : size;
+            Page<QuizAttemptDTO> attemptsPage = quizAttemptService.getAllAttemptByQuizId(quizId, page, currentSize, sortBy, searchKeyword, status);
+
+            // Tính toán phân trang thủ công trên List để giả lập Page của Spring Data
+
+            model.addAttribute("attempts", attemptsPage.getContent());
+            model.addAttribute("totalPages", attemptsPage.getTotalPages());
+            model.addAttribute("searchKeyword", searchKeyword);
+            model.addAttribute("sortBy", sortBy);
+            model.addAttribute("status", status);
+        } else {
+            // Tab 'questions'
+            currentSize = (size == 1) ? 3 : size;
+            Page<QuizQuestionDTO> quizQuestionsPage = quizQuestionService.getQuestionsByQuizId(quizId, page, currentSize);
+
+            model.addAttribute("questions", quizQuestionsPage.getContent());
+            model.addAttribute("totalPages", quizQuestionsPage.getTotalPages());
+        }
+
+        // Gửi các biến cấu hình phân trang & tab hoạt động về giao diện
+        model.addAttribute("activeTab", tab);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", currentSize);
+
+        return "instructor_course/quiz-detail"; // Tên file HTML của bạn (view-quiz-detail.html)
+    }
+
 }

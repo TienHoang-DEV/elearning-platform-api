@@ -12,13 +12,20 @@ import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.CourseSectionDto;
 import vn.edu.fpt.dto.LessonDto;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
-import vn.edu.fpt.entity.Lesson;
-import vn.edu.fpt.entity.User;
+import vn.edu.fpt.entity.*;
+import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.service.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
+import vn.edu.fpt.service.LessonMaterialService;
 import vn.edu.fpt.service.LessonService;
 import vn.edu.fpt.service.quiz.QuizService;
 import vn.edu.fpt.util.SecurityUtils;
+
+import javax.swing.text.Utilities;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/instructor")
@@ -27,14 +34,14 @@ public class InstructorLessonController {
     private final LessonService lessonService;
     private final CourseSectionService courseSectionService;
     private final CourseService courseService;
+    private final LessonMaterialService lessonMaterialService;
 
-
-    public InstructorLessonController(QuizService quizService, LessonService lessonService, CourseSectionService courseSectionService, CourseService courseService) {
+    public InstructorLessonController(QuizService quizService, LessonService lessonService, CourseSectionService courseSectionService, CourseService courseService, LessonMaterialService lessonMaterialService) {
         this.quizService = quizService;
         this.lessonService = lessonService;
         this.courseSectionService = courseSectionService;
         this.courseService = courseService;
-
+        this.lessonMaterialService = lessonMaterialService;
     }
 
     @GetMapping("/lesson-detail/{id}")
@@ -53,7 +60,7 @@ public class InstructorLessonController {
 
         Page<QuizDTO> quizPage = quizService.getQuizzesByStatus(page, size, status, lessonId);
 
-        // --- TÍNH TOÁN GIÁ TRỊ END ITEM TẠI ĐÂY ---
+
         long endItem = Math.min(
                 (long) (quizPage.getNumber() + 1) * quizPage.getSize(),
                 quizPage.getTotalElements()
@@ -79,7 +86,6 @@ public class InstructorLessonController {
                                      @RequestParam(value = "status", defaultValue = "ALL") String status,
                                      Model model) {
 
-        // 1. Lấy dữ liệu phân trang Quiz giống hệt như hàm gốc của bạn
         Page<QuizDTO> quizPage = quizService.getQuizzesByStatus(page, size, status, lessonId);
 
         long endItem = Math.min(
@@ -87,61 +93,31 @@ public class InstructorLessonController {
                 quizPage.getTotalElements()
         );
 
-        // 2. Đẩy các attribute cần thiết để render vùng danh sách và phân trang
         model.addAttribute("endItem", endItem);
         model.addAttribute("quizPage", quizPage);
         model.addAttribute("quizzes", quizPage.getContent());
         model.addAttribute("currentStatus", status);
 
-        // Đẩy thêm Dto này vì trong file HTML có thẻ input dùng đến lesson.id
         LessonDto lessonDto = lessonService.getLessonById(lessonId);
         model.addAttribute("lesson", lessonDto);
 
-        // Tránh lỗi binding form Thymeleaf object trống (nếu form tạo quiz nằm chung file)
         model.addAttribute("quiz", new QuizDTO());
 
-        // 3. TRẢ VỀ FRAGMENT (Cú pháp định danh: "đường_dẫn_file_html :: tên_th_fragment")
         return "instructor_course/lesson-detail :: quizListSection";
     }
 
-    @PostMapping("/quiz/create-inline")
-    public String createQuizInline(@ModelAttribute("quiz") QuizDTO quizDTO,
-                                   @RequestParam("lessonId") Integer lessonId,
-                                   @RequestParam("actionTarget") String actionTarget,
-                                   RedirectAttributes attributes) {
-
-        QuizDTO savedQuiz =
-                quizService.createQuiz(
-                        lessonId,
-                        quizDTO);
 
 
-
-        attributes.addFlashAttribute(
-                "success",
-                "Khởi tạo quiz thành công");
-
-        if ("CONTINUE".equals(actionTarget)) {
-
-            return "redirect:/instructor/quiz/quiz-manage/"
-                    + savedQuiz.getId();
-        }
-
-        return "redirect:/instructor/lesson-detail/"
-                + lessonId;
-    }
-
-    @PostMapping
+    @PostMapping("/sections/{sectionId}/lessons")
     public String createLesson(@PathVariable("sectionId") Integer sectionId,
                                @RequestParam("courseId") Integer courseId,
                                @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
+                               @RequestParam(value = "materialFiles", required = false) List<MultipartFile> materials,
                                @Valid @ModelAttribute("lesson") LessonDto lessonDto,
                                BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) {
 
-        if (videoFile != null && !videoFile.isEmpty()) {
-            lessonDto.setVideoUrl(videoFile.getOriginalFilename());
-        }
+       User instrutor = SecurityUtils.getCurrentUser();
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("error", "Dữ liệu nhập không hợp lệ.");
@@ -149,7 +125,8 @@ public class InstructorLessonController {
         }
 
         try {
-            lessonService.saveLesson(sectionId, lessonDto);
+            //Lesson tmp = lessonService.saveLesson(sectionId, lessonDto, videoFile);
+            //lessonMaterialService.saveAllMaterial(materials,tmp.getId(), instrutor);
             redirectAttributes.addFlashAttribute("success", "Thêm bài giảng thành công!");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
