@@ -53,7 +53,12 @@ hs_err_pid*.log
 .idea/
 out/
 
+### Custom ignored folders ###
+cv-intern/
+cv-intern/out/
+
 ### Build reports / coverage ###
 jacoco.exec
 .coverage
+
 
