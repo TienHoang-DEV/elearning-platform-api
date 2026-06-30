@@ -63,6 +63,9 @@ public interface LessonRepository extends JpaRepository<Lesson, Integer> {
 """)
     Lesson findDetailById(Integer lessonId);
 
+    @Query("SELECT COALESCE(MAX(l.position), 0) FROM Lesson l WHERE l.courseSection.id = :sectionId")
+    Integer findMaxPositionLesson(@Param("sectionId") Integer sectionId);
+
     @Query("""
            SELECT COALESCE(MAX(l.position), 0) FROM Lesson l where l.courseSection.id = :sectionId
            """)

@@ -192,7 +192,7 @@ public class InstructorCourseController {
 
     @GetMapping("/{id}/edit")
     public String viewEditCourse(){
-
+            return "";
     }
 
     @GetMapping("/demo/edit")

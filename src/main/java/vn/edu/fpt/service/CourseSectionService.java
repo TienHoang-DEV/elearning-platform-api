@@ -2,6 +2,7 @@ package vn.edu.fpt.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.dto.LessonMaterialDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.exception.CourseNotFoundException;
@@ -133,7 +134,15 @@ public class CourseSectionService {
                         lessonDto.setPosition(l.getPosition());
                         lessonDto.setDurationSeconds(l.getDurationSeconds());
                         lessonDto.setIsFreePreview(l.getIsFreePreview());
-                        lessonDto.setMaterials(l.getMaterials().stream().toList());
+                        lessonDto.setMaterials(
+                                l.getMaterials().stream()
+                                        .map(m -> LessonMaterialDto.builder()
+                                                .id(m.getId())
+                                                .fileName(m.getFileName())
+                                                .build()
+                                        )
+                                        .toList()
+                        );
                         return lessonDto;
                     }).toList();
             courseSectionDto.setLessons(lessons);

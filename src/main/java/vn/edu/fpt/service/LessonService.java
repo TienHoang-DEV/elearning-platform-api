@@ -17,6 +17,7 @@ import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.SecurityUtils;
 
+import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -94,7 +95,7 @@ public class LessonService {
             lessonDto.setDurationSeconds(0);
         }
 
-        Integer po = findMaxPositionLesson(sectiondId);  
+        Integer po = repository.findMaxPositionLesson(sectiondId);  
 
         String video_url = azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, file.getOriginalFilename());
         Lesson l = new Lesson();

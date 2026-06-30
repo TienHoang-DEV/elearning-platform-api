@@ -18,7 +18,7 @@ public class LessonDto {
     private Integer durationSeconds;
     private Integer position;
     private Boolean isFreePreview;
-    List<LessonMaterial> materials;
+    List<LessonMaterialDto> materials;
 
     public String getDurationtext(){
         if(durationSeconds == null) return null;
