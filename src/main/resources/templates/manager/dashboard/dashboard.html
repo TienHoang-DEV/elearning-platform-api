@@ -86,8 +86,8 @@
     <th:block layout:fragment="page-js">
         <!-- Pass dynamic chart data from Spring Boot to JavaScript -->
         <script th:inline="javascript">
-            window.chartLabels = [[${chartLabels}]];
-            window.chartData = [[${chartData}]];
+            window.chartLabels = /*[[${chartLabels}]]*/ [];
+            window.chartData = /*[[${chartData}]]*/ [];
         </script>
         <!-- Custom JS -->
         <script th:src="@{/js/manager/dashboard.js}"></script>

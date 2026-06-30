@@ -38,7 +38,7 @@
                         </div>
 
                         <span
-                            th:class="${'badge badge-' + (request.status.name() == 'ACTIVE' ? 'success' : 'danger')}"
+                            th:class="${'badge badge-' + (request.status != null and request.status.name() == 'ACTIVE' ? 'success' : 'danger')}"
                             th:text="${request.statusLabel}">ACTIVE</span>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
                     <div class="detail-section-title">
                         <i class="ph ph-book-open"></i> Danh sách khóa học
                     </div>
-                    <div class="table-responsive mt-3" th:if="${courses != null and !courses.empty}">
+                    <div class="table-responsive mt-3" th:if="${courses != null} and courses.isEmpty()}">
                         <table class="table table-hover align-middle detail-courses-table">
                             <thead>
                                 <tr class="detail-courses-thead-tr">
@@ -73,14 +73,14 @@
                                     <td class="detail-courses-td-title" th:text="${course.title}">Tên khóa học</td>
                                     <td class="detail-courses-td" th:text="${course.level != null ? course.level : 'N/A'}">Cấp độ</td>
                                     <td class="detail-courses-td">
-                                        <span th:class="${'badge badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : course.status.name() == 'PENDING' ? 'warning' : course.status.name() == 'REJECTED' ? 'danger' : 'secondary')}"
+                                        <span th:class="${'badge badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : (course.status.name() == 'PENDING' ? 'warning' : (course.status.name() == 'REJECTED' ? 'danger' : 'secondary')))}"
                                               th:text="${course.statusLabel}">Trạng thái</span>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <div th:if="${courses == null or courses.empty}" class="intro-text py-3">
+                    <div th:if="${courses == null or courses.isEmpty()}" class="intro-text py-3">
                         Giảng viên này chưa tạo khóa học nào.
                     </div>
                 </div>

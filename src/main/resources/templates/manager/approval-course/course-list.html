@@ -39,7 +39,7 @@
                 <div class="course-body">
                     <div class="course-meta">
                         <span th:if="${course.status != null}" 
-                              th:class="${'badge badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : course.status.name() == 'PENDING' ? 'warning' : 'danger')}"
+                              th:class="${'badge badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : (course.status.name() == 'PENDING' ? 'warning' : 'danger'))}"
                               th:text="${course.statusLabel}">Trạng thái</span>
                         <span class="course-price" th:text="${course.price != null ? #numbers.formatDecimal(course.price, 0, 'POINT', 0, 'COMMA') + ' đ' : 'Miễn phí'}">$49.99</span>
                     </div>
@@ -57,7 +57,7 @@
                 </div>
             </div>
 
-            <div th:if="${coursePage.empty}" class="empty-grid-message">
+            <div th:if="${coursePage.isEmpty()}" class="empty-grid-message">
                 Không tìm thấy khóa học nào.
             </div>
         </div>

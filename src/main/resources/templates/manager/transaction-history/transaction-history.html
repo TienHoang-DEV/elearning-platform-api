@@ -128,7 +128,7 @@
             </div>
         </div>
 
-        <div class="pagination-circle-container" th:if="${pageTransaction != null && !pageTransaction.isEmpty()}">
+        <div class="pagination-circle-container" th:if="${pageTransaction != null and !pageTransaction.isEmpty()}">
             <div class="pagination-circle-buttons">
                 <!-- Previous -->
                 <a th:if="${!pageTransaction.first}"

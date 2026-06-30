@@ -52,7 +52,7 @@
                         <td class="text-center" th:text="${request.courseCount != null ? request.courseCount : 0}">0</td>
                         <td>
                             <span
-                                th:class="${'badge badge-' + (request.status.name() == 'ACTIVE' ? 'success' : 'danger')}"
+                                th:class="${'badge badge-' + (request.status != null and request.status.name() == 'ACTIVE' ? 'success' : 'danger')}"
                                 th:text="${request.statusLabel}">
                                 Hoạt động
                             </span>
@@ -64,7 +64,7 @@
                             </div>
                         </td>
                     </tr>
-                    <tr th:if="${requestPage.empty}">
+                    <tr th:if="${requestPage.isEmpty()}">
                         <td colspan="6" class="text-center py-4">Không tìm thấy giảng viên nào.</td>
                     </tr>
                 </tbody>

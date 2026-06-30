@@ -123,17 +123,64 @@ body {
     color: var(--white);
 }
 
-.sidebar-footer {
-    padding: 16px 20px;
-    border-top: 1px solid var(--border-color);
+/* ── Main Header ── */
+.main-header {
+    height: 60px;
+    background-color: var(--white);
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+    padding: 0 30px;
+    flex-shrink: 0;
 }
 
-.footer-avatar {
-    width: 40px;
-    height: 40px;
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-btn {
+    background: none;
+    border: none;
+    font-size: 1.35rem;
+    color: var(--text-gray);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.header-btn:hover {
+    background-color: var(--bg-light);
+    color: var(--primary-blue);
+}
+
+.user-dropdown {
+    position: relative;
+}
+
+.header-user-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 30px;
+    transition: background-color 0.2s;
+}
+
+.header-user-trigger:hover {
+    background-color: var(--bg-light);
+}
+
+.header-avatar {
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background-color: var(--primary-blue);
     color: var(--white);
@@ -143,26 +190,64 @@ body {
     font-weight: bold;
     overflow: hidden;
     flex-shrink: 0;
+    font-size: 0.9rem;
 }
 
-.profile-info {
-    overflow: hidden;
+.user-name-text {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-main);
 }
 
-.profile-name {
-    font-weight: 600;
-    font-size: 0.95rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+/* User dropdown menu overrides */
+.user-dropdown .dropdown-menu {
+    display: none;
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    left: auto !important;
+    width: 200px !important;
+    margin-top: 8px !important;
+    background-color: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+    padding: 12px 8px !important;
+    z-index: 1050 !important;
 }
 
-.profile-email {
-    font-size: 0.8rem;
-    color: var(--text-gray);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.user-dropdown .dropdown-menu.show {
+    display: block !important;
+}
+
+.user-dropdown .dropdown-item {
+    color: #2d3748 !important;
+    padding: 10px 16px !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    border-radius: 10px !important;
+    transition: all 0.15s ease !important;
+    display: block !important;
+    text-decoration: none !important;
+}
+
+.user-dropdown .dropdown-item:hover {
+    background-color: #f3f4f6 !important;
+    color: #1a202c !important;
+}
+
+.user-dropdown .dropdown-item.text-danger {
+    color: #ef4444 !important;
+}
+
+.user-dropdown .dropdown-item.text-danger:hover {
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+}
+
+.user-dropdown .dropdown-divider {
+    border-top: 1px solid #f3f4f6 !important;
+    margin: 8px 8px !important;
 }
 
 /* ── Content Wrapper ── */
@@ -208,16 +293,45 @@ body {
 /* ── Responsive Layout ── */
 @media (max-width: 768px) {
     .app-container {
-        flex-direction: column;
+        flex-direction: row;
     }
     .sidebar {
-        width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
+        position: fixed;
+        top: 0;
+        left: -260px;
+        width: 250px;
+        height: 100vh;
+        z-index: 1050;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        border-right: 1px solid var(--border-color);
+    }
+    .sidebar.show {
+        left: 0;
     }
     .main-wrapper {
-        overflow-y: visible;
+        width: 100%;
+        overflow-y: auto;
+    }
+    .main-header {
+        padding: 0 15px;
+    }
+    .content {
+        padding: 20px 15px;
+    }
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(2px);
+        z-index: 1040;
+    }
+    .sidebar-overlay.show {
+        display: block;
     }
 }
 

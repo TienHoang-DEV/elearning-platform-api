@@ -75,8 +75,8 @@
     <th:block layout:fragment="page-js">
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script th:inline="javascript">
-            window.chartLabels = [[${chartLabels}]];
-            window.chartData = [[${chartData}]];
+            window.chartLabels = /*[[${chartLabels}]]*/ [];
+            window.chartData = /*[[${chartData}]]*/ [];
         </script>
         <script th:src="@{/js/manager/dashboard.js}"></script>
     </th:block>

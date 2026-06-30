@@ -20,8 +20,8 @@
                     class="search-input form-control">
                 <select name="status" class="search-input search-select form-select" onchange="this.form.submit()">
                     <option value="" th:selected="${status == null}">Tất cả trạng thái</option>
-                    <option value="ACTIVE" th:selected="${status != null && status.name() == 'ACTIVE'}">Hoạt động</option>
-                    <option value="BANNED" th:selected="${status != null && status.name() == 'BANNED'}">Bị khóa</option>
+                    <option value="ACTIVE" th:selected="${status != null and status.name() == 'ACTIVE'}">Hoạt động</option>
+                    <option value="BANNED" th:selected="${status != null and status.name() == 'BANNED'}">Bị khóa</option>
                 </select>
                 <button type="submit" class="d-none">Tìm kiếm</button>
             </div>
@@ -64,7 +64,7 @@
                             </div>
                         </td>
                     </tr>
-                    <tr th:if="${requestPage.empty}">
+                    <tr th:if="${requestPage.isEmpty()}">
                         <td colspan="5" class="text-center py-4">Không tìm thấy manager nào.</td>
                     </tr>
                 </tbody>
