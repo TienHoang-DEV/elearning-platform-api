@@ -37,20 +37,17 @@
             <div class="detail-info-row">
                 <div class="detail-meta">
                     <span th:if="${course.status != null}" 
-                          th:class="${'badge py-2 px-3 fs-6 badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : course.status.name() == 'PENDING' ? 'warning' : 'danger')}"
+                          th:class="${'badge py-2 px-3 fs-6 badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : (course.status.name() == 'PENDING' ? 'warning' : 'danger'))}"
                           th:text="${course.statusLabel}">Trạng thái</span>
                     <span class="detail-price" th:text="${course.price != null ? #numbers.formatDecimal(course.price, 0, 'POINT', 0, 'COMMA') + ' đ' : 'Miễn phí'}">$49.99</span>
                 </div>
 
                 <!-- Action buttons form -->
-                <div class="detail-actions" th:if="${course.status != null && course.status.name() == 'PENDING'}">
+                <div class="detail-actions" th:if="${course.status != null and course.status.name() == 'PENDING'}">
                     <!-- Phê duyệt (Approve) -->
-                    <form th:action="@{/manager/course/edit/{id}(id=${course.id})}" method="post" class="d-inline">
-                        <input type="hidden" name="status" value="PUBLISHED" />
-                        <button type="submit" class="btn btn-approve d-inline-flex align-items-center gap-1">
-                            <i class="ph ph-check-circle fs-5"></i> Phê duyệt
-                        </button>
-                    </form>
+                    <button type="button" class="btn btn-approve d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#approveModal">
+                        <i class="ph ph-check-circle fs-5"></i> Phê duyệt
+                    </button>
 
                     <!-- Từ chối (Reject) -->
                     <button type="button" class="btn btn-reject d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#rejectModal">
@@ -100,7 +97,7 @@
                         <span>Tài liệu đính kèm</span>
                     </div>
                     <div class="attachment-list">
-                        <div th:if="${course.allMaterials == null or course.allMaterials.empty}" class="text-muted text-center py-3">
+                        <div th:if="${course.allMaterials == null or course.allMaterials.isEmpty()}" class="text-muted text-center py-3">
                             Không có tài liệu nào cho khóa học này.
                         </div>
                         <a th:each="mat : ${course.allMaterials}" 
@@ -127,7 +124,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body curriculum-modal-body">
-                        <div th:if="${course.sections == null or course.sections.empty}" class="text-center py-4 text-muted">
+                        <div th:if="${course.sections == null or course.sections.isEmpty()}" class="text-center py-4 text-muted">
                             Chưa có bài học nào được tạo cho khóa học này.
                         </div>
                         <div th:each="section : ${course.sections}" class="section-item">
@@ -148,7 +145,7 @@
                                             <a th:if="${lesson.videoUrl != null and !lesson.videoUrl.isEmpty()}" 
                                                th:href="@{/lesson/{id}/video(id=${lesson.id})}" 
                                                target="_blank" 
-                                               class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1 px-2" style="font-size: 0.8rem;">
+                                               class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1 px-2 fs-sm">
                                                 <i class="ph ph-video"></i> Xem Video
                                             </a>
                                         </div>
@@ -160,6 +157,29 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ APPROVE MODAL ══════════ -->
+        <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form th:action="@{/manager/course/edit/{id}(id=${course.id})}" method="post">
+                        <input type="hidden" name="status" value="PUBLISHED" />
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="approveModalLabel">Phê duyệt khóa học</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Bạn có chắc chắn muốn phê duyệt khóa học <strong th:text="${course.title}">Các Mẫu React Nâng Cao</strong>?</p>
+                            <p class="text-muted mb-0">Khi đã phê duyệt, khóa học này sẽ hiển thị công khai trên hệ thống và người học có thể đăng ký tham gia khóa học ngay lập tức.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-approve">Xác nhận phê duyệt</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

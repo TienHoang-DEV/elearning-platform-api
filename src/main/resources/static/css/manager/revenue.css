@@ -271,3 +271,9 @@
 @media (max-width: 768px) {
     .rev-grid { grid-template-columns: 1fr; }
 }
+
+.th-code { width: 15%; }
+.th-customer { width: 25%; }
+.th-amount { width: 25%; }
+.th-status { width: 20%; }
+.th-actions { width: 15%; }

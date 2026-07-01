@@ -207,8 +207,8 @@
 <!-- PayOS Checkout Script -->
 <script th:inline="javascript">
     // Global variables for payment processing
-    const paymentId = [[${payment != null ? payment.id : null}]];
-    const expiredAtStr = [[${payment != null ? payment.expiredAt : null}]] || '';
+    const paymentId = /*[[${payment != null ? payment.id : null}]]*/ null;
+    const expiredAtStr = (/*[[${payment != null ? payment.expiredAt : null}]]*/ '') || '';
 </script>
 
 <script>
