@@ -64,7 +64,7 @@ public class InstructorCourseController {
                                     Model model){
         User  user = SecurityUtils.getCurrentUser();
         Sort sort = Sort.by("updateAt").descending();
-        int size = 5;
+        int size = 8;
         Page<CourseDto> published = courseService.findByInstructorAndStatus(user, PageRequest.of(pagePushlished, size, sort), CourseStatus.PUBLISHED);
         Page<CourseDto> draft = courseService.findByInstructorAndStatus(user, PageRequest.of(pageDraf, size, sort), CourseStatus.DRAFT);
         Page<CourseDto> reject = courseService.findByInstructorAndStatus(user, PageRequest.of(pageReject, size, sort), CourseStatus.REJECTED);
@@ -91,7 +91,7 @@ public class InstructorCourseController {
         model.addAttribute("pageDraft", pageDraf);
         model.addAttribute("pageRejected", pageReject);
         model.addAttribute("pageHidden", pageHidden);
-        return "instructor_course/courses";
+        return "instructor_course/courses_v2";
     }
 
 

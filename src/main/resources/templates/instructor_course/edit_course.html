@@ -4,7 +4,6 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Learning Hub - Chỉnh Sửa Khóa Học</title>
-    <!-- Dùng đúng file CSS gốc của dự án -->
     <link rel="stylesheet" th:href="@{/css/edit_course.css}"/>
 </head>
 <body>
@@ -127,85 +126,6 @@
         <div class="alert alert-info">
             Thêm chương và bài giảng cho khóa học của bạn. Kéo thả để sắp xếp thứ tự.
         </div>
-
-        <!-- HARDCODE: danh sách chương + bài giảng demo -->
-<!--        <div id="curriculumList">-->
-
-<!--            &lt;!&ndash; Chương 1 &ndash;&gt;-->
-<!--            <div class="section-item" data-section-id="101">-->
-<!--                <div class="section-header">-->
-<!--                    <span class="drag-handle">⠿</span>-->
-<!--                    <span class="section-number">Chương 1</span>-->
-<!--                    <span class="section-title">Giới thiệu Spring Boot</span>-->
-<!--                    <div class="section-actions">-->
-<!--                        <button type="button" class="btn btn-sm btn-outline"-->
-<!--                                data-section-id="101"-->
-<!--                                onclick="openAddLessonModal(this.dataset.sectionId)">-->
-<!--                            + Thêm Bài Giảng-->
-<!--                        </button>-->
-<!--                        <button type="button" class="btn btn-sm btn-danger"-->
-<!--                                data-section-id="101"-->
-<!--                                onclick="deleteSection(this.dataset.sectionId)">🗑</button>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--                <div class="lesson-list">-->
-<!--                    <div class="lesson-item" data-lesson-id="1001">-->
-<!--                        <span class="drag-handle">⠿</span>-->
-<!--                        <span class="lesson-icon">🎬</span>-->
-<!--                        <span class="lesson-title">Bài 1: Spring Boot là gì?</span>-->
-<!--                        <span class="badge badge-free">Miễn phí</span>-->
-<!--                        <div class="lesson-actions">-->
-<!--                            <button type="button" class="btn btn-sm btn-outline"-->
-<!--                                    data-lesson-id="1001" data-lesson-title="Spring Boot là gì?" data-lesson-free="true"-->
-<!--                                    onclick="openEditLessonModal(this.dataset)">✏️</button>-->
-<!--                            <button type="button" class="btn btn-sm btn-danger"-->
-<!--                                    data-lesson-id="1001"-->
-<!--                                    onclick="deleteLesson(this.dataset.lessonId)">🗑</button>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="lesson-item" data-lesson-id="1002">-->
-<!--                        <span class="drag-handle">⠿</span>-->
-<!--                        <span class="lesson-icon">🎬</span>-->
-<!--                        <span class="lesson-title">Bài 2: Cài đặt môi trường</span>-->
-<!--                        <div class="lesson-actions">-->
-<!--                            <button type="button" class="btn btn-sm btn-outline"-->
-<!--                                    data-lesson-id="1002" data-lesson-title="Cài đặt môi trường" data-lesson-free="false"-->
-<!--                                    onclick="openEditLessonModal(this.dataset)">✏️</button>-->
-<!--                            <button type="button" class="btn btn-sm btn-danger"-->
-<!--                                    data-lesson-id="1002"-->
-<!--                                    onclick="deleteLesson(this.dataset.lessonId)">🗑</button>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Chương 2 &ndash;&gt;-->
-<!--            <div class="section-item" data-section-id="102">-->
-<!--                <div class="section-header">-->
-<!--                    <span class="drag-handle">⠿</span>-->
-<!--                    <span class="section-number">Chương 2</span>-->
-<!--                    <span class="section-title">REST API với Spring Boot</span>-->
-<!--                    <div class="section-actions">-->
-<!--                        <button type="button" class="btn btn-sm btn-outline"-->
-<!--                                data-section-id="102"-->
-<!--                                onclick="openAddLessonModal(this.dataset.sectionId)">-->
-<!--                            + Thêm Bài Giảng-->
-<!--                        </button>-->
-<!--                        <button type="button" class="btn btn-sm btn-danger"-->
-<!--                                data-section-id="102"-->
-<!--                                onclick="deleteSection(this.dataset.sectionId)">🗑</button>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--                &lt;!&ndash; HARDCODE: chương chưa có bài giảng nào &ndash;&gt;-->
-<!--                <div class="lesson-list">-->
-<!--                    <div class="table-empty" style="padding:12px 16px;">-->
-<!--                        Chưa có bài giảng nào-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
 
         <div id="curriculumList">
             <!-- Lặp qua từng Chương -->
