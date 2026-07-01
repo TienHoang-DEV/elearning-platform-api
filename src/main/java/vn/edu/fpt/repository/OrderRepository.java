@@ -3,6 +3,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import vn.edu.fpt.dto.revenueInstructor.CourseRevenueDto;
 import vn.edu.fpt.entity.Order;
 import vn.edu.fpt.entity.User;
 
@@ -38,7 +39,17 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
 
     //Top các khoá hoc
-
+    @Query("""
+         select new vn.edu.fpt.dto.revenueInstructor.CourseRevenueDto(oi.course.title, SUM(oi.priceSnapshot))
+         from OrderItem oi
+         where oi.order.instructor.id = :instructorId
+         and oi.order.status = 'Completed'
+         and oi.order.createdAt between :fromDate and :toDate
+        group by oi.course.title order by sum(oi.priceSnapshot) desc 
+         """)
+    List<CourseRevenueDto> topSellingCourse(@Param("instructorId") Integer instructorId,
+                                            @Param("fromDate") LocalDateTime fromDate,
+                                            @Param("toDate") LocalDateTime toDate);
 
 
 }
