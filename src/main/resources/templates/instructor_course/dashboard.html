@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Thống Kê Doanh Thu - Learning Hub</title>
+    <title>Instructor Dashboard - Learning Hub</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -13,16 +13,8 @@
             min-height:100vh;
         }
 
-        /* ---------- Sidebar (giữ nguyên style tối để đồng bộ với fragment) ---------- */
-        .sidebar {
-            width:250px;
-            background:#1e2433;
-            color:#e5e7eb;
-            display:flex;
-            flex-direction:column;
-            padding:20px 14px;
-            flex-shrink:0;
-        }
+        /* ---------- Sidebar (đồng bộ tạm với fragment) ---------- */
+        .sidebar { width:250px; background:#1e2433; color:#e5e7eb; display:flex; flex-direction:column; padding:20px 14px; flex-shrink:0; }
         .sidebar-logo{ font-weight:700; font-size:18px; color:#fff; margin-bottom:24px; padding:0 6px;}
         .sidebar-user{ display:flex; align-items:center; gap:10px; padding:10px 6px 20px; border-bottom:1px solid #303a4f; margin-bottom:14px;}
         .sidebar-user-avatar{ width:38px; height:38px; border-radius:50%; background:#4f7cff; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; flex-shrink:0;}
@@ -32,49 +24,80 @@
         .sidebar-nav a{ color:#c7cdda; text-decoration:none; font-size:14px; padding:10px 10px; border-radius:8px; display:flex; align-items:center; gap:10px;}
         .sidebar-nav a:hover{ background:#2a3245; color:#fff;}
         .sidebar-nav a.active{ background:#4f7cff; color:#fff;}
-        .nav-icon{ width:16px; height:16px; display:inline-block; }
         .nav-logout{ margin-top:10px; color:#f87171 !important;}
 
-        /* ---------- Main content ---------- */
+        /* ---------- Main ---------- */
         .main{ flex:1; padding:24px 32px; }
         .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; }
         .topbar h1{ font-size:20px; font-weight:700; }
-        .period-select{
+
+        /* ---------- Time filter ---------- */
+        .time-filter{ position:relative; }
+        .time-filter-btn{
             background:#fff; border:1px solid #d9dee6; border-radius:8px;
             padding:8px 14px; font-size:14px; color:#374151; cursor:pointer;
+            display:flex; align-items:center; gap:8px; min-width:150px; justify-content:space-between;
         }
+        .time-filter-menu{
+            display:none; position:absolute; right:0; top:calc(100% + 6px);
+            background:#fff; border:1px solid #e5e7eb; border-radius:10px;
+            box-shadow:0 8px 24px rgba(0,0,0,.1); width:220px; padding:6px; z-index:20;
+        }
+        .time-filter.open .time-filter-menu{ display:block; }
+        .time-filter-menu button{
+            width:100%; text-align:left; background:none; border:none; padding:9px 10px;
+            font-size:14px; color:#374151; border-radius:6px; cursor:pointer;
+        }
+        .time-filter-menu button:hover{ background:#f2f4f8; }
+        .time-filter-menu button.selected{ background:#eef2ff; color:#4f7cff; font-weight:600; }
+        .custom-range{ display:none; border-top:1px solid #eef0f3; margin-top:6px; padding-top:10px; gap:8px; flex-direction:column; }
+        .custom-range.show{ display:flex; }
+        .custom-range label{ font-size:12px; color:#6b7280; margin-bottom:4px; display:block; }
+        .custom-range select{
+            width:100%; padding:7px 8px; border:1px solid #d9dee6; border-radius:6px; font-size:13px; color:#374151;
+        }
+        .custom-range .apply-btn{
+            margin-top:4px; background:#4f7cff; color:#fff; border:none; border-radius:6px;
+            padding:8px; font-size:13px; font-weight:600; cursor:pointer; text-align:center;
+        }
+        .custom-range .apply-btn:hover{ background:#3f6ae0; }
 
         /* ---------- KPI cards ---------- */
-        .kpi-grid{
-            display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:22px;
-        }
+        .kpi-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:22px; }
         .kpi-card{ background:#fff; border-radius:12px; padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,.06);}
-        .kpi-label{ font-size:13px; color:#6b7280; margin-bottom:8px; }
-        .kpi-value{ font-size:22px; font-weight:700; color:#111827; }
-        .kpi-card.accent .kpi-value{ color:#4f7cff; }
+        .kpi-top{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+        .kpi-icon{ font-size:18px; }
+        .kpi-label{ font-size:13px; color:#6b7280; }
+        .kpi-value{ font-size:22px; font-weight:700; color:#111827; margin-bottom:6px;}
+        .kpi-delta{ font-size:12px; font-weight:600; }
+        .kpi-delta.up{ color:#16a34a; }
+        .kpi-delta.down{ color:#dc2626; }
+        .kpi-delta.neutral{ color:#6b7280; }
 
-        /* ---------- Chart card ---------- */
+        /* ---------- Card ---------- */
         .card{ background:#fff; border-radius:12px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,.06); margin-bottom:16px;}
-        .card h2{ font-size:15px; font-weight:600; margin-bottom:14px; color:#1f2937;}
+        .card-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+        .card-header h2{ font-size:15px; font-weight:600; color:#1f2937;}
+        .view-all{ font-size:13px; color:#4f7cff; text-decoration:none; font-weight:600; }
+        .view-all:hover{ text-decoration:underline; }
 
-        .chart-wrap{ width:100%; }
+        .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 
-        .two-col{ display:grid; grid-template-columns:1.2fr 1fr; gap:16px; }
-
-        /* revenue by course bars */
-        .bar-row{ display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:13px;}
-        .bar-label{ width:80px; flex-shrink:0; color:#374151;}
-        .bar-track{ flex:1; background:#eef1f5; border-radius:6px; height:16px; overflow:hidden;}
-        .bar-fill{ height:100%; border-radius:6px; background:#4f7cff; }
-        .bar-value{ width:70px; text-align:right; color:#6b7280; flex-shrink:0;}
-
-        /* top selling courses list */
+        /* Top selling courses list */
         .top-course{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f0f2f5; font-size:14px;}
         .top-course:last-child{ border-bottom:none; }
         .top-course-name{ color:#1f2937; font-weight:500;}
         .top-course-amount{ color:#4f7cff; font-weight:600;}
 
-        /* transactions table */
+        /* Course performance bars */
+        .perf-row{ display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:13px;}
+        .perf-row:last-child{ margin-bottom:0; }
+        .perf-label{ width:90px; flex-shrink:0; color:#374151;}
+        .perf-track{ flex:1; background:#eef1f5; border-radius:6px; height:14px; overflow:hidden;}
+        .perf-fill{ height:100%; border-radius:6px; background:#4f7cff; }
+        .perf-value{ width:70px; text-align:right; color:#6b7280; flex-shrink:0; font-size:12px;}
+
+        /* Recent orders table */
         table{ width:100%; border-collapse:collapse; font-size:14px;}
         th{ text-align:left; color:#6b7280; font-weight:600; padding:10px 12px; border-bottom:1px solid #e5e7eb;}
         td{ padding:12px; border-bottom:1px solid #f0f2f5; color:#374151;}
@@ -84,78 +107,89 @@
 </head>
 <body>
 
-<!-- Sidebar dùng lại fragment đã có sẵn trong dự án -->
 
-<div th:replace="~{instructor_course/sidebar :: sidebar(activePage='stats')}"></div>
+<div th:replace="~{instructor_course/sidebar :: sidebar(activePage='courses')}"></div>
 
 <main class="main">
     <div class="topbar">
-        <h1>Thống Kê Doanh Thu</h1>
-        <select class="period-select">
-            <option>Tháng Này</option>
-            <option>Tháng Trước</option>
-            <option>Năm Nay</option>
-        </select>
+        <h1>Instructor Dashboard</h1>
+
+        <!-- Time filter: This Month / This Year / All Time / Custom -->
+        <div class="time-filter" id="timeFilter">
+            <button type="button" class="time-filter-btn" onclick="document.getElementById('timeFilter').classList.toggle('open')">
+                <span id="timeFilterLabel">This Month</span>
+                <span>▼</span>
+            </button>
+            <div class="time-filter-menu">
+                <button type="button" class="selected" onclick="selectTime('This Month', false)">This Month</button>
+                <button type="button" onclick="selectTime('This Year', false)">This Year</button>
+                <button type="button" onclick="selectTime('All Time', false)">All Time</button>
+                <button type="button" onclick="selectTime('Custom', true)">Custom</button>
+
+                <div class="custom-range" id="customRange">
+                    <div>
+                        <label>Year</label>
+                        <select id="customYear">
+                            <option>2026</option>
+                            <option>2025</option>
+                            <option>2024</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Month</label>
+                        <select id="customMonth">
+                            <option>January</option><option>February</option><option>March</option>
+                            <option>April</option><option>May</option><option>June</option>
+                            <option selected>July</option><option>August</option><option>September</option>
+                            <option>October</option><option>November</option><option>December</option>
+                        </select>
+                    </div>
+                    <button type="button" class="apply-btn" onclick="applyCustom()">Apply</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- KPI cards - hardcode -->
+    <!-- 4 KPI cards - hardcode -->
     <div class="kpi-grid">
         <div class="kpi-card">
-            <div class="kpi-label">Tổng Doanh Thu</div>
+            <div class="kpi-top"><span class="kpi-icon">💰</span><span class="kpi-label">Total Revenue</span></div>
             <div class="kpi-value">12.450.000đ</div>
-        </div>
-        <div class="kpi-card accent">
-            <div class="kpi-label">Doanh Thu Tháng Này</div>
-            <div class="kpi-value">2.300.000đ</div>
+            <div class="kpi-delta up">↑ 12% so với tháng trước</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-label">Lượt Đăng Ký</div>
+            <div class="kpi-top"><span class="kpi-icon">🛒</span><span class="kpi-label">Total Orders</span></div>
             <div class="kpi-value">245</div>
+            <div class="kpi-delta up">↑ 8%</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-label">Học Viên</div>
+            <div class="kpi-top"><span class="kpi-icon">👨‍🎓</span><span class="kpi-label">Total Students</span></div>
             <div class="kpi-value">180</div>
+            <div class="kpi-delta up">↑ 15%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-top"><span class="kpi-icon">📚</span><span class="kpi-label">Total Courses</span></div>
+            <div class="kpi-value">12</div>
+            <div class="kpi-delta neutral">+1 khóa học mới</div>
         </div>
     </div>
 
-    <!-- Line chart doanh thu - SVG hardcode -->
+    <!-- Revenue trend chart -->
     <div class="card">
-        <h2>Xu Hướng Doanh Thu</h2>
-        <div class="chart-wrap">
-            <svg viewBox="0 0 700 220" width="100%" height="220" preserveAspectRatio="none">
-                <polyline points="0,180 100,150 200,160 300,100 400,110 500,60 600,80 700,40"
-                          fill="none" stroke="#4f7cff" stroke-width="3"/>
-                <polygon points="0,180 100,150 200,160 300,100 400,110 500,60 600,80 700,40 700,220 0,220"
-                         fill="#4f7cff" opacity="0.08"/>
-                <line x1="0" y1="219" x2="700" y2="219" stroke="#e5e7eb" stroke-width="1"/>
-            </svg>
-        </div>
+        <div class="card-header"><h2>Revenue Overview</h2></div>
+        <svg viewBox="0 0 700 220" width="100%" height="220" preserveAspectRatio="none">
+            <polyline points="0,180 100,150 200,160 300,100 400,110 500,60 600,80 700,40"
+                      fill="none" stroke="#4f7cff" stroke-width="3"/>
+            <polygon points="0,180 100,150 200,160 300,100 400,110 500,60 600,80 700,40 700,220 0,220"
+                     fill="#4f7cff" opacity="0.08"/>
+            <line x1="0" y1="219" x2="700" y2="219" stroke="#e5e7eb" stroke-width="1"/>
+        </svg>
     </div>
 
     <div class="two-col">
-        <!-- Doanh thu theo khóa học -->
+        <!-- Top selling courses -->
         <div class="card">
-            <h2>Doanh Thu Theo Khóa Học</h2>
-            <div class="bar-row">
-                <div class="bar-label">Java</div>
-                <div class="bar-track"><div class="bar-fill" style="width:90%;"></div></div>
-                <div class="bar-value">4.2M</div>
-            </div>
-            <div class="bar-row">
-                <div class="bar-label">Spring</div>
-                <div class="bar-track"><div class="bar-fill" style="width:65%;"></div></div>
-                <div class="bar-value">2.8M</div>
-            </div>
-            <div class="bar-row">
-                <div class="bar-label">HTML</div>
-                <div class="bar-track"><div class="bar-fill" style="width:40%;"></div></div>
-                <div class="bar-value">1.7M</div>
-            </div>
-        </div>
-
-        <!-- Top khóa học bán chạy -->
-        <div class="card">
-            <h2>Khóa Học Bán Chạy</h2>
+            <div class="card-header"><h2>Top Selling Courses</h2></div>
             <div class="top-course">
                 <span class="top-course-name">Spring Boot</span>
                 <span class="top-course-amount">4.2M</span>
@@ -168,19 +202,51 @@
                 <span class="top-course-name">HTML/CSS</span>
                 <span class="top-course-amount">1.7M</span>
             </div>
+            <div class="top-course">
+                <span class="top-course-name">SQL Server</span>
+                <span class="top-course-amount">1.2M</span>
+            </div>
+        </div>
+
+        <!-- Course performance (số lượng bán) -->
+        <div class="card">
+            <div class="card-header"><h2>Course Performance</h2></div>
+            <div class="perf-row">
+                <div class="perf-label">Spring Boot</div>
+                <div class="perf-track"><div class="perf-fill" style="width:100%;"></div></div>
+                <div class="perf-value">85 sales</div>
+            </div>
+            <div class="perf-row">
+                <div class="perf-label">Java Core</div>
+                <div class="perf-track"><div class="perf-fill" style="width:73%;"></div></div>
+                <div class="perf-value">62 sales</div>
+            </div>
+            <div class="perf-row">
+                <div class="perf-label">HTML/CSS</div>
+                <div class="perf-track"><div class="perf-fill" style="width:48%;"></div></div>
+                <div class="perf-value">41 sales</div>
+            </div>
+            <div class="perf-row">
+                <div class="perf-label">Python</div>
+                <div class="perf-track"><div class="perf-fill" style="width:39%;"></div></div>
+                <div class="perf-value">33 sales</div>
+            </div>
         </div>
     </div>
 
-    <!-- Giao dịch gần đây -->
+    <!-- Recent orders: 5 dòng + View All -->
     <div class="card">
-        <h2>Giao Dịch Gần Đây</h2>
+        <div class="card-header">
+            <h2>Recent Orders</h2>
+            <a href="#" class="view-all" th:href="@{/instructor/orders}">View All →</a>
+        </div>
         <table>
             <thead>
             <tr>
-                <th>Học Viên</th>
-                <th>Khóa Học</th>
-                <th>Số Tiền</th>
-                <th>Ngày</th>
+                <th>Student</th>
+                <th>Course</th>
+                <th>Amount</th>
+                <th>Date</th>
             </tr>
             </thead>
             <tbody>
@@ -202,10 +268,53 @@
                 <td class="amount-cell">199.000đ</td>
                 <td>29/06</td>
             </tr>
+            <tr>
+                <td>Phạm Văn D</td>
+                <td>SQL</td>
+                <td class="amount-cell">399.000đ</td>
+                <td>28/06</td>
+            </tr>
+            <tr>
+                <td>Nguyễn Văn E</td>
+                <td>Python</td>
+                <td class="amount-cell">299.000đ</td>
+                <td>27/06</td>
+            </tr>
             </tbody>
         </table>
     </div>
 </main>
+
+<script>
+    function selectTime(label, isCustom) {
+        document.getElementById('timeFilterLabel').textContent = label;
+        document.querySelectorAll('.time-filter-menu button').forEach(b => b.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+
+        const customBox = document.getElementById('customRange');
+        if (isCustom) {
+            customBox.classList.add('show');
+        } else {
+            customBox.classList.remove('show');
+            document.getElementById('timeFilter').classList.remove('open');
+            // TODO: gọi location.href = '?period=' + label khi nối API thật
+        }
+    }
+
+    function applyCustom() {
+        const year = document.getElementById('customYear').value;
+        const month = document.getElementById('customMonth').value;
+        document.getElementById('timeFilterLabel').textContent = month + ' ' + year;
+        document.getElementById('timeFilter').classList.remove('open');
+        // TODO: location.href = '?year=' + year + '&month=' + month;
+    }
+
+    // đóng dropdown khi click ra ngoài
+    document.addEventListener('click', function(e) {
+        const box = document.getElementById('timeFilter');
+        if (!box.contains(e.target)) box.classList.remove('open');
+    });
+</script>
 
 </body>
 </html>

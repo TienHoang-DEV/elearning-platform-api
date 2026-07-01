@@ -7,6 +7,7 @@ import vn.edu.fpt.entity.Order;
 import vn.edu.fpt.entity.User;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -18,8 +19,24 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
           select COALESCE(sum(oi.priceSnapshot), 0) from OrderItem oi 
           where oi.course.instrcutor.id = :instructorId 
           and oi.order.status = 'COMPLETED'
+          and oi.order.createdAt between :fromDate and :toDate
           """)
-    BigDecimal sumTotalRevenueByInstructor(@Param("instructorId") Integer instructorId);
+    BigDecimal sumTotalRevenueByInstructor(@Param("instructorId") Integer instructorId,
+                                           @Param("fromDate")LocalDateTime fromDate,
+                                           @Param("toDate") LocalDateTime toDate);
+
+    ///Tổng số lượng Order
+    @Query("""
+          select count(distinct oi.order.id) from OrderItem oi 
+          where oi.course.instructor.id = :instructorId
+          and oi.order.status = 'COMPLETED'
+          and oi.order.createdAt between :fromDate and :toDate
+          """)
+    Integer countOrder(@Param("instructorId") Integer instructorId,
+                       @Param("fromDate") LocalDateTime fromDate,
+                       @Param("toDate") LocalDateTime toDate);
+
+
 
 
 }
