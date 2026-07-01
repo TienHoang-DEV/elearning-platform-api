@@ -1,13 +1,25 @@
 package vn.edu.fpt.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.edu.fpt.entity.Order;
 import vn.edu.fpt.entity.User;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findByUser(User user);
+
+    ///Tổng danh thu cho cho mỗi giảng vien
+    @Query("""
+          select COALESCE(sum(oi.priceSnapshot), 0) from OrderItem oi 
+          where oi.course.instrcutor.id = :instructorId 
+          and oi.order.status = 'COMPLETED'
+          """)
+    BigDecimal sumTotalRevenueByInstructor(@Param("instructorId") Integer instructorId);
 
 
 }
