@@ -3,6 +3,7 @@ package vn.edu.fpt.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.*;
@@ -111,6 +112,26 @@ public class CourseService {
         course.setLevel(courseCreateDto.getLevel());
         course.setUpdateAt(LocalDateTime.now());
         return repository.save(course);
+    }
+
+
+    ///getCourseForEdit
+    public CourseCreateDto getCourseForEdit(Integer coureId, User user){
+        Course course = repository.findById(coureId).orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khoá học có id = " + coureId));
+
+        if(!course.getInstructor().getId().equals(user.getId())){
+            throw new AccessDeniedException("Bạn không có quyền chỉnh sửa khoá học này");
+        }
+
+        CourseCreateDto courseCreateDto = new CourseCreateDto();
+        courseCreateDto.setId(course.getId());
+        courseCreateDto.setTitle(course.getTitle());
+        courseCreateDto.setPrice(course.getPrice());
+        courseCreateDto.setThumbnailUrl(course.getThumbnailUrl());
+        courseCreateDto.setLevel(course.getLevel());
+        courseCreateDto.setCategoryId(course.getCategory() != null ? course.getCategory().getId() : null);
+
+        return courseCreateDto;
     }
 
     ///Show Chi tiết khoá học

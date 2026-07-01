@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Learning Hub - Khóa Học</title>
+    <link rel="stylesheet" th:href="@{/css/course_manage.css}"/>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div th:replace="~{instructor_course/sidebar :: sidebar(activePage='courses')}"></div>
+
+<!-- MAIN -->
+<main class="main-content">
+    <div class="page-header">
+        <h1><span class="icon"></span> Khóa Học</h1>
+        <a th:href="@{/instructorcourse/create}" class="btn btn-primary">+ Tạo Khóa Học Mới</a>
+    </div>
+
+    <div class="card">
+        <div class="tab-bar" data-tab-group="courses">
+            <button class="tab-btn active" data-tab="all"      data-tab-group="courses">Khóa Học Đang Bán</button>
+            <button class="tab-btn"        data-tab="pending"  data-tab-group="courses">Chờ Duyệt</button>
+            <button class="tab-btn"        data-tab="draft"    data-tab-group="courses">Nháp</button>
+            <button class="tab-btn"        data-tab="rejected" data-tab-group="courses">Bị Từ Chối</button>
+            <button class="tab-btn"        data-tab="hidden"   data-tab-group="courses">Ẩn</button>
+        </div>
+
+        <!-- Tab: Đang Bán -->
+        <div class="tab-content" data-tab-group="courses" data-tab="all">
+            <div style="margin-bottom:12px;">
+                <input type="text" class="form-control" placeholder="🔍 Tìm kiếm khóa học..." style="max-width:320px;"/>
+            </div>
+
+            <div class="course-grid" th:if="${listpublished != null and not #lists.isEmpty(listpublished)}">
+                <div class="course-card" th:each="course, stat : ${listpublished}">
+                    <div class="course-card-thumb">
+                        <img th:if="${course.thumbnailUrl != null}" th:src="${course.thumbnailUrl}" alt="course thumbnail"/>
+                        <div class="course-card-thumb-placeholder" th:unless="${course.thumbnailUrl != null}">🎓</div>
+                        <span class="course-card-badge">#<span th:text="${publishedPage.number * publishedPage.size + stat.count}"></span></span>
+                    </div>
+                    <div class="course-card-body">
+                        <h3 class="course-card-title" th:text="${course.title}">Tên khóa học</h3>
+                        <div class="course-card-meta">
+                            Cập nhật: <span th:text="${course.createdAt != null ? #temporals.format(course.createdAt, 'dd-MM-yyyy') : ''}"></span>
+                        </div>
+                        <div class="course-card-price">
+                            <span class="price-old" th:text="${course.price} + ' đ'">500,000 đ</span>
+                            <span class="price-new" th:text="${course.price} + ' đ'">399,000 đ</span>
+                        </div>
+                    </div>
+                    <div class="course-card-actions">
+                        <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Xem Chi Tiết</a>
+                        <a th:href="@{/instructor/{id}/reviews(id=${course.id})}" class="btn btn-sm btn-outline">Xem Đánh Giá</a>
+                    </div>
+                </div>
+            </div>
+            <div class="table-empty" th:if="${listpublished == null or #lists.isEmpty(listpublished)}">Không có dữ liệu</div>
+
+            <div th:replace="~{instructor_course/pagination :: pagination(${publishedPage}, 'pagePublished', 'all')}"></div>
+        </div>
+
+        <!-- Tab: Chờ Duyệt -->
+        <div class="tab-content" data-tab-group="courses" data-tab="pending" style="display:none;">
+
+            <div class="course-grid" th:if="${listpending != null and not #lists.isEmpty(listpending)}">
+                <div class="course-card" th:each="course, stat : ${listpending}">
+                    <div class="course-card-thumb">
+                        <img th:if="${course.thumbnailUrl != null}" th:src="${course.thumbnailUrl}" alt="course thumbnail"/>
+                        <div class="course-card-thumb-placeholder" th:unless="${course.thumbnailUrl != null}">🎓</div>
+                        <span class="course-card-status status-pending">Chờ duyệt</span>
+                    </div>
+                    <div class="course-card-body">
+                        <h3 class="course-card-title" th:text="${course.title}"></h3>
+                        <div class="course-card-meta">
+                            Ngày gửi: <span th:text="${course.updatedAt != null ? #temporals.format(course.updatedAt, 'dd-MM-yyyy') : ''}"></span>
+                        </div>
+                    </div>
+                    <div class="course-card-actions">
+                        <a th:href="@{/instructor/courses/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem Chi Tiết</a>
+                    </div>
+                </div>
+            </div>
+            <div class="table-empty" th:if="${pendingCourses == null or #lists.isEmpty(pendingCourses)}">Không có khóa học đang chờ duyệt</div>
+
+            <div th:replace="~{instructor_course/pagination :: pagination(${pendingPage}, 'pagePending', 'pending')}"></div>
+        </div>
+
+        <!-- Tab: Nháp -->
+        <div class="tab-content" data-tab-group="courses" data-tab="draft" style="display:none;">
+
+            <div class="course-grid" th:if="${listdraft != null and not #lists.isEmpty(listdraft)}">
+                <div class="course-card" th:each="course, stat : ${listdraft}">
+                    <div class="course-card-thumb">
+                        <img th:if="${course.thumbnailUrl != null}" th:src="${course.thumbnailUrl}" alt="course thumbnail"/>
+                        <div class="course-card-thumb-placeholder" th:unless="${course.thumbnailUrl != null}">🎓</div>
+                        <span class="course-card-status status-draft">Nháp</span>
+                    </div>
+                    <div class="course-card-body">
+                        <h3 class="course-card-title" th:text="${course.title}"></h3>
+                        <div class="course-card-meta">
+                            Lần sửa cuối: <span th:text="${course.updatedAt != null ? #temporals.format(course.updatedAt, 'dd-MM-yyyy') : ''}"></span>
+                        </div>
+                    </div>
+                    <div class="course-card-actions">
+                        <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem</a>
+                        <a th:href="@{/instructorcourse/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Chỉnh Sửa</a>
+                        <div class="course-card-more">
+                            <details class="dropdown">
+                                <summary class="btn btn-sm btn-outline">⋯</summary>
+                                <div class="dropdown-menu">
+                                    <a th:href="@{/instructor/courses/{id}/request(id=${course.id})}">Gửi Duyệt</a>
+                                    <a th:href="@{/instructor/courses/{id}/delete(id=${course.id})}" class="danger">Xoá</a>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-empty" th:if="${listdraft == null or #lists.isEmpty(listdraft)}">Không có khóa học nháp</div>
+
+            <div th:replace="~{instructor_course/pagination :: pagination(${draftPage}, 'pageDraft', 'draft')}"></div>
+        </div>
+
+        <!-- Tab: Bị Từ Chối -->
+        <div class="tab-content" data-tab-group="courses" data-tab="rejected" style="display:none;">
+
+            <div class="course-grid" th:if="${listrejected != null and not #lists.isEmpty(listrejected)}">
+                <div class="course-card" th:each="course, stat : ${listrejected}">
+                    <div class="course-card-thumb">
+                        <img th:if="${course.thumbnailUrl != null}" th:src="${course.thumbnailUrl}" alt="course thumbnailUrl"/>
+                        <div class="course-card-thumb-placeholder" th:unless="${course.thumbnailUrl != null}">🎓</div>
+                        <span class="course-card-status status-rejected">Bị từ chối</span>
+                    </div>
+                    <div class="course-card-body">
+                        <h3 class="course-card-title" th:text="${course.title}"></h3>
+                        <div class="course-card-meta reject-reason">
+                            Lý do: <span th:text="${course.rejectionReason ?: '—'}"></span>
+                        </div>
+                    </div>
+                    <div class="course-card-actions">
+                        <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Chỉnh Sửa Lại</a>
+                        <div class="course-card-more">
+                            <details class="dropdown">
+                                <summary class="btn btn-sm btn-outline">⋯</summary>
+                                <div class="dropdown-menu">
+                                    <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}">Xem Chi Tiết</a>
+                                    <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}">Xem Lí Do Từ Chối</a>
+                                    <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}">Gửi Lại</a>
+                                    <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="danger">Xoá</a>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-empty" th:if="${listrejected == null or #lists.isEmpty(listrejected)}">Không có khóa học bị từ chối</div>
+
+            <div th:replace="~{instructor_course/pagination :: pagination(${rejectedPage}, 'pageRejected', 'rejected')}"></div>
+        </div>
+
+        <!-- Tab: Ẩn -->
+        <div class="tab-content" data-tab-group="courses" data-tab="hidden" style="display:none;">
+
+            <div class="course-grid" th:if="${listhidden != null and not #lists.isEmpty(listhidden)}">
+                <div class="course-card" th:each="course, stat: ${listhidden}">
+                    <div class="course-card-thumb">
+                        <img th:if="${course.thumbnailUrl != null}" th:src="${course.thumbnailUrl}" alt="course thumbnailUrl"/>
+                        <div class="course-card-thumb-placeholder" th:unless="${course.thumbnailUrl != null}">🎓</div>
+                        <span class="course-card-status status-hidden">Ẩn</span>
+                    </div>
+                    <div class="course-card-body">
+                        <h3 class="course-card-title" th:text="${course.title}"></h3>
+                        <div class="course-card-meta">
+                            <span th:text="${course.updatedAt != null ? #temporals.format(course.updatedAt, 'dd-MM-yyyy') : ''}"></span>
+                        </div>
+                    </div>
+                    <div class="course-card-actions">
+                        <a th:href="">Chỉnh sửa lại</a>
+                    </div>
+                </div>
+            </div>
+            <div class="table-empty" th:if="${listhidden == null or #lists.isEmpty(listhidden)}">Không có khóa học ẩn</div>
+
+            <div th:replace="~{instructor_course/pagination :: pagination(${hiddenPage}, 'pageHidden', 'hidden')}"></div>
+        </div>
+    </div>
+</main>
+
+
+<script th:src="@{/js/course_instructor.js}"></script>
+</body>
+</html>
