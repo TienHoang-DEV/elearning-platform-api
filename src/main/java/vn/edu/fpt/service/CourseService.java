@@ -406,35 +406,7 @@ public class CourseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
     }
 
-    // =========================================================================
-    // ACADEMIC MANAGER (QUẢN LÝ HỌC THUẬT) SECTION
-    // =========================================================================
 
-    public Page<CourseDto> searchAndFilter(String keyword, CourseStatus status, Integer categoryId, Pageable pageable) {
-        return repository.searchAndFilter(keyword, status, categoryId, pageable)
-                .map(dtoMapper::toCourseDto);
-    }
-
-    /**
-     * Cập nhật trạng thái khóa học (PHÊ DUYỆT, TỪ CHỐI, vv) từ phía manager.
-     */
-    @Transactional
-    public void updateCourseStatus(Integer id, CourseStatus status) {
-        updateCourseStatus(id, status, null);
-    }
-
-    @Transactional
-    public void updateCourseStatus(Integer id, CourseStatus status, String rejectionReason) {
-        Course course = repository.findById(id)
-                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-        course.setStatus(status);
-        if (status == CourseStatus.REJECTED) {
-            course.setRejectionReason(rejectionReason);
-        } else if (status == CourseStatus.PUBLISHED) {
-            course.setRejectionReason(null); // Clear rejection reason if approved
-        }
-        repository.save(course);
-    }
 
     @Transactional
     public void resubmitCourse(Integer id) {

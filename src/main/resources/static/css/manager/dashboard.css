@@ -69,5 +69,32 @@
 .chart-section h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; }
 .chart-container { height: 300px; width: 100%; }
 
-/* ── Responsive ── */
+/* ── Color themes for stats cards ── */
+.icon-wrapper.theme-green {
+    background-color: #f0fdf4;
+    color: #166534;
+}
+.stat-title.theme-green {
+    color: #166534;
+}
+
+.icon-wrapper.theme-blue {
+    background-color: #eff6ff;
+    color: #1e40af;
+}
+.stat-title.theme-blue {
+    color: #1e40af;
+}
+
+.icon-wrapper.theme-orange {
+    background-color: #fff7ed;
+    color: #9a3412;
+}
+.stat-title.theme-orange {
+    color: #9a3412;
+}
+
+.chart-section.p-24 {
+    padding: 24px;
+}
 

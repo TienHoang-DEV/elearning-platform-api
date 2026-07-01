@@ -44,15 +44,5 @@
             </li>
         </ul>
     </nav>
-    <div class="sidebar-footer">
-        <div class="avatar footer-avatar">
-            <img th:if="${currentUser != null and currentUser.avatarUrl != null}" th:src="${currentUser.avatarUrl}" alt="Avatar" class="w-100 h-100 object-fit-cover" />
-            <span th:if="${currentUser == null or currentUser.avatarUrl == null}" th:text="${currentUser != null and currentUser.firstName != null and !currentUser.firstName.isEmpty() ? #strings.substring(currentUser.firstName, 0, 1).toUpperCase() : 'M'}">M</span>
-        </div>
-        <div class="profile-info">
-            <div class="profile-name" th:text="${currentUser != null ? (currentUser.lastName + ' ' + currentUser.firstName) : 'Quản trị viên'}">Quản trị viên</div>
-            <div class="profile-email" th:text="${currentUser != null ? currentUser.email : 'admin@system.com'}">admin@system.com</div>
-        </div>
-    </div>
 </aside>
 </html>

@@ -100,8 +100,5 @@ public interface DtoMapper {
     OrderItemDto toOrderItemDto(OrderItem orderItem);
     LessonMaterialDto toLessonMaterialDto(LessonMaterial lessonMaterial);
 
-    @Mapping(target = "reporter", qualifiedByName = "toSimpleUserDto")
-    @Mapping(target = "reviewedBy", qualifiedByName = "toSimpleUserDto")
-    @Mapping(target = "friendlyReason", expression = "java(report.getFriendlyReason())")
-    ReportDto toReportDto(Report report);
+
 }
