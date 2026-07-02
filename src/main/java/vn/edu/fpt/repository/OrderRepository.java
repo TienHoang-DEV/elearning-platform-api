@@ -78,5 +78,16 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
            """)
     List<RecentOrderDto> recentOrder(@Param("instructorId") Integer instructorId,
                                      Pageable pageable);
+
+    //Doanh thu theo ngày cho biểu đồ
+    @Query(value = "select convert(DATE, o.created_at) as d, sum(oi.price_snapshot) as rev \n" +
+            "          from order_items oi \n" +
+            "          join orders o on oi.order_id = o.id\n" +
+            "          join courses c on c.id = oi.course_id\n" +
+            "          where c.instructor_id = :instructorId and o.status = 'COMPLETED' and o.created_at between :fromDate and :toDate\n" +
+            "          group by convert(DATE, o.created_at) order by d", nativeQuery = true)
+    List<Object[]> revenueTrend(@Param("instructorId") Integer instructorId,
+                                @Param("fromDate") LocalDate fromDate,
+                                @Param("toDate") LocalDate toDate);
 }
 
