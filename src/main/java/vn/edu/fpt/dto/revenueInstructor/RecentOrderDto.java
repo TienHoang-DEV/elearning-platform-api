@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecentOrderDto {
-    private String studentName;
+    private String firstName;
+    private String lastName;
     private String courseName;
     private BigDecimal amount;
     private LocalDateTime date;
