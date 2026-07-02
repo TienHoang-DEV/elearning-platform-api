@@ -2,7 +2,7 @@ package vn.edu.fpt.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.fpt.dto.ManagerDashboardDTO;
+import vn.edu.fpt.dto.manager.ManagerDashboardDTO;
 import vn.edu.fpt.dto.MonthlyRevenueDTO;
 import vn.edu.fpt.dto.revenue_manager.MonthlyRevenueForManagerDTO;
 import vn.edu.fpt.enums.CourseStatus;

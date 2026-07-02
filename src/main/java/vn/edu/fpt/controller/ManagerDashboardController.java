@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import vn.edu.fpt.dto.ManagerDashboardDTO;
+import vn.edu.fpt.dto.manager.ManagerDashboardDTO;
 import vn.edu.fpt.dto.transaction_manager.TransactionCountByStatusDTO;
 import vn.edu.fpt.dto.revenue_manager.MonthlyRevenueForManagerDTO;
 import vn.edu.fpt.dto.transaction_manager.TransactionDetailDTO;
