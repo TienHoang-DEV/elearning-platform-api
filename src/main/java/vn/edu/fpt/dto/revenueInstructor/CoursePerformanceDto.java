@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CoursePerformaceDto {
+public class CoursePerformanceDto {
     private String name;
     private long salesCount;
     private int percent;

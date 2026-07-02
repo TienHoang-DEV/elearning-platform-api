@@ -18,6 +18,6 @@ public class DashboardInstructorDto {
     private List<BigDecimal> revenueTrendValues;
 
     private List<CourseRevenueDto> topSellingCourses;
-    private List<CoursePerformaceDto> coursePerformance;
+    private List<CoursePerformanceDto> coursePerformance;
     private List<RecentOrderDto> recentOrders;
 }
