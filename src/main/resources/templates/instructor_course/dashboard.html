@@ -2,32 +2,20 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Instructor Dashboard - Learning Hub</title>
+    <title>Bảng điều khiển Giảng viên - Learning Hub</title>
+    <link rel="stylesheet" th:href="@{/css/course_manage.css}"/>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * { margin:0; padding:0; box-sizing:border-box;}
         body {
             font-family: 'Segoe UI', Roboto, Arial, sans-serif;
             background:#f4f6f9;
             color:#1f2937;
-            display:flex;
+            /*display:flex;*/
             min-height:100vh;
         }
 
-        /* ---------- Sidebar (đồng bộ tạm với fragment) ---------- */
-        .sidebar { width:250px; background:#1e2433; color:#e5e7eb; display:flex; flex-direction:column; padding:20px 14px; flex-shrink:0; }
-        .sidebar-logo{ font-weight:700; font-size:18px; color:#fff; margin-bottom:24px; padding:0 6px;}
-        .sidebar-user{ display:flex; align-items:center; gap:10px; padding:10px 6px 20px; border-bottom:1px solid #303a4f; margin-bottom:14px;}
-        .sidebar-user-avatar{ width:38px; height:38px; border-radius:50%; background:#4f7cff; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; flex-shrink:0;}
-        .sidebar-user-name{ font-size:14px; font-weight:600; color:#fff;}
-        .sidebar-user-email{ font-size:12px; color:#9aa4b8;}
-        .sidebar-nav{ display:flex; flex-direction:column; gap:2px; flex:1;}
-        .sidebar-nav a{ color:#c7cdda; text-decoration:none; font-size:14px; padding:10px 10px; border-radius:8px; display:flex; align-items:center; gap:10px;}
-        .sidebar-nav a:hover{ background:#2a3245; color:#fff;}
-        .sidebar-nav a.active{ background:#4f7cff; color:#fff;}
-        .nav-logout{ margin-top:10px; color:#f87171 !important;}
-
         /* ---------- Main ---------- */
-        .main{ flex:1; padding:24px 32px; }
+        .main{ flex:1; padding:24px 32px; margin-left: var(--sidebar-width);}
         .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; }
         .topbar h1{ font-size:20px; font-weight:700; }
 
@@ -108,176 +96,169 @@
 <body>
 
 <div th:replace="~{instructor_course/sidebar :: sidebar(activePage='stats')}"></div>
-
 <main class="main">
     <div class="topbar">
-        <h1>Instructor Dashboard</h1>
+        <h1>Tổng Quan Thống Kê</h1>
 
-        <!-- Time filter: This Month / This Year / All Time / Custom -->
         <div class="time-filter" id="timeFilter">
             <button type="button" class="time-filter-btn" onclick="document.getElementById('timeFilter').classList.toggle('open')">
-                <span id="timeFilterLabel">This Month</span>
+                <span id="timeFilterLabel"
+                      th:with="months=${#strings.arraySplit('Tháng 1,Tháng 2,Tháng 3,Tháng 4,Tháng 5,Tháng 6,Tháng 7,Tháng 8,Tháng 9,Tháng 10,Tháng 11,Tháng 12', ',')}"
+                      th:text="${selectedPeriod == 'MONTH' ? 'Tháng này' :
+                     (selectedPeriod == 'YEAR' ? 'Năm này' :
+                     (selectedPeriod == 'CUSTOM' ? months[selectedMonth - 1] + ' ' + selectedYear : 'Tất cả thời gian'))}">Tháng này
+                </span>
                 <span>▼</span>
             </button>
             <div class="time-filter-menu">
-                <button type="button" class="selected" onclick="selectTime('This Month', false)">This Month</button>
-                <button type="button" onclick="selectTime('This Year', false)">This Year</button>
-                <button type="button" onclick="selectTime('All Time', false)">All Time</button>
-                <button type="button" onclick="selectTime('Custom', true)">Custom</button>
+                <button type="button" th:classappend="${selectedPeriod == 'MONTH'} ? 'selected' : ''"
+                        onclick="selectTime('MONTH', 'Tháng này', false)">Tháng này</button>
+                <button type="button" th:classappend="${selectedPeriod == 'YEAR'} ? 'selected' : ''"
+                        onclick="selectTime('YEAR', 'Năm này', false)">Năm này</button>
+                <button type="button" th:classappend="${selectedPeriod == 'ALL'} ? 'selected' : ''"
+                        onclick="selectTime('ALL', 'Tất cả thời gian', false)">Tất cả thời gian</button>
+                <button type="button" th:classappend="${selectedPeriod == 'CUSTOM'} ? 'selected' : ''"
+                        onclick="selectTime('CUSTOM', 'Tùy chỉnh', true)">Tùy chỉnh</button>
 
-                <div class="custom-range" id="customRange">
+                <div class="custom-range" id="customRange" th:classappend="${selectedPeriod == 'CUSTOM'} ? 'show' : ''">
                     <div>
-                        <label>Year</label>
+                        <label>Năm</label>
                         <select id="customYear">
-                            <option>2026</option>
-                            <option>2025</option>
-                            <option>2024</option>
+                            <option th:each="y : ${#numbers.sequence(#calendars.year(#calendars.createNow()), #calendars.year(#calendars.createNow()) - 4, -1)}"
+                                    th:value="${y}"
+                                    th:text="${y}"
+                                    th:selected="${selectedYear != null and selectedYear == y}">
+                            </option>
                         </select>
                     </div>
                     <div>
-                        <label>Month</label>
+                        <label>Tháng</label>
                         <select id="customMonth">
-                            <option>January</option><option>February</option><option>March</option>
-                            <option>April</option><option>May</option><option>June</option>
-                            <option selected>July</option><option>August</option><option>September</option>
-                            <option>October</option><option>November</option><option>December</option>
+                            <option value="1" th:selected="${selectedMonth == 1}">Tháng 1</option>
+                            <option value="2" th:selected="${selectedMonth == 2}">Tháng 2</option>
+                            <option value="3" th:selected="${selectedMonth == 3}">Tháng 3</option>
+                            <option value="4" th:selected="${selectedMonth == 4}">Tháng 4</option>
+                            <option value="5" th:selected="${selectedMonth == 5}">Tháng 5</option>
+                            <option value="6" th:selected="${selectedMonth == 6}">Tháng 6</option>
+                            <option value="7" th:selected="${selectedMonth == null or selectedMonth == 7}">Tháng 7</option>
+                            <option value="8" th:selected="${selectedMonth == 8}">Tháng 8</option>
+                            <option value="9" th:selected="${selectedMonth == 9}">Tháng 9</option>
+                            <option value="10" th:selected="${selectedMonth == 10}">Tháng 10</option>
+                            <option value="11" th:selected="${selectedMonth == 11}">Tháng 11</option>
+                            <option value="12" th:selected="${selectedMonth == 12}">Tháng 12</option>
                         </select>
                     </div>
-                    <button type="button" class="apply-btn" onclick="applyCustom()">Apply</button>
+                    <button type="button" class="apply-btn" onclick="applyCustom()">Áp dụng</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 4 KPI cards - hardcode -->
     <div class="kpi-grid">
         <div class="kpi-card">
-            <div class="kpi-top"><span class="kpi-icon">💰</span><span class="kpi-label">Total Revenue</span></div>
-            <div class="kpi-value">12.450.000đ</div>
-            <div class="kpi-delta up">↑ 12% so với tháng trước</div>
+            <div class="kpi-top"><span class="kpi-icon"></span><span class="kpi-label">Tổng doanh thu</span></div>
+            <div class="kpi-value"
+                 th:text="${#numbers.formatDecimal(stats.totalRevenue ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">12.450.000đ</div>
+            <div class="kpi-delta"
+                 th:with="delta=${stats.revenueDeltaPercent ?: 0}"
+                 th:classappend="${delta.signum() > 0} ? 'up' : (${delta.signum() < 0} ? 'down' : 'neutral')"
+                 th:text="(${delta.signum() > 0} ? '↑ ' : (${delta.signum() < 0} ? '↓ ' : '')) + ${#numbers.formatDecimal(delta.abs(), 0, 1)} + '% so với kỳ trước'">↑ 12% so với tháng trước</div>
         </div>
+
         <div class="kpi-card">
-            <div class="kpi-top"><span class="kpi-icon">🛒</span><span class="kpi-label">Total Orders</span></div>
-            <div class="kpi-value">245</div>
-            <div class="kpi-delta up">↑ 8%</div>
+            <div class="kpi-top"><span class="kpi-icon"></span><span class="kpi-label">Tổng đơn hàng</span></div>
+            <div class="kpi-value" th:text="${stats.totalOrders}">245</div>
+            <div class="kpi-delta"
+                 th:with="delta=${stats.ordersDeltaPercent ?: 0}"
+                 th:classappend="${delta.signum() > 0} ? 'up' : (${delta.signum() < 0} ? 'down' : 'neutral')"
+                 th:text="(${delta.signum() > 0} ? '↑ ' : (${delta.signum() < 0} ? '↓ ' : '')) + ${#numbers.formatDecimal(delta.abs(), 0, 1)} + '% so với kỳ trước'">↑ 8%</div>
         </div>
+
         <div class="kpi-card">
-            <div class="kpi-top"><span class="kpi-icon">👨‍🎓</span><span class="kpi-label">Total Students</span></div>
-            <div class="kpi-value">180</div>
-            <div class="kpi-delta up">↑ 15%</div>
+            <div class="kpi-top"><span class="kpi-icon"></span><span class="kpi-label">Tổng học viên</span></div>
+            <div class="kpi-value" th:text="${stats.totalStudents}">180</div>
+            <div class="kpi-delta"
+                 th:with="delta=${stats.studentsDeltaPercent ?: 0}"
+                 th:classappend="${delta.signum() > 0} ? 'up' : (${delta.signum() < 0} ? 'down' : 'neutral')"
+                 th:text="(${delta.signum() > 0} ? '↑ ' : (${delta.signum() < 0} ? '↓ ' : '')) + ${#numbers.formatDecimal(delta.abs(), 0, 1)} + '% so với kỳ trước'">↑ 15%</div>
         </div>
+
+
         <div class="kpi-card">
-            <div class="kpi-top"><span class="kpi-icon">📚</span><span class="kpi-label">Total Courses</span></div>
-            <div class="kpi-value">12</div>
-            <div class="kpi-delta neutral">+1 khóa học mới</div>
+            <div class="kpi-top"><span class="kpi-icon"></span><span class="kpi-label">Tổng số khóa học</span></div>
+            <div class="kpi-value" th:text="${stats.totalCourse}">12</div>
+            <div class="kpi-delta neutral"
+                 th:if="${stats.newCoursesInPeriod > 0}"
+                 th:text="'+' + ${stats.newCoursesInPeriod} + ' khóa học mới'">+1 khóa học mới</div>
+            <div class="kpi-delta neutral" th:unless="${stats.newCoursesInPeriod > 0}">Không có khóa mới</div>
         </div>
     </div>
 
-    <!-- Revenue trend chart -->
     <div class="card">
-        <div class="card-header"><h2>Revenue Overview</h2></div>
+        <div class="card-header"><h2>Xu hướng doanh thu</h2></div>
         <svg viewBox="0 0 700 220" width="100%" height="220" preserveAspectRatio="none">
-            <polyline points="0,180 100,150 200,160 300,100 400,110 500,60 600,80 700,40"
+            <polyline th:attr="points=${stats.chartPoints}"
+                      points="0,180 100,150 200,160 300,100 400,110 500,60 600,80 700,40"
                       fill="none" stroke="#4f7cff" stroke-width="3"/>
-            <polygon points="0,180 100,150 200,160 300,100 400,110 500,60 600,80 700,40 700,220 0,220"
+            <polygon th:attr="points=${stats.chartPoints} + ' 700,220 0,220'"
+                     points="0,180 100,150 200,160 300,100 400,110 500,60 600,80 700,40 700,220 0,220"
                      fill="#4f7cff" opacity="0.08"/>
             <line x1="0" y1="219" x2="700" y2="219" stroke="#e5e7eb" stroke-width="1"/>
         </svg>
+        <div th:if="${stats.revenueTrendValues == null or stats.revenueTrendValues.isEmpty()}"
+             style="text-align:center; color:#9ca3af; font-size:13px; margin-top:-40px;">
+            Chưa có dữ liệu doanh thu trong khoảng thời gian này
+        </div>
     </div>
 
     <div class="two-col">
-        <!-- Top selling courses -->
         <div class="card">
-            <div class="card-header"><h2>Top Selling Courses</h2></div>
-            <div class="top-course">
-                <span class="top-course-name">Spring Boot</span>
-                <span class="top-course-amount">4.2M</span>
+            <div class="card-header"><h2>Khóa học bán chạy nhất</h2></div>
+            <div class="top-course" th:each="c : ${stats.topSellingCourses}">
+                <span class="top-course-name" th:text="${c.name}">Spring Boot</span>
+                <span class="top-course-amount"
+                      th:text="${#numbers.formatDecimal(c.revenue, 0, 'COMMA', 0, 'POINT')} + 'đ'">4.200.000đ</span>
             </div>
-            <div class="top-course">
-                <span class="top-course-name">Java Core</span>
-                <span class="top-course-amount">2.8M</span>
-            </div>
-            <div class="top-course">
-                <span class="top-course-name">HTML/CSS</span>
-                <span class="top-course-amount">1.7M</span>
-            </div>
-            <div class="top-course">
-                <span class="top-course-name">SQL Server</span>
-                <span class="top-course-amount">1.2M</span>
-            </div>
+            <div th:if="${stats.topSellingCourses == null or stats.topSellingCourses.isEmpty()}"
+                 style="color:#9ca3af; font-size:13px; padding:8px 0;">Chưa có dữ liệu</div>
         </div>
 
-        <!-- Course performance (số lượng bán) -->
         <div class="card">
-            <div class="card-header"><h2>Course Performance</h2></div>
-            <div class="perf-row">
-                <div class="perf-label">Spring Boot</div>
-                <div class="perf-track"><div class="perf-fill" style="width:100%;"></div></div>
-                <div class="perf-value">85 sales</div>
+            <div class="card-header"><h2>Hiệu suất khóa học</h2></div>
+            <div class="perf-row" th:each="p : ${stats.coursePerformance}">
+                <div class="perf-label" th:text="${p.name}">Spring Boot</div>
+                <div class="perf-track"><div class="perf-fill" th:style="'width:' + ${p.percent} + '%;'"></div></div>
+                <div class="perf-value" th:text="${p.salesCount} + ' lượt bán'">85 lượt bán</div>
             </div>
-            <div class="perf-row">
-                <div class="perf-label">Java Core</div>
-                <div class="perf-track"><div class="perf-fill" style="width:73%;"></div></div>
-                <div class="perf-value">62 sales</div>
-            </div>
-            <div class="perf-row">
-                <div class="perf-label">HTML/CSS</div>
-                <div class="perf-track"><div class="perf-fill" style="width:48%;"></div></div>
-                <div class="perf-value">41 sales</div>
-            </div>
-            <div class="perf-row">
-                <div class="perf-label">Python</div>
-                <div class="perf-track"><div class="perf-fill" style="width:39%;"></div></div>
-                <div class="perf-value">33 sales</div>
-            </div>
+            <div th:if="${stats.coursePerformance == null or stats.coursePerformance.isEmpty()}"
+                 style="color:#9ca3af; font-size:13px; padding:8px 0;">Chưa có dữ liệu</div>
         </div>
     </div>
 
-    <!-- Recent orders: 5 dòng + View All -->
     <div class="card">
         <div class="card-header">
-            <h2>Recent Orders</h2>
-            <a href="#" class="view-all" th:href="@{/instructor/orders}">View All →</a>
+            <h2>Đơn hàng gần đây</h2>
+            <a href="#" class="view-all" th:href="@{/instructor/orders}">Xem tất cả →</a>
         </div>
         <table>
             <thead>
             <tr>
-                <th>Student</th>
-                <th>Course</th>
-                <th>Amount</th>
-                <th>Date</th>
+                <th>Học viên</th>
+                <th>Khóa học</th>
+                <th>Số tiền</th>
+                <th>Ngày đặt</th>
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>Nguyễn Văn A</td>
-                <td>Java Core</td>
-                <td class="amount-cell">299.000đ</td>
-                <td>01/07</td>
+            <tr th:each="o : ${stats.recentOrders}">
+                <td th:text="${o.firstName + ' ' + o.lastName}">Nguyễn Văn A</td>
+                <td th:text="${o.courseName}">Java Core</td>
+                <td class="amount-cell"
+                    th:text="${#numbers.formatDecimal(o.amount, 0, 'COMMA', 0, 'POINT')} + 'đ'">299.000đ</td>
+                <td th:text="${#temporals.format(o.date, 'dd/MM')}">01/07</td>
             </tr>
-            <tr>
-                <td>Trần Văn B</td>
-                <td>Spring Boot</td>
-                <td class="amount-cell">499.000đ</td>
-                <td>30/06</td>
-            </tr>
-            <tr>
-                <td>Lê Thị C</td>
-                <td>HTML/CSS</td>
-                <td class="amount-cell">199.000đ</td>
-                <td>29/06</td>
-            </tr>
-            <tr>
-                <td>Phạm Văn D</td>
-                <td>SQL</td>
-                <td class="amount-cell">399.000đ</td>
-                <td>28/06</td>
-            </tr>
-            <tr>
-                <td>Nguyễn Văn E</td>
-                <td>Python</td>
-                <td class="amount-cell">299.000đ</td>
-                <td>27/06</td>
+            <tr th:if="${stats.recentOrders == null or stats.recentOrders.isEmpty()}">
+                <td colspan="4" style="text-align:center; color:#9ca3af;">Chưa có đơn hàng nào</td>
             </tr>
             </tbody>
         </table>
@@ -285,7 +266,7 @@
 </main>
 
 <script>
-    function selectTime(label, isCustom) {
+    function selectTime(periodCode, label, isCustom) {
         document.getElementById('timeFilterLabel').textContent = label;
         document.querySelectorAll('.time-filter-menu button').forEach(b => b.classList.remove('selected'));
         event.currentTarget.classList.add('selected');
@@ -293,22 +274,18 @@
         const customBox = document.getElementById('customRange');
         if (isCustom) {
             customBox.classList.add('show');
-        } else {
-            customBox.classList.remove('show');
-            document.getElementById('timeFilter').classList.remove('open');
-            // TODO: gọi location.href = '?period=' + label khi nối API thật
+            return; // chờ bấm Apply, chưa reload
         }
+        customBox.classList.remove('show');
+        window.location.href = '?period=' + periodCode;
     }
 
     function applyCustom() {
         const year = document.getElementById('customYear').value;
-        const month = document.getElementById('customMonth').value;
-        document.getElementById('timeFilterLabel').textContent = month + ' ' + year;
-        document.getElementById('timeFilter').classList.remove('open');
-        // TODO: location.href = '?year=' + year + '&month=' + month;
+        const month = document.getElementById('customMonth').value; // value là số 1-12
+        window.location.href = '?period=CUSTOM&year=' + year + '&month=' + month;
     }
 
-    // đóng dropdown khi click ra ngoài
     document.addEventListener('click', function(e) {
         const box = document.getElementById('timeFilter');
         if (!box.contains(e.target)) box.classList.remove('open');

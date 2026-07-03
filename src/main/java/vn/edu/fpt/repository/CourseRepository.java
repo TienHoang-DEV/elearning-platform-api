@@ -10,6 +10,8 @@ import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.CourseStatus;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import vn.edu.fpt.dto.course.CourseListDto;
@@ -48,6 +50,27 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
           """)
     Course findDetailById(@Param("courseId") Integer courseId);
 
+    //tổng số khoá học đã publish (tính cộng dồn, không lọc theo kỳ)
+    @Query("""
+           select count(c) from Course c
+           where c.instructor.id = :instructorId
+           and c.status = 'PUBLISHED'
+           """)
+    long countPublishedCourse(@Param("instructorId") Integer instructorId,
+                              @Param("fromDate") LocalDateTime fromDate,
+                              @Param("toDate") LocalDateTime toDate);
+
+
+    //tổng số khoá học mơi
+    @Query("""
+           select count(c) from Course c
+           where c.instructor.id = :instructorId
+           and c.createdAt between :fromDate and :toDate
+           """)
+    long countNewCourse(@Param("instructorId") Integer instructorId,
+                        @Param("fromDate") LocalDateTime fromDate,
+                        @Param("toDate") LocalDateTime toDate);
+
     @Query("""
             select distinct c from Course c left join fetch c.sections s left join fetch s.lessons where c.id = :id
             """)
@@ -71,6 +94,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
     Optional<Course> findByIdWithEnrollmentAndLessonProgress(@Param("id") Integer courseId);
 
     List<Course> findByInstructorAndStatus(User user, CourseStatus status);
+
     List<Course> findByInstructor(User instructor);
 
     @Query("""

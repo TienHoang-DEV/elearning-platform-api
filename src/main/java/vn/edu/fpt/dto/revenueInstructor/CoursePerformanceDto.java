@@ -8,9 +8,14 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class CoursePerformanceDto {
+
     private String name;
     private long salesCount;
     private int percent;
+
+    public CoursePerformanceDto(String name, Long salesCount) {
+        this.name = name;
+        this.salesCount = salesCount;
+    }
 }
