@@ -16,15 +16,18 @@ import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.CourseService;
+import vn.edu.fpt.service.ManagerCourseService;
 
 @Controller
 @RequestMapping("/manager/course")
 public class ManagerCourseController {
 
+    private final ManagerCourseService managerCourseService;
     private final CourseService courseService;
     private final CategoryService categoryService;
 
-    public ManagerCourseController(CourseService courseService, CategoryService categoryService) {
+    public ManagerCourseController(ManagerCourseService managerCourseService, CourseService courseService, CategoryService categoryService) {
+        this.managerCourseService = managerCourseService;
         this.courseService = courseService;
         this.categoryService = categoryService;
     }
@@ -43,7 +46,7 @@ public class ManagerCourseController {
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        Page<CourseDto> coursePage = courseService.searchAndFilter(keyword, status, categoryId, pageable);
+        Page<CourseDto> coursePage = managerCourseService.searchAndFilter(keyword, status, categoryId, pageable);
 
         model.addAttribute("coursePage", coursePage);
         model.addAttribute("keyword", keyword);
@@ -77,7 +80,7 @@ public class ManagerCourseController {
             @RequestParam(value = "rejectionReason", required = false) String rejectionReason,
             RedirectAttributes redirectAttributes) {
 
-        courseService.updateCourseStatus(id, status, rejectionReason);
+        managerCourseService.updateCourseStatus(id, status, rejectionReason);
         redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái khóa học thành công.");
 
         return "redirect:/manager/course/detail/" + id;

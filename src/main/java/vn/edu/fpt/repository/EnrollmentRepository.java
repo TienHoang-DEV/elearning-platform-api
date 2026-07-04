@@ -8,6 +8,8 @@ import vn.edu.fpt.entity.Enrollment;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.entity.Course;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,4 +24,14 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Integer>
                 select e from Enrollment e where e.course.id = :courseId and e.user.id = :userId
             """)
     Optional<Enrollment> findByCourseIdAndUserId(@Param("courseId") Integer courseId, @Param("userId") Integer userId);
+
+    @Query("""
+           select count(distinct e.user.id) 
+           from Enrollment e
+           where e.course.instructor.id = :instructorId
+           and e.createdAt between :fromDate and :toDate   
+           """)
+    long countDistictStudents(@Param("instructorId") Integer instructorId,
+                              @Param("fromDate") LocalDateTime fromDate,
+                              @Param("toDate") LocalDateTime toDate);
 }

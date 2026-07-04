@@ -783,21 +783,7 @@ CREATE TABLE feedbacks (
     CONSTRAINT UQ_feedback_user_course UNIQUE(user_id, course_id)
 );
 
-CREATE TABLE reports (
-    id INT PRIMARY KEY IDENTITY(1,1),
-    reporter_id INT NOT NULL,
-    report_type VARCHAR(20) CHECK(report_type IN ('LESSON','FEEDBACK')),
-    target_id INT NOT NULL,
-    reason_type VARCHAR(50) NOT NULL,
-    description NVARCHAR(2000) NULL,
-    status VARCHAR(20) DEFAULT 'PENDING' CHECK(status IN ('PENDING','RESOLVED','REJECTED')),
-    reviewed_by INT NULL,
-    reviewed_at DATETIME NULL,
-    created_at DATETIME DEFAULT GETDATE(),
-    updated_at DATETIME NULL,
-    CONSTRAINT FK_reports_reporter FOREIGN KEY (reporter_id) REFERENCES users(id),
-    CONSTRAINT FK_reports_reviewer FOREIGN KEY (reviewed_by) REFERENCES users(id)
-);
+
 
 -- ==========================================
 -- PERFORMANCE INDEXES (MỚI - TỐI ƯU HÓA TRUY VẤN)
@@ -826,7 +812,6 @@ CREATE INDEX IX_payment_status_created_at ON payments(status, created_at, webhoo
 CREATE INDEX IX_payment_webhook_retry ON payments(status, webhook_received, webhook_retry_count, created_at);
 
 
-CREATE INDEX IX_reports_status ON reports(status);
-CREATE INDEX IX_reports_target ON reports(target_id);
+
 CREATE INDEX IX_feedback_course ON feedbacks(course_id);
 GO
