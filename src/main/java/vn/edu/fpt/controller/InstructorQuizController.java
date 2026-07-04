@@ -1,8 +1,6 @@
 package vn.edu.fpt.controller;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,22 +11,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
-import vn.edu.fpt.entity.Lesson;
-import vn.edu.fpt.entity.Quiz;
-import vn.edu.fpt.entity.QuizQuestion;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.QuestionType;
 import vn.edu.fpt.enums.QuizStatus;
-import vn.edu.fpt.service.LessonService;
 import vn.edu.fpt.service.quiz.QuizAttemptService;
 import vn.edu.fpt.service.quiz.QuizQuestionService;
 import vn.edu.fpt.service.quiz.QuizService;
 import vn.edu.fpt.util.SecurityUtils;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/instructor/quiz")

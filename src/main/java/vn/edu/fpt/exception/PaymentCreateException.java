@@ -1,9 +1,6 @@
 package vn.edu.fpt.exception;
 
-public class PaymentCreateException extends ApplicationException{
-    public PaymentCreateException() {
-        super();
-    }
+public class PaymentCreateException extends RuntimeException {
 
     public PaymentCreateException(String message) {
         super(message);

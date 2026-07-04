@@ -1,4 +1,4 @@
-package vn.edu.fpt.service;
+package vn.edu.fpt.service.lesson;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,11 +13,11 @@ import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.LessonRepository;
+import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.SecurityUtils;
 
-import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
