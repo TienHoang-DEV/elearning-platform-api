@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
+import vn.edu.fpt.dto.course.CourseContentSidebarDTO;
 import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.entity.*;
 import vn.edu.fpt.service.*;
@@ -51,57 +52,8 @@ public class ListLessonCourseController {
     @GetMapping("/course/{courseId}/section/{sectionId}/lesson/{lessonId}")
     public String viewLesson(Model model, @PathVariable Integer courseId, @PathVariable Integer sectionId, @PathVariable Integer lessonId) {
         User user = SecurityUtils.getCurrentUser();
-        Course course = courseService.findById(courseId);
-
-        Lesson lesson = lessonService.findByIdWithMaterials(lessonId);
-
-        CourseDto courseDto = dtoMapper.toCourseDto(course);
-        LessonDto lessonDto = dtoMapper.toLessonDto(lesson);
-        List<LessonMaterialDto> materialDtos = new ArrayList<>();
-        for (LessonMaterial m : lesson.getMaterials()) {
-            materialDtos.add(dtoMapper.toLessonMaterialDto(m));
-        }
-        Integer totalNumberOfLesson = lessonService.findNumberOfLessonByCourseId(courseId);
-        Enrollment enrollment = enrollmentService.findEnrollmentByCourseIdAndUserId(courseId, user.getId());
-        Integer totalNumberOfLessonCompleted = lessonProgressService.findNumberOfLessonCompletedByEnrollment(enrollment);
-        Boolean lessonProgressStatus = lessonProgressService.findStatusByLessonId(lessonId);
-
-        List<Integer> completedLessonIds = lessonService.getCompletedLessonIdsByCourseIdAndUserId(courseId, user.getId());
-
-        Map<Integer, Boolean> sectionCompletedMap = courseSectionService.getSectionCompletedMap(courseDto.getSections(), completedLessonIds);
-
-        // nếu next lesson bằng null tức là người học đã hoàn thành hết khóa học, không có bài học tiếp theo
-        Lesson nextLesson = lessonService.findNextLessonByCurrentLesson(lesson, totalNumberOfLesson, totalNumberOfLessonCompleted);
-
-        // tính toán phần trăm tiến trình từ số bài học hoàn thành
-        double progressVal = 0.0;
-        if (totalNumberOfLesson != null && totalNumberOfLesson > 0 && totalNumberOfLessonCompleted != null) {
-            progressVal = ((double) totalNumberOfLessonCompleted * 100.0) / totalNumberOfLesson;
-        } else if (enrollment != null && enrollment.getProgressPercent() != null) {
-            progressVal = enrollment.getProgressPercent().doubleValue();
-        }
-
-        boolean showReviewPrompt = false;
-        if (progressVal >= 30.0) {
-            boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), courseId);
-            if (!hasReviewed) {
-                showReviewPrompt = true;
-            }
-        }
-
-        model.addAttribute("showReviewPrompt", showReviewPrompt);
-        model.addAttribute("progressPercent", progressVal);
-        model.addAttribute("nextLesson", nextLesson);
-        model.addAttribute("currentSectionId", sectionId);
-        model.addAttribute("sectionCompletedMap", sectionCompletedMap);
-        model.addAttribute("completedLessonIds", completedLessonIds);
-        model.addAttribute("lessonProgressStatus", lessonProgressStatus);
-        model.addAttribute("totalNumberOfLesson", totalNumberOfLesson);
-        model.addAttribute("totalNumberOfLessonCompleted", totalNumberOfLessonCompleted);
-        model.addAttribute("course", courseDto);
-        model.addAttribute("courseSections", courseDto.getSections());
-        model.addAttribute("lesson", lessonDto);
-        model.addAttribute("materials", materialDtos);
+        CourseContentSidebarDTO courseContentSidebarDTO = courseService.viewCourseContent(user, courseId, sectionId, lessonId);
+        model.addAttribute("sidebar", courseContentSidebarDTO);
         return "learning/learning";
     }
 

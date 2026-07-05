@@ -1,5 +1,6 @@
 package vn.edu.fpt.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -8,39 +9,36 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.dto.course.CategoryDto;
+import vn.edu.fpt.dto.course.CourseContentSidebarDTO;
 import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.course.CourseListDto;
 import vn.edu.fpt.dto.home.HomeDto;
-import vn.edu.fpt.entity.Category;
+import vn.edu.fpt.dto.lesson.LessonSiderbarDTO;
+import vn.edu.fpt.dto.lesson.SectionSiderbarDTO;
+import vn.edu.fpt.entity.*;
 import org.springframework.web.multipart.MultipartFile;
-import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.exception.CourseNotFoundException;
-import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
-import vn.edu.fpt.repository.CategoryRepository;
+import vn.edu.fpt.repository.*;
 
 import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.mapper.DtoMapper;
 
-import vn.edu.fpt.repository.CourseRepository;
-
 import vn.edu.fpt.service.cloud.AzureBlobService;
+import vn.edu.fpt.service.lesson.LessonService;
 import vn.edu.fpt.util.AppConstants;
-import vn.edu.fpt.repository.UserRepository;
-import vn.edu.fpt.repository.FeedbackRepository;
 import org.springframework.data.domain.PageRequest;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
+
+import java.util.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class CourseService {
     private final CourseRepository repository;
     private final DtoMapper dtoMapper;
@@ -49,17 +47,12 @@ public class CourseService {
     private final CategoryService categoryService;
     private final UserRepository userRepository;
     private final FeedbackRepository feedbackRepository;
+    private final CourseSectionRepository courseSectionRepository;
+    private final LessonRepository lessonRepository;
+    private final LessonProgressRepository lessonProgressRepository;
+    private final LessonService lessonService;
+    private final FeedbackService feedbackService;
 
-    public CourseService(CourseRepository courseRepository, DtoMapper dtoMapper, CategoryRepository categoryRepository,
-            AzureBlobService azureBlobService, CategoryService categoryService, UserRepository userRepository, FeedbackRepository feedbackRepository) {
-        this.categoryService = categoryService;
-        this.repository = courseRepository;
-        this.dtoMapper = dtoMapper;
-        this.categoryRepository = categoryRepository;
-        this.azureBlobService = azureBlobService;
-        this.userRepository = userRepository;
-        this.feedbackRepository = feedbackRepository;
-    }
     // Page course của mỗi instructor
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
         return repository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
@@ -524,5 +517,93 @@ public class CourseService {
                 .favoriteChildren(favoriteChildren)
                 .coursesMap(coursesMap)
                 .build();
+    }
+
+    @Transactional
+    public CourseContentSidebarDTO viewCourseContent(User user, Integer courseId, Integer sectionId, Integer lessonId) {
+        CourseContentSidebarDTO courseContentSidebarDTO = new CourseContentSidebarDTO();
+
+        Course course = repository.findByCourseIdAndUserId(courseId, user.getId()).orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này hoặc khóa học không tồn tại trong hệ thống!"));
+
+        List<SectionSiderbarDTO> sectionSiderbarDTOS = courseSectionRepository.findSectionSiderbarDTOByCourseId(courseId);
+
+        Set<Integer> lessonIdCompleted = lessonProgressRepository.findByUserIdAndCourseId(user.getId(), courseId);
+
+        int totalLesson = 0;
+        String currentLessonTitle = "";
+        String currentLessonUrl = "";
+
+        for (SectionSiderbarDTO dto : sectionSiderbarDTOS) {
+            List<LessonSiderbarDTO> lessonSiderbarDTOS = lessonRepository.findLessonBySecionId(dto.getId());
+            totalLesson += lessonSiderbarDTOS.size();
+            boolean sectionCompleted = true;
+            for (LessonSiderbarDTO lessonSiderbarDTO : lessonSiderbarDTOS) {
+                if (lessonSiderbarDTO.getId().equals(lessonId)) {
+                    lessonSiderbarDTO.setCurrentLesson(true);
+                    currentLessonTitle = lessonSiderbarDTO.getTitle();
+                    currentLessonUrl = lessonSiderbarDTO.getLessonUrl();
+                }
+                if (lessonIdCompleted.contains(lessonSiderbarDTO.getId())) {
+                    lessonSiderbarDTO.setCompleted(true);
+                } else  {
+                    sectionCompleted = false;
+                }
+            }
+            dto.setCompleted(sectionCompleted);
+            dto.setTotalLessonBySection(lessonSiderbarDTOS.size());
+            dto.setLessons(lessonSiderbarDTOS);
+        }
+
+
+        courseContentSidebarDTO.setSections(sectionSiderbarDTOS);
+        courseContentSidebarDTO.setTotalLesson(totalLesson);
+        courseContentSidebarDTO.setCompletedLesson(lessonIdCompleted.size());
+        courseContentSidebarDTO.setCurrentLessonId(lessonId);
+        courseContentSidebarDTO.setCurrentLessonTitle(currentLessonTitle);
+        courseContentSidebarDTO.setCurrentLessonURL(currentLessonUrl);
+        courseContentSidebarDTO.setCourseId(courseId);
+
+        Lesson nextLesson = lessonService.findNextLessonByCurrentLesson(lessonId, courseId ,totalLesson, lessonIdCompleted.size());
+        if (nextLesson != null) {
+            courseContentSidebarDTO.setNextLessonId(nextLesson.getId());
+            courseContentSidebarDTO.setNextLessonTitle(nextLesson.getTitle());
+            if (nextLesson.getCourseSection() != null) {
+                courseContentSidebarDTO.setNextSectionId(nextLesson.getCourseSection().getId());
+            }
+        }
+
+        double progressVal = 0.0;
+        if (totalLesson != 0 && totalLesson > 0 && lessonIdCompleted != null) {
+            progressVal = ((double) lessonIdCompleted.size() * 100.0) / totalLesson;
+        }
+        courseContentSidebarDTO.setProgressPercent(progressVal);
+
+        Lesson currentLesson = lessonService.findByIdWithMaterials(lessonId);
+        if (currentLesson != null) {
+            courseContentSidebarDTO.setLesson(dtoMapper.toLessonDto(currentLesson));
+            List<LessonMaterialDto> materialDtos = new ArrayList<>();
+            if (currentLesson.getMaterials() != null) {
+                for (LessonMaterial m : currentLesson.getMaterials()) {
+                    materialDtos.add(dtoMapper.toLessonMaterialDto(m));
+                }
+            }
+            courseContentSidebarDTO.setMaterials(materialDtos);
+        }
+
+        courseContentSidebarDTO.setCourseDescription(course.getDescription());
+        courseContentSidebarDTO.setLessonProgressStatus(lessonIdCompleted.contains(lessonId));
+        courseContentSidebarDTO.setCurrentSectionId(sectionId);
+
+        boolean showReviewPrompt = false;
+        if (progressVal >= AppConstants.PERCENT_COMPLETED_LESSON_TO_COMMENT) {
+            boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), courseId);
+            if (!hasReviewed) {
+                showReviewPrompt = true;
+            }
+        }
+
+        courseContentSidebarDTO.setShowReviewPrompt(showReviewPrompt);
+
+        return courseContentSidebarDTO;
     }
 }

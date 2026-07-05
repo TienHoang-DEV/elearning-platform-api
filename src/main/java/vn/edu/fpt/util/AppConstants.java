@@ -88,5 +88,7 @@ public final class AppConstants {
      */
     public static final long PAYMENT_SYNC_TIMESTAMP_INTERVAL_MINUTES = 5;
 
+    public static final double PERCENT_COMPLETED_LESSON_TO_COMMENT = 30.0;
+
 }
 

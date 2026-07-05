@@ -160,17 +160,17 @@ public class LessonService {
         }
     }
 
-    public Lesson findNextLessonByCurrentLesson(Lesson lesson, Integer totalNumberOfLesson, Integer totalNumberOfLessonCompleted) {
+    public Lesson findNextLessonByCurrentLesson(Integer lessonId,Integer courseId, Integer totalNumberOfLesson, Integer totalNumberOfLessonCompleted) {
         if (totalNumberOfLesson == totalNumberOfLessonCompleted) {
             return null;
         }
         User user = SecurityUtils.getCurrentUser();
-        List<Lesson> nextLessons = repository.findNotCompletedLessons(user, lesson);
+        List<Lesson> nextLessons = repository.findNotCompletedLessons(user, courseId);
         if (nextLessons == null || nextLessons.isEmpty()) {
             return null;
         }
         for (Lesson nextLesson : nextLessons) {
-            if ((nextLesson.getId() > lesson.getId()) || (lesson.getId() == nextLessons.get(nextLessons.size() - 1).getId())) {
+            if ((nextLesson.getId() > lessonId) || (lessonId == nextLessons.get(nextLessons.size() - 1).getId())) {
                 return nextLesson;
             }
         }
