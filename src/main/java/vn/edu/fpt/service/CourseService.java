@@ -531,7 +531,6 @@ public class CourseService {
 
         int totalLesson = 0;
         String currentLessonTitle = "";
-        String currentLessonUrl = "";
 
         for (SectionSiderbarDTO dto : sectionSiderbarDTOS) {
             List<LessonSiderbarDTO> lessonSiderbarDTOS = lessonRepository.findLessonBySecionId(dto.getId());
@@ -541,7 +540,6 @@ public class CourseService {
                 if (lessonSiderbarDTO.getId().equals(lessonId)) {
                     lessonSiderbarDTO.setCurrentLesson(true);
                     currentLessonTitle = lessonSiderbarDTO.getTitle();
-                    currentLessonUrl = lessonSiderbarDTO.getLessonUrl();
                 }
                 if (lessonIdCompleted.contains(lessonSiderbarDTO.getId())) {
                     lessonSiderbarDTO.setCompleted(true);
@@ -560,8 +558,8 @@ public class CourseService {
         courseContentSidebarDTO.setCompletedLesson(lessonIdCompleted.size());
         courseContentSidebarDTO.setCurrentLessonId(lessonId);
         courseContentSidebarDTO.setCurrentLessonTitle(currentLessonTitle);
-        courseContentSidebarDTO.setCurrentLessonURL(currentLessonUrl);
         courseContentSidebarDTO.setCourseId(courseId);
+        courseContentSidebarDTO.setThumbanailURL(AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + course.getThumbnailUrl());
 
         Lesson nextLesson = lessonService.findNextLessonByCurrentLesson(lessonId, courseId ,totalLesson, lessonIdCompleted.size());
         if (nextLesson != null) {
@@ -606,4 +604,31 @@ public class CourseService {
 
         return courseContentSidebarDTO;
     }
+
+    public boolean canUserReviewCourse(User user, Integer courseId) {
+        if (user == null || courseId == null) {
+            return false;
+        }
+        boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), courseId);
+        if (hasReviewed) {
+            return false;
+        }
+        Optional<Course> courseOpt = repository.findByCourseIdAndUserId(courseId, user.getId());
+        if (courseOpt.isEmpty()) {
+            return false;
+        }
+        List<SectionSiderbarDTO> sectionSiderbarDTOS = courseSectionRepository.findSectionSiderbarDTOByCourseId(courseId);
+        Set<Integer> lessonIdCompleted = lessonProgressRepository.findByUserIdAndCourseId(user.getId(), courseId);
+        int totalLesson = 0;
+        for (SectionSiderbarDTO dto : sectionSiderbarDTOS) {
+            List<LessonSiderbarDTO> lessonSiderbarDTOS = lessonRepository.findLessonBySecionId(dto.getId());
+            totalLesson += lessonSiderbarDTOS.size();
+        }
+        double progressVal = 0.0;
+        if (totalLesson > 0 && lessonIdCompleted != null) {
+            progressVal = ((double) lessonIdCompleted.size() * 100.0) / totalLesson;
+        }
+        return progressVal >= AppConstants.PERCENT_COMPLETED_LESSON_TO_COMMENT;
+    }
 }
+

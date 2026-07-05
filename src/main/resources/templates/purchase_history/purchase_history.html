@@ -143,10 +143,9 @@
                                         <span class="text-muted fs-8 d-block mb-2"
                                             th:text="'Giảng viên: ' + ${item.course?.instructor != null ? item.course.instructor.lastName + ' ' + item.course.instructor.firstName : 'GIẢNG VIÊN'}">Giảng
                                             viên: NGUYỄN CÔNG PHƯƠNG</span>
-                                        <a th:href="@{/course/{id}(id=${item.course?.id})}"
+                                        <a th:href="@{/course/detail(id=${item.course?.id})}"
                                             class="btn btn-primary btn-sm rounded-3 px-3 py-1.5 fw-bold fs-8 d-inline-flex align-items-center gap-1">
-                                            <i data-lucide="play-circle" style="width: 14px; height: 14px;"></i> Vào học
-                                            ngay
+                                            <i data-lucide="eye" style="width: 14px; height: 14px;"></i> Xem chi tiết khóa học
                                         </a>
                                     </div>
                                     <div class="text-sm-end align-self-center align-self-sm-start mt-2 mt-sm-0">

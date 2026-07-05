@@ -59,7 +59,7 @@ function progressVideo() {
                     completed = false;
                 });
 
-            if (lessonProgressStatus === "false") {
+            if (lessonProgressStatus == "false") {
                 totalLessonCompleted++;
                 totalLessonTag.textContent = totalLessonCompleted + "/" + totalLesson + " Bai hoc";
                 lessonProgressStatus = "true";

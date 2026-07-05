@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.course.CourseListDto;
@@ -21,6 +22,7 @@ import vn.edu.fpt.service.UserService;
 import vn.edu.fpt.service.EnrollmentService;
 import vn.edu.fpt.service.CartService;
 import vn.edu.fpt.service.CartItemService;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.service.FeedbackService;
 
 import java.time.LocalDateTime;
@@ -144,7 +146,8 @@ public class CourseController {
             boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), id);
             model.addAttribute("hasReviewed", hasReviewed);
 
-
+            boolean canReview = courseService.canUserReviewCourse(user, id);
+            model.addAttribute("canReview", canReview);
         }
         return "course/detail";
     }
@@ -153,13 +156,19 @@ public class CourseController {
     public String addCourseReview(@RequestParam("courseId") Integer courseId,
             @RequestParam("rating") Integer rating,
             @RequestParam(value = "comment", required = false, defaultValue = "") String comment,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+            jakarta.servlet.http.HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
         User user = getSessionUser();
         if (user == null) {
             return "redirect:/";
         }
-        if (feedbackService.hasUserReviewedCourse(user.getId(), courseId)) {
-            return "redirect:/course/detail?id=" + courseId;
+        
+        String referer = request.getHeader("Referer");
+        String redirectUrl = (referer != null && referer.contains("/course/")) ? "redirect:" + referer : "redirect:/course/detail?id=" + courseId;
+
+        if (!courseService.canUserReviewCourse(user, courseId)) {
+            redirectAttributes.addFlashAttribute("reviewErrorMessage", "Bạn cần hoàn thành ít nhất 30% tiến trình bài học để đánh giá khóa học này!");
+            return redirectUrl;
         }
         Course course = courseService.findById(courseId);
         Feedback feedback = Feedback.builder()
@@ -171,42 +180,32 @@ public class CourseController {
                 .build();
         feedbackService.save(feedback);
         redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
-        return "redirect:/course/detail?id=" + courseId;
+        return redirectUrl;
     }
 
-    @PostMapping("/api/course/review/add")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> addCourseReviewApi(
-            @RequestParam("courseId") Integer courseId,
+    @PostMapping("/course/review/edit")
+    public String editCourseReview(@RequestParam("feedbackId") Integer feedbackId,
             @RequestParam("rating") Integer rating,
-            @RequestParam(value = "comment", required = false, defaultValue = "") String comment) {
-        
-         Map<String, Object> response = new HashMap<>();
+            @RequestParam(value = "comment", required = false, defaultValue = "") String comment,
+            RedirectAttributes redirectAttributes) {
         User user = getSessionUser();
         if (user == null) {
-            response.put("success", false);
-            response.put("message", "Bạn cần đăng nhập để thực hiện đánh giá.");
-            return ResponseEntity.status(401).body(response);
+            return "redirect:/";
         }
         
-        if (feedbackService.hasUserReviewedCourse(user.getId(), courseId)) {
-            response.put("success", false);
-            response.put("message", "Bạn đã đánh giá khóa học này trước đó rồi.");
-            return ResponseEntity.ok(response);
+        Feedback feedback = feedbackService.findById(feedbackId).orElse(null);
+        if (feedback == null) {
+            redirectAttributes.addFlashAttribute("reviewErrorMessage", "Đánh giá không tồn tại!");
+            return "redirect:/courses";
         }
         
-        Course course = courseService.findById(courseId);
-        Feedback feedback = Feedback.builder()
-                .user(user)
-                .course(course)
-                .rating(rating)
-                .comment(comment)
-                .createdAt(LocalDateTime.now())
-                .build();
-        feedbackService.save(feedback);
+        try {
+            feedbackService.updateReview(feedbackId, rating, comment, user);
+            redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Cập nhật đánh giá thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("reviewErrorMessage", e.getMessage());
+        }
         
-        response.put("success", true);
-        response.put("message", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
-        return ResponseEntity.ok(response);
+        return "redirect:/course/detail?id=" + feedback.getCourse().getId();
     }
 }

@@ -248,6 +248,39 @@
     background-color: #f1f5f9;
 }
 
+.star-rating-css {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.star-rating-css input[type="radio"] {
+    display: none;
+}
+
+.star-rating-css label {
+    cursor: pointer;
+    padding: 2px;
+    color: #ccc;
+}
+
+.star-rating-css label svg {
+    fill: none !important;
+    stroke: #cbd5e1 !important;
+    transition: stroke 0.15s ease-in-out, fill 0.15s ease-in-out;
+}
+
+.star-rating-css input[type="radio"]:checked ~ label svg,
+.star-rating-css input[type="radio"]:checked ~ label svg polygon,
+.star-rating-css label:hover svg,
+.star-rating-css label:hover svg polygon,
+.star-rating-css label:hover ~ label svg,
+.star-rating-css label:hover ~ label svg polygon {
+    fill: #ffc107 !important;
+    stroke: #ffc107 !important;
+}
+
 /* Mobile responsive fixes */
 @media (max-width: 991.98px) {
     .sidebar-curriculum-container {

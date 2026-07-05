@@ -20,7 +20,7 @@ public class CourseContentSidebarDTO {
     private Integer completedLesson;
     private Integer currentLessonId;
     private String currentLessonTitle;
-    private String currentLessonURL;
+    private String thumbanailURL;
     private Integer nextLessonId;
     private Integer nextSectionId;
     private String nextLessonTitle;
