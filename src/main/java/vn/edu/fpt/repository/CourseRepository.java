@@ -25,6 +25,9 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
     List<Course> findByStatus(CourseStatus status);
 
 
+    //Xoá Khoa Hoc
+    void deleteCourseById(Integer id);
+
     //Kiểm tra không title trùng
     boolean existsByInstructorAndTitle(User instructor, String title);
 

@@ -65,6 +65,13 @@ public class CourseService {
         return repository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
     }
 
+    //Xoá khoá học
+    public void deleteCourseById(Integer courseId){
+        Course tmp = repository.findCourseById(courseId);
+        if(tmp == null) return;
+        repository.deleteCourseById(courseId);
+    }
+
     public Course save(User user, CourseCreateDto courseCreateDto) {
         Course course;
         boolean isUpdate = courseCreateDto.getId() != null;

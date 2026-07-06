@@ -46,4 +46,33 @@ public class InstructorSectionController {
 
         return "redirect:/instructorcourse/" + courseId + "/curriculum";
     }
+
+
+    @PostMapping("/{sectionId}/edit")
+    public String editSection(@PathVariable("courseId") Integer courseId,
+                              @PathVariable("sectionId") Integer sectionId,
+                              @Valid @ModelAttribute("section") CourseSectionDto courseSectionDto,
+                              BindingResult bindingResult,
+                              RedirectAttributes redirectAttributes
+                              ){
+
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Dữ liệu nhập không hợp lệ.");
+            return "redirect:/instructorcourse/" + courseId + "/curriculum";
+        }
+
+        try {
+            courseSectionService.updateCourseSection(sectionId, courseSectionDto);
+            redirectAttributes.addFlashAttribute("success", "Chỉnh sửa chương thành công!");
+        } catch (CourseSectionValidation e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi hệ thống: " + e.getMessage());
+        }
+
+        return "redirect:/instructorcourse/" + courseId + "/curriculum";
+    }
+
+
 }

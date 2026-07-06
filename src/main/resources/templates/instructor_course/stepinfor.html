@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<!--
-    FRAGMENT: step-info
-    Dùng trong: course-editor.html
-    th:replace="~{course-editor/step-info :: content}"
--->
+
 <div th:fragment="content">
   <form th:action="@{/instructorcourse/save}"
         method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${courseRequest}">
       <input type="hidden" th:field="*{id}">
     <div class="card">
-      <div class="card-title">📝 Giới Thiệu Khóa Học</div>
+      <div class="card-title">Giới Thiệu Khóa Học</div>
 
       <!-- Tiêu đề -->
       <div class="form-group" style="margin-bottom:16px;">
@@ -148,7 +144,6 @@
       <button type="submit" class="btn btn-primary btn-lg" name="trangthai" value="save">Lưu Thay Đổi</button>
       <button type="submit" class="btn btn-primary btn-lg" name="trangthai" value="save_continue">Lưu & Tiếp Theo</button>
     </div>
-    <div th:if="${success}" class="success-msg">✓ Cập nhật thành công</div>
   </form>
 
 
