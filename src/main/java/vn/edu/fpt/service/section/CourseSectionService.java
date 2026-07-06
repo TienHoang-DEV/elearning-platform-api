@@ -50,6 +50,25 @@ public class CourseSectionService {
         repository.deleteById(id);
     }
 
+    @Transactional
+    public void deleteSection(Integer sectionId) {
+
+        CourseSection deleted = repository.findById(sectionId).orElseThrow();
+        Integer deletedPos = deleted.getPosition();
+        Integer courseId = deleted.getCourse().getId();
+
+        repository.delete(deleted);
+
+        List<CourseSection> list =
+                repository.findByCourseIdOrderByPosition(courseId);
+
+        for (CourseSection s : list) {
+            if (s.getPosition() > deletedPos) {
+                s.setPosition(s.getPosition() - 1);
+            }
+        }
+    }
+
     public boolean existsById(Integer id) {
         return repository.existsById(id);
     }

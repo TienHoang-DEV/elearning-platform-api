@@ -144,13 +144,17 @@
                 <h3>✏️ Chỉnh Sửa Bài Giảng</h3>
                 <button class="modal-close" data-close-modal="modal-edit-lesson">✕</button>
             </div>
-            <form th:action="@{/instructor/lessons/update}" method="POST" enctype="multipart/form-data">
+            <form   method="POST"
+                    enctype="multipart/form-data"
+                    id="editLessonForm"
+                    th:object="${lesson}"
+                    >
                 <input type="hidden" name="lessonId" id="editLessonId"/>
 
                 <div class="modal-body">
                     <div class="form-group" style="margin-bottom:16px;">
                         <label>Tên Bài Giảng</label>
-                        <input type="text" name="title" class="form-control" id="editLessonName"
+                        <input type="text" name="*{title}" class="form-control" id="editLessonName"
                                placeholder="Tên bài giảng"/>
                     </div>
 
