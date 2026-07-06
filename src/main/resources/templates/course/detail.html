@@ -360,7 +360,8 @@
                                 <div
                                     class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
                                     <div>
-                                        <h3 class="fw-bold font-heading fs-6 text-dark mb-1">Đánh giá khóa học của bạn
+                                        <h3 class="fw-bold font-heading fs-6 text-dark mb-1">
+                                            <i data-lucide="star" class="text-warning me-1" style="width: 18px; height: 18px; fill: currentColor; vertical-align: text-top;"></i>Đánh giá khóa học của bạn
                                         </h3>
                                         <p class="text-muted fs-8 m-0">Chia sẻ trải nghiệm học tập để giúp học viên khác
                                             chọn khóa học phù hợp.</p>
@@ -665,7 +666,9 @@
                 <form th:action="@{/course/review/edit}" method="post">
                     <input type="hidden" name="feedbackId" id="editFeedbackId">
                     <div class="modal-header border-bottom border-light">
-                        <h5 class="modal-title fw-bold text-dark font-heading" id="editReviewModalLabel">Sửa Đánh Giá Khóa Học</h5>
+                        <h5 class="modal-title fw-bold text-dark font-heading d-flex align-items-center gap-2" id="editReviewModalLabel">
+                            <i data-lucide="star" class="text-warning" style="width: 20px; height: 20px; fill: currentColor;"></i>Sửa Đánh Giá Khóa Học
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
