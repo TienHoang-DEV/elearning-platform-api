@@ -166,20 +166,12 @@ public class CourseController {
         String referer = request.getHeader("Referer");
         String redirectUrl = (referer != null && referer.contains("/course/")) ? "redirect:" + referer : "redirect:/course/detail?id=" + courseId;
 
-        if (!courseService.canUserReviewCourse(user, courseId)) {
-            redirectAttributes.addFlashAttribute("reviewErrorMessage", "Bạn cần hoàn thành ít nhất 30% tiến trình bài học để đánh giá khóa học này!");
-            return redirectUrl;
+        String errorMessage = courseService.addCourseReview(user, courseId, rating, comment);
+        if (errorMessage != null) {
+            redirectAttributes.addFlashAttribute("reviewErrorMessage", errorMessage);
+        } else {
+            redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
         }
-        Course course = courseService.findById(courseId);
-        Feedback feedback = Feedback.builder()
-                .user(user)
-                .course(course)
-                .rating(rating)
-                .comment(comment)
-                .createdAt(java.time.LocalDateTime.now())
-                .build();
-        feedbackService.save(feedback);
-        redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
         return redirectUrl;
     }
 

@@ -609,10 +609,6 @@ public class CourseService {
         if (user == null || courseId == null) {
             return false;
         }
-        boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), courseId);
-        if (hasReviewed) {
-            return false;
-        }
         Optional<Course> courseOpt = repository.findByCourseIdAndUserId(courseId, user.getId());
         if (courseOpt.isEmpty()) {
             return false;
@@ -629,6 +625,30 @@ public class CourseService {
             progressVal = ((double) lessonIdCompleted.size() * 100.0) / totalLesson;
         }
         return progressVal >= AppConstants.PERCENT_COMPLETED_LESSON_TO_COMMENT;
+    }
+
+    public String addCourseReview(User user, Integer courseId, Integer rating, String comment) {
+        if (feedbackService.hasUserReviewedCourse(user.getId(), courseId)) {
+            return "Bạn đã gửi đánh giá cho khóa học này trước đó rồi!";
+        }
+
+        if (!canUserReviewCourse(user, courseId)) {
+            return "Bạn cần hoàn thành ít nhất 30% tiến trình bài học để đánh giá khóa học này!";
+        }
+
+        Course course = repository.findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khóa học"));
+
+        Feedback feedback = Feedback.builder()
+                .user(user)
+                .course(course)
+                .rating(rating)
+                .comment(comment)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        feedbackRepository.save(feedback);
+        return null;
     }
 }
 

@@ -518,86 +518,14 @@
 
 <!-- Custom JavaScript -->
 <script th:src="@{/js/learning.js}"></script>
-<script th:inline="javascript">
-    document.addEventListener("DOMContentLoaded", function () {
-        lucide.createIcons();
-
-        // Lấy thông tin điều kiện hiển thị từ Model truyền qua
-        const showReviewPrompt = [[${sidebar.showReviewPrompt}]];
-        const courseId = [[${sidebar.courseId}]];
-
-        if (showReviewPrompt) {
-            // Kiểm tra xem người dùng đã chọn "Không hiển thị lại" hoặc đã từng đánh giá chưa
-            const dontShowKey = "dont_show_review_course_" + courseId;
-            const isHidden = localStorage.getItem(dontShowKey);
-
-            if (!isHidden) {
-                // Trì hoãn hiển thị popup sau 3 giây để người học không bị đột ngột
-                setTimeout(function () {
-                    const reviewModal = new bootstrap.Modal(document.getElementById('courseReviewModal'));
-                    reviewModal.show();
-                }, 3000);
-            }
-        }
-
-        // Xử lý sự kiện khi click nút "Không hiển thị lại"
-        const dontShowBtn = document.getElementById("dontShowAgainBtn");
-        if (dontShowBtn) {
-            dontShowBtn.addEventListener("click", function () {
-                const dontShowKey = "dont_show_review_course_" + courseId;
-                localStorage.setItem(dontShowKey, "true");
-
-                // Đóng modal
-                const modalEl = document.getElementById('courseReviewModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if (modalInstance) {
-                    modalInstance.hide();
-                }
-            });
-        }
-
-        // Hàm hiện Popup thông báo trạng thái thay cho alert()
-        function showStatusModal(success, message) {
-            const titleEl = document.getElementById("statusTitle");
-            const messageEl = document.getElementById("statusMessage");
-            const iconEl = document.getElementById("statusIcon");
-            const iconBgEl = document.getElementById("statusIconBg");
-            const confirmBtn = document.getElementById("statusConfirmBtn");
-
-            messageEl.textContent = message;
-
-            if (success) {
-                titleEl.textContent = "Thành công!";
-                titleEl.className = "fw-bold font-heading text-success mb-2";
-                iconBgEl.style.background = "#e8f5e9";
-                iconEl.className = "text-success";
-                iconEl.setAttribute("data-lucide", "check-circle");
-                confirmBtn.className = "btn btn-success w-100 rounded-pill py-2.5 fw-bold";
-            } else {
-                titleEl.textContent = "Thất bại";
-                titleEl.className = "fw-bold font-heading text-danger mb-2";
-                iconBgEl.style.background = "#ffebee";
-                iconEl.className = "text-danger";
-                iconEl.setAttribute("data-lucide", "alert-circle");
-                confirmBtn.className = "btn btn-danger w-100 rounded-pill py-2.5 fw-bold";
-            }
-
-            lucide.createIcons();
-            const statusModal = new bootstrap.Modal(document.getElementById('reviewStatusModal'));
-            statusModal.show();
-        }
-
-
-        // Xử lý click vào tab Đánh giá để hiển thị lại popup đánh giá
-        const tabReviewBtn = document.getElementById("tab-review-btn");
-        if (tabReviewBtn) {
-            tabReviewBtn.addEventListener("click", function () {
-                const reviewModal = new bootstrap.Modal(document.getElementById('courseReviewModal'));
-                reviewModal.show();
-            });
-        }
-    });
-</script>
+<!-- Dynamic Review Data for learning.js -->
+<div id="course-review-data"
+     th:data-show-prompt="${sidebar.showReviewPrompt}"
+     th:data-course-id="${sidebar.courseId}"
+     th:data-success-message="${reviewSuccessMessage}"
+     th:data-error-message="${reviewErrorMessage}"
+     style="display: none;">
+</div>
 </body>
 
 </html>

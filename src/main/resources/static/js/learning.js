@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     progressVideo();
     initializeSidebarToggle();
     initializeNotes();
+    initializeReviews();
 });
 
 // 1. Tab Panels Switching
@@ -325,6 +326,110 @@ function initializeNotes() {
                 return;
             }
         });
+    }
+}
+
+function initializeReviews() {
+    const reviewDataEl = document.getElementById("course-review-data");
+    if (!reviewDataEl) return;
+
+    const showReviewPrompt = reviewDataEl.dataset.showPrompt === 'true';
+    const courseId = reviewDataEl.dataset.courseId;
+    const successMessage = reviewDataEl.dataset.successMessage;
+    const errorMessage = reviewDataEl.dataset.errorMessage;
+
+    // Show popup after 3 seconds if not hidden by user
+    if (showReviewPrompt && courseId) {
+        const dontShowKey = "dont_show_review_course_" + courseId;
+        const isHidden = localStorage.getItem(dontShowKey);
+
+        if (!isHidden) {
+            setTimeout(function () {
+                const modalEl = document.getElementById('courseReviewModal');
+                if (modalEl) {
+                    const reviewModal = new bootstrap.Modal(modalEl);
+                    reviewModal.show();
+                }
+            }, 3000);
+        }
+    }
+
+    // Handle "Don't show again" button click
+    const dontShowBtn = document.getElementById("dontShowAgainBtn");
+    if (dontShowBtn && courseId) {
+        dontShowBtn.addEventListener("click", function () {
+            const dontShowKey = "dont_show_review_course_" + courseId;
+            localStorage.setItem(dontShowKey, "true");
+
+            const modalEl = document.getElementById('courseReviewModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+        });
+    }
+
+    // Handle tab review button click
+    const tabReviewBtn = document.getElementById("tab-review-btn");
+    if (tabReviewBtn) {
+        tabReviewBtn.addEventListener("click", function () {
+            const modalEl = document.getElementById('courseReviewModal');
+            if (modalEl) {
+                const reviewModal = new bootstrap.Modal(modalEl);
+                reviewModal.show();
+            }
+        });
+    }
+
+    // Check backend messages and show status modal
+    if (successMessage) {
+        showStatusModal(true, successMessage);
+    } else if (errorMessage) {
+        showStatusModal(false, errorMessage);
+    }
+}
+
+function showStatusModal(success, message) {
+    const titleEl = document.getElementById("statusTitle");
+    const messageEl = document.getElementById("statusMessage");
+    const iconEl = document.getElementById("statusIcon");
+    const iconBgEl = document.getElementById("statusIconBg");
+    const confirmBtn = document.getElementById("statusConfirmBtn");
+
+    if (messageEl) messageEl.textContent = message;
+
+    if (success) {
+        if (titleEl) {
+            titleEl.textContent = "Thành công!";
+            titleEl.className = "fw-bold font-heading text-success mb-2";
+        }
+        if (iconBgEl) iconBgEl.style.background = "#e8f5e9";
+        if (iconEl) {
+            iconEl.className = "text-success";
+            iconEl.setAttribute("data-lucide", "check-circle");
+        }
+        if (confirmBtn) confirmBtn.className = "btn btn-success w-100 rounded-pill py-2.5 fw-bold";
+    } else {
+        if (titleEl) {
+            titleEl.textContent = "Thất bại";
+            titleEl.className = "fw-bold font-heading text-danger mb-2";
+        }
+        if (iconBgEl) iconBgEl.style.background = "#ffebee";
+        if (iconEl) {
+            iconEl.className = "text-danger";
+            iconEl.setAttribute("data-lucide", "alert-circle");
+        }
+        if (confirmBtn) confirmBtn.className = "btn btn-danger w-100 rounded-pill py-2.5 fw-bold";
+    }
+
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
+    const statusModalEl = document.getElementById('reviewStatusModal');
+    if (statusModalEl) {
+        const statusModal = new bootstrap.Modal(statusModalEl);
+        statusModal.show();
     }
 }
 
