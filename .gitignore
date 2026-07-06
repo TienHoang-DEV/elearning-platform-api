@@ -61,4 +61,7 @@ cv-intern/out/
 jacoco.exec
 .coverage
 
+# Ignore docs folder
+docs/
+
 
