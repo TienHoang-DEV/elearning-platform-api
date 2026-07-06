@@ -204,7 +204,6 @@ function initializeNotes() {
     const noteInputText = document.getElementById("note-input-text");
     const currentNoteTimeText = document.getElementById("current-note-time");
     const savedNotesList = document.getElementById("saved-notes-list");
-
     let activeNoteSeconds = 0;
     let editingNoteElement = null;
 
@@ -286,6 +285,8 @@ function initializeNotes() {
             }
         });
     }
+
+
 
     // Khôi phục lại icon Lucide play cho nút chuyển đoạn (seek) bị Thymeleaf th:text ghi đè
     if (savedNotesList) {
@@ -426,6 +427,30 @@ function initializeNotes() {
                 return;
             }
 
+            // Delete button
+            const deleteBtn = e.target.closest(".btn-delete-note");
+            if (deleteBtn) {
+                e.preventDefault();
+                const item = deleteBtn.closest(".note-item");
+                const lessonNoteId = item.dataset.lessonNoteId;
+                if (lessonNoteId) {
+                    fetch(`/api/lesson-note/remove?noteId=${lessonNoteId}`)
+                        .then(response => {
+                            if (response.ok) {
+                                item.remove();
+                            } else {
+                                alert("Không thể xóa ghi chú này.");
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Error deleting note:", err);
+                            alert("Lỗi kết nối.");
+                        });
+                } else {
+                    item.remove();
+                }
+                return;
+            }
         });
     }
 }

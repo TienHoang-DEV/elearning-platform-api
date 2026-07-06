@@ -53,4 +53,17 @@ public class LessonNoteService {
         return lessonNoteRepository.save(note);
     }
 
+    public void removeNote(User user, Integer lessonNoteId) {
+        if (user == null) {
+            throw new IllegalArgumentException("Bạn phải đăng nhập để thực hiện hành động này");
+        }
+        if (lessonNoteId == null) {
+            throw new IllegalArgumentException("Không tìm thấy note id");
+        }
+        LessonNote lessonNote = lessonNoteRepository.findByUser_IdAndId(user.getId(), lessonNoteId);
+        if (lessonNote == null) {
+            throw new IllegalArgumentException("Bạn không có quyền xóa note với id " + lessonNoteId);
+        }
+        lessonNoteRepository.delete(lessonNote);
+    }
 }

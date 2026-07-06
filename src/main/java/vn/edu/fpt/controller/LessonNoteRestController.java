@@ -1,5 +1,6 @@
 package vn.edu.fpt.controller;
 
+import com.azure.core.annotation.Get;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,5 +45,11 @@ public class LessonNoteRestController {
             response.put("message", "Lỗi: " + e.getMessage());
             return ResponseEntity.ok(response);
         }
+    }
+
+    @GetMapping("/remove")
+    public void removeLessonNote(@RequestParam("noteId") Integer lessonNoteId) {
+        User user = SecurityUtils.getCurrentUser();
+        lessonNoteService.removeNote(user, lessonNoteId);
     }
 }
