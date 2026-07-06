@@ -36,7 +36,8 @@
                                 onclick="openEditSectionModal(this.dataset)"><i class="bi bi-pencil-square" style="font-size:11px;"></i></button>
                         <button type="button" class="btn btn-sm btn-danger"
                                 th:data-section-id="${section.id}"
-                                onclick="deleteSection(this.dataset.sectionId)"><i class="bi bi-trash" style="font-size:11px;"></i></button>
+                                th:data-course-id="${section.course.id}"
+                                onclick="deleteSection(this.dataset.sectionId, this.dataset.courseId)"><i class="bi bi-trash" style="font-size:11px;"></i></button>
                     </div>
                 </div>
 

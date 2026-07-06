@@ -40,4 +40,7 @@ public interface CourseSectionRepository extends JpaRepository<CourseSection, In
                    select new vn.edu.fpt.dto.lesson.SectionSiderbarDTO(cs.id, cs.title, cs.position) from CourseSection cs where cs.course.id = :courseId order by cs.position asc
             """)
     List<SectionSiderbarDTO> findSectionSiderbarDTOByCourseId(@Param("courseId") Integer courseId);
+
+
+    List<CourseSection> findByCourseIdOrderByPosition(Integer courseId);
 }

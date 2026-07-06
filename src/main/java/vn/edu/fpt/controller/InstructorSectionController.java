@@ -1,5 +1,6 @@
 package vn.edu.fpt.controller;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -12,7 +13,7 @@ import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
 
 @Controller
-@RequestMapping("/instructorcourse/{courseId}/sections")
+@RequestMapping("/instructorcourse")
 public class InstructorSectionController {
 
     private final CourseService courseService;
@@ -23,7 +24,7 @@ public class InstructorSectionController {
         this.courseSectionService = courseSectionService;
     }
 
-    @PostMapping
+    @PostMapping("/{courseId}/sections")
     public String createSection(@PathVariable("courseId") Integer courseId,
                                 @Valid @ModelAttribute("section") CourseSectionDto courseSectionDto,
                                 BindingResult bindingResult,
@@ -48,7 +49,7 @@ public class InstructorSectionController {
     }
 
 
-    @PostMapping("/{sectionId}/edit")
+    @PostMapping("/{courseId}/sections/{sectionId}/edit")
     public String editSection(@PathVariable("courseId") Integer courseId,
                               @PathVariable("sectionId") Integer sectionId,
                               @Valid @ModelAttribute("section") CourseSectionDto courseSectionDto,
@@ -71,6 +72,15 @@ public class InstructorSectionController {
             redirectAttributes.addFlashAttribute("error", "Lỗi hệ thống: " + e.getMessage());
         }
 
+        return "redirect:/instructorcourse/" + courseId + "/curriculum";
+    }
+
+    @Transactional
+    @PostMapping("/{courseId}/sections/{sectionId}/delete")
+    public String deleteSection(@PathVariable("courseId") Integer courseId,
+                                @PathVariable("sectionId") Integer sectionId,
+                                RedirectAttributes redirectAttributes){
+        courseSectionService.deleteSection(sectionId);
         return "redirect:/instructorcourse/" + courseId + "/curriculum";
     }
 

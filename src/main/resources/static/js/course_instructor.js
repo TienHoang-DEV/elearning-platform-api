@@ -501,12 +501,6 @@ function updateCurriculumPreview() {
     preview.innerHTML = html;
 }
 
-// Delete section/lesson from backend-rendered HTML (called via onclick in templates)
-function deleteSection(sectionId) {
-    if (!confirm('Xóa chương này và tất cả bài giảng bên trong?')) return;
-    fetch(`/instructorcourse/section/${sectionId}/delete`, { method: 'POST' })
-        .then(r => { if (r.ok) location.reload(); });
-}
 
 function deleteLesson(lessonId) {
     if (!confirm('Xóa bài giảng này?')) return;
@@ -526,6 +520,23 @@ function openEditSectionModal(dataset) {
         dataset.sectionTitle;
 
     openModal("modal-edit-section");
+}
+
+
+
+function openEditLessonModal(dataset) {
+    const form = document.getElementById('editLessonForm');
+    currentEditLessonId = dataset.lessonId;
+    document.getElementById('editLessonTitle').value = dataset.lessonTitle;
+    document.getElementById('editLessonFree').checked = dataset.lessonFree === 'true';
+    openModal('editLessonModal');
+}
+
+
+function deleteSection(sectionId, courseId) {
+    if (!confirm('Xóa chương này và tất cả bài giảng bên trong?')) return;
+    fetch(`/instructorcourse/${courseId}/sections/${sectionId}/delete`, { method: 'POST' })
+        .then(r => { if (r.ok) location.reload(); });
 }
 
 
@@ -555,14 +566,7 @@ function saveEditLesson() {
 }
 
 
-let currentEditLessonId = null;
 
-function openEditLessonModal(dataset) {
-    currentEditLessonId = dataset.lessonId;
-    document.getElementById('editLessonTitle').value = dataset.lessonTitle;
-    document.getElementById('editLessonFree').checked = dataset.lessonFree === 'true';
-    openModal('editLessonModal');
-}
 
 function openAddLessonModal(sectionId) {
     const form = document.getElementById('addLessonForm');
