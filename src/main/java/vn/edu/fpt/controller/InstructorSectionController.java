@@ -8,7 +8,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.CourseSectionDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.exception.CourseSectionValidation;
-import vn.edu.fpt.service.CourseSectionService;
+import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
 
 @Controller

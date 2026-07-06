@@ -1,14 +1,14 @@
 package vn.edu.fpt.exception;
 
-public class UserValidationException extends RuntimeException{
-    private String feild;
+public class UserValidationException extends RuntimeException {
+    private final String field;
 
-    public UserValidationException(String feild, String message) {
+    public UserValidationException(String field, String message) {
         super(message);
-        this.feild = feild;
+        this.field = field;
     }
 
-    public String getFeild() {
-        return feild;
+    public String getField() {
+        return field;
     }
 }

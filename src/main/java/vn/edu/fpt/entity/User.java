@@ -39,7 +39,6 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "Nvarchar(255)", nullable = false)
     private String lastName;
 
-
     @Email
     @NotBlank
     @Column(length= 255, nullable = false, unique = true)

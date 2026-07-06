@@ -13,7 +13,7 @@ import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.entity.*;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
-import vn.edu.fpt.service.LessonService;
+import vn.edu.fpt.service.lesson.LessonService;
 import vn.edu.fpt.service.quiz.QuizService;
 import vn.edu.fpt.service.quiz.QuizAttemptService;
 import vn.edu.fpt.util.SecurityUtils;

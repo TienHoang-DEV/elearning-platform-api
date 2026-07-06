@@ -332,15 +332,36 @@
                                     aria-label="Close"></button>
                             </div>
 
+                            <!-- Thông báo gửi đánh giá thất bại -->
+                            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4"
+                                role="alert" th:if="${reviewErrorMessage}">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i data-lucide="alert-circle" class="text-danger"
+                                        style="width:20px; height:20px;"></i>
+                                    <span th:text="${reviewErrorMessage}"></span>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
 
-                            <form id="reviewForm" th:if="${hasReviewed == null || !hasReviewed}"
+                            <!-- Thông báo yêu cầu hoàn thành 30% bài học -->
+                            <div class="alert alert-warning border-0 shadow-sm rounded-3 mb-4"
+                                th:if="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id) && (hasReviewed == null || !hasReviewed) && !canReview}">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i data-lucide="info" class="text-warning" style="width:20px; height:20px;"></i>
+                                    <span>Bạn cần hoàn thành ít nhất 30% tiến trình bài học để có thể gửi đánh giá cho khóa học này.</span>
+                                </div>
+                            </div>
+
+                            <form id="reviewForm" th:if="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id) && (hasReviewed == null || !hasReviewed) && canReview}"
                                 class="border rounded-3 p-4 mb-4 bg-white shadow-sm" th:action="@{/course/review/add}"
                                 method="post">
                                 <input type="hidden" name="courseId" th:value="${course.id}">
                                 <div
                                     class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
                                     <div>
-                                        <h3 class="fw-bold font-heading fs-6 text-dark mb-1">Đánh giá khóa học của bạn
+                                        <h3 class="fw-bold font-heading fs-6 text-dark mb-1">
+                                            <i data-lucide="star" class="text-warning me-1" style="width: 18px; height: 18px; fill: currentColor; vertical-align: text-top;"></i>Đánh giá khóa học của bạn
                                         </h3>
                                         <p class="text-muted fs-8 m-0">Chia sẻ trải nghiệm học tập để giúp học viên khác
                                             chọn khóa học phù hợp.</p>
@@ -447,7 +468,7 @@
                                     Chưa có đánh giá nào cho khóa học này.
                                 </div>
                                 <!-- Review Item -->
-                                <div class="border rounded-3 p-4 bg-white shadow-sm" th:each="fb : ${course.feedbacks}">
+                                <div class="feedback-item border rounded-3 p-4 bg-white shadow-sm" th:each="fb, fbStat : ${course.feedbacks}" th:classappend="${fbStat.index >= 5} ? 'd-none' : ''">
                                     <div class="d-flex justify-content-between align-items-start mb-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="avatar-ring-wrapper d-flex align-items-center justify-content-center rounded-circle p-0.5"
@@ -469,9 +490,19 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <span class="text-muted fs-8"
-                                            th:text="${fb.createdAt != null} ? ${#temporals.format(fb.createdAt, 'dd/MM/yyyy')} : 'Gần đây'">2
-                                            ngày trước</span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <button th:if="${currentUser != null && currentUser.id == fb.user.id}"
+                                                class="btn btn-link btn-sm text-primary p-0 me-2 text-decoration-none fs-8 fw-semibold btn-edit-review"
+                                                th:data-feedback-id="${fb.id}"
+                                                th:data-feedback-comment="${fb.comment}"
+                                                th:data-feedback-rating="${fb.rating}"
+                                                data-bs-toggle="modal" data-bs-target="#editReviewModal">
+                                                <i class="fa-regular fa-pen-to-square me-1"></i>Sửa
+                                            </button>
+                                            <span class="text-muted fs-8"
+                                                th:text="${fb.createdAt != null} ? ${#temporals.format(fb.createdAt, 'dd/MM/yyyy')} : 'Gần đây'">2
+                                                ngày trước</span>
+                                        </div>
                                     </div>
                                     <p class="text-muted fs-7 mb-0 text-justify" th:text="${fb.comment}">
                                         "Khóa học rất hay và dễ hiểu..."
@@ -481,6 +512,7 @@
 
                             <!-- See More Button -->
                             <button
+                                id="btn-load-more-reviews"
                                 class="btn btn-outline-primary w-100 py-2 fs-7 fw-semibold rounded-3 mt-3 shadow-none border-primary-subtle"
                                 style="background-color: var(--primary-light); color: var(--primary); border-color: var(--primary-light) !important;"
                                 th:if="${course.feedbacks != null && course.feedbacks.size() > 5}">
@@ -628,6 +660,52 @@
         </div>
     </div>
 
+    <!-- Edit Review Modal -->
+    <div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-3 border-0 shadow-lg bg-white">
+                <form th:action="@{/course/review/edit}" method="post">
+                    <input type="hidden" name="feedbackId" id="editFeedbackId">
+                    <div class="modal-header border-bottom border-light">
+                        <h5 class="modal-title fw-bold text-dark font-heading d-flex align-items-center gap-2" id="editReviewModalLabel">
+                            <i data-lucide="star" class="text-warning" style="width: 20px; height: 20px; fill: currentColor;"></i>Sửa Đánh Giá Khóa Học
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3 d-flex align-items-center gap-3">
+                            <span class="text-muted fs-8 fw-semibold">Đánh giá sao:</span>
+                            <div class="star-rating-css" id="editStarRating">
+                                <input type="radio" id="editStar5" name="rating" value="5" />
+                                <label for="editStar5" title="5 sao"><i data-lucide="star" style="fill: currentColor;"></i></label>
+
+                                <input type="radio" id="editStar4" name="rating" value="4" />
+                                <label for="editStar4" title="4 sao"><i data-lucide="star" style="fill: currentColor;"></i></label>
+
+                                <input type="radio" id="editStar3" name="rating" value="3" />
+                                <label for="editStar3" title="3 sao"><i data-lucide="star" style="fill: currentColor;"></i></label>
+
+                                <input type="radio" id="editStar2" name="rating" value="2" />
+                                <label for="editStar2" title="2 sao"><i data-lucide="star" style="fill: currentColor;"></i></label>
+
+                                <input type="radio" id="editStar1" name="rating" value="1" />
+                                <label for="editStar1" title="1 sao"><i data-lucide="star" style="fill: currentColor;"></i></label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted fw-semibold fs-8" for="edit-review-comment">Nhận xét</label>
+                            <textarea name="comment" class="form-control fs-7 rounded-3 shadow-none" id="edit-review-comment" rows="4" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top border-light">
+                        <button type="button" class="btn btn-light rounded-3 fw-bold fs-7 px-4 py-2" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary rounded-3 fw-bold fs-7 px-4 py-2">Lưu Thay Đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1100;">
         <div class="toast align-items-center text-white bg-success border-0 rounded-3 shadow-lg" id="cartToast"
@@ -657,6 +735,31 @@
     <script th:src="@{/js/course_detail.js}"></script>
     <script>
         lucide.createIcons();
+
+        const editReviewModal = document.getElementById('editReviewModal');
+        if (editReviewModal) {
+            editReviewModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const feedbackId = button.getAttribute('data-feedback-id');
+                const comment = button.getAttribute('data-feedback-comment');
+                const rating = button.getAttribute('data-feedback-rating');
+
+                const inputFeedbackId = editReviewModal.querySelector('#editFeedbackId');
+                const textareaComment = editReviewModal.querySelector('#edit-review-comment');
+                
+                inputFeedbackId.value = feedbackId;
+                textareaComment.value = comment;
+
+                const radios = editReviewModal.querySelectorAll('input[name="rating"]');
+                radios.forEach(radio => {
+                    if (radio.value === rating) {
+                        radio.checked = true;
+                    } else {
+                        radio.checked = false;
+                    }
+                });
+            });
+        }
 
         // Hàm gọi API thêm khóa học vào giỏ hàng qua Fetch API (AJAX)
         function addToCart(btn, courseId) {
