@@ -301,3 +301,58 @@
     }
 }
 
+/* --- Sidebar Tabs & Notes Styles --- */
+.sidebar-nav-tabs .nav-link {
+    border: none !important;
+    background: transparent !important;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: var(--font-heading), sans-serif;
+    position: relative;
+    transition: all 0.2s ease-in-out;
+    padding-bottom: 10px;
+    border-bottom: 2px solid transparent !important;
+}
+
+.sidebar-nav-tabs .nav-link:hover {
+    color: var(--primary);
+}
+
+.sidebar-nav-tabs .nav-link.active {
+    color: var(--primary) !important;
+    border-bottom: 2px solid var(--primary) !important;
+}
+
+.note-item {
+    transition: all 0.2s ease;
+    border-color: #e2e8f0 !important;
+}
+
+.note-item:hover {
+    border-color: var(--primary-border) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+.note-seek-btn {
+    transition: all 0.2s ease;
+}
+
+.note-seek-btn:hover {
+    background-color: var(--primary) !important;
+    color: #ffffff !important;
+}
+
+.btn-edit-note:hover {
+    color: var(--primary) !important;
+}
+
+.btn-delete-note:hover {
+    color: #dc3545 !important;
+}
+
+.note-input-container {
+    border-color: #e2e8f0 !important;
+}
+
+

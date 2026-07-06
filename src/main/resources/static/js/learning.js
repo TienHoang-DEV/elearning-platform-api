@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeVideo();
     progressVideo();
     initializeSidebarToggle();
+    initializeNotes();
 });
 
 // 1. Tab Panels Switching
@@ -163,6 +164,165 @@ function initializeSidebarToggle() {
                 mainContent.className = "col-12 main-player-content";
             } else {
                 mainContent.className = "col-lg-8 col-12 main-player-content";
+            }
+        });
+    }
+}
+
+function formatTime(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+
+    let minute = m.toString();
+    if (m < 10) {
+        minute = "0" + minute;
+    }
+
+    let second = s.toString();
+    if (s < 10) {
+        second = "0" + second;
+    }
+
+    if (h > 0) {
+        return h + ":" + minute + ":" + second;
+    }
+
+    return minute + ":" + second;
+}
+
+function initializeNotes() {
+    const tabCurriculumBtn = document.getElementById("sidebar-tab-curriculum-btn");
+    const tabNotesBtn = document.getElementById("sidebar-tab-notes-btn");
+    const panelCurriculum = document.getElementById("sidebar-panel-curriculum");
+    const panelNotes = document.getElementById("sidebar-panel-notes");
+    const video = document.getElementById("lesson-video");
+
+    const btnSaveNoteVideo = document.getElementById("btn-save-note");
+    const btnCancelNote = document.getElementById("btn-cancel-note");
+    const btnAddNote = document.getElementById("btn-add-note");
+    const noteInputText = document.getElementById("note-input-text");
+    const currentNoteTimeText = document.getElementById("current-note-time");
+    const savedNotesList = document.getElementById("saved-notes-list");
+    const notesCountBadge = document.getElementById("notes-count");
+
+    let activeNoteSeconds = 0;
+    let editingNoteElement = null;
+
+    function updateNotesCount() {
+        if (!savedNotesList) return;
+        const count = savedNotesList.querySelectorAll(".note-item").length;
+        if (notesCountBadge) {
+            notesCountBadge.textContent = `${count} ghi chú`;
+        }
+    }
+
+    // Tab switching
+    if (tabCurriculumBtn && tabNotesBtn && panelCurriculum && panelNotes) {
+        tabCurriculumBtn.addEventListener("click", () => {
+            tabCurriculumBtn.classList.add("active");
+            tabCurriculumBtn.classList.remove("text-muted");
+            tabNotesBtn.classList.remove("active");
+            tabNotesBtn.classList.add("text-muted");
+            panelCurriculum.classList.remove("d-none");
+            panelCurriculum.classList.add("d-flex");
+            panelNotes.classList.add("d-none");
+            panelNotes.classList.remove("d-flex");
+        });
+
+        tabNotesBtn.addEventListener("click", () => {
+            tabNotesBtn.classList.add("active");
+            tabNotesBtn.classList.remove("text-muted");
+            tabCurriculumBtn.classList.remove("active");
+            tabCurriculumBtn.classList.add("text-muted");
+            panelNotes.classList.remove("d-none");
+            panelNotes.classList.add("d-flex");
+            panelCurriculum.classList.add("d-none");
+            panelCurriculum.classList.remove("d-flex");
+        });
+    }
+
+    // Save note from video player
+    if (btnSaveNoteVideo) {
+        btnSaveNoteVideo.addEventListener("click", () => {
+            // Pause video
+            if (video) {
+                video.pause();
+                activeNoteSeconds = Math.floor(video.currentTime);
+            } else {
+                activeNoteSeconds = 0;
+            }
+
+            // Update timestamp
+            if (currentNoteTimeText) {
+                currentNoteTimeText.textContent = formatTime(activeNoteSeconds);
+            }
+
+            // Switch to notes tab
+            if (tabNotesBtn) {
+                tabNotesBtn.click();
+            }
+
+            // Focus input
+            if (noteInputText) {
+                noteInputText.focus();
+            }
+            editingNoteElement = null;
+        });
+    }
+
+    // Cancel note
+    if (btnCancelNote) {
+        btnCancelNote.addEventListener("click", () => {
+            if (noteInputText) {
+                noteInputText.value = "";
+            }
+            editingNoteElement = null;
+        });
+    }
+
+    // The user will implement backend note saving logic on click/submit of btnAddNote
+
+    // Handle actions on saved notes list (Seek, Edit, Delete)
+    if (savedNotesList) {
+        savedNotesList.addEventListener("click", (e) => {
+            // Seek button
+            const seekBtn = e.target.closest(".note-seek-btn");
+            if (seekBtn && video) {
+                const secs = parseInt(seekBtn.dataset.seconds);
+                video.currentTime = secs;
+                video.play();
+                return;
+            }
+
+            // Edit button
+            const editBtn = e.target.closest(".btn-edit-note");
+            if (editBtn) {
+                const item = editBtn.closest(".note-item");
+                const content = item.querySelector(".note-content").textContent;
+                const seekButton = item.querySelector(".note-seek-btn");
+                const secs = parseInt(seekButton.dataset.seconds);
+
+                editingNoteElement = item;
+                activeNoteSeconds = secs;
+
+                if (currentNoteTimeText) {
+                    currentNoteTimeText.textContent = formatTime(activeNoteSeconds);
+                }
+                if (noteInputText) {
+                    noteInputText.value = content;
+                    noteInputText.focus();
+                }
+                return;
+            }
+
+            // Delete button
+            const deleteBtn = e.target.closest(".btn-delete-note");
+            if (deleteBtn) {
+                const item = deleteBtn.closest(".note-item");
+                item.remove();
+                updateNotesCount();
+                return;
             }
         });
     }
