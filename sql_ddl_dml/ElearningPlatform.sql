@@ -357,6 +357,33 @@ CREATE TABLE lessons (
 );
 
 
+CREATE TABLE lesson_notes (
+                              id INT PRIMARY KEY IDENTITY(1,1),
+
+                              user_id INT NOT NULL,
+    -- Người ghi chú
+
+                              lesson_id INT NOT NULL,
+    -- Ghi chú thuộc bài học nào
+
+                              video_timestamp_seconds INT NOT NULL
+                                  CHECK (video_timestamp_seconds >= 0),
+    -- Thời điểm trong video (giây)
+
+                              note_content NVARCHAR(MAX) NOT NULL,
+    -- Nội dung ghi chú
+
+                              created_at DATETIME DEFAULT GETDATE(),
+                              updated_at DATETIME NULL,
+
+                              CONSTRAINT FK_lesson_notes_user
+                                  FOREIGN KEY (user_id) REFERENCES users(id),
+
+                              CONSTRAINT FK_lesson_notes_lesson
+                                  FOREIGN KEY (lesson_id) REFERENCES lessons(id)
+);
+
+
 -- =========================
 -- LESSON MATERIALS
 -- =========================

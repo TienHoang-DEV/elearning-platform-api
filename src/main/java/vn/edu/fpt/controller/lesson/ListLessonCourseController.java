@@ -48,7 +48,6 @@ public class ListLessonCourseController {
         return String.format("redirect:/course/%d/section/%d/lesson/%d", courseId, sectionId, lessonIdFinalCompleted);
     }
 
-    @Transactional
     @GetMapping("/course/{courseId}/section/{sectionId}/lesson/{lessonId}")
     public String viewLesson(Model model, @PathVariable Integer courseId, @PathVariable Integer sectionId, @PathVariable Integer lessonId) {
         User user = SecurityUtils.getCurrentUser();

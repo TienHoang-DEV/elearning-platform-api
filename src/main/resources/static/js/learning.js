@@ -201,20 +201,103 @@ function initializeNotes() {
 
     const btnSaveNoteVideo = document.getElementById("btn-save-note");
     const btnCancelNote = document.getElementById("btn-cancel-note");
-    const btnAddNote = document.getElementById("btn-add-note");
     const noteInputText = document.getElementById("note-input-text");
     const currentNoteTimeText = document.getElementById("current-note-time");
     const savedNotesList = document.getElementById("saved-notes-list");
-    const notesCountBadge = document.getElementById("notes-count");
 
     let activeNoteSeconds = 0;
     let editingNoteElement = null;
 
-    function updateNotesCount() {
-        if (!savedNotesList) return;
-        const count = savedNotesList.querySelectorAll(".note-item").length;
-        if (notesCountBadge) {
-            notesCountBadge.textContent = `${count} ghi chú`;
+    const formNote = document.querySelector('#form-note');
+    if (formNote) {
+        formNote.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!noteInputText || !noteInputText.value.trim()) return;
+            const formData = new FormData(formNote);
+            formData.append("noteContent", noteInputText.value.trim());
+            formData.append("videoTimeSeconds", activeNoteSeconds);
+            formData.append("lessonId", video.dataset.lessonId);
+
+            try {
+                const response = await fetch('/api/lesson-note/save', {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        if (editingNoteElement) {
+                            editingNoteElement.querySelector(".note-content").textContent = noteInputText.value.trim();
+                            const seekBtn = editingNoteElement.querySelector(".note-seek-btn");
+                            if (seekBtn) {
+                                seekBtn.dataset.seconds = activeNoteSeconds;
+                                seekBtn.innerHTML = `<i data-lucide="play" style="width: 10px; height: 10px; fill: currentColor;"></i> ${formatTime(activeNoteSeconds)}`;
+                            }
+                        } else {
+                            // Prepend newly created note item in UI
+                            const timeStr = formatTime(activeNoteSeconds);
+                            const lessonTitle = document.querySelector(".course-lesson-title")?.textContent || "Bài học hiện tại";
+                            const newNoteId = result.noteId || result.id || "";
+                            const newNoteHTML = `
+                                <div class="note-item p-3 rounded-3 border border-light-subtle bg-white shadow-sm transition-all" data-lesson-note-id="${newNoteId}">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <button class="btn btn-primary-subtle text-primary btn-sm rounded-pill px-2.5 py-0.5 fs-8 fw-bold d-inline-flex align-items-center gap-1 note-seek-btn" data-seconds="${activeNoteSeconds}">
+                                            <i data-lucide="play" style="width: 10px; height: 10px; fill: currentColor;"></i>
+                                            ${timeStr}
+                                        </button>
+                                        <div class="d-flex gap-1">
+                                            <button class="btn btn-link text-muted p-0 border-0 btn-edit-note" title="Sửa ghi chú">
+                                                <i data-lucide="edit-3" style="width: 14px; height: 14px;"></i>
+                                            </button>
+                                            <button class="btn btn-link text-danger p-0 border-0 btn-delete-note" title="Xóa ghi chú">
+                                                <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <h4 class="fs-8 fw-bold text-dark mb-1">${lessonTitle}</h4>
+                                    <p class="note-content text-muted fs-7 mb-0">${noteInputText.value.trim()}</p>
+                                </div>
+                            `;
+                            if (savedNotesList) {
+                                savedNotesList.insertAdjacentHTML("afterbegin", newNoteHTML);
+                            }
+                        }
+
+                        // Clear input and state
+                        noteInputText.value = "";
+                        editingNoteElement = null;
+                        const noteIdInput = formNote.querySelector('input[name="noteId"]');
+                        if (noteIdInput) {
+                            noteIdInput.remove();
+                        }
+                        if (typeof lucide !== 'undefined') {
+                            lucide.createIcons();
+                        }
+                    } else {
+                        alert(result.message || "Lỗi khi lưu ghi chú");
+                    }
+                } else {
+                    alert("Có lỗi xảy ra khi kết nối tới server.");
+                }
+            } catch (err) {
+                console.error("Error saving note:", err);
+                alert("Không thể kết nối đến server để lưu ghi chú.");
+            }
+        });
+    }
+
+    // Khôi phục lại icon Lucide play cho nút chuyển đoạn (seek) bị Thymeleaf th:text ghi đè
+    if (savedNotesList) {
+        savedNotesList.querySelectorAll(".note-seek-btn").forEach(btn => {
+            const seconds = btn.dataset.seconds;
+            if (seconds !== undefined) {
+                const timeText = btn.textContent.trim();
+                btn.innerHTML = `<i data-lucide="play" style="width: 10px; height: 10px; fill: currentColor;"></i> ${timeText}`;
+            }
+        });
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
         }
     }
 
@@ -249,10 +332,17 @@ function initializeNotes() {
             // Pause video
             if (video) {
                 video.pause();
-                activeNoteSeconds = Math.floor(video.currentTime);
+                activeNoteSeconds = Math.floor(video.currentTime); // video.currentTime return second
             } else {
                 activeNoteSeconds = 0;
             }
+
+            const formNote = document.querySelector("#form-note");
+            const noteId = formNote.querySelector('input[name="noteId"]');
+            if (noteId) {
+                formNote.removeChild(noteId);
+            }
+            noteInputText.value = "";
 
             // Update timestamp
             if (currentNoteTimeText) {
@@ -279,6 +369,12 @@ function initializeNotes() {
                 noteInputText.value = "";
             }
             editingNoteElement = null;
+            if (formNote) {
+                const noteIdInput = formNote.querySelector('input[name="noteId"]');
+                if (noteIdInput) {
+                    noteIdInput.remove();
+                }
+            }
         });
     }
 
@@ -303,6 +399,19 @@ function initializeNotes() {
                 const content = item.querySelector(".note-content").textContent;
                 const seekButton = item.querySelector(".note-seek-btn");
                 const secs = parseInt(seekButton.dataset.seconds);
+                const lessonNoteId = parseInt(item.dataset.lessonNoteId);
+
+                const formNote = document.querySelector("#form-note");
+
+                let noteIdInput = formNote.querySelector('input[name="noteId"]');
+                if (!noteIdInput) {
+                    noteIdInput = document.createElement("input");
+                    noteIdInput.type = "hidden";
+                    noteIdInput.name = "noteId";
+                    formNote.appendChild(noteIdInput);
+                }
+                noteIdInput.setAttribute("value", lessonNoteId);
+
 
                 editingNoteElement = item;
                 activeNoteSeconds = secs;
@@ -317,14 +426,6 @@ function initializeNotes() {
                 return;
             }
 
-            // Delete button
-            const deleteBtn = e.target.closest(".btn-delete-note");
-            if (deleteBtn) {
-                const item = deleteBtn.closest(".note-item");
-                item.remove();
-                updateNotesCount();
-                return;
-            }
         });
     }
 }
@@ -425,7 +526,7 @@ function showStatusModal(success, message) {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
-    
+
     const statusModalEl = document.getElementById('reviewStatusModal');
     if (statusModalEl) {
         const statusModal = new bootstrap.Modal(statusModalEl);

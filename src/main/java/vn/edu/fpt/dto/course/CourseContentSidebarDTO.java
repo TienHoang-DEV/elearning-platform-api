@@ -3,6 +3,7 @@ package vn.edu.fpt.dto.course;
 import lombok.*;
 import vn.edu.fpt.dto.LessonDto;
 import vn.edu.fpt.dto.LessonMaterialDto;
+import vn.edu.fpt.dto.lesson.LessonNoteSiderbarDTO;
 import vn.edu.fpt.dto.lesson.SectionSiderbarDTO;
 
 import java.util.List;
@@ -26,11 +27,15 @@ public class CourseContentSidebarDTO {
     private String nextLessonTitle;
     private Double progressPercent;
     private LessonDto lesson;
+
     private List<LessonMaterialDto> materials;
     private Boolean lessonProgressStatus;
     private Boolean showReviewPrompt;
     private Integer currentSectionId;
+
     private List<SectionSiderbarDTO> sections;
+
+    private List<LessonNoteSiderbarDTO> lessonNoteSiderbarDTOS;
 
 }
 

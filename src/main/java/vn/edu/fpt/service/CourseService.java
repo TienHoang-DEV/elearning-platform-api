@@ -13,6 +13,7 @@ import vn.edu.fpt.dto.course.CourseContentSidebarDTO;
 import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.course.CourseListDto;
 import vn.edu.fpt.dto.home.HomeDto;
+import vn.edu.fpt.dto.lesson.LessonNoteSiderbarDTO;
 import vn.edu.fpt.dto.lesson.LessonSiderbarDTO;
 import vn.edu.fpt.dto.lesson.SectionSiderbarDTO;
 import vn.edu.fpt.entity.*;
@@ -27,6 +28,7 @@ import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.mapper.DtoMapper;
 
 import vn.edu.fpt.service.cloud.AzureBlobService;
+import vn.edu.fpt.service.lesson.LessonNoteService;
 import vn.edu.fpt.service.lesson.LessonService;
 import vn.edu.fpt.util.AppConstants;
 import org.springframework.data.domain.PageRequest;
@@ -52,6 +54,7 @@ public class CourseService {
     private final LessonProgressRepository lessonProgressRepository;
     private final LessonService lessonService;
     private final FeedbackService feedbackService;
+    private final LessonNoteService lessonNoteService;
 
     // Page course của mỗi instructor
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
@@ -602,6 +605,10 @@ public class CourseService {
 
         courseContentSidebarDTO.setShowReviewPrompt(showReviewPrompt);
 
+        // tải ghi chú của tôi
+        List<LessonNoteSiderbarDTO> lessonNoteSiderbarDTOS = lessonNoteService.findLessonNoteByUserIdAndLessonId(user.getId(), lessonId);
+
+        courseContentSidebarDTO.setLessonNoteSiderbarDTOS(lessonNoteSiderbarDTOS);
         return courseContentSidebarDTO;
     }
 
