@@ -161,4 +161,5 @@ public class InstructorLessonController {
         return "redirect:/instructorcourse/" + courseId + "/curriculum";
     }
 
+
 }
