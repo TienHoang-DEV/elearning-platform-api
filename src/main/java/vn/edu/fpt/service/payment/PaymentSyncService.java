@@ -60,9 +60,7 @@ public class PaymentSyncService {
             int count = 0;
             for (Payment payment : expiredPayments) {
                 try {
-                    payment.setStatus(PaymentStatus.EXPIRED);
-                    paymentRepository.save(payment);
-                    log.info("Đã đánh dấu giao dịch thanh toán ID {} là EXPIRED", payment.getId());
+                    payOsService.expirePayment(payment);
                     count++;
                 } catch (Exception e) {
                     log.error("Lỗi khi đánh dấu giao dịch ID {} là EXPIRED: {}", payment.getId(), e.getMessage());
@@ -151,8 +149,7 @@ public class PaymentSyncService {
                 payOsService.expirePayment(payment);
                 statusChanged = true;
             } else if ("FAILED".equalsIgnoreCase(payOsStatus) && payment.getStatus() != PaymentStatus.FAILED) {
-                payment.setStatus(PaymentStatus.FAILED);
-                paymentRepository.save(payment);
+                payOsService.failPayment(payment);
                 statusChanged = true;
             }
 
