@@ -78,14 +78,14 @@ public class SecurityConfig {
                         .loginProcessingUrl("/login_no")
                         .usernameParameter("email")   // thêm dòng này
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/home", false)
+                        .defaultSuccessUrl("/home", true)
                         .failureUrl("/login_no?error")
                         .permitAll()
                 )
 
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login_no")
-                        .defaultSuccessUrl("/home", false)
+                        .defaultSuccessUrl("/home", true)
                         .userInfoEndpoint(userInfo ->
                                 userInfo.userService(oAuth2UserService)
                         )
