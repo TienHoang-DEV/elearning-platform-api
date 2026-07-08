@@ -168,7 +168,7 @@ CREATE TABLE system_logs (
                              user_id INT NOT NULL,
     -- Tham chiếu đến bảng users, người dùng thực hiện hành động
 
-                             action VARCHAR(255),
+                             action NVARCHAR(255),
     -- Hành động thực hiện (ví dụ: 'create_course', 'upload_video', 'edit_course', 'delete_lesson')
 
                              target_type VARCHAR(100),

@@ -17,7 +17,7 @@ public class SystemLog extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(length = 255)
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String action;
 
     @Column(name = "target_type", length = 100)

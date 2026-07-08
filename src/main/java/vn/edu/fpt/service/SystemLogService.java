@@ -17,6 +17,22 @@ public class SystemLogService {
         this.repository = systemLogRepository;
     }
 
+    public void log(vn.edu.fpt.entity.User user, String action, String targetType, String targetId, String meta) {
+        if (user == null) return;
+        SystemLog log = SystemLog.builder()
+                .user(user)
+                .action(action)
+                .targetType(targetType)
+                .targetId(targetId)
+                .meta(meta)
+                .build();
+        repository.save(log);
+    }
+
+    public List<SystemLog> getLogsByUserId(Integer userId) {
+        return repository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
     public List<SystemLog> findAll() { return repository.findAll(); }
     public Optional<SystemLog> findById(Integer id) { return repository.findById(id); }
     public SystemLog save(SystemLog entity) { return repository.save(entity); }

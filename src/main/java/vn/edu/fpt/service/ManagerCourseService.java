@@ -10,6 +10,7 @@ import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.CourseRepository;
+import vn.edu.fpt.util.SecurityUtils;
 
 @Service
 @Transactional
@@ -18,11 +19,13 @@ public class ManagerCourseService {
     private final CourseRepository repository;
     private final DtoMapper dtoMapper;
     private final EmailService emailService;
+    private final SystemLogService systemLogService;
 
-    public ManagerCourseService(CourseRepository repository, DtoMapper dtoMapper, EmailService emailService) {
+    public ManagerCourseService(CourseRepository repository, DtoMapper dtoMapper, EmailService emailService, SystemLogService systemLogService) {
         this.repository = repository;
         this.dtoMapper = dtoMapper;
         this.emailService = emailService;
+        this.systemLogService = systemLogService;
     }
 
     public Page<CourseDto> searchAndFilter(String keyword, CourseStatus status, Integer categoryId, Pageable pageable) {
@@ -44,6 +47,18 @@ public class ManagerCourseService {
             course.setRejectionReason(null); // Clear rejection reason if approved
         }
         repository.save(course);
+
+        // Log action to SystemLog
+        vn.edu.fpt.entity.User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser != null) {
+            String action = (status == CourseStatus.PUBLISHED) ? "PHÊ DUYỆT KHÓA HỌC" : 
+                             (status == CourseStatus.REJECTED) ? "TỪ CHỐI KHÓA HỌC" : "CẬP NHẬT KHÓA HỌC";
+            String meta = "Tên khóa học: " + course.getTitle();
+            if (status == CourseStatus.REJECTED && rejectionReason != null) {
+                meta += " | Lý do từ chối: " + rejectionReason;
+            }
+            systemLogService.log(currentUser, action, "COURSE", String.valueOf(id), meta);
+        }
 
         // Send email notification to instructor
         try {
