@@ -801,7 +801,7 @@ CREATE TABLE feedbacks (
     user_id INT NOT NULL,
     course_id INT NOT NULL,
     rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
-    comment NVARCHAR(2000) NULL,
+    comment NVARCHAR(MAX) NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'VISIBLE' CHECK (status IN ('VISIBLE', 'HIDDEN')),
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,

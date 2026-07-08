@@ -234,4 +234,24 @@ public class PayOsService {
             orderRepository.save(order);
         }
     }
+
+    /**
+     * Đánh dấu giao dịch thanh toán thất bại trên hệ thống cục bộ và cập nhật đơn hàng thành CANCELLED.
+     * 
+     * @param payment Giao dịch thanh toán thất bại.
+     */
+    public void failPayment(Payment payment) {
+        if (payment.getStatus() == PaymentStatus.FAILED) {
+            return;
+        }
+        log.info("Đang đánh dấu thất bại giao dịch ID: {}", payment.getId());
+        payment.setStatus(PaymentStatus.FAILED);
+        paymentRepository.save(payment);
+
+        Order order = payment.getOrder();
+        if (order != null) {
+            order.setStatus(OrderStatus.CANCELLED);
+            orderRepository.save(order);
+        }
+    }
 }
