@@ -12,10 +12,8 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.LoginRequest;
 import vn.edu.fpt.dto.RegisterRequest;
 import vn.edu.fpt.entity.User;
@@ -25,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Controller
+@SessionAttributes("registerRequest")
 public class AuthController {
     private final AuthService authService;
 
@@ -62,21 +61,23 @@ public class AuthController {
             @Valid
             @ModelAttribute("registerRequest")
             RegisterRequest request,
-            BindingResult result) {
+            BindingResult result,
+            Model model,
+            HttpSession session) {
 
         if(result.hasErrors()) {
             return "auth/register";
         }
 
 
-        if (authService.existsByEmail(request.getEmail())) {
+        if (authService.isActiveEmail(request.getEmail())) {
             result.rejectValue(
                     "email",
                     "duplicate",
                     "Email đã tồn tại");
         }
 
-        if (authService.existsByPhone(request.getPhoneNumber())) {
+        if (authService.isActivePhone(request.getPhoneNumber())) {
             result.rejectValue(
                     "phoneNumber",
                     "duplicate",
@@ -94,9 +95,81 @@ public class AuthController {
             return "auth/register";
         }
 
-        authService.register(request);
+        User user = authService.register(request);
 
-        return "redirect:/login_no";
+        session.setAttribute("VERIFY_USER_ID", user.getId());
+
+        model.addAttribute("showOtp", true);
+
+        return "auth/register";
+
+    }
+
+    @PostMapping("/verify-otp")
+    public String verifyOtp(
+            @RequestParam("otpCode")
+            String otp,
+            HttpSession session,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+
+        System.out.println("VERIFY OTP HIT");
+        Integer userId = (Integer) session.getAttribute("VERIFY_USER_ID");
+
+        try {
+
+            authService.verifyOtp(userId, otp);
+            session.removeAttribute("VERIFY_USER_ID");
+            System.out.println("THÀNH CÔNGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG !");
+            redirectAttributes.addFlashAttribute("toastMessage", "Đăng kí tài khoản thành công !");
+            redirectAttributes.addFlashAttribute("toastType", "success");
+            return "redirect:/login_no";
+
+        }
+
+        catch (Exception ex) {
+
+            model.addAttribute("showOtp", true);
+
+            model.addAttribute("otpError", ex.getMessage());
+            System.out.println("THÀNH THẤT BẠIIIIIIIIIIIIIIIIIIIIIIIIIIIIII !");
+
+            return "auth/register";
+
+        }
+
+    }
+
+    @PostMapping("/resend-otp")
+    public String resendOtp(
+            HttpSession session,
+            Model model) {
+
+        Integer userId = (Integer) session.getAttribute("VERIFY_USER_ID");
+
+        if (userId == null) {
+
+            return "redirect:/register";
+
+        }
+
+        try {
+
+            authService.resendOtp(userId);
+
+            model.addAttribute("showOtp", true);
+            model.addAttribute("otpSuccess", "OTP mới đã được gửi");
+
+
+        }
+
+        catch (Exception ex) {
+
+            model.addAttribute("showOtp", true);
+            model.addAttribute("otpError", ex.getMessage());
+        }
+        return "auth/register";
+
     }
 
     @GetMapping("/view-current-role")

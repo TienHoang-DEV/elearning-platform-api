@@ -108,11 +108,12 @@ body {
 }
 
 /* INPUT STYLES */
-.input-group {
+/* Đổi tên từ .input-group thành .form-group */
+.form-group {
     margin-bottom: 1.2rem;
 }
 
-.input-group label {
+.form-group label {
     display: block;
     font-size: 0.85rem;
     font-weight: 600;
