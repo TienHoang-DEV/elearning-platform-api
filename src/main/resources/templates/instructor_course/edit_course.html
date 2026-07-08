@@ -11,15 +11,12 @@
 <div th:replace="~{instructor_course/sidebar :: sidebar(activePage='courses')}"></div>
 
 <main class="main-content">
-
     <div class="page-header">
         <h1>Chỉnh Sửa Khóa Học</h1>
         <a th:href="@{/instructorcourse/courses}" class="btn btn-outline">← Quay lại danh sách</a>
     </div>
 
-    <form action="#" method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${CourseRequest}">
-        <!-- HARDCODE: id khóa học -->
-        <input type="hidden" name="id" value="1">
+    <form th:action="@{/instructorcourse/{id}/edit(id=*{id})}" method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${CourseRequest}">
 
         <div class="card">
             <div class="card-title">Thông Tin Chung</div>

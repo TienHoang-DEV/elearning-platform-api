@@ -9,32 +9,27 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.*;
 
 import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.dto.CourseCreateDto;
 import vn.edu.fpt.dto.course.CourseDto;
-import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.entity.*;
 import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.enums.CourseStatus;
 
-import vn.edu.fpt.exception.CourseSectionValidation;
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.service.CategoryService;
-import vn.edu.fpt.service.CourseSectionService;
+import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
-import vn.edu.fpt.service.quiz.QuizService;
-import vn.edu.fpt.service.LessonService;
+import vn.edu.fpt.service.lesson.LessonService;
 import vn.edu.fpt.util.SecurityUtils;
 
 
+import javax.swing.text.Utilities;
 import java.util.Arrays;
 import java.util.List;
-import java.lang.reflect.Array;
-import java.util.*;
 
 @Controller
 @RequestMapping("/instructorcourse")
@@ -111,9 +106,7 @@ public class InstructorCourseController {
         return "instructor_course/editcourse";
     }
 
-    ////Tạo khoá học
-    ///
-    ///
+
     private void loadFormModel(Model model){
         model.addAttribute("courselevels", Arrays.asList(CourseLevel.values()));
         model.addAttribute("categoryparents",
@@ -209,6 +202,49 @@ public class InstructorCourseController {
 
        return "instructor_course/edit_course";
     }
+
+    @PostMapping("/{id}/edit")
+    public String EditCourse(@PathVariable("id") Integer CourseId,
+                             @Valid @ModelAttribute("CourseRequest") CourseCreateDto coursedto,
+                             BindingResult bindingResult,
+                             RedirectAttributes redirectAttributes,
+                             Model model){
+     if(bindingResult.hasErrors()){
+         loadFormModel(model);
+         model.addAttribute("activeStep", "info");
+         return "instructor_course/edit_course";
+     }
+     try{
+         User user = SecurityUtils.getCurrentUser();
+         courseService.save(user, coursedto);
+         redirectAttributes.addFlashAttribute("success", "Chỉnh Sửa Khoá Học Thành Công");
+         return "redirect:/instructorcourse/"+coursedto.getId()+"/edit";
+     }catch(CourseValidationException e){
+
+         bindingResult.rejectValue(
+                 e.getField(),
+                 "error",
+                 e.getMessage());
+
+         loadFormModel(model);
+         model.addAttribute("activeStep", "info");
+         return "instructor_course/edit_course";
+     }
+
+    }
+
+
+    @PostMapping("/{id}/delete")
+    public String deleteCourse(@PathVariable("id") Integer courseId,
+                               @RequestParam(name = "tab", required = false, defaultValue = "all") String tab,
+                               RedirectAttributes redirectAttributes){
+        courseService.deleteCourseById(courseId);
+        redirectAttributes.addFlashAttribute("success", "Xoá khoá học thành công");
+        return "redirect:/instructorcourse/courses?tab=" + tab;
+    }
+
+
+
 
 
 

@@ -258,7 +258,7 @@ public class CartService {
         Order order = Order.builder()
                 .user(user)
                 .totalAmount(orderSubtotal)
-                .status(OrderStatus.PAID)
+                .status(OrderStatus.COMPLETED)
                 .paymentMethod("ATM / Internet Banking")
                 .build();
 

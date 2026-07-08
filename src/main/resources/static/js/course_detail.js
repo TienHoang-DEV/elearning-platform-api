@@ -25,4 +25,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // 4. Load more reviews functionality
+    const btnLoadMore = document.getElementById('btn-load-more-reviews');
+    if (btnLoadMore) {
+        btnLoadMore.addEventListener('click', () => {
+            const hiddenReviews = document.querySelectorAll('.feedback-item.d-none');
+            const limit = 5;
+            let count = 0;
+
+            hiddenReviews.forEach(review => {
+                if (count < limit) {
+                    review.classList.remove('d-none');
+                    count++;
+                }
+            });
+
+            // Check if there are still any hidden reviews left
+            const remainingHidden = document.querySelectorAll('.feedback-item.d-none');
+            if (remainingHidden.length === 0) {
+                btnLoadMore.style.display = 'none';
+            }
+        });
+    }
 });

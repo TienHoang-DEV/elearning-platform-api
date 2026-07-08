@@ -1,6 +1,38 @@
 USE [ElearningPlatform];
 GO
 
+-- =========================================================================
+-- HỦY BỎ DỮ LIỆU CŨ VÀ RESET IDENTITY SEED ĐỂ ĐẢM BẢO CHẠY LẠI KHÔNG BỊ LỖI
+-- =========================================================================
+-- Tạm thời vô hiệu hóa tất cả các ràng buộc khóa ngoại để xóa sạch dữ liệu dễ dàng
+EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all"
+
+DELETE FROM feedbacks;
+DELETE FROM enrollments;
+DELETE FROM payments;
+DELETE FROM orders;
+DELETE FROM lesson_materials;
+DELETE FROM quiz_answers;
+DELETE FROM quiz_questions;
+DELETE FROM quizzes;
+DELETE FROM lessons;
+DELETE FROM course_sections;
+DELETE FROM courses;
+
+-- Kích hoạt lại ràng buộc khóa ngoại
+EXEC sp_MSforeachtable "ALTER TABLE ? WITH CHECK CHECK CONSTRAINT all"
+
+-- Reset identity seed về 0 để các ID tự tăng luôn bắt đầu từ 1
+IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('courses')) DBCC CHECKIDENT ('courses', RESEED, 0);
+IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('course_sections')) DBCC CHECKIDENT ('course_sections', RESEED, 0);
+IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('lessons')) DBCC CHECKIDENT ('lessons', RESEED, 0);
+IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('quizzes')) DBCC CHECKIDENT ('quizzes', RESEED, 0);
+IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('quiz_questions')) DBCC CHECKIDENT ('quiz_questions', RESEED, 0);
+IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('quiz_answers')) DBCC CHECKIDENT ('quiz_answers', RESEED, 0);
+IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('orders')) DBCC CHECKIDENT ('orders', RESEED, 0);
+IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('payments')) DBCC CHECKIDENT ('payments', RESEED, 0);
+GO
+
 -- =========================
 -- ROLES SAMPLE DATA
 -- =========================
@@ -726,6 +758,28 @@ BEGIN
     SET @lessonId = @lessonId + 1;
 END
 
+-- ==========================================
+-- BÀI QUIZ THỨ 2 CHO MỖI LESSON (ĐỂ ĐẠT ÍT NHẤT 2 QUIZ/LESSON)
+-- ==========================================
+DECLARE @lessonId2 INT = 1;
+
+WHILE @lessonId2 <= 216
+BEGIN
+
+    INSERT INTO quizzes (
+        lesson_id,
+        title,
+        pass_score_percent
+    )
+    VALUES (
+        @lessonId2,
+        N'Quiz nâng cao bài học ' + CAST(@lessonId2 AS NVARCHAR(10)),
+        75
+    );
+
+    SET @lessonId2 = @lessonId2 + 1;
+END
+
 -- =========================
 -- QUIZ 1 (Java)
 -- =========================
@@ -1024,6 +1078,83 @@ VALUES
 (24, N'Spring Security', 1),
 (24, N'Spring Data JPA', 1),
 (24, N'Laravel', 0);
+
+
+-- =========================================================================
+-- TỰ ĐỘNG TẠO CÂU HỎI VÀ ĐÁP ÁN MẪU PHÙ HỢP VỚI TIÊU ĐỀ KHÓA HỌC VÀ BÀI HỌC
+-- =========================================================================
+DECLARE @currentQuizId INT;
+DECLARE @insertedQuestionId INT;
+
+DECLARE @courseTitle NVARCHAR(255);
+DECLARE @sectionTitle NVARCHAR(255);
+DECLARE @lessonTitle NVARCHAR(255);
+
+-- Sử dụng Cursor để duyệt qua tất cả các bài Quiz thực tế có trong Database
+DECLARE quiz_cursor CURSOR FOR 
+SELECT id FROM quizzes;
+
+OPEN quiz_cursor;
+FETCH NEXT FROM quiz_cursor INTO @currentQuizId;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- Chỉ tạo câu hỏi mẫu nếu bài Quiz đó chưa có câu hỏi nào
+    IF NOT EXISTS (SELECT 1 FROM quiz_questions WHERE quiz_id = @currentQuizId)
+    BEGIN
+        -- Lấy thông tin khóa học, chương học và bài học tương ứng với Quiz ID
+        SELECT 
+            @courseTitle = c.title,
+            @sectionTitle = s.title,
+            @lessonTitle = l.title
+        FROM quizzes q
+        JOIN lessons l ON q.lesson_id = l.id
+        JOIN course_sections s ON l.section_id = s.id
+        JOIN courses c ON s.course_id = c.id
+        WHERE q.id = @currentQuizId;
+
+        -- Câu hỏi 1 (SINGLE choice)
+        INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position)
+        VALUES (
+            @currentQuizId, 
+            N'Câu hỏi trắc nghiệm số 1 của bài học "' + @lessonTitle + N'" thuộc "' + @sectionTitle + N'" của khóa học "' + @courseTitle + N'". Đâu là khẳng định đúng?', 
+            'SINGLE', 
+            1, 
+            1
+        );
+        SET @insertedQuestionId = (SELECT MAX(id) FROM quiz_questions);
+
+        INSERT INTO quiz_answers (question_id, answer_text, is_correct)
+        VALUES 
+        (@insertedQuestionId, N'Khái niệm chính xác về ' + @courseTitle + N' (Đáp án đúng)', 1),
+        (@insertedQuestionId, N'Định nghĩa sai lệch liên quan đến ' + @courseTitle, 0),
+        (@insertedQuestionId, N'Nội dung không thuộc phạm vi của bài học ' + @lessonTitle, 0),
+        (@insertedQuestionId, N'Tất cả các phương án trên đều sai', 0);
+
+        -- Câu hỏi 2 (MULTIPLE choice)
+        INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position)
+        VALUES (
+            @currentQuizId, 
+            N'Câu hỏi trắc nghiệm số 2 của bài học "' + @lessonTitle + N'" thuộc "' + @sectionTitle + N'" của khóa học "' + @courseTitle + N'". Chọn các đáp án đúng:', 
+            'MULTIPLE', 
+            1, 
+            2
+        );
+        SET @insertedQuestionId = (SELECT MAX(id) FROM quiz_questions);
+
+        INSERT INTO quiz_answers (question_id, answer_text, is_correct)
+        VALUES 
+        (@insertedQuestionId, N'Đặc tính cơ bản của ' + @courseTitle + N' trong thực tế', 1),
+        (@insertedQuestionId, N'Phương pháp áp dụng tốt nhất cho bài học ' + @lessonTitle, 1),
+        (@insertedQuestionId, N'Lý thuyết lỗi thời không nên dùng', 0),
+        (@insertedQuestionId, N'Lỗi cú pháp thường gặp khi thực hành', 0);
+    END
+
+    FETCH NEXT FROM quiz_cursor INTO @currentQuizId;
+END
+
+CLOSE quiz_cursor;
+DEALLOCATE quiz_cursor;
 
 
 -- =========================

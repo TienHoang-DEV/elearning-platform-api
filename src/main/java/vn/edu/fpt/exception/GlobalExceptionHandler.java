@@ -16,10 +16,7 @@ import vn.edu.fpt.entity.User;
  * Global handler to convert exceptions into consistent HTTP responses.
  */
 @ControllerAdvice
-@RequiredArgsConstructor
 public class GlobalExceptionHandler {
-
-    private final ViewResolver viewResolver;
 
     private boolean isApiRequest(HttpServletRequest request) {
         String accept = request.getHeader("Accept");
@@ -36,7 +33,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public Object handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) throws Exception {
+    public Object handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
         if (isApiRequest(request)) {
             ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), "Not Found", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
@@ -45,7 +42,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public Object handleBadRequest(BadRequestException ex, HttpServletRequest request) throws Exception {
+    public Object handleBadRequest(BadRequestException ex, HttpServletRequest request) {
         if (isApiRequest(request)) {
             ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Bad Request", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
@@ -53,17 +50,8 @@ public class GlobalExceptionHandler {
         return "templates/error/400.html";
     }
 
-    @ExceptionHandler(ApplicationException.class)
-    public Object handleApplication(ApplicationException ex, HttpServletRequest request) throws Exception {
-        if (isApiRequest(request)) {
-            ErrorResponse body = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Application Error", ex.getMessage(), request.getRequestURI());
-            return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return "templates/error/500.html";
-    }
-
     @ExceptionHandler(Exception.class)
-    public Object handleOther(Exception ex, HttpServletRequest request) throws Exception {
+    public Object handleOther(Exception ex, HttpServletRequest request) {
         if (isApiRequest(request)) {
             ErrorResponse body = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -72,7 +60,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(PaymentCallApiException.class)
-    public Object handlePaymetApiCallFailException(Exception ex, HttpServletRequest request) throws Exception {
+    public Object handlePaymetApiCallFailException(Exception ex, HttpServletRequest request) {
         if (isApiRequest(request)) {
             ErrorResponse body = new ErrorResponse(HttpStatus.BAD_GATEWAY.value(),  "Bad Gateway", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.BAD_GATEWAY);
@@ -81,7 +69,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(PaymentCreateException.class)
-    public Object handlePaymentCreateException(Exception ex, HttpServletRequest request) throws Exception {
+    public Object handlePaymentCreateException(Exception ex, HttpServletRequest request) {
         if (isApiRequest(request)) {
             ErrorResponse body = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),  "Create Payment Fail", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);

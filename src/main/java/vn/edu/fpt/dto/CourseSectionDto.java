@@ -23,5 +23,6 @@ public class CourseSectionDto {
     )
     private String title;
     private Integer position;
+    private CourseCreateDto course;
     private List<LessonDto> lessons;
 }

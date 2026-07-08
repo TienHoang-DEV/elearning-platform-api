@@ -5,6 +5,10 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.Feedback;
 import vn.edu.fpt.repository.FeedbackRepository;
 
+import vn.edu.fpt.entity.User;
+import vn.edu.fpt.exception.ResourceNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -24,5 +28,19 @@ public class FeedbackService {
     public boolean existsById(Integer id) { return repository.existsById(id); }
     public boolean hasUserReviewedCourse(Integer userId, Integer courseId) {
         return repository.existsByUserIdAndCourseId(userId, courseId);
+    }
+
+    public void updateReview(Integer feedbackId, Integer rating, String comment, User user) {
+        Feedback feedback = repository.findById(feedbackId)
+                .orElseThrow(() -> new ResourceNotFoundException("Đánh giá không tồn tại"));
+
+        if (user == null || !feedback.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Bạn không có quyền sửa đánh giá này!");
+        }
+
+        feedback.setRating(rating);
+        feedback.setComment(comment);
+        feedback.setCreatedAt(java.time.LocalDateTime.now());
+        repository.save(feedback);
     }
 }

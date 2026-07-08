@@ -1,8 +1,6 @@
 package vn.edu.fpt.controller;
 
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -15,19 +13,14 @@ import vn.edu.fpt.dto.CourseSectionDto;
 import vn.edu.fpt.dto.LessonDto;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.entity.*;
-import vn.edu.fpt.mapper.DtoMapper;
-import vn.edu.fpt.service.CourseSectionService;
+import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
-import vn.edu.fpt.service.LessonMaterialService;
-import vn.edu.fpt.service.LessonService;
+import vn.edu.fpt.service.material.LessonMaterialService;
+import vn.edu.fpt.service.lesson.LessonService;
 import vn.edu.fpt.service.quiz.QuizService;
 import vn.edu.fpt.util.SecurityUtils;
 
-import javax.swing.text.Utilities;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/instructor")
@@ -167,5 +160,6 @@ public class InstructorLessonController {
 
         return "redirect:/instructorcourse/" + courseId + "/curriculum";
     }
+
 
 }

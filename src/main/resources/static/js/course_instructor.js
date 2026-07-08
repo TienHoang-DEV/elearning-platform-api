@@ -501,36 +501,80 @@ function updateCurriculumPreview() {
     preview.innerHTML = html;
 }
 
-// Delete section/lesson from backend-rendered HTML (called via onclick in templates)
-function deleteSection(sectionId) {
-    if (!confirm('Xóa chương này và tất cả bài giảng bên trong?')) return;
-    fetch(`/instructor/sections/${sectionId}/delete`, { method: 'POST' })
-        .then(r => { if (r.ok) location.reload(); });
-}
 
 function deleteLesson(lessonId) {
     if (!confirm('Xóa bài giảng này?')) return;
-    fetch(`/instructor/lessons/${lessonId}/delete`, { method: 'POST' })
+    fetch(`/instructorcourse/lessons/${lessonId}/delete`, { method: 'POST' })
         .then(r => { if (r.ok) location.reload(); });
 }
 
-// Open edit lesson modal with existing data
-function openEditLessonModal(dataset) {
-    document.getElementById('editLessonId').value   = dataset.lessonId;
-    document.getElementById('editLessonName').value = dataset.lessonTitle;
-    document.getElementById('editLessonFreeToggle').checked =
-        dataset.lessonFree === 'true';
-    document.getElementById('modal-edit-lesson').classList.add('active');
+
+function openEditSectionModal(dataset) {
+
+    const form = document.getElementById("editSectionForm");
+
+    form.action =
+        `/instructorcourse/${dataset.courseId}/sections/${dataset.sectionId}/edit`;
+
+    document.getElementById("editSectionTitle").value =
+        dataset.sectionTitle;
+
+    openModal("modal-edit-section");
 }
 
-// Open add lesson modal from curriculum (backend mode)
+
+
+function openEditLessonModal(dataset) {
+    const form = document.getElementById('editLessonForm');
+    currentEditLessonId = dataset.lessonId;
+    document.getElementById('editLessonTitle').value = dataset.lessonTitle;
+    document.getElementById('editLessonFree').checked = dataset.lessonFree === 'true';
+    openModal('editLessonModal');
+}
+
+
+function deleteSection(sectionId, courseId) {
+    if (!confirm('Xóa chương này và tất cả bài giảng bên trong?')) return;
+    fetch(`/instructorcourse/${courseId}/sections/${sectionId}/delete`, { method: 'POST' })
+        .then(r => { if (r.ok) location.reload(); });
+}
+
+
+function saveEditLesson() {
+    const title = document.getElementById('editLessonTitle').value.trim();
+    if (!title) {
+        alert('Vui lòng nhập tên bài giảng');
+        return;
+    }
+
+    const isFree = document.getElementById('editLessonFree').checked;
+    const body = new URLSearchParams();
+    body.append('title', title);
+    body.append('isFreePreview', isFree);
+
+    fetch(`/instructorcourse/lesson/${currentEditLessonId}/save`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: body.toString()
+    })
+        .then(response => {
+            if (response.ok) location.reload();
+        })
+        .catch(error => alert('Lỗi: ' + error.message));
+
+    closeModal('editLessonModal');
+}
+
+
+
+
 function openAddLessonModal(sectionId) {
     const form = document.getElementById('addLessonForm');
-    // Gán action đúng với sectionId hiện tại
+
     form.action = `/instructor/sections/${sectionId}/lessons`;
-    // Gán hidden input để backend đọc nếu cần
+
     document.getElementById('addLessonSectionId').value = sectionId;
-    // Mở modal
+
     document.getElementById('modal-add-lesson').classList.add('active');
 }
 

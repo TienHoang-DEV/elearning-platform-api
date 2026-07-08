@@ -57,7 +57,7 @@ public class InstructorProfileController {
             redirectAttributes.addFlashAttribute("success", "Thay đổi thành công!!!");
             return "redirect:/instructor/sidebar";
         } catch (UserValidationException e) {
-            result.rejectValue(e.getFeild(), "error", e.getMessage());
+            result.rejectValue(e.getField(), "error", e.getMessage());
             return "instructor_course/profile";
         }
 

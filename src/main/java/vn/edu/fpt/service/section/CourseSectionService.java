@@ -1,7 +1,8 @@
-package vn.edu.fpt.service;
+package vn.edu.fpt.service.section;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.dto.CourseCreateDto;
 import vn.edu.fpt.dto.LessonMaterialDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
@@ -9,6 +10,7 @@ import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
+import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.CourseSectionRepository;
 
 import java.time.LocalDateTime;
@@ -22,11 +24,13 @@ import vn.edu.fpt.dto.LessonDto;
 public class CourseSectionService {
     private final CourseSectionRepository repository;
     private final DtoMapper dtoMapper;
+    private final CourseRepository courseRepository;
 
 
-    public CourseSectionService(CourseSectionRepository courseSectionRepository, DtoMapper dtoMapper) {
+    public CourseSectionService(CourseSectionRepository courseSectionRepository, DtoMapper dtoMapper, CourseRepository courseRepository) {
         this.repository = courseSectionRepository;
         this.dtoMapper = dtoMapper;
+        this.courseRepository = courseRepository;
     }
 
     public List<CourseSection> findAll() {
@@ -37,12 +41,32 @@ public class CourseSectionService {
         return repository.findById(id);
     }
 
+
     public CourseSection save(CourseSection entity) {
         return repository.save(entity);
     }
 
     public void deleteById(Integer id) {
         repository.deleteById(id);
+    }
+
+    @Transactional
+    public void deleteSection(Integer sectionId) {
+
+        CourseSection deleted = repository.findById(sectionId).orElseThrow();
+        Integer deletedPos = deleted.getPosition();
+        Integer courseId = deleted.getCourse().getId();
+
+        repository.delete(deleted);
+
+        List<CourseSection> list =
+                repository.findByCourseIdOrderByPosition(courseId);
+
+        for (CourseSection s : list) {
+            if (s.getPosition() > deletedPos) {
+                s.setPosition(s.getPosition() - 1);
+            }
+        }
     }
 
     public boolean existsById(Integer id) {
@@ -53,6 +77,14 @@ public class CourseSectionService {
         if(listSection == null) return 0;
         return listSection.stream().mapToInt(s -> s.getLessons().size()).sum();
     }
+
+
+        public void updateCourseSection(Integer sectionId, CourseSectionDto courseSectionDto){
+           CourseSection courseSection = repository.findById(sectionId).orElseThrow();
+           courseSection.setTitle(courseSectionDto.getTitle());
+           courseSection.setUpdatedAt(LocalDateTime.now());
+           repository.save(courseSection);
+        }
 
     public Set<CourseSection> findSectionsByCourse(Course course) {
         if (course.getSections() == null || course.getSections().isEmpty()) {
@@ -119,12 +151,16 @@ public class CourseSectionService {
     public List<CourseSectionDto> findByCourseAndLesson(Integer courseId){
         List<CourseSection> courseSections = repository.findByCourseAndLesson(courseId);
         List<CourseSectionDto> courseSectionDtos = new ArrayList<>();
+        Course tmp = courseRepository.findCourseById(courseId);
+        CourseCreateDto courseDto = new CourseCreateDto();
+        courseDto.setId(tmp.getId());
         for(CourseSection c : courseSections){
             CourseSectionDto courseSectionDto = new CourseSectionDto();
 
             courseSectionDto.setId(c.getId());
             courseSectionDto.setTitle(c.getTitle());
             courseSectionDto.setPosition(c.getPosition());
+            courseSectionDto.setCourse(courseDto);
 
             List<LessonDto> lessons = c.getLessons().stream().
                     map(l -> {

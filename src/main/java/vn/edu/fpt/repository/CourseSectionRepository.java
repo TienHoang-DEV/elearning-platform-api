@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import vn.edu.fpt.dto.lesson.SectionSiderbarDTO;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.entity.Lesson;
 
@@ -17,21 +18,29 @@ public interface CourseSectionRepository extends JpaRepository<CourseSection, In
     CourseSection save(CourseSection courseSection);
 
     @Query("""
-    select cs.course.id from CourseSection cs where cs.id = :id
-""")
+                select cs.course.id from CourseSection cs where cs.id = :id
+            """)
     Optional<Integer> findBySectionId(@Param("id") Integer sectionId);
 
     CourseSection findCourseSectionById(Integer courseSectionId);
 
-    @Query(""" 
-         SELECT COALESCE(MAX(s.position), 0) from CourseSection s where s.course.id = :courseid
-          """)
+    @Query("""
+            SELECT COALESCE(MAX(s.position), 0) from CourseSection s where s.course.id = :courseid
+             """)
     Integer FindMaxPositionByCourseId(@Param("courseid") Integer courseId);
 
     List<CourseSection> findByCourseId(Integer courseId);
 
     @Query("""
-           select c from CourseSection c LEFT JOIN FETCH c.lessons l where c.course.id = :courseId Order by c.position 
-           """)
+            select c from CourseSection c LEFT JOIN FETCH c.lessons l where c.course.id = :courseId Order by c.position
+            """)
     List<CourseSection> findByCourseAndLesson(@Param("courseId") Integer courseId);
+
+    @Query("""
+                   select new vn.edu.fpt.dto.lesson.SectionSiderbarDTO(cs.id, cs.title, cs.position) from CourseSection cs where cs.course.id = :courseId order by cs.position asc
+            """)
+    List<SectionSiderbarDTO> findSectionSiderbarDTOByCourseId(@Param("courseId") Integer courseId);
+
+
+    List<CourseSection> findByCourseIdOrderByPosition(Integer courseId);
 }

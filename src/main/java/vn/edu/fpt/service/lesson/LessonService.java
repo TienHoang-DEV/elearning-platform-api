@@ -1,4 +1,4 @@
-package vn.edu.fpt.service;
+package vn.edu.fpt.service.lesson;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,11 +13,11 @@ import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.LessonRepository;
+import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.SecurityUtils;
 
-import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -144,33 +144,27 @@ public class LessonService {
 
     public String findLessonUrl(Integer lessonId) {
         try {
-            // 1. Tìm thông tin bài giảng theo ID trong Database
             Lesson lesson = this.findById(lessonId).orElse(null);
-            
-            // 2. Nếu không tìm thấy hoặc videoUrl trống -> Trả về link video test mặc định (W3Schools)
             if (lesson == null || lesson.getVideoUrl() == null || lesson.getVideoUrl().trim().isEmpty()) {
                 return "https://www.w3schools.com/html/mov_bbb.mp4";
             }
-            
-            // 3. Nếu hợp lệ -> Gọi AzureBlobService để ký sinh khóa bảo mật SAS URL từ Azure Container
             return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
         } catch (Exception e) {
-            // Fallback sang video test công cộng nếu Azure gặp lỗi kết nối ở localhost phát triển
             return "https://www.w3schools.com/html/mov_bbb.mp4";
         }
     }
 
-    public Lesson findNextLessonByCurrentLesson(Lesson lesson, Integer totalNumberOfLesson, Integer totalNumberOfLessonCompleted) {
+    public Lesson findNextLessonByCurrentLesson(Integer lessonId,Integer courseId, Integer totalNumberOfLesson, Integer totalNumberOfLessonCompleted) {
         if (totalNumberOfLesson == totalNumberOfLessonCompleted) {
             return null;
         }
         User user = SecurityUtils.getCurrentUser();
-        List<Lesson> nextLessons = repository.findNotCompletedLessons(user, lesson);
+        List<Lesson> nextLessons = repository.findNotCompletedLessons(user, courseId);
         if (nextLessons == null || nextLessons.isEmpty()) {
             return null;
         }
         for (Lesson nextLesson : nextLessons) {
-            if ((nextLesson.getId() > lesson.getId()) || (lesson.getId() == nextLessons.get(nextLessons.size() - 1).getId())) {
+            if ((nextLesson.getId() > lessonId) || (lessonId == nextLessons.get(nextLessons.size() - 1).getId())) {
                 return nextLesson;
             }
         }

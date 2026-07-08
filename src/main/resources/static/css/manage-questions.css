@@ -510,3 +510,85 @@ body.bg-quiz-dashboard {
     display: block;
     width: 100%; /* Cấp toàn bộ không gian ngang còn lại cho văn bản */
 }
+
+
+/* =========================================================
+   EXCEL IMPORT MODAL EXTENSION STYLE
+   ========================================================= */
+
+.import-icon-header {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Khung kéo thả thiết kế Premium nét đứt */
+.excel-drag-drop-zone {
+    border: 2px dashed rgba(26, 86, 219, 0.25);
+    background-color: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.excel-drag-drop-zone:hover {
+    border-color: var(--navy-brand);
+    background-color: rgba(26, 86, 219, 0.01);
+}
+
+.excel-big-icon {
+    width: 64px;
+    height: 64px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Custom dáng Radio Input trong Modal sang màu xanh lá mặc định */
+.type-selector-card:has(.type-radio-input:checked) {
+    border-color: var(--navy-brand) !important;
+}
+
+/* Điểm nhấn đặc biệt đối với hành động nguy hiểm (Ghi đè) */
+.type-selector-card:has(.danger-check:checked) {
+    border-color: #ef4444 !important;
+    background-color: rgba(239, 68, 68, 0.02);
+}
+
+.type-selector-card:has(.danger-check:checked) .text-danger-hover {
+    color: #b91c1c !important;
+}
+
+.danger-check:checked {
+    background-color: #ef4444 !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Nút download mẫu góc trái */
+.btn-download-sample {
+    color: #475569;
+    transition: color 0.2s ease;
+}
+.btn-download-sample:hover {
+    color: #15803d;
+}
+
+/* Đồng bộ nút màu xanh lá cây của Bootstrap dành cho Export/Import */
+.btn-outline-success {
+    color: #16a34a;
+    border-color: #bbf7d0;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-success:hover {
+    background-color: #16a34a;
+    border-color: #16a34a;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+}

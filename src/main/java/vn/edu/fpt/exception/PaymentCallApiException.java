@@ -1,11 +1,6 @@
 package vn.edu.fpt.exception;
 
-public class PaymentCallApiException extends ApplicationException {
-    private static final long serialVersionUID = 1L;
-
-    public PaymentCallApiException() {
-        super();
-    }
+public class PaymentCallApiException extends RuntimeException {
 
     public PaymentCallApiException(String message) {
         super(message);
@@ -13,9 +8,5 @@ public class PaymentCallApiException extends ApplicationException {
 
     public PaymentCallApiException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    public PaymentCallApiException(Throwable cause) {
-        super(cause);
     }
 }
