@@ -14,21 +14,21 @@
 -- USE ElearningPlatform;
 -- GO
 --
--- USE master;
--- GO
+USE master;
+GO
 --
--- IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ElearningPlatform')
--- BEGIN
---     ALTER DATABASE ElearningPlatform SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
---     DROP DATABASE ElearningPlatform;
--- END
--- GO
---
--- CREATE DATABASE ElearningPlatform;
--- GO
---
--- USE ElearningPlatform;
--- GO
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ElearningPlatform')
+BEGIN
+    ALTER DATABASE ElearningPlatform SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE ElearningPlatform;
+END
+GO
+
+CREATE DATABASE ElearningPlatform;
+GO
+
+USE ElearningPlatform;
+GO
 
 -- =========================
 -- ROLES
