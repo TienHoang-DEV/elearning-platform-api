@@ -428,7 +428,7 @@
                 </div>
                 <div class="modal-body p-4">
                     <p class="text-muted fs-7 mb-4">Chúc mừng bạn đã hoàn thành <strong
-                            th:text="${sidebar.progressPercent + '%'}">30%</strong> chặng
+                            th:text="${#numbers.formatDecimal(T(java.lang.Math).floor(sidebar.progressPercent), 1, 0) + '%'}">30%</strong> chặng
                         đường! Hãy để
                         lại cảm nhận của bạn để giúp chúng tôi cải thiện chất lượng nhé.</p>
 

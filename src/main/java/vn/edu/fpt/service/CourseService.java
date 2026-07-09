@@ -658,6 +658,7 @@ public class CourseService {
                 .course(course)
                 .rating(rating)
                 .comment(comment)
+                .status("VISIBLE")
                 .createdAt(LocalDateTime.now())
                 .build();
 
