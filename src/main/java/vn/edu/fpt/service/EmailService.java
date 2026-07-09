@@ -55,4 +55,32 @@ public class EmailService {
         ));
         mailSender.send(message);
     }
+
+    public void sendVerifyEmail(
+            String email,
+            String otp){
+
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setTo(email);
+
+        message.setSubject("Email Verification");
+
+        message.setText(
+
+                """
+                Your verification code is:
+    
+                %s
+    
+                This code expires in 5 minutes.
+    
+                """
+                        .formatted(otp)
+
+        );
+
+        mailSender.send(message);
+
+    }
 }
