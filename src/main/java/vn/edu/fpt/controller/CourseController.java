@@ -55,31 +55,7 @@ public class CourseController {
     private CartItemService cartItemService;
 
     private User getSessionUser() {
-        try {
-            User currentUser = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
-            if (currentUser != null) {
-                try {
-                    return userService.findById(currentUser.getId());
-                } catch (Exception e) {
-                    return currentUser;
-                }
-            }
-            jakarta.servlet.http.HttpServletRequest request = ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder
-                    .currentRequestAttributes()).getRequest();
-            jakarta.servlet.http.HttpSession session = request.getSession(false);
-            if (session != null) {
-                User sessionUser = (User) session.getAttribute("user");
-                if (sessionUser != null) {
-                    try {
-                        return userService.findById(sessionUser.getId());
-                    } catch (Exception e) {
-                        return sessionUser;
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return null;
+        return vn.edu.fpt.util.SecurityUtils.getCurrentUser();
     }
 
     @GetMapping("/courses")
