@@ -19,6 +19,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
     }
 
@@ -59,11 +60,16 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/login_no", "/register",
                                 "/css/**", "/js/**",
+                                "/verify-otp",
+                                "/resend-otp",
                                 "/images/**", "/oauth2/**",
                                 "/forgot-password",
                                 "/reset-password",
                                 "/password-reset-success",
-                                "/home"
+                                "/home",
+                                "/",
+                                "/courses",
+                                "/course/detail"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

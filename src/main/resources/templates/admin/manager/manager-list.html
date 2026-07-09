@@ -20,8 +20,8 @@
                     class="search-input form-control">
                 <select name="status" class="search-input search-select form-select" onchange="this.form.submit()">
                     <option value="" th:selected="${status == null}">Tất cả trạng thái</option>
-                    <option value="ACTIVE" th:selected="${status != null && status.name() == 'ACTIVE'}">Hoạt động</option>
-                    <option value="BANNED" th:selected="${status != null && status.name() == 'BANNED'}">Bị khóa</option>
+                    <option value="ACTIVE" th:selected="${status != null and status.name() == 'ACTIVE'}">Hoạt động</option>
+                    <option value="BANNED" th:selected="${status != null and status.name() == 'BANNED'}">Bị khóa</option>
                 </select>
                 <button type="submit" class="d-none">Tìm kiếm</button>
             </div>
@@ -41,7 +41,7 @@
                     <tr th:each="request : ${requestPage.content}">
                         <td>
                             <div class="user-info">
-                                <div class="avatar-sm me-2" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #e2e8f0;">
+                                <div class="avatar-sm me-2">
                                     <img th:if="${request.avatarUrl != null}" th:src="${request.avatarUrl}" alt="Avatar" class="w-100 h-100 object-fit-cover" />
                                     <span th:if="${request.avatarUrl == null}" th:text="${!request.firstName.isEmpty() ? #strings.substring(request.firstName, 0, 1).toUpperCase() : 'M'}">M</span>
                                 </div>
@@ -64,7 +64,7 @@
                             </div>
                         </td>
                     </tr>
-                    <tr th:if="${requestPage.empty}">
+                    <tr th:if="${requestPage.isEmpty()}">
                         <td colspan="5" class="text-center py-4">Không tìm thấy manager nào.</td>
                     </tr>
                 </tbody>

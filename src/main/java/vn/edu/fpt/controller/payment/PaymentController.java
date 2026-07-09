@@ -19,18 +19,11 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    /**
-     * Khởi tạo thanh toán cho các sản phẩm đã chọn từ giỏ hàng.
-     * POST /api/payments/checkout
-     * 
-     * @return ResponseEntity chứa thông tin giao dịch thanh toán vừa khởi tạo (ID, link thanh toán, mã QR,...)
-     */
     @PostMapping("/checkout")
     public ResponseEntity<?> checkout() {
         log.info("Nhận yêu cầu checkout từ giỏ hàng.");
         Payment payment = paymentService.checkout();
 
-        // Xây dựng DTO phản hồi trả về Client
         Map<String, Object> response = new HashMap<>();
         response.put("id", payment.getId());
         response.put("orderId", payment.getOrder().getId());
@@ -44,19 +37,11 @@ public class PaymentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * Lấy thông tin trạng thái mới nhất của giao dịch thanh toán.
-     * GET /api/payments/{paymentId}/status
-     * 
-     * @param paymentId ID giao dịch cần kiểm tra.
-     * @return ResponseEntity chứa trạng thái thanh toán mới nhất (PENDING, PAID, CANCELLED,...)
-     */
     @GetMapping("/{paymentId}/status")
     public ResponseEntity<?> getPaymentStatus(@PathVariable Integer paymentId) {
         log.info("Nhận yêu cầu kiểm tra trạng thái cho Payment ID: {}", paymentId);
         Payment payment = paymentService.getPaymentStatus(paymentId);
 
-        // Xây dựng DTO phản hồi trạng thái thanh toán
         Map<String, Object> response = new HashMap<>();
         response.put("id", payment.getId());
         response.put("status", payment.getStatus());
@@ -68,13 +53,6 @@ public class PaymentController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Yêu cầu hủy giao dịch thanh toán thủ công từ phía người dùng.
-     * POST /api/payments/{paymentId}/cancel
-     * 
-     * @param paymentId ID giao dịch cần hủy.
-     * @return ResponseEntity thông báo kết quả hủy thành công hay thất bại.
-     */
     @PostMapping("/{paymentId}/cancel")
     public ResponseEntity<?> cancelPayment(@PathVariable Integer paymentId) {
         log.info("Nhận yêu cầu hủy thanh toán thủ công cho Payment ID: {}", paymentId);

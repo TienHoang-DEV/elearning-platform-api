@@ -1,7 +1,4 @@
-/* =====================================================
-   LEARNING HUB - Instructor Dashboard JS
-   File: instructor_course.js
-===================================================== */
+
 
 
 
@@ -58,8 +55,6 @@ document.addEventListener('DOMContentLoaded', function () {
     /* =====================================================
        10. QUIZ - Add Question (JS fallback)
     ===================================================== */
-    initQuiz();
-
     /* =====================================================
        11. PRICING - Price display & Voucher
     ===================================================== */
@@ -68,7 +63,11 @@ document.addEventListener('DOMContentLoaded', function () {
     /* =====================================================
        12. VIDEO PREVIEW
     ===================================================== */
-    initVideoPreview();
+    initVideoUpload();
+
+
+
+
 
     /* =====================================================
        13. SUBMIT REQUEST (step 5)
@@ -83,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
     /* =====================================================
        15. MATERIAL FILE PREVIEW
     ===================================================== */
-    initMaterialFilePreview();
+    initMaterialPreview();
 
 });
 
@@ -123,6 +122,36 @@ function initTabs() {
             activateTab(group, activeTab);
         });
     }
+
+
+    // ← THÊM: Media tabs (video / tài liệu)
+    document.querySelectorAll('.media-tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+            const group = this.dataset.group;
+            const type  = this.dataset.type;
+
+            // Active tab
+            document.querySelectorAll(`.media-tab[data-group="${group}"]`)
+                .forEach(t => t.classList.toggle('active', t === this));
+
+            // Hiện/ẩn content
+            document.querySelectorAll(`.media-content[data-group="${group}"]`)
+                .forEach(c => {
+                    c.style.display = c.dataset.type === type ? '' : 'none';
+                });
+        });
+    });
+
+    // Khởi tạo: ẩn tất cả media-content không active
+    document.querySelectorAll('.media-tab.active').forEach(tab => {
+        const group = tab.dataset.group;
+        const type  = tab.dataset.type;
+        document.querySelectorAll(`.media-content[data-group="${group}"]`)
+            .forEach(c => {
+                c.style.display = c.dataset.type === type ? '' : 'none';
+            });
+    });
+
 }
 
 /**
@@ -152,16 +181,16 @@ function initModals() {
 
     // Close modal via data-close-modal attribute
     document.querySelectorAll('[data-close-modal]').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const id = this.dataset.closeModal;
-            closeModal(id);
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.closeModal;
+            document.getElementById(id).classList.remove('active');
         });
     });
 
     // Close modal on overlay click
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
-        overlay.addEventListener('click', function (e) {
-            if (e.target === this) closeModal(this.id);
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) overlay.classList.remove('active');
         });
     });
 
@@ -301,21 +330,45 @@ function initPricing() {
     });
 }
 
-function initVideoPreview() {
-    const input     = document.getElementById('videoFileInput');
+function initVideoUpload() {
+    const input = document.getElementById('videoFileInput');
     const container = document.getElementById('videoPreviewContainer');
-    if (!input || !container) return;
+    const durationInput = document.getElementById('durationSecondsInput');
+
+    if (!input) return;
 
     input.addEventListener('change', function () {
         const file = this.files[0];
         if (!file) return;
-        const url = URL.createObjectURL(file);
-        container.innerHTML = `
-      <video src="${url}" controls style="width:100%;margin-top:10px;border-radius:6px;max-height:220px;"></video>
-      <p style="font-size:12px;color:#6b7280;margin-top:4px;">${file.name} (${(file.size/1024/1024).toFixed(1)} MB)</p>
-    `;
+
+        // Preview
+        if (container) {
+            const url = URL.createObjectURL(file);
+
+            container.innerHTML = `
+                <video src="${url}" controls
+                       style="width:100%;margin-top:10px;border-radius:6px;max-height:220px;">
+                </video>
+                <p>${file.name}</p>
+            `;
+        }
+
+        // Duration
+        if (durationInput) {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+
+            video.onloadedmetadata = function () {
+                URL.revokeObjectURL(video.src);
+                durationInput.value = Math.round(video.duration);
+            };
+
+            video.src = URL.createObjectURL(file);
+        }
     });
 }
+
+
 
 /* =====================
    CURRICULUM (JS-only fallback - dùng nếu không submit form)
@@ -380,6 +433,7 @@ function addSectionToUI(title) {
     updateCurriculumPreview();
 }
 
+
 let currentSectionIndex = null;
 
 // Called from curriculum step modal confirm
@@ -393,6 +447,10 @@ document.addEventListener('click', function (e) {
     document.getElementById('lessonNameInput').value = '';
     closeModal('modal-add-lesson');
 });
+
+
+
+
 
 function addLessonToSection(sectionIndex, title, isFree) {
     const lessonList = document.getElementById(`lessons-${sectionIndex}`);
@@ -443,109 +501,84 @@ function updateCurriculumPreview() {
     preview.innerHTML = html;
 }
 
-// Delete section/lesson from backend-rendered HTML (called via onclick in templates)
-function deleteSection(sectionId) {
-    if (!confirm('Xóa chương này và tất cả bài giảng bên trong?')) return;
-    fetch(`/instructor/sections/${sectionId}/delete`, { method: 'POST' })
-        .then(r => { if (r.ok) location.reload(); });
-}
 
 function deleteLesson(lessonId) {
     if (!confirm('Xóa bài giảng này?')) return;
-    fetch(`/instructor/lessons/${lessonId}/delete`, { method: 'POST' })
+    fetch(`/instructorcourse/lessons/${lessonId}/delete`, { method: 'POST' })
         .then(r => { if (r.ok) location.reload(); });
 }
 
-// Open edit lesson modal with existing data
-function openEditLessonModal(data) {
-    document.getElementById('editLessonId').value  = data.lessonId  || '';
-    document.getElementById('editLessonName').value = data.lessonTitle || '';
-    const toggle = document.getElementById('editLessonFreeToggle');
-    if (toggle) toggle.checked = data.lessonFree === 'true';
-    openModal('modal-edit-lesson');
+
+function openEditSectionModal(dataset) {
+
+    const form = document.getElementById("editSectionForm");
+
+    form.action =
+        `/instructorcourse/${dataset.courseId}/sections/${dataset.sectionId}/edit`;
+
+    document.getElementById("editSectionTitle").value =
+        dataset.sectionTitle;
+
+    openModal("modal-edit-section");
 }
 
-// Open add lesson modal from curriculum (backend mode)
+
+
+function openEditLessonModal(dataset) {
+    const form = document.getElementById('editLessonForm');
+    currentEditLessonId = dataset.lessonId;
+    document.getElementById('editLessonTitle').value = dataset.lessonTitle;
+    document.getElementById('editLessonFree').checked = dataset.lessonFree === 'true';
+    openModal('editLessonModal');
+}
+
+
+function deleteSection(sectionId, courseId) {
+    if (!confirm('Xóa chương này và tất cả bài giảng bên trong?')) return;
+    fetch(`/instructorcourse/${courseId}/sections/${sectionId}/delete`, { method: 'POST' })
+        .then(r => { if (r.ok) location.reload(); });
+}
+
+
+function saveEditLesson() {
+    const title = document.getElementById('editLessonTitle').value.trim();
+    if (!title) {
+        alert('Vui lòng nhập tên bài giảng');
+        return;
+    }
+
+    const isFree = document.getElementById('editLessonFree').checked;
+    const body = new URLSearchParams();
+    body.append('title', title);
+    body.append('isFreePreview', isFree);
+
+    fetch(`/instructorcourse/lesson/${currentEditLessonId}/save`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: body.toString()
+    })
+        .then(response => {
+            if (response.ok) location.reload();
+        })
+        .catch(error => alert('Lỗi: ' + error.message));
+
+    closeModal('editLessonModal');
+}
+
+
+
+
 function openAddLessonModal(sectionId) {
-    const hiddenInput = document.getElementById('addLessonSectionId');
-    if (hiddenInput) hiddenInput.value = sectionId;
-    // Update form action
     const form = document.getElementById('addLessonForm');
-    if (form) form.action = `/instructorcourse/sections/${sectionId}/lessons`;
-    openModal('modal-add-lesson');
+
+    form.action = `/instructor/sections/${sectionId}/lessons`;
+
+    document.getElementById('addLessonSectionId').value = sectionId;
+
+    document.getElementById('modal-add-lesson').classList.add('active');
 }
 
-/* =====================
-   QUIZ
-===================== */
-function initQuiz() {
-    const addQuizBtn = document.getElementById('addQuizBtn');
-    if (addQuizBtn) {
-        addQuizBtn.addEventListener('click', () => openModal('modal-add-quiz'));
-    }
 
-    // JS-only fallback confirm
-    const confirmQuiz = document.getElementById('confirmAddQuiz');
-    if (confirmQuiz) {
-        confirmQuiz.addEventListener('click', function () {
-            const question = document.getElementById('quizQuestion')?.value.trim();
-            const a = document.getElementById('quizA')?.value.trim();
-            const b = document.getElementById('quizB')?.value.trim();
-            const c = document.getElementById('quizC')?.value.trim();
-            const d = document.getElementById('quizD')?.value.trim();
-            const correct = parseInt(document.getElementById('quizCorrect')?.value) || 0;
-            if (!question) { alert('Vui lòng nhập câu hỏi.'); return; }
-
-            addQuizToUI({ question, options: [a,b,c,d], correct });
-            ['quizQuestion','quizA','quizB','quizC','quizD'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
-            });
-            closeModal('modal-add-quiz');
-        });
-    }
-}
-
-let quizCounter = 0;
-
-function addQuizToUI({ question, options, correct }) {
-    const list = document.getElementById('quizList');
-    if (!list) return;
-
-    const empty = list.querySelector('.table-empty');
-    if (empty) { list.innerHTML = ''; }
-
-    quizCounter++;
-    const letters = ['A','B','C','D'];
-    const item = document.createElement('div');
-    item.style.cssText = 'border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:10px;background:#fff;';
-    item.innerHTML = `
-    <div style="display:flex;align-items:flex-start;gap:12px;">
-      <span style="font-weight:700;color:var(--text-muted);font-size:12px;margin-top:2px;">#${quizCounter}</span>
-      <div style="flex:1;">
-        <div style="font-weight:600;margin-bottom:8px;">${escapeHtml(question)}</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-          ${options.map((opt, i) => `
-            <div style="padding:6px 10px;border-radius:4px;font-size:13px;
-              background:${i===correct ? 'var(--success-light)':'#f9fafb'};
-              border:1px solid ${i===correct ? '#bbf7d0':'var(--border)'};
-              color:${i===correct ? 'var(--success)':'var(--text-secondary)'};">
-              <strong>${letters[i]}.</strong> ${escapeHtml(opt || '—')}
-              ${i===correct ? ' ✅' : ''}
-            </div>
-          `).join('')}
-        </div>
-      </div>
-      <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('div[style]').remove()">🗑</button>
-    </div>
-  `;
-    list.appendChild(item);
-}
-
-function openEditQuizModal(quizId) {
-    // Placeholder - load quiz data via fetch then populate modal
-    openModal('modal-add-quiz');
-}
 
 /* =====================
    SUBMIT REQUEST (step 5)
@@ -601,20 +634,59 @@ function initWizardButtons() {
 /* =====================
    MATERIAL FILE PREVIEW
 ===================== */
-function initMaterialFilePreview() {
-    const input   = document.getElementById('materialFileInput');
-    const preview = document.getElementById('materialFilePreview');
-    if (!input || !preview) return;
+function initMaterialPreview() {
+    const input     = document.getElementById("MaterialInput");
+    const list      = document.getElementById("materialList");
+    const dt        = new DataTransfer(); // giữ file trong input thật
+
+    if (!input || !list) return;
 
     input.addEventListener('change', function () {
-        const file = this.files[0];
-        if (!file) return;
-        const size = (file.size / 1024 / 1024).toFixed(2);
-        preview.textContent = `✅ ${file.name} (${size} MB)`;
-        // Update upload area label
-        const area = input.closest('.modal-body')?.querySelector('.file-upload-area p');
-        if (area) area.textContent = file.name;
+        Array.from(this.files).forEach(file => {
+            // tránh trùng tên
+            if (![...dt.files].find(f => f.name === file.name)) {
+                dt.items.add(file);
+            }
+        });
+        input.files = dt.files; // gắn lại vào input
+        renderList();
+        // this.value = '';
     });
+
+    function renderList() {
+        if (!dt.files.length) { list.innerHTML = ''; return; }
+
+        const iconMap = {
+            pdf:  { icon: 'ti-file-type-pdf', color: '#E24B4A' },
+            docx: { icon: 'ti-file-type-doc', color: '#185FA5' },
+            pptx: { icon: 'ti-file-type-ppt', color: '#D85A30' },
+            xlsx: { icon: 'ti-file-type-xls', color: '#3B6D11' },
+        };
+
+        list.innerHTML = Array.from(dt.files).map((file, i) => {
+            const ext = file.name.split('.').pop().toLowerCase();
+            const m   = iconMap[ext] || { icon: 'ti-file', color: '#888' };
+            const mb  = (file.size / 1024 / 1024).toFixed(1);
+            return `
+            <div style="display:flex; align-items:center; gap:10px; margin-top:8px; padding:10px 12px; border:0.5px solid var(--border-color); border-radius:8px;">
+                <i class="ti ${m.icon}" style="font-size:20px; color:${m.color}; flex-shrink:0;"></i>
+                <div style="flex:1; min-width:0;">
+                    <div style="font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${file.name}</div>
+                    <div style="font-size:12px; color:var(--text-muted);">${mb} MB</div>
+                </div>
+                <button type="button" onclick="removeMaterial(${i})"
+                        style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:4px;">
+                    <i class="ti ti-x" style="font-size:15px;"></i>
+                </button>
+            </div>`;
+        }).join('');
+    }
+
+    window.removeMaterial = function(index) {
+        dt.items.remove(index);
+        input.files = dt.files; // cập nhật lại input
+        renderList();
+    };
 }
 
 /* =====================

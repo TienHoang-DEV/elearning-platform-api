@@ -243,12 +243,15 @@
                         <!-- Checkout CTA Button -->
                         <button
                             class="btn btn-primary w-100 py-3 fw-bold fs-6 d-flex align-items-center justify-content-center gap-2 rounded-3 shadow-primary mb-3"
-                            id="btn-checkout" th:disabled="${selectedItemsCount == 0}"
-                            th:classappend="${selectedItemsCount == 0 ? 'opacity-50' : ''}"
-                            th:style="${selectedItemsCount == 0 ? 'cursor: not-allowed;' : 'cursor: pointer;'}">
+                            id="btn-checkout" th:disabled="${selectedItemsCount == 0 or total < 2000}"
+                            th:classappend="${selectedItemsCount == 0 or total < 2000 ? 'opacity-50' : ''}"
+                            th:style="${selectedItemsCount == 0 or total < 2000 ? 'cursor: not-allowed;' : 'cursor: pointer;'}">
                             <span>Thanh toán ngay</span>
                             <i data-lucide="credit-card" style="width: 20px; height: 20px;"></i>
                         </button>
+                        <p class="text-danger fs-8 fw-semibold text-center mt-2" th:if="${selectedItemsCount > 0 and total < 2000}">
+                            * Tổng thanh toán phải từ 2,000 VNĐ trở lên để thực hiện thanh toán qua cổng PayOS.
+                        </p>
 
                         <!-- Security badge label -->
                         <div class="d-flex align-items-center justify-content-center gap-2 text-muted fs-8 pt-2">

@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<!--
-    FRAGMENT: modals (all)
-    Dùng trong: course-editor.html
-    th:replace="~{course-editor/modals :: all}"
-    Gồm: modal-add-section, modal-add-lesson, modal-edit-lesson, modal-add-quiz
--->
+
 <div th:fragment="all">
 
     <!-- ===== Modal: Thêm Chương ===== -->
@@ -17,6 +12,11 @@
             </div>
             <form th:action="@{/instructorcourse/{id}/sections(id=${courseId})}" method="POST" th:object="${section}">
                 <div class="modal-body">
+<!--                    <div th:if="${success}"-->
+<!--                         class="alert alert-success"-->
+<!--                         th:text="${success}"-->
+<!--                         style="margin-bottom:12px;">-->
+<!--                    </div>-->
                     <div class="form-group">
                         <label>Tên Chương <span class="required">*</span></label>
                         <input type="text" th:field="*{title}" class="form-control"
@@ -29,7 +29,32 @@
                 </div>
             </form>
         </div>
-        <p th:if="${success}" th:text="${success}"></p>
+    </div>
+
+
+    <!-- ===== Modal: Chỉnh Sửa  Chương ===== -->
+    <div class="modal-overlay" id="modal-edit-section">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>✏️ Chỉnh sửa Chương</h3>
+                ...
+            </div>
+
+            <form id="editSectionForm"
+                  method="POST"
+                  th:object="${section}">
+
+                <div class="modal-body">
+                    <input type="text"
+                           th:field="*{title}"
+                           id="editSectionTitle">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit">💾 Lưu</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- ===== Modal: Thêm Bài Giảng ===== -->
@@ -39,9 +64,9 @@
                 <h3>Thêm Bài Giảng</h3>
                 <button class="modal-close" data-close-modal="modal-add-lesson">✕</button>
             </div>
-            <form th:action="@{/instructorcourse/sections/{sectionId}/lessons(sectionId=${sectionId})}"
+
+            <form action="#"
                   method="POST" enctype="multipart/form-data" id="addLessonForm" th:object="${lesson}">
-                <!-- sectionId sẽ được set động bằng JS khi mở modal -->
                 <input type="hidden" name="sectionId" id="addLessonSectionId"/>
                 <input type="hidden" name="courseId" id="addLessonCourseId" th:value="${courseId}"/>
 
@@ -57,6 +82,9 @@
                         <div class="media-tab active" data-group="lesson-media" data-type="video">
                             <span class="tab-icon"></span> TẢI VIDEO LÊN
                         </div>
+                        <div class="media-tab" data-group="lesson-media" data-type="file">
+                            <span class="tab-icon"></span> TÀI LIỆU
+                        </div>
                     </div>
 
                     <!-- Video Upload -->
@@ -69,10 +97,28 @@
                         </div>
                         <input type="file" id="videoFileInput" name="videoFile" accept="video/*" style="display:none;"/>
                         <div id="videoPreviewContainer"></div>
+
+                        <!-- FIX: Đặt durationSeconds hidden field vào trong video tab, nơi JS gán giá trị -->
+                        <input type="hidden" th:field="*{durationSeconds}" id="durationSecondsInput"/>
+                    </div>
+
+                    <!-- File/Tài liệu Upload -->
+                    <div class="media-content" data-group="lesson-media" data-type="file" style="display:none;">
+                        <div class="file-upload-area" onclick="document.getElementById('MaterialInput').click()">
+                            <div class="upload-icon"></div>
+                            <p>Kéo thả hoặc nhấn để tải tài liệu lên</p>
+                            <p style="font-size:.75rem;color:#aaa;margin-top:4px;">Tối đa 2GB mỗi file.</p>
+                            <span class="choose-btn">Chọn Tài Liệu</span>
+                        </div>
+                        <input type="file" id="MaterialInput" name="materialFiles"
+                               accept=".pdf,.docx,.pptx,.xlsx"
+                               style="display:none;"
+                               multiple/>
+                        <div id="materialList"></div>
                     </div>
 
                     <!-- Free Preview -->
-                    <div class="free-preview-toggle">
+                    <div class="free-preview-toggle" style="margin-top:12px;">
                         <label class="toggle-switch">
                             <input type="checkbox" name="isFreePreview" id="lessonFreeToggle"/>
                             <span class="toggle-slider"></span>
@@ -98,13 +144,17 @@
                 <h3>✏️ Chỉnh Sửa Bài Giảng</h3>
                 <button class="modal-close" data-close-modal="modal-edit-lesson">✕</button>
             </div>
-            <form th:action="@{/instructor/lessons/update}" method="POST" enctype="multipart/form-data">
+            <form   method="POST"
+                    enctype="multipart/form-data"
+                    id="editLessonForm"
+                    th:object="${lesson}"
+                    >
                 <input type="hidden" name="lessonId" id="editLessonId"/>
 
                 <div class="modal-body">
                     <div class="form-group" style="margin-bottom:16px;">
                         <label>Tên Bài Giảng</label>
-                        <input type="text" name="title" class="form-control" id="editLessonName"
+                        <input type="text" name="*{title}" class="form-control" id="editLessonName"
                                placeholder="Tên bài giảng"/>
                     </div>
 
@@ -117,6 +167,7 @@
                         </div>
                     </div>
 
+                    <!-- FIX: Tab video active → không có display:none (nhất quán với add-lesson modal) -->
                     <div class="media-content" data-group="edit-media" data-type="video">
                         <div class="file-upload-area" onclick="document.getElementById('editVideoInput').click()">
                             <div class="upload-icon">🎬</div>
@@ -126,6 +177,7 @@
                         <input type="file" id="editVideoInput" name="videoFile" accept="video/*" style="display:none;"/>
                     </div>
 
+                    <!-- FIX: Tab file inactive → có display:none (nhất quán với add-lesson modal) -->
                     <div class="media-content" data-group="edit-media" data-type="file" style="display:none;">
                         <div class="file-upload-area" onclick="document.getElementById('editDocInput').click()">
                             <div class="upload-icon">📄</div>
@@ -146,60 +198,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" data-close-modal="modal-edit-lesson">Hủy</button>
-                    <button type="submit" class="btn btn-primary">💾 Lưu Thay Đổi</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ===== Modal: Thêm Câu Hỏi Quiz ===== -->
-    <div class="modal-overlay" id="modal-add-quiz">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>❓ Thêm Câu Hỏi Trắc Nghiệm</h3>
-                <button class="modal-close" data-close-modal="modal-add-quiz">✕</button>
-            </div>
-            <form th:action="@{/instructor/courses/{id}/quizzes(id=${courseId})}" method="POST">
-                <div class="modal-body">
-                    <div class="form-group" style="margin-bottom:14px;">
-                        <label>Tiêu Đề Câu Hỏi <span class="required">*</span></label>
-                        <input type="text" name="question" id="quizQuestion" class="form-control"
-                               placeholder="Nhập câu hỏi..." required/>
-                    </div>
-
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-                        <div class="form-group">
-                            <label>Đáp Án A</label>
-                            <input type="text" name="optionA" id="quizA" class="form-control" placeholder="Đáp án A"/>
-                        </div>
-                        <div class="form-group">
-                            <label>Đáp Án B</label>
-                            <input type="text" name="optionB" id="quizB" class="form-control" placeholder="Đáp án B"/>
-                        </div>
-                        <div class="form-group">
-                            <label>Đáp Án C</label>
-                            <input type="text" name="optionC" id="quizC" class="form-control" placeholder="Đáp án C"/>
-                        </div>
-                        <div class="form-group">
-                            <label>Đáp Án D</label>
-                            <input type="text" name="optionD" id="quizD" class="form-control" placeholder="Đáp án D"/>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Đáp Án Đúng <span class="required">*</span></label>
-                        <select name="correctIndex" id="quizCorrect" class="form-control">
-                            <option value="0">A – Đáp Án A</option>
-                            <option value="1">B – Đáp Án B</option>
-                            <option value="2">C – Đáp Án C</option>
-                            <option value="3">D – Đáp Án D</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" data-close-modal="modal-add-quiz">Hủy</button>
-                    <button type="submit" class="btn btn-primary">✓ Thêm Câu Hỏi</button>
+                    <button type="submit" class="btn btn-primary btn-lg">Lưu</button>
                 </div>
             </form>
         </div>

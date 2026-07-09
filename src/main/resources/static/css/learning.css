@@ -170,13 +170,13 @@
 }
 
 .quiz-iframe-shell {
-    min-height: 720px;
+    min-height: 950px;
 }
 
 .quiz-iframe {
     display: block;
     width: 100%;
-    min-height: 720px;
+    min-height: 950px;
     border: 0;
     background-color: #ffffff;
 }
@@ -248,6 +248,39 @@
     background-color: #f1f5f9;
 }
 
+.star-rating-css {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.star-rating-css input[type="radio"] {
+    display: none;
+}
+
+.star-rating-css label {
+    cursor: pointer;
+    padding: 2px;
+    color: #ccc;
+}
+
+.star-rating-css label svg {
+    fill: none !important;
+    stroke: #cbd5e1 !important;
+    transition: stroke 0.15s ease-in-out, fill 0.15s ease-in-out;
+}
+
+.star-rating-css input[type="radio"]:checked ~ label svg,
+.star-rating-css input[type="radio"]:checked ~ label svg polygon,
+.star-rating-css label:hover svg,
+.star-rating-css label:hover svg polygon,
+.star-rating-css label:hover ~ label svg,
+.star-rating-css label:hover ~ label svg polygon {
+    fill: #ffc107 !important;
+    stroke: #ffc107 !important;
+}
+
 /* Mobile responsive fixes */
 @media (max-width: 991.98px) {
     .sidebar-curriculum-container {
@@ -267,4 +300,59 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* --- Sidebar Tabs & Notes Styles --- */
+.sidebar-nav-tabs .nav-link {
+    border: none !important;
+    background: transparent !important;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: var(--font-heading), sans-serif;
+    position: relative;
+    transition: all 0.2s ease-in-out;
+    padding-bottom: 10px;
+    border-bottom: 2px solid transparent !important;
+}
+
+.sidebar-nav-tabs .nav-link:hover {
+    color: var(--primary);
+}
+
+.sidebar-nav-tabs .nav-link.active {
+    color: var(--primary) !important;
+    border-bottom: 2px solid var(--primary) !important;
+}
+
+.note-item {
+    transition: all 0.2s ease;
+    border-color: #e2e8f0 !important;
+}
+
+.note-item:hover {
+    border-color: var(--primary-border) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+.note-seek-btn {
+    transition: all 0.2s ease;
+}
+
+.note-seek-btn:hover {
+    background-color: var(--primary) !important;
+    color: #ffffff !important;
+}
+
+.btn-edit-note:hover {
+    color: var(--primary) !important;
+}
+
+.btn-delete-note:hover {
+    color: #dc3545 !important;
+}
+
+.note-input-container {
+    border-color: #e2e8f0 !important;
+}
+
 

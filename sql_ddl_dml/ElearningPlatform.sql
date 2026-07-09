@@ -11,12 +11,12 @@
 -- CREATE DATABASE ElearningPlatform;
 -- GO
 
-USE ElearningPlatform;
-GO
-
+-- USE ElearningPlatform;
+-- GO
+--
 USE master;
 GO
-
+--
 IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ElearningPlatform')
 BEGIN
     ALTER DATABASE ElearningPlatform SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
@@ -354,6 +354,33 @@ CREATE TABLE lessons (
 
                          CONSTRAINT FK_lessons_section
                              FOREIGN KEY (section_id) REFERENCES course_sections(id)
+);
+
+
+CREATE TABLE lesson_notes (
+                              id INT PRIMARY KEY IDENTITY(1,1),
+
+                              user_id INT NOT NULL,
+    -- Người ghi chú
+
+                              lesson_id INT NOT NULL,
+    -- Ghi chú thuộc bài học nào
+
+                              video_timestamp_seconds INT NOT NULL
+                                  CHECK (video_timestamp_seconds >= 0),
+    -- Thời điểm trong video (giây)
+
+                              note_content NVARCHAR(MAX) NOT NULL,
+    -- Nội dung ghi chú
+
+                              created_at DATETIME DEFAULT GETDATE(),
+                              updated_at DATETIME NULL,
+
+                              CONSTRAINT FK_lesson_notes_user
+                                  FOREIGN KEY (user_id) REFERENCES users(id),
+
+                              CONSTRAINT FK_lesson_notes_lesson
+                                  FOREIGN KEY (lesson_id) REFERENCES lessons(id)
 );
 
 
@@ -774,7 +801,7 @@ CREATE TABLE feedbacks (
     user_id INT NOT NULL,
     course_id INT NOT NULL,
     rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
-    comment NVARCHAR(2000) NULL,
+    comment NVARCHAR(MAX) NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'VISIBLE' CHECK (status IN ('VISIBLE', 'HIDDEN')),
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
@@ -783,21 +810,7 @@ CREATE TABLE feedbacks (
     CONSTRAINT UQ_feedback_user_course UNIQUE(user_id, course_id)
 );
 
-CREATE TABLE reports (
-    id INT PRIMARY KEY IDENTITY(1,1),
-    reporter_id INT NOT NULL,
-    report_type VARCHAR(20) CHECK(report_type IN ('LESSON','FEEDBACK')),
-    target_id INT NOT NULL,
-    reason_type VARCHAR(50) NOT NULL,
-    description NVARCHAR(2000) NULL,
-    status VARCHAR(20) DEFAULT 'PENDING' CHECK(status IN ('PENDING','RESOLVED','REJECTED')),
-    reviewed_by INT NULL,
-    reviewed_at DATETIME NULL,
-    created_at DATETIME DEFAULT GETDATE(),
-    updated_at DATETIME NULL,
-    CONSTRAINT FK_reports_reporter FOREIGN KEY (reporter_id) REFERENCES users(id),
-    CONSTRAINT FK_reports_reviewer FOREIGN KEY (reviewed_by) REFERENCES users(id)
-);
+
 
 -- ==========================================
 -- PERFORMANCE INDEXES (MỚI - TỐI ƯU HÓA TRUY VẤN)
@@ -826,7 +839,6 @@ CREATE INDEX IX_payment_status_created_at ON payments(status, created_at, webhoo
 CREATE INDEX IX_payment_webhook_retry ON payments(status, webhook_received, webhook_retry_count, created_at);
 
 
-CREATE INDEX IX_reports_status ON reports(status);
-CREATE INDEX IX_reports_target ON reports(target_id);
+
 CREATE INDEX IX_feedback_course ON feedbacks(course_id);
 GO

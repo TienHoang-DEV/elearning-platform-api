@@ -15,20 +15,19 @@ import vn.edu.fpt.dto.*;
 import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.dto.CourseCreateDto;
 import vn.edu.fpt.dto.course.CourseDto;
-
-import vn.edu.fpt.entity.Course;
-import vn.edu.fpt.entity.User;
+import vn.edu.fpt.entity.*;
 import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.enums.CourseStatus;
 
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.service.CategoryService;
-import vn.edu.fpt.service.CourseSectionService;
+import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
-import vn.edu.fpt.service.LessonService;
+import vn.edu.fpt.service.lesson.LessonService;
 import vn.edu.fpt.util.SecurityUtils;
 
 
+import javax.swing.text.Utilities;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,11 +47,6 @@ public class InstructorCourseController {
     }
 
 
-    @GetMapping("/materials")
-    public String getMaterialPage(){
-        return "instructor_course/material_library";
-    }
-
 
     ///Danh sách khoá học theo từng status
 
@@ -65,7 +59,7 @@ public class InstructorCourseController {
                                     Model model){
         User  user = SecurityUtils.getCurrentUser();
         Sort sort = Sort.by("updateAt").descending();
-        int size = 5;
+        int size = 8;
         Page<CourseDto> published = courseService.findByInstructorAndStatus(user, PageRequest.of(pagePushlished, size, sort), CourseStatus.PUBLISHED);
         Page<CourseDto> draft = courseService.findByInstructorAndStatus(user, PageRequest.of(pageDraf, size, sort), CourseStatus.DRAFT);
         Page<CourseDto> reject = courseService.findByInstructorAndStatus(user, PageRequest.of(pageReject, size, sort), CourseStatus.REJECTED);
@@ -92,7 +86,7 @@ public class InstructorCourseController {
         model.addAttribute("pageDraft", pageDraf);
         model.addAttribute("pageRejected", pageReject);
         model.addAttribute("pageHidden", pageHidden);
-        return "instructor_course/courses";
+        return "instructor_course/courses_v2";
     }
 
 
@@ -112,18 +106,16 @@ public class InstructorCourseController {
         return "instructor_course/editcourse";
     }
 
-  ////Tạo khoá học
-  ///
-  ///
-  private void loadFormModel(Model model){
-      model.addAttribute("courselevels", Arrays.asList(CourseLevel.values()));
-      model.addAttribute("categoryparents",
-              categoryService.findByParentIsNullAndStatus("ACTIVE"));
-      model.addAttribute("categorychilds",
-              categoryService.findByParentIsNotNulAndStatus("ACTIVE"));
-      model.addAttribute("section", new CourseSectionDto());
-      model.addAttribute("lesson", new LessonDto());
-  }
+
+    private void loadFormModel(Model model){
+        model.addAttribute("courselevels", Arrays.asList(CourseLevel.values()));
+        model.addAttribute("categoryparents",
+                categoryService.findByParentIsNullAndStatus("ACTIVE"));
+        model.addAttribute("categorychilds",
+                categoryService.findByParentIsNotNulAndStatus("ACTIVE"));
+        model.addAttribute("section", new CourseSectionDto());
+        model.addAttribute("lesson", new LessonDto());
+    }
 
     @PostMapping("/save")
     public String saveCourse(
@@ -164,28 +156,95 @@ public class InstructorCourseController {
         }
     }
 
-        @GetMapping("/{courseId}/curriculum")
-        public String getCurriculumPage(@PathVariable Integer courseId, Model model) {
-            model.addAttribute("courseId", courseId);
-            model.addAttribute("activeStep", "curriculum");
-            model.addAttribute("courseRequest",
-                    courseService.findById(courseId));
-//            model.addAttribute("sections", courseSectionService.FindSectionByCourseId(courseId));
-            model.addAttribute("section", new CourseSectionDto());
-            model.addAttribute("lesson", new LessonDto());
-            model.addAttribute("sections", courseSectionService.findByCourseAndLesson(courseId));
-            return "instructor_course/editcourse";
-        }
-    // --- MOCKUP DEMO ENDPOINTS ---
-    @GetMapping("/demo/view")
-    public String viewCourseDemo() {
+    @GetMapping("/{courseId}/curriculum")
+    public String getCurriculumPage(@PathVariable Integer courseId, Model model) {
+        List<CourseSectionDto> listSection = courseSectionService.findByCourseAndLesson(courseId);
+        model.addAttribute("courseId", courseId);
+        model.addAttribute("activeStep", "curriculum");
+        model.addAttribute("courseRequest",
+                courseService.findById(courseId));
+        model.addAttribute("section", new CourseSectionDto());
+        model.addAttribute("lesson", new LessonDto());
+        model.addAttribute("sections", listSection);
+        model.addAttribute("totalLessons", courseSectionService.totalLesson(listSection));
+        return "instructor_course/editcourse";
+    }
+
+    @GetMapping("/{id}/view")
+    public String viewCourse(@PathVariable("id") Integer courseId, Model model)
+    {
+        CourseRespon courseRespon = courseService.getCourseDetailToView(courseId);
+        // Trong controller
+        int totalLessons = courseRespon.getSections().stream()
+                .mapToInt(s -> s.getLessons().size())
+                .sum();
+        model.addAttribute("totalLessons", totalLessons);
+        model.addAttribute("courseDetal", courseRespon);
         return "instructor_course/view_course_demo";
     }
 
-    @GetMapping("/demo/edit")
-    public String editCourseDemo() {
-        return "instructor_course/edit_course_demo";
+    @GetMapping("/{id}/edit")
+    public String viewEditCourse(@PathVariable("id") Integer courseId, Model model){
+            User u = SecurityUtils.getCurrentUser();
+            CourseCreateDto dto = courseService.getCourseForEdit(courseId, u);
+
+            List<CourseSectionDto> sections = courseSectionService.findByCourseAndLesson(courseId);
+
+            int totalesson = courseSectionService.totalLesson(sections);
+
+        model.addAttribute("CourseRequest", dto);
+        model.addAttribute("sections", sections);
+        model.addAttribute("totalLessons", totalesson);
+        model.addAttribute("courseId", courseId);
+
+        ///Object rộng để binding
+        loadFormModel(model);
+
+       return "instructor_course/edit_course";
     }
+
+    @PostMapping("/{id}/edit")
+    public String EditCourse(@PathVariable("id") Integer CourseId,
+                             @Valid @ModelAttribute("CourseRequest") CourseCreateDto coursedto,
+                             BindingResult bindingResult,
+                             RedirectAttributes redirectAttributes,
+                             Model model){
+     if(bindingResult.hasErrors()){
+         loadFormModel(model);
+         model.addAttribute("activeStep", "info");
+         return "instructor_course/edit_course";
+     }
+     try{
+         User user = SecurityUtils.getCurrentUser();
+         courseService.save(user, coursedto);
+         redirectAttributes.addFlashAttribute("success", "Chỉnh Sửa Khoá Học Thành Công");
+         return "redirect:/instructorcourse/"+coursedto.getId()+"/edit";
+     }catch(CourseValidationException e){
+
+         bindingResult.rejectValue(
+                 e.getField(),
+                 "error",
+                 e.getMessage());
+
+         loadFormModel(model);
+         model.addAttribute("activeStep", "info");
+         return "instructor_course/edit_course";
+     }
+
+    }
+
+
+    @PostMapping("/{id}/delete")
+    public String deleteCourse(@PathVariable("id") Integer courseId,
+                               @RequestParam(name = "tab", required = false, defaultValue = "all") String tab,
+                               RedirectAttributes redirectAttributes){
+        courseService.deleteCourseById(courseId);
+        redirectAttributes.addFlashAttribute("success", "Xoá khoá học thành công");
+        return "redirect:/instructorcourse/courses?tab=" + tab;
+    }
+
+
+
 
 
 

@@ -13,19 +13,14 @@ import vn.edu.fpt.dto.CourseSectionDto;
 import vn.edu.fpt.dto.LessonDto;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.entity.*;
-import vn.edu.fpt.mapper.DtoMapper;
-import vn.edu.fpt.service.CourseSectionService;
+import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
-import vn.edu.fpt.service.LessonMaterialService;
-import vn.edu.fpt.service.LessonService;
+import vn.edu.fpt.service.material.LessonMaterialService;
+import vn.edu.fpt.service.lesson.LessonService;
 import vn.edu.fpt.service.quiz.QuizService;
 import vn.edu.fpt.util.SecurityUtils;
 
-import javax.swing.text.Utilities;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/instructor")
@@ -36,12 +31,41 @@ public class InstructorLessonController {
     private final CourseService courseService;
     private final LessonMaterialService lessonMaterialService;
 
+
     public InstructorLessonController(QuizService quizService, LessonService lessonService, CourseSectionService courseSectionService, CourseService courseService, LessonMaterialService lessonMaterialService) {
         this.quizService = quizService;
         this.lessonService = lessonService;
         this.courseSectionService = courseSectionService;
         this.courseService = courseService;
         this.lessonMaterialService = lessonMaterialService;
+    }
+
+
+    @PostMapping("/quiz/create-inline")
+    public String createQuizInline(@ModelAttribute("quiz") QuizDTO quizDTO,
+                                   @RequestParam("lessonId") Integer lessonId,
+                                   @RequestParam("actionTarget") String actionTarget,
+                                   RedirectAttributes attributes) {
+
+        QuizDTO savedQuiz =
+                quizService.createQuiz(
+                        lessonId,
+                        quizDTO);
+
+
+
+        attributes.addFlashAttribute(
+                "success",
+                "Khởi tạo quiz thành công");
+
+        if ("CONTINUE".equals(actionTarget)) {
+
+            return "redirect:/instructor/quiz/quiz-manage/"
+                    + savedQuiz.getId();
+        }
+
+        return "redirect:/instructor/lesson-detail/"
+                + lessonId;
     }
 
     @GetMapping("/lesson-detail/{id}")
@@ -109,13 +133,15 @@ public class InstructorLessonController {
 
 
     @PostMapping("/sections/{sectionId}/lessons")
-    public String createLesson(@PathVariable("sectionId") Integer sectionId,
+    public String createLesson(
+                               @PathVariable("sectionId") Integer sectionId,
                                @RequestParam("courseId") Integer courseId,
                                @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
                                @RequestParam(value = "materialFiles", required = false) List<MultipartFile> materials,
                                @Valid @ModelAttribute("lesson") LessonDto lessonDto,
                                BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) {
+
 
        User instrutor = SecurityUtils.getCurrentUser();
 
@@ -125,8 +151,8 @@ public class InstructorLessonController {
         }
 
         try {
-            //Lesson tmp = lessonService.saveLesson(sectionId, lessonDto, videoFile);
-            //lessonMaterialService.saveAllMaterial(materials,tmp.getId(), instrutor);
+            Lesson tmp = lessonService.saveLesson(sectionId, lessonDto, videoFile);
+            lessonMaterialService.saveAllMaterial(materials,tmp.getId(), instrutor);
             redirectAttributes.addFlashAttribute("success", "Thêm bài giảng thành công!");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
@@ -134,5 +160,6 @@ public class InstructorLessonController {
 
         return "redirect:/instructorcourse/" + courseId + "/curriculum";
     }
+
 
 }

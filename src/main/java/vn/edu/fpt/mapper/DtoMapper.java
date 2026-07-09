@@ -11,6 +11,7 @@ import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.course.FeedbackDto;
 import vn.edu.fpt.dto.course.OrderItemDto;
+import vn.edu.fpt.dto.lesson.LessonNoteSiderbarDTO;
 import vn.edu.fpt.dto.quizdto.QuizAnswerDTO;
 import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
@@ -100,8 +101,10 @@ public interface DtoMapper {
     OrderItemDto toOrderItemDto(OrderItem orderItem);
     LessonMaterialDto toLessonMaterialDto(LessonMaterial lessonMaterial);
 
-    @Mapping(target = "reporter", qualifiedByName = "toSimpleUserDto")
-    @Mapping(target = "reviewedBy", qualifiedByName = "toSimpleUserDto")
-    @Mapping(target = "friendlyReason", expression = "java(report.getFriendlyReason())")
-    ReportDto toReportDto(Report report);
+    @Mapping(target = "videoTimeSeconds", source = "videoTimeSeconds")
+    @Mapping(target = "noteContent", source = "noteContent")
+    @Mapping(target = "lessonTitle", source = "lesson.title")
+    @Mapping(target = "lessonId", source = "lesson.id")
+    LessonNoteSiderbarDTO toLessonNoteSiderbarDto(LessonNote lessonNote);
+
 }

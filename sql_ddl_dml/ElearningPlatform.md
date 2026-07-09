@@ -1,19 +1,31 @@
-USE master
-IF DB_ID('ElearningPlatform') IS NOT NULL
-BEGIN
-    ALTER DATABASE ElearningPlatform
-    SET SINGLE_USER
-    WITH ROLLBACK IMMEDIATE;
+[//]: # (USE master)
 
-    DROP DATABASE ElearningPlatform;
-END
-GO
+[//]: # (IF DB_ID&#40;'ElearningPlatform'&#41; IS NOT NULL)
 
-CREATE DATABASE ElearningPlatform;
-GO
+[//]: # (BEGIN)
 
-USE ElearningPlatform;
-GO
+[//]: # (    ALTER DATABASE ElearningPlatform)
+
+[//]: # (    SET SINGLE_USER)
+
+[//]: # (    WITH ROLLBACK IMMEDIATE;)
+
+[//]: # ()
+[//]: # (    DROP DATABASE ElearningPlatform;)
+
+[//]: # (END)
+
+[//]: # (GO)
+
+[//]: # ()
+[//]: # (CREATE DATABASE ElearningPlatform;)
+
+[//]: # (GO)
+
+[//]: # ()
+[//]: # (USE ElearningPlatform;)
+
+[//]: # (GO)
 
 -- =========================
 -- ROLES
@@ -849,24 +861,7 @@ CREATE TABLE feedbacks (
     CONSTRAINT UQ_feedback_user_course UNIQUE(user_id, course_id)
 );
 
--- =========================
--- REPORTS
--- =========================
-CREATE TABLE reports (
-    id INT PRIMARY KEY IDENTITY(1,1),
-    reporter_id INT NOT NULL,
-    report_type VARCHAR(20) CHECK(report_type IN ('LESSON','FEEDBACK')),
-    target_id INT NOT NULL,
-    reason_type VARCHAR(50) NOT NULL,
-    description NVARCHAR(2000) NULL,
-    status VARCHAR(20) DEFAULT 'PENDING' CHECK(status IN ('PENDING','RESOLVED','REJECTED')),
-    reviewed_by INT NULL,
-    reviewed_at DATETIME NULL,
-    created_at DATETIME DEFAULT GETDATE(),
-    updated_at DATETIME NULL,
-    CONSTRAINT FK_reports_reporter FOREIGN KEY (reporter_id) REFERENCES users(id),
-    CONSTRAINT FK_reports_reviewer FOREIGN KEY (reviewed_by) REFERENCES users(id)
-);
+
 
 -- ==========================================
 -- PERFORMANCE INDEXES (MỚI - TỐI ƯU HÓA TRUY VẤN)
@@ -881,7 +876,6 @@ CREATE INDEX IX_orders_user ON orders(user_id);
 CREATE INDEX IX_order_items_order ON order_items(order_id);
 CREATE INDEX IX_payments_order ON payments(order_id);
 CREATE INDEX IX_enrollments_lookup ON enrollments(user_id, course_id);
-CREATE INDEX IX_reports_status ON reports(status);
-CREATE INDEX IX_reports_target ON reports(target_id);
+
 CREATE INDEX IX_feedback_course ON feedbacks(course_id);
 GO

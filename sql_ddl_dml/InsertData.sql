@@ -1,5 +1,6 @@
-USE [ElearningPlatform];
-GO
+-- USE [ElearningPlatform];
+-- GO
+
 
 -- =========================
 -- ROLES SAMPLE DATA
@@ -726,6 +727,28 @@ BEGIN
     SET @lessonId = @lessonId + 1;
 END
 
+-- ==========================================
+-- BÀI QUIZ THỨ 2 CHO MỖI LESSON (ĐỂ ĐẠT ÍT NHẤT 2 QUIZ/LESSON)
+-- ==========================================
+DECLARE @lessonId2 INT = 1;
+
+WHILE @lessonId2 <= 216
+BEGIN
+
+    INSERT INTO quizzes (
+        lesson_id,
+        title,
+        pass_score_percent
+    )
+    VALUES (
+        @lessonId2,
+        N'Quiz nâng cao bài học ' + CAST(@lessonId2 AS NVARCHAR(10)),
+        75
+    );
+
+    SET @lessonId2 = @lessonId2 + 1;
+END
+
 -- =========================
 -- QUIZ 1 (Java)
 -- =========================
@@ -1024,6 +1047,83 @@ VALUES
 (24, N'Spring Security', 1),
 (24, N'Spring Data JPA', 1),
 (24, N'Laravel', 0);
+
+
+-- =========================================================================
+-- TỰ ĐỘNG TẠO CÂU HỎI VÀ ĐÁP ÁN MẪU PHÙ HỢP VỚI TIÊU ĐỀ KHÓA HỌC VÀ BÀI HỌC
+-- =========================================================================
+DECLARE @currentQuizId INT;
+DECLARE @insertedQuestionId INT;
+
+DECLARE @courseTitle NVARCHAR(255);
+DECLARE @sectionTitle NVARCHAR(255);
+DECLARE @lessonTitle NVARCHAR(255);
+
+-- Sử dụng Cursor để duyệt qua tất cả các bài Quiz thực tế có trong Database
+DECLARE quiz_cursor CURSOR FOR 
+SELECT id FROM quizzes;
+
+OPEN quiz_cursor;
+FETCH NEXT FROM quiz_cursor INTO @currentQuizId;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- Chỉ tạo câu hỏi mẫu nếu bài Quiz đó chưa có câu hỏi nào
+    IF NOT EXISTS (SELECT 1 FROM quiz_questions WHERE quiz_id = @currentQuizId)
+    BEGIN
+        -- Lấy thông tin khóa học, chương học và bài học tương ứng với Quiz ID
+        SELECT 
+            @courseTitle = c.title,
+            @sectionTitle = s.title,
+            @lessonTitle = l.title
+        FROM quizzes q
+        JOIN lessons l ON q.lesson_id = l.id
+        JOIN course_sections s ON l.section_id = s.id
+        JOIN courses c ON s.course_id = c.id
+        WHERE q.id = @currentQuizId;
+
+        -- Câu hỏi 1 (SINGLE choice)
+        INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position)
+        VALUES (
+            @currentQuizId, 
+            N'Câu hỏi trắc nghiệm số 1 của bài học "' + @lessonTitle + N'" thuộc "' + @sectionTitle + N'" của khóa học "' + @courseTitle + N'". Đâu là khẳng định đúng?', 
+            'SINGLE', 
+            1, 
+            1
+        );
+        SET @insertedQuestionId = (SELECT MAX(id) FROM quiz_questions);
+
+        INSERT INTO quiz_answers (question_id, answer_text, is_correct)
+        VALUES 
+        (@insertedQuestionId, N'Khái niệm chính xác về ' + @courseTitle + N' (Đáp án đúng)', 1),
+        (@insertedQuestionId, N'Định nghĩa sai lệch liên quan đến ' + @courseTitle, 0),
+        (@insertedQuestionId, N'Nội dung không thuộc phạm vi của bài học ' + @lessonTitle, 0),
+        (@insertedQuestionId, N'Tất cả các phương án trên đều sai', 0);
+
+        -- Câu hỏi 2 (MULTIPLE choice)
+        INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position)
+        VALUES (
+            @currentQuizId, 
+            N'Câu hỏi trắc nghiệm số 2 của bài học "' + @lessonTitle + N'" thuộc "' + @sectionTitle + N'" của khóa học "' + @courseTitle + N'". Chọn các đáp án đúng:', 
+            'MULTIPLE', 
+            1, 
+            2
+        );
+        SET @insertedQuestionId = (SELECT MAX(id) FROM quiz_questions);
+
+        INSERT INTO quiz_answers (question_id, answer_text, is_correct)
+        VALUES 
+        (@insertedQuestionId, N'Đặc tính cơ bản của ' + @courseTitle + N' trong thực tế', 1),
+        (@insertedQuestionId, N'Phương pháp áp dụng tốt nhất cho bài học ' + @lessonTitle, 1),
+        (@insertedQuestionId, N'Lý thuyết lỗi thời không nên dùng', 0),
+        (@insertedQuestionId, N'Lỗi cú pháp thường gặp khi thực hành', 0);
+    END
+
+    FETCH NEXT FROM quiz_cursor INTO @currentQuizId;
+END
+
+CLOSE quiz_cursor;
+DEALLOCATE quiz_cursor;
 
 
 -- =========================
@@ -1670,14 +1770,4 @@ VALUES
  GETDATE(),
  DATEADD(HOUR, 2, GETDATE()));
 
--- =========================================================================
--- 6. DỮ LIỆU TEST BÁO CÁO VI PHẠM (REPORTS) MẪU
--- =========================================================================
-DELETE FROM reports WHERE id > 0;
 
--- Chèn dữ liệu báo cáo vi phạm
-INSERT INTO reports (reporter_id, report_type, target_id, reason_type, description, status, reviewed_by, reviewed_at, created_at)
-VALUES 
-(7, 'LESSON', 1, 'VIDEO_ISSUE', N'Video bị mất tiếng từ phút thứ 5', 'PENDING', NULL, NULL, DATEADD(day, -2, GETDATE())),
-(8, 'LESSON', 2, 'AUDIO_ISSUE', N'Âm thanh rè và không nghe rõ lời giảng', 'PENDING', NULL, NULL, DATEADD(day, -1, GETDATE())),
-(9, 'FEEDBACK', @FeedbackId2, 'SPAM', N'Feedback này quảng cáo website cá nhân khác và nói xấu tục tĩu.', 'PENDING', NULL, NULL, GETDATE());

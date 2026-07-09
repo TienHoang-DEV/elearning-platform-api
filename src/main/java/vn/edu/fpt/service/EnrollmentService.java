@@ -7,7 +7,8 @@ import vn.edu.fpt.entity.Enrollment;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.EnrollmentRepository;
-import vn.edu.fpt.repository.LessonRepository;
+import vn.edu.fpt.service.lesson.LessonProgressService;
+import vn.edu.fpt.service.lesson.LessonService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

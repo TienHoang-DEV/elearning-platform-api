@@ -63,6 +63,16 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
 	@Query("SELECT COUNT(u) FROM User u JOIN u.userRoles ur JOIN ur.role r WHERE LOWER(r.name) = 'learner'")
 	long countLearners();
+
+	boolean existsByEmailAndStatus(
+			String email,
+			UserStatus status
+	);
+
+	boolean existsByPhoneAndStatus(
+			String phone,
+			UserStatus status
+	);
 }
 
 
