@@ -6,6 +6,18 @@
 <body>
 <!-- Fragment Header dùng chung cho toàn bộ dự án -->
 <header th:fragment="header" class="site-header" id="site-header">
+    <script>
+        // Apply dark theme immediately if stored in localStorage to prevent flashing
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark-theme');
+            } else {
+                document.documentElement.classList.remove('dark-theme');
+            }
+        })();
+    </script>
+    <link rel="stylesheet" th:href="@{/css/darkTheme.css}">
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <div class="container d-flex align-items-center justify-content-between header-container">
         

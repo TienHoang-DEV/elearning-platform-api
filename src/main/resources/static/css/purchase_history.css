@@ -85,3 +85,17 @@
         margin-bottom: 10px;
     }
 }
+
+/* Contrast improvements for Light Mode */
+.text-muted-dark {
+    color: #334155 !important;
+}
+.text-muted {
+    color: #475569 !important;
+}
+.text-dark {
+    color: #0f172a !important;
+}
+.order-card .card-header {
+    background-color: #f8fafc !important; /* Slightly darker header background for better contrast */
+}
