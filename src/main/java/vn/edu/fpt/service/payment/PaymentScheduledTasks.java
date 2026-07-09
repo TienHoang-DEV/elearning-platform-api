@@ -17,9 +17,7 @@ public class PaymentScheduledTasks {
     public void expirePaymentsByTimeout() {
         try {
             log.debug("[SCHEDULED TASK] Bắt đầu expirePaymentsByTimeout");
-            // Gọi service để xử lý các giao dịch hết hạn
             int expiredCount = paymentSyncService.expirePaymentsByTimeout();
-            
             log.debug("[SCHEDULED TASK] Hoàn tất expirePaymentsByTimeout: {} giao dịch đã expire", expiredCount);
             
         } catch (Exception e) {
@@ -31,8 +29,6 @@ public class PaymentScheduledTasks {
     public void syncPendingPaymentsFromPayOs() {
         try {
             log.debug("[SCHEDULED TASK] Bắt đầu syncPendingPaymentsFromPayOs");
-            
-            // Gọi service để sync trạng thái từ PayOS
             int syncedCount = paymentSyncService.syncPendingPaymentsFromPayOs();
             
             log.debug("[SCHEDULED TASK] Hoàn tất syncPendingPaymentsFromPayOs: {} giao dịch đã sync", syncedCount);
