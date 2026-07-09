@@ -32,14 +32,6 @@ public class PayOsService {
     private final CartRepository cartRepository;
     private final EnrollmentRepository enrollmentRepository;
 
-    /**
-     * Tạo đơn hàng thanh toán trên cổng thanh toán PayOS sử dụng thư viện SDK chính thức.
-     * 
-     * @param order Đơn hàng cần thanh toán.
-     * @param returnUrl URL chuyển hướng khi thanh toán thành công.
-     * @param cancelUrl URL chuyển hướng khi người dùng hủy thanh toán.
-     * @return Đối tượng Payment chứa thông tin liên kết thanh toán đã được lưu vào CSDL.
-     */
     public Payment createPaymentOrder(Order order, String returnUrl, String cancelUrl) {
         try {
             log.info("Đang tạo đơn hàng thanh toán cổng {} cho Order ID: {}", AppConstants.PAYMENT_GATEWAY, order.getId());
@@ -48,7 +40,6 @@ public class PayOsService {
             long orderCode = System.currentTimeMillis() / 1000;
             long expirationTimeUnix = (System.currentTimeMillis() / 1000) + (AppConstants.PAYMENT_EXPIRATION_MINUTES * 60L);
 
-            // Xây dựng request gửi lên PayOS
             CreatePaymentLinkRequest request = CreatePaymentLinkRequest.builder()
                     .orderCode(orderCode)
                     .amount(amountVND)
@@ -61,7 +52,6 @@ public class PayOsService {
                     .expiredAt(expirationTimeUnix)
                     .build();
 
-            // Gọi API của PayOS để tạo link thanh toán
             CreatePaymentLinkResponse response;
             try {
                 response = payOS.paymentRequests().create(request);
@@ -76,7 +66,6 @@ public class PayOsService {
             log.info("Đường dẫn thanh toán: {}", response.getCheckoutUrl());
             log.info("Số tài khoản thụ hưởng: {}", response.getAccountNumber());
 
-            // Lấy thông tin phản hồi từ PayOS
             String qrCodeUrl = response.getQrCode();
             String checkoutUrl = response.getCheckoutUrl();
             String accountNumber = response.getAccountNumber();
@@ -84,7 +73,6 @@ public class PayOsService {
             String accountHolder = response.getAccountName();
             String description = String.valueOf(orderCode);
 
-            // Log cảnh báo nếu thiếu thông tin từ cổng thanh toán
             if (qrCodeUrl == null || qrCodeUrl.isEmpty()) {
                 log.warn("QR Code URL từ cổng thanh toán rỗng hoặc null.");
             }
@@ -92,7 +80,6 @@ public class PayOsService {
                 log.warn("Checkout URL từ cổng thanh toán rỗng hoặc null.");
             }
 
-            // Tạo đối tượng Payment để lưu trữ lịch sử giao dịch trong hệ thống
             Payment payment = Payment.builder()
                     .order(order)
                     .gateway(AppConstants.PAYMENT_GATEWAY)
@@ -116,12 +103,6 @@ public class PayOsService {
         }
     }
 
-    /**
-     * Hoàn tất giao dịch thanh toán: cập nhật trạng thái thanh toán, trạng thái đơn hàng,
-     * tự động ghi danh (enroll) người dùng vào các khóa học tương ứng và xóa các khóa học đó khỏi giỏ hàng.
-     * 
-     * @param payment Giao dịch thanh toán cần hoàn tất.
-     */
     public void completePayment(Payment payment) {
         if (payment.getStatus() == PaymentStatus.PAID) {
             return;
@@ -141,7 +122,6 @@ public class PayOsService {
             if (user != null) {
                 Cart cart = cartRepository.findByUser(user).orElse(null);
 
-                // Ghi danh người dùng vào từng khóa học trong hóa đơn thanh toán thành công
                 for (OrderItem item : order.getItems()) {
                     Course course = item.getCourse();
                     if (course != null) {
@@ -156,7 +136,6 @@ public class PayOsService {
                             log.info("Ghi danh thành công cho người dùng {} vào khóa học {}", user.getEmail(), course.getTitle());
                         }
 
-                        // Loại bỏ khóa học đã thanh toán khỏi giỏ hàng
                         if (cart != null && cart.getItems() != null) {
                             cart.getItems().removeIf(ci -> ci.getCourse().getId().equals(course.getId()));
                         }
@@ -170,11 +149,6 @@ public class PayOsService {
         }
     }
 
-    /**
-     * Hủy liên kết thanh toán phía cổng thanh toán PayOS đồng thời hủy giao dịch tương ứng trên hệ thống cục bộ.
-     * 
-     * @param payment Giao dịch thanh toán cần hủy.
-     */
     public void cancelPaymentAndInvalidatePayOs(Payment payment) {
         if (payment.getStatus() == PaymentStatus.CANCELLED) {
             return;
@@ -191,15 +165,9 @@ public class PayOsService {
         } catch (Exception e) {
             log.error("Lỗi khi phân tích mã đơn hàng {}: {}", payment.getGatewayOrderCode(), e.getMessage());
         }
-        // Luôn cập nhật trạng thái hủy cục bộ bất chấp kết quả gọi API hủy của PayOS
         cancelPayment(payment);
     }
 
-    /**
-     * Hủy giao dịch thanh toán trên hệ thống cục bộ và cập nhật trạng thái đơn hàng thành CANCELLED.
-     * 
-     * @param payment Giao dịch thanh toán cần hủy cục bộ.
-     */
     public void cancelPayment(Payment payment) {
         if (payment.getStatus() == PaymentStatus.CANCELLED) {
             return;
@@ -215,11 +183,6 @@ public class PayOsService {
         }
     }
 
-    /**
-     * Hết hạn giao dịch thanh toán trên hệ thống cục bộ (hết thời gian thanh toán) và cập nhật đơn hàng thành EXPIRED.
-     * 
-     * @param payment Giao dịch thanh toán hết hạn.
-     */
     public void expirePayment(Payment payment) {
         if (payment.getStatus() == PaymentStatus.EXPIRED) {
             return;
@@ -235,11 +198,6 @@ public class PayOsService {
         }
     }
 
-    /**
-     * Đánh dấu giao dịch thanh toán thất bại trên hệ thống cục bộ và cập nhật đơn hàng thành CANCELLED.
-     * 
-     * @param payment Giao dịch thanh toán thất bại.
-     */
     public void failPayment(Payment payment) {
         if (payment.getStatus() == PaymentStatus.FAILED) {
             return;

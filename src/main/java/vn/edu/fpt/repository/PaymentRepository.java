@@ -36,9 +36,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
             "ORDER BY YEAR(p.paidAt) ASC, MONTH(p.paidAt) ASC")
     List<MonthlyRevenueDTO> getMonthlyRevenue(@Param("status") PaymentStatus status, @Param("startDate") LocalDateTime startDate);
 
-    /**
-     * Find payment by PayOS gateway order code
-     */
     Optional<Payment> findByGatewayOrderCode(String gatewayOrderCode);
 
     @Query("""
@@ -85,14 +82,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
 """)
     List<CourseDTO> getListItemByPaymentId(@Param("paymentId") Integer paymentId);
 
-    /**
-     * Find all PENDING payments that have exceeded their expiration time.
-     * These payments need to be marked as EXPIRED.
-     * Query filters:
-     * - status = PENDING (not yet processed)
-     * - expiredAt <= NOW (payment link has expired)
-     * - updatedAt < (NOW - 5 MIN) (avoid processing the same record multiple times)
-     */
     @Query("""
         SELECT p FROM Payment p 
         WHERE p.status = vn.edu.fpt.enums.PaymentStatus.PENDING 
@@ -102,15 +91,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     """)
     List<Payment> findExpiredPendingPayments();
 
-    /**
-     * Find PENDING payments that need synchronization with PayOS.
-     * These are recent PENDING payments that haven't been successfully synced yet.
-     * Query filters:
-     * - status = PENDING (payment still in progress)
-     * - createdAt > (NOW - 30 MIN) (only check recent payments, avoid old records)
-     * - webhookReceived = false (webhook hasn't been received, so we sync from PayOS)
-     * - (lastSyncedAt IS NULL OR lastSyncedAt < (NOW - 5 MIN)) (either never synced or was synced > 5 mins ago)
-     */
     @Query("""
         SELECT p FROM Payment p 
         WHERE p.status = vn.edu.fpt.enums.PaymentStatus.PENDING
@@ -121,15 +101,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     """)
     List<Payment> findPendingPaymentsForSync();
 
-    /**
-     * Find PENDING payments that failed webhook but are still within retry attempts limit.
-     * These payments will have their webhook retried.
-     * Query filters:
-     * - status = PENDING (payment still pending)
-     * - webhookReceived = false (webhook processing failed or not received)
-     * - webhookRetryCount < 3 (haven't exceeded max retry attempts)
-     * - createdAt > (NOW - 30 MIN) (only check recent payments)
-     */
     @Query("""
         SELECT p FROM Payment p 
         WHERE p.status = vn.edu.fpt.enums.PaymentStatus.PENDING
