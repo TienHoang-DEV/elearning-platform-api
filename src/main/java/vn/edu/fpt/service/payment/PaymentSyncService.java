@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.Payment;
 import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.repository.PaymentRepository;
+import vn.edu.fpt.util.AppConstants;
 import vn.payos.PayOS;
 import vn.payos.model.v2.paymentRequests.PaymentLink;
 
@@ -138,7 +139,7 @@ public class PaymentSyncService {
         try {
             log.info("Bắt đầu retry webhook bị fail...");
             
-            List<Payment> failedPayments = paymentRepository.findPaymentsForWebhookRetry();
+            List<Payment> failedPayments = paymentRepository.findPaymentsForWebhookRetry(AppConstants.PAYMENT_WEBHOOK_RETRY_ATTEMPTS);
             
             if (failedPayments.isEmpty()) {
                 log.debug("Không có giao dịch nào cần retry webhook");

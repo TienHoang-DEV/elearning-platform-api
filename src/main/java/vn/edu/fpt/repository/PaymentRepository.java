@@ -105,9 +105,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
         SELECT p FROM Payment p 
         WHERE p.status = vn.edu.fpt.enums.PaymentStatus.PENDING
           AND p.webhookReceived = false 
-          AND p.webhookRetryCount < 3
+          AND p.webhookRetryCount < :maxAttempts
           AND p.createdAt > (CURRENT_TIMESTAMP - 30 MINUTE)
         ORDER BY p.createdAt ASC
     """)
-    List<Payment> findPaymentsForWebhookRetry();
+    List<Payment> findPaymentsForWebhookRetry(@Param("maxAttempts") int maxAttempts);
 }
