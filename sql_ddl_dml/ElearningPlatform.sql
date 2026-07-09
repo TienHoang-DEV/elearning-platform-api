@@ -130,6 +130,32 @@ CREATE TABLE user_roles (
                                 FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
+-- ===========================
+-- EMAIL VERIFICATION TOKENS
+-- ===========================
+CREATE TABLE email_verification_tokens (
+                                           id INT IDENTITY(1,1) PRIMARY KEY,
+
+                                           created_at DATETIME2 NULL,
+                                           updated_at DATETIME2 NULL,
+
+                                           user_id INT NOT NULL UNIQUE,
+
+                                           otp_code VARCHAR(6) NOT NULL,
+
+                                           expired_at DATETIME2 NOT NULL,
+
+                                           used BIT NOT NULL
+                                               CONSTRAINT DF_email_verification_tokens_used DEFAULT(0),
+
+                                           resend_count INT NOT NULL
+                                               CONSTRAINT DF_email_verification_tokens_resend_count DEFAULT(0),
+
+                                           CONSTRAINT FK_email_verification_tokens_user
+                                               FOREIGN KEY (user_id)
+                                                   REFERENCES users(id)
+                                                   ON DELETE CASCADE
+);
 -- =========================
 -- PASSWORD RESET TOKENS
 -- =========================
