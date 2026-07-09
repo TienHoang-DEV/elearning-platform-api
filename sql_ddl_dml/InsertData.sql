@@ -1,5 +1,5 @@
-USE [ElearningPlatform];
-GO
+-- USE [ElearningPlatform];
+-- GO
 
 -- =========================================================================
 -- HỦY BỎ DỮ LIỆU CŨ VÀ RESET IDENTITY SEED ĐỂ ĐẢM BẢO CHẠY LẠI KHÔNG BỊ LỖI
@@ -1801,4 +1801,4 @@ VALUES
  GETDATE(),
  DATEADD(HOUR, 2, GETDATE()));
 
-
+

@@ -170,13 +170,13 @@
 }
 
 .quiz-iframe-shell {
-    min-height: 720px;
+    min-height: 950px;
 }
 
 .quiz-iframe {
     display: block;
     width: 100%;
-    min-height: 720px;
+    min-height: 950px;
     border: 0;
     background-color: #ffffff;
 }

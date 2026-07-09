@@ -96,8 +96,8 @@ public class PaymentService {
 
         // Kiểm tra tổng số tiền của các khóa học được chọn
         CartPageDetailsDto cartDetails = cartService.getCartPageDetails(user);
-        if (cartDetails.getTotal() <= 0) {
-            throw new BadRequestException("Không có khóa học nào được chọn");
+        if (cartDetails.getTotal() < 2000) {
+            throw new BadRequestException("Tổng giá trị đơn hàng phải từ 2,000 VNĐ trở lên để thực hiện thanh toán!");
         }
 
         BigDecimal totalAmount = BigDecimal.valueOf(cartDetails.getTotal());
