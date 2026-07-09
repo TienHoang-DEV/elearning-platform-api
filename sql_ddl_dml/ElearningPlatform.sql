@@ -11,12 +11,12 @@
 -- CREATE DATABASE ElearningPlatform;
 -- GO
 
-USE ElearningPlatform;
-GO
-
+-- USE ElearningPlatform;
+-- GO
+--
 USE master;
 GO
-
+--
 IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ElearningPlatform')
 BEGIN
     ALTER DATABASE ElearningPlatform SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
