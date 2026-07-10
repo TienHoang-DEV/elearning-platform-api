@@ -696,53 +696,47 @@ INSERT INTO course_sections (course_id, title, position) VALUES
 -- Mỗi section có 3 bài học
 -- =========================
 
-DECLARE @sectionId INT = 1;
+INSERT INTO lessons (
+    section_id,
+    title,
+    video_url,
+    duration_seconds,
+    position,
+    is_published,
+    moderation_status
+)
+SELECT 
+    cs.id,
+    CASE 
+        WHEN CHARINDEX(':', cs.title) > 0 
+        THEN SUBSTRING(cs.title, CHARINDEX(':', cs.title) + 2, LEN(cs.title))
+        ELSE cs.title
+    END + 
+    CASE n.num
+        WHEN 1 THEN N' - Bài 1: Khái niệm & Cơ bản'
+        WHEN 2 THEN N' - Bài 2: Thực hành & Chi tiết'
+        WHEN 3 THEN N' - Bài 3: Tổng kết & Ứng dụng'
+    END,
+    CASE n.num
+        WHEN 1 THEN 'Recording 2026-05-28 212131.mp4'
+        WHEN 2 THEN N'Lập trình C - 03. Cách xuất dữ liệu ra màn hình lập trình C - Hàm printf - Tự học lập trình C.mp4'
+        WHEN 3 THEN N'Lập trình C - 04. Cách nhập dữ liệu từ bàn phím trong lập trình C - Tự học lập trình C.mp4'
+    END,
+    CASE n.num
+        WHEN 1 THEN 600
+        WHEN 2 THEN 720
+        WHEN 3 THEN 840
+    END,
+    n.num,
+    1,
+    'APPROVED'
+FROM course_sections cs
+CROSS JOIN (
+    SELECT 1 AS num UNION ALL
+    SELECT 2 AS num UNION ALL
+    SELECT 3 AS num
+) n;
 
-WHILE @sectionId <= 72
-BEGIN
-
-    INSERT INTO lessons (
-        section_id,
-        title,
-        video_url,
-        duration_seconds,
-        position,
-        is_published,
-        moderation_status
-    )
-    VALUES
-    (
-        @sectionId,
-        N'Bài 1',
-        'Recording 2026-05-28 212131.mp4',
-        600,
-        1,
-        1,
-        'APPROVED'
-    ),
-
-    (
-        @sectionId,
-        N'Bài 2',
-        N'Lập trình C - 03. Cách xuất dữ liệu ra màn hình lập trình C - Hàm printf - Tự học lập trình C.mp4',
-        720,
-        2,
-        1,
-        'APPROVED'
-    ),
-
-    (
-        @sectionId,
-        N'Bài 3',
-        N'Lập trình C - 04. Cách nhập dữ liệu từ bàn phím trong lập trình C - Tự học lập trình C.mp4',
-        840,
-        3,
-        1,
-        'APPROVED'
-    );
-
-    SET @sectionId = @sectionId + 1;
-END
 
 -- =========================
 -- QUIZZES SAMPLE DATA
@@ -1672,15 +1666,19 @@ INSERT INTO lesson_materials
     file_size
 )
 VALUES
-    (5, 1, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 2, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 3, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 4, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 5, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 6, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 7, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 8, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 9, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576);
+    (5, 1, N'Junit_Jacoco_Assignment_Sample.docx', '45d7c134-5be5-44f2-8009-d84c3fdc383d_Junit_Jacoco_Assignment_Sample.docx', 'docx', 1048576),
+    (5, 1, N'Lab4_Requirements.pdf', 'f9846ac0-7788-414e-b102-e85190b373a5_Lab4_Requirements.pdf', 'pdf', 1048576),
+    (5, 2, N'Team 5_SE2034_Defect Log FE.xlsx', '45243280-d293-476a-9fda-439b37acab95_Team 5_SE2034_Defect Log FE.xlsx', 'xlsx', 1048576),
+    (5, 2, N'blog.haposoft.com-Bản dịch ISTQB.docx', '40a9db01-e535-46fb-8954-ab7694f0e964_blog.haposoft.com-Bản dịch ISTQB.docx', 'docx', 1048576),
+    (5, 3, N'Team 5_SE2034_Defect Log FE.xlsx', '36f3ac2b-9e84-4b6c-8bff-52b93cfe2af1_Team 5_SE2034_Defect Log FE.xlsx', 'xlsx', 1048576),
+    (5, 3, N'[giao.lang] Thymeleaf in 5 minutes-25.0619.AI generated.docx', 'dd1f1f23-3e2e-415d-9873-81979b464aaf_[giao.lang] Thymeleaf in 5 minutes-25.0619.AI generated.docx', 'docx', 1048576),
+    (5, 3, N'Lab4_Requirements.pdf', 'f9846ac0-7788-414e-b102-e85190b373a5_Lab4_Requirements.pdf', 'pdf', 1048576),
+    (5, 4, N'Team 5_SE2034_Defect Log FE.xlsx', '36f3ac2b-9e84-4b6c-8bff-52b93cfe2af1_Team 5_SE2034_Defect Log FE.xlsx', 'xlsx', 1048576),
+    (5, 5, N'Junit_Jacoco_Assignment_Sample.docx', '4df90b30-ff0f-4d11-b50f-8463cdae22b7_Junit_Jacoco_Assignment_Sample.docx', 'docx', 1048576),
+    (5, 6, N'[giao.lang] Thymeleaf in 5 minutes-25.0619.AI generated.docx', 'dd1f1f23-3e2e-415d-9873-81979b464aaf_[giao.lang] Thymeleaf in 5 minutes-25.0619.AI generated.docx', 'docx', 1048576),
+    (5, 7, N'Lab4_Requirements.pdf', 'f9846ac0-7788-414e-b102-e85190b373a5_Lab4_Requirements.pdf', 'pdf', 1048576),
+    (5, 8, N'Junit_Jacoco_Assignment_Sample.docx', '45d7c134-5be5-44f2-8009-d84c3fdc383d_Junit_Jacoco_Assignment_Sample.docx', 'docx', 1048576),
+    (5, 9, N'Team 5_SE2034_Defect Log FE.xlsx', '45243280-d293-476a-9fda-439b37acab95_Team 5_SE2034_Defect Log FE.xlsx', 'xlsx', 1048576);
 
 INSERT INTO orders (
     user_id,

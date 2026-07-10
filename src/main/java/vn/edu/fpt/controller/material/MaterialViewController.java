@@ -33,7 +33,14 @@ public class MaterialViewController {
         if (lessonMaterial == null) {
             return null;
         }
-        return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
+        String publicUrl = azureBlobService.getPublicUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
+        String fileType = lessonMaterial.getFileType() != null ? lessonMaterial.getFileType().toLowerCase().trim() : "";
+        if ("pdf".equals(fileType)) {
+            return publicUrl;
+        } else if ("doc".equals(fileType) || "docx".equals(fileType) || "xls".equals(fileType) || "xlsx".equals(fileType) || "ppt".equals(fileType) || "pptx".equals(fileType)) {
+            return AppConstants.OFFICE_VIEWER_BASE_URL + publicUrl;
+        }
+        return null;
     }
 
     @GetMapping("/material/{id}/view")
@@ -42,8 +49,14 @@ public class MaterialViewController {
         if (lessonMaterial == null) {
             return "redirect:/";
         }
-        String sasUrl = azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
-        return "redirect:" + sasUrl;
+        String publicUrl = azureBlobService.getPublicUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
+        String fileType = lessonMaterial.getFileType() != null ? lessonMaterial.getFileType().toLowerCase().trim() : "";
+        if ("pdf".equals(fileType)) {
+            return "redirect:" + publicUrl;
+        } else if ("doc".equals(fileType) || "docx".equals(fileType) || "xls".equals(fileType) || "xlsx".equals(fileType) || "ppt".equals(fileType) || "pptx".equals(fileType)) {
+            return "redirect:" + AppConstants.OFFICE_VIEWER_BASE_URL + publicUrl;
+        }
+        return "redirect:/material/" + id + "/download";
     }
 
     @GetMapping("/lesson/{id}/video")
