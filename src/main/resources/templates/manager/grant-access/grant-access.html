@@ -34,11 +34,16 @@
             <div class="search-section">
                 <h5 class="fw-bold mb-3" style="color: #444;">Tìm kiếm học viên</h5>
                 <form th:action="@{/manager/grant-access}" method="get">
-                    <div class="search-box-wrapper">
-                        <i class="ph ph-magnifying-glass"></i>
-                        <input type="text" name="keyword" th:value="${keyword}" 
-                               placeholder="Tìm kiếm học viên theo email hoặc số điện thoại..." 
-                               class="form-control" autocomplete="off">
+                    <div class="d-flex gap-2 align-items-center" style="max-width: 600px;">
+                        <div class="search-box-wrapper flex-grow-1">
+                            <i class="ph ph-magnifying-glass"></i>
+                            <input type="text" name="keyword" th:value="${keyword}" 
+                                   placeholder="Tìm kiếm học viên theo email hoặc số điện thoại..." 
+                                   class="form-control" autocomplete="off">
+                        </div>
+                        <button type="submit" class="btn btn-search-custom">
+                            <i class="ph ph-magnifying-glass"></i> Tìm kiếm
+                        </button>
                     </div>
                 </form>
             </div>
@@ -58,20 +63,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="learner : ${learners}">
+                        <tr th:each="learner : ${learners.content}">
                             <td>
                                 <div class="learner-avatar">
                                     <img th:if="${learner.avatarUrl != null}" th:src="${learner.avatarUrl}" alt="Avatar" class="w-100 h-100 object-fit-cover rounded-circle" />
-                                    <span th:unless="${learner.avatarUrl != null}" th:text="${#strings.substring(learner.firstName, 0, 1).toUpperCase()}">A</span>
+                                    <span th:unless="${learner.avatarUrl != null}" th:text="${#strings.substring(learner.fullName, 0, 1).toUpperCase()}">A</span>
                                 </div>
                             </td>
-                            <td class="fw-semibold text-dark" th:text="${learner.lastName + ' ' + learner.firstName}">Nguyễn Văn A</td>
+                            <td class="fw-semibold text-dark" th:text="${learner.fullName}">Nguyễn Văn A</td>
                             <td th:text="${learner.email}">a@gmail.com</td>
                             <td th:text="${learner.phone != null ? learner.phone : 'Chưa cập nhật'}">0987654321</td>
                             <td class="text-end">
                                 <button type="button" class="btn btn-select" 
                                         th:data-user-id="${learner.id}"
-                                        th:data-user-name="${learner.lastName + ' ' + learner.firstName}"
+                                        th:data-user-name="${learner.fullName}"
+                                        th:data-user-email="${learner.email}"
                                         onclick="openGrantModal(this)">
                                     Chọn
                                 </button>
@@ -86,42 +92,114 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- ══════════ PAGINATION ══════════ -->
+            <div class="pagination-circle-container" th:if="${learners.totalPages > 1}">
+                <div class="pagination-circle-buttons">
+                    <!-- Previous -->
+                    <a th:if="${learners.hasPrevious()}"
+                        th:href="@{/manager/grant-access(keyword=${param.keyword}, page=${learners.number - 1})}"
+                        class="page-circle-btn">
+                        <i class="ph ph-caret-left"></i>
+                    </a>
+                    <span th:unless="${learners.hasPrevious()}" class="page-circle-btn disabled">
+                        <i class="ph ph-caret-left"></i>
+                    </span>
+
+                    <!-- Page numbers list -->
+                    <a th:each="i : ${#numbers.sequence(startPage, endPage)}"
+                        th:href="@{/manager/grant-access(keyword=${param.keyword}, page=${i})}"
+                        th:class="${learners.number == i ? 'page-circle-btn active' : 'page-circle-btn'}"
+                        th:text="${i + 1}">1</a>
+
+                    <!-- Next -->
+                    <a th:if="${learners.hasNext()}"
+                        th:href="@{/manager/grant-access(keyword=${param.keyword}, page=${learners.number + 1})}"
+                        class="page-circle-btn">
+                        <i class="ph ph-caret-right"></i>
+                    </a>
+                    <span th:unless="${learners.hasNext()}" class="page-circle-btn disabled">
+                        <i class="ph ph-caret-right"></i>
+                    </span>
+                </div>
+            </div>
         </div>
 
         <!-- Grant Course Access Modal -->
         <div class="modal fade" id="grantAccessModal" tabindex="-1" aria-labelledby="grantAccessModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+                <div class="modal-content border-0 shadow-lg modal-grant-custom">
                     <form th:action="@{/manager/grant-access}" method="post">
                         <input type="hidden" name="userId" id="modalUserId">
                         
-                        <div class="modal-header bg-light border-bottom px-4 py-3" style="border-top-left-radius: 12px; border-top-right-radius: 12px;">
-                            <h5 class="modal-title fw-bold text-dark font-heading d-flex align-items-center gap-2" id="grantAccessModalLabel">
-                                <i class="ph ph-shield-check text-primary fs-4"></i>Cấp quyền khóa học
-                            </h5>
-                            <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="modal-header-custom">
+                            <h5 class="modal-title-custom" id="grantAccessModalLabel">Cấp quyền truy cập khóa học</h5>
                         </div>
                         
-                        <div class="modal-body p-4">
-                            <div class="mb-4">
-                                <label class="form-label text-muted fw-semibold fs-8 uppercase tracking-wider mb-2">Học viên nhận quyền</label>
-                                <div class="p-3 bg-light rounded-3 border">
-                                    <span id="modalUserName" class="fw-bold text-dark fs-6">Học viên</span>
+                        <div class="modal-body-custom">
+                            <!-- Learner info section -->
+                            <div class="modal-section">
+                                <label class="section-label">Học viên</label>
+                                <div class="learner-info-card">
+                                    <div class="info-item">
+                                        <i class="ph ph-user"></i>
+                                        <span id="modalUserName" class="info-text-name">Học viên</span>
+                                    </div>
+                                    <div class="info-item mt-2">
+                                        <i class="ph ph-envelope"></i>
+                                        <span id="modalUserEmail" class="info-text-email">email@gmail.com</span>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div class="mb-3">
-                                <label class="form-label text-muted fw-semibold fs-8 uppercase tracking-wider mb-2" for="modalCourseSelect">Chọn khóa học</label>
-                                <select name="courseId" id="modalCourseSelect" class="form-select form-select-lg rounded-3 shadow-none border-secondary-subtle" required style="font-size: 0.95rem;">
-                                    <option value="" disabled selected>-- Chọn khóa học từ danh sách --</option>
-                                    <option th:each="course : ${courses}" th:value="${course.id}" th:text="${course.title}">Tên khóa học</option>
-                                </select>
+                            <!-- Course Select section -->
+                            <div class="modal-section">
+                                <label class="section-label">Khóa học <span class="required-star">*</span></label>
+                                <div class="custom-search-select">
+                                    <div class="select-search-box">
+                                        <input type="text" id="courseSearchInput" class="form-select-custom" placeholder="Tìm kiếm và chọn khóa học..." autocomplete="off">
+                                        <i class="ph ph-caret-down select-caret"></i>
+                                    </div>
+                                    <div class="select-dropdown-options" id="courseDropdownOptions">
+                                        <div class="option-item" data-value="" style="display: none;">-- Chọn khóa học --</div>
+                                        <div th:each="course : ${courses}" th:class="'option-item'" th:data-value="${course.id}" th:text="${course.courseName}">Tên khóa học</div>
+                                    </div>
+                                    <input type="hidden" name="courseId" id="modalCourseSelect" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Reason section -->
+                            <div class="modal-section">
+                                <label class="section-label">Lý do <span class="required-star">*</span></label>
+                                <div class="select-wrapper-custom">
+                                    <select name="reason" id="modalReasonSelect" class="form-select-custom" required>
+                                        <option value="" disabled selected>-- Chọn lý do --</option>
+                                        <option value="Hỗ trợ học viên">Hỗ trợ học viên</option>
+                                        <option value="Lỗi thanh toán">Lỗi thanh toán</option>
+                                        <option value="Khác">Khác</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Note section -->
+                            <div class="modal-section">
+                                <label class="section-label">Ghi chú (Không bắt buộc)</label>
+                                <textarea name="note" id="modalNote" class="form-textarea-custom" placeholder="Học viên liên hệ hỗ trợ do..."></textarea>
+                            </div>
+                            
+                            <!-- Send email notification section -->
+                            <div class="modal-section-checkbox">
+                                <label class="checkbox-container-custom">
+                                    <input type="checkbox" name="sendEmail" id="modalSendEmail" checked>
+                                    <span class="checkmark-custom"></span>
+                                    <span class="checkbox-label-text">Gửi email thông báo</span>
+                                </label>
                             </div>
                         </div>
                         
-                        <div class="modal-footer border-top px-4 py-3">
-                            <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Đóng</button>
-                            <button type="submit" class="btn btn-primary rounded-3 px-4">Xác nhận cấp quyền</button>
+                        <div class="modal-footer-custom">
+                            <button type="button" class="btn-cancel-custom" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn-submit-custom">Cấp quyền</button>
                         </div>
                     </form>
                 </div>
@@ -134,13 +212,108 @@
             function openGrantModal(button) {
                 const userId = button.getAttribute('data-user-id');
                 const userName = button.getAttribute('data-user-name');
+                const userEmail = button.getAttribute('data-user-email');
                 
                 document.getElementById('modalUserId').value = userId;
                 document.getElementById('modalUserName').textContent = userName;
+                document.getElementById('modalUserEmail').textContent = userEmail;
+
+                // Reset custom course dropdown
+                const searchInput = document.getElementById('courseSearchInput');
+                const hiddenInput = document.getElementById('modalCourseSelect');
+                const optionsContainer = document.getElementById('courseDropdownOptions');
+                
+                searchInput.value = '';
+                hiddenInput.value = '';
+                optionsContainer.querySelectorAll('.option-item').forEach(el => {
+                    el.classList.remove('selected');
+                    el.style.display = 'block';
+                });
+                const noResult = optionsContainer.querySelector('.no-result');
+                if (noResult) noResult.remove();
                 
                 const modal = new bootstrap.Modal(document.getElementById('grantAccessModal'));
                 modal.show();
             }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const searchInput = document.getElementById('courseSearchInput');
+                const optionsContainer = document.getElementById('courseDropdownOptions');
+                const hiddenInput = document.getElementById('modalCourseSelect');
+                const wrapper = searchInput.closest('.custom-search-select');
+                const optionItems = Array.from(optionsContainer.querySelectorAll('.option-item:not([style*="display: none"])'));
+
+                // Open dropdown on focus/click
+                searchInput.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    wrapper.classList.add('active');
+                });
+
+                // Filter items on input
+                searchInput.addEventListener('input', function () {
+                    const query = searchInput.value.toLowerCase().trim();
+                    wrapper.classList.add('active');
+                    let matches = 0;
+
+                    // Remove any existing "no result" items
+                    const existingNoResult = optionsContainer.querySelector('.no-result');
+                    if (existingNoResult) existingNoResult.remove();
+
+                    optionItems.forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        if (text.includes(query)) {
+                            item.style.display = 'block';
+                            matches++;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+
+                    if (matches === 0) {
+                        const noResult = document.createElement('div');
+                        noResult.className = 'option-item no-result';
+                        noResult.textContent = 'Không tìm thấy khóa học nào phù hợp';
+                        optionsContainer.appendChild(noResult);
+                    }
+                });
+
+                // Select option
+                optionsContainer.addEventListener('click', function (e) {
+                    const target = e.target;
+                    if (target.classList.contains('option-item') && !target.classList.contains('no-result')) {
+                        const value = target.getAttribute('data-value');
+                        const text = target.textContent;
+
+                        // Highlight selected item
+                        optionsContainer.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
+                        target.classList.add('selected');
+
+                        // Update input and hidden value
+                        searchInput.value = text;
+                        hiddenInput.value = value;
+
+                        // Close dropdown
+                        wrapper.classList.remove('active');
+                    }
+                });
+
+                // Close when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!wrapper.contains(e.target)) {
+                        wrapper.classList.remove('active');
+                        const selectedOption = optionsContainer.querySelector('.option-item.selected');
+                        if (selectedOption) {
+                            searchInput.value = selectedOption.textContent;
+                        } else {
+                            searchInput.value = '';
+                            hiddenInput.value = '';
+                        }
+                        optionItems.forEach(item => item.style.display = 'block');
+                        const existingNoResult = optionsContainer.querySelector('.no-result');
+                        if (existingNoResult) existingNoResult.remove();
+                    }
+                });
+            });
         </script>
     </th:block>
 </body>

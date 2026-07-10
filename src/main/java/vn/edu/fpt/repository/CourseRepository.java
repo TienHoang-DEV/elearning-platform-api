@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import vn.edu.fpt.dto.course.CourseGrantDTO;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.CourseStatus;
@@ -128,6 +129,12 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
             "AND cat.id IN :categoryIds " +
             "ORDER BY COALESCE((SELECT AVG(f.rating) FROM Feedback f WHERE f.course.id = c.id), 0.0) DESC, c.id DESC")
     List<CourseListDto> findTop4ByCategoryIdsOrderByAverageRatingDesc(@Param("categoryIds") List<Integer> categoryIds, Pageable pageable);
+
+
+    @Query("""
+        select new vn.edu.fpt.dto.course.CourseGrantDTO(c.id, c.title) from Course c 
+""")
+    List<CourseGrantDTO> findAllCourseGrantDTO();
 }
 
 

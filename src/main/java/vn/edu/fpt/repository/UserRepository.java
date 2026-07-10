@@ -73,4 +73,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	boolean existsByPhoneAndStatus(
 			String phone,
 			UserStatus status);
+
+	@Query("""
+            			select distinct u from User u join u.userRoles r where r.role.name = vn.edu.fpt.enums.RoleType.LEARNER
+            			and (:keyword is null or lower(u.email) like lower(concat('%', :keyword, '%')) or lower(u.phone) like lower(concat('%', :keyword, '%')))
+            """)
+    Page<User> findAllLearnerByFilter(String keyword, Pageable pageable);
 }

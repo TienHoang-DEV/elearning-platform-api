@@ -41,25 +41,20 @@
                         <a th:href="@{/manager/dashboard}"><i class="ph ph-squares-four"></i><span>Tổng quan</span></a>
                     </li>
                     <li>
-                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Quản lý giảng
-                                viên</span></a>
+                        <a th:href="@{/manager/instructor/list}"><i class="ph ph-users"></i><span>Quản lý giảng viên</span></a>
                     </li>
                     <li>
-                        <a th:href="@{/manager/course/list}"><i class="ph ph-book-open"></i><span>Phê duyệt khóa
-                                học</span></a>
+                        <a th:href="@{/manager/course/list}"><i class="ph ph-book-open"></i><span>Phê duyệt khóa học</span></a>
                     </li>
                     <li>
-                        <a th:href="@{/manager/revenue/list}"><i class="ph ph-currency-circle-dollar"></i><span>Doanh
-                                thu</span></a>
+                        <a th:href="@{/manager/revenue/list}"><i class="ph ph-currency-circle-dollar"></i><span>Doanh thu</span></a>
                     </li>
                     <li>
-                        <a th:href="@{/manager/transaction-history/list}"><i class="ph ph-receipt"></i><span>Giao
-                                dịch</span></a>
+                        <a th:href="@{/manager/transaction-history/list}"><i class="ph ph-receipt"></i><span>Giao dịch</span></a>
                     </li>
                     <li>
                         <a th:href="@{/manager/grant-access}"><i class="ph ph-shield-check"></i><span>Cấp quyền khóa học</span></a>
                     </li>
-
                 </ul>
             </nav>
         </aside>
@@ -130,13 +125,21 @@
                     const href = a.getAttribute("href");
                     if (href === "/manager/dashboard" && (path === "/manager" || path === "/manager/" || path.startsWith("/manager/dashboard"))) {
                         li.classList.add("active");
-                    } else if (href !== "/manager/dashboard" && path.startsWith(href.substring(0, href.lastIndexOf('/')))) {
-                        li.classList.add("active");
+                    } else if (href !== "/manager/dashboard") {
+                        const lastSlashIndex = href.lastIndexOf('/');
+                        const prefix = href.substring(0, lastSlashIndex);
+                        if (prefix !== "/manager" && prefix !== "") {
+                            if (path.startsWith(prefix)) {
+                                li.classList.add("active");
+                            }
+                        } else {
+                            if (path === href || path.startsWith(href + "/")) {
+                                li.classList.add("active");
+                            }
+                        }
                     }
                 }
             });
-
-
 
             // Mobile sidebar toggle handling
             const sidebarToggle = document.getElementById("sidebarToggle");

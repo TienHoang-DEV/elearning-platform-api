@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
             ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), "Course Not Found", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
         }
-        return "templates/error/404.html";
+        return "error/404";
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
             ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), "Not Found", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
         }
-        return "templates/error/404.html";
+        return "error/404";
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
             ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Bad Request", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
         }
-        return "templates/error/400.html";
+        return "error/400";
     }
 
     @ExceptionHandler(Exception.class)
@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
             ErrorResponse body = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return "templates/error/500.html";
+        return "error/500";
     }
 
     @ExceptionHandler(PaymentCallApiException.class)
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
             ErrorResponse body = new ErrorResponse(HttpStatus.BAD_GATEWAY.value(),  "Bad Gateway", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.BAD_GATEWAY);
         }
-        return "templates/error/500.html";
+        return "error/500";
     }
 
     @ExceptionHandler(PaymentCreateException.class)
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
             ErrorResponse body = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),  "Create Payment Fail", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return "templates/error/500.html";
+        return "error/500";
     }
 
   

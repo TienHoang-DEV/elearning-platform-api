@@ -51,17 +51,17 @@ CREATE TABLE roles (
 );
 
 -- Seed dữ liệu vai trò mặc định
-IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'admin')
-    INSERT INTO roles (name, description) VALUES ('admin', N'Quản trị hệ thống');
+IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'ADMIN')
+    INSERT INTO roles (name, description) VALUES ('ADMIN', N'Quản trị hệ thống');
 
-IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'manager')
-    INSERT INTO roles (name, description) VALUES ('manager', N'Quản lý nội dung');
+IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'MANAGER')
+    INSERT INTO roles (name, description) VALUES ('MANAGER', N'Quản lý nội dung');
 
-IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'instructor')
-    INSERT INTO roles (name, description) VALUES ('instructor', N'Giảng viên');
+IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'INSTRUCTOR')
+    INSERT INTO roles (name, description) VALUES ('INSTRUCTOR', N'Giảng viên');
 
-IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'learner')
-    INSERT INTO roles (name, description) VALUES ('learner', N'Học viên');
+IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'LEARNER')
+    INSERT INTO roles (name, description) VALUES ('LEARNER', N'Học viên');
 
 -- =========================
 -- USERS

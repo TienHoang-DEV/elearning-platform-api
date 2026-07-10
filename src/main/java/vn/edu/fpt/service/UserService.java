@@ -1,12 +1,16 @@
 package vn.edu.fpt.service;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.dto.user.LearnerInfomationGrantAccessDTO;
 import vn.edu.fpt.dto.user.ProfileDto;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.UserValidationException;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.cloud.AzureBlobService;
+import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.Validation;
 
 import vn.edu.fpt.dto.user.UserDto;
@@ -169,5 +173,10 @@ public class UserService {
         repository.save(manager);
     }
 
+    public Page<LearnerInfomationGrantAccessDTO> findAllLearnerByFilter(String keyword, Integer page) {
+        Pageable pageable = PageRequest.of(page, AppConstants.NUMBER_LEARNER_RECORD_PER_PAGE, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<User> users = repository.findAllLearnerByFilter(keyword, pageable);
+        return users.map(dtoMapper::toLearnerInfomationGrantAccessDto);
+    }
 }
 
