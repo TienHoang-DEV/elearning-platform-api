@@ -16,6 +16,7 @@ import vn.edu.fpt.util.Validation;
 import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.UserStatus;
+import vn.edu.fpt.enums.LogAction;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.exception.ResourceNotFoundException;
@@ -148,10 +149,12 @@ public class UserService {
         // Log action to SystemLog
         User currentUser = SecurityUtils.getCurrentUser();
         if (currentUser != null) {
-            String action = (status == UserStatus.ACTIVE) ? "MỞ KHÓA GIẢNG VIÊN" : 
-                             (status == UserStatus.BANNED) ? "KHÓA GIẢNG VIÊN" : "CẬP NHẬT GIẢNG VIÊN";
-            String meta = "Giảng viên: " + instructor.getLastName() + " " + instructor.getFirstName() + " (" + instructor.getEmail() + ")";
-            systemLogService.log(currentUser, action, "USER", String.valueOf(id), meta);
+            LogAction action = (status == UserStatus.ACTIVE) ? LogAction.UNBLOCK_USER : 
+                               (status == UserStatus.BANNED) ? LogAction.BLOCK_USER : null;
+            if (action != null) {
+                String meta = "Giảng viên: " + instructor.getLastName() + " " + instructor.getFirstName() + " (" + instructor.getEmail() + ")";
+                systemLogService.log(currentUser, action, "USER", String.valueOf(id), meta);
+            }
         }
     }
 

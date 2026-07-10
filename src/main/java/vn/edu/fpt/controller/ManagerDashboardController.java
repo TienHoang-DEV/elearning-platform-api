@@ -35,7 +35,7 @@ public class ManagerDashboardController {
     public String dashboard(Model model) {
         ManagerDashboardDTO data = managerDashboardService.getDashboardData();
 
-        // Add attributes to model
+        // Thêm các thuộc tính vào model
         model.addAttribute("totalInstructors", data.getTotalInstructors());
         model.addAttribute("totalLearners", data.getTotalLearners());
         model.addAttribute("pendingCourses", data.getPendingCourses());

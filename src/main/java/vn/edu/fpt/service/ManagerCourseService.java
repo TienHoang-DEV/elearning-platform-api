@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.CourseStatus;
+import vn.edu.fpt.enums.LogAction;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.CourseRepository;
@@ -44,23 +45,25 @@ public class ManagerCourseService {
         if (status == CourseStatus.REJECTED) {
             course.setRejectionReason(rejectionReason);
         } else if (status == CourseStatus.PUBLISHED) {
-            course.setRejectionReason(null); // Clear rejection reason if approved
+            course.setRejectionReason(null); // Xóa lý do từ chối nếu khóa học được phê duyệt
         }
         repository.save(course);
 
-        // Log action to SystemLog
+        // Ghi log hoạt động vào SystemLog
         vn.edu.fpt.entity.User currentUser = SecurityUtils.getCurrentUser();
         if (currentUser != null) {
-            String action = (status == CourseStatus.PUBLISHED) ? "PHÊ DUYỆT KHÓA HỌC" : 
-                             (status == CourseStatus.REJECTED) ? "TỪ CHỐI KHÓA HỌC" : "CẬP NHẬT KHÓA HỌC";
-            String meta = "Tên khóa học: " + course.getTitle();
-            if (status == CourseStatus.REJECTED && rejectionReason != null) {
-                meta += " | Lý do từ chối: " + rejectionReason;
+            LogAction action = (status == CourseStatus.PUBLISHED) ? LogAction.APPROVE_COURSE : 
+                               (status == CourseStatus.REJECTED) ? LogAction.REJECT_COURSE : null;
+            if (action != null) {
+                String meta = "Tên khóa học: " + course.getTitle();
+                if (status == CourseStatus.REJECTED && rejectionReason != null) {
+                    meta += " | Lý do từ chối: " + rejectionReason;
+                }
+                systemLogService.log(currentUser, action, "COURSE", String.valueOf(id), meta);
             }
-            systemLogService.log(currentUser, action, "COURSE", String.valueOf(id), meta);
         }
 
-        // Send email notification to instructor
+        // Gửi email thông báo cho giảng viên
         try {
             if (status == CourseStatus.PUBLISHED) {
                 if (course.getInstructor() != null && course.getInstructor().getEmail() != null) {

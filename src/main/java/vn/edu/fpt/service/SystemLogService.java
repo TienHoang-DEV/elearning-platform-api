@@ -3,7 +3,9 @@ package vn.edu.fpt.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.SystemLog;
+import vn.edu.fpt.entity.User;
 import vn.edu.fpt.repository.SystemLogRepository;
+import vn.edu.fpt.enums.LogAction;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +19,7 @@ public class SystemLogService {
         this.repository = systemLogRepository;
     }
 
-    public void log(vn.edu.fpt.entity.User user, String action, String targetType, String targetId, String meta) {
+    public void log(User user, LogAction action, String targetType, String targetId, String meta) {
         if (user == null) return;
         SystemLog log = SystemLog.builder()
                 .user(user)
