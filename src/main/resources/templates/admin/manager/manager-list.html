@@ -43,7 +43,7 @@
                             <div class="user-info">
                                 <div class="avatar-sm me-2">
                                     <img th:if="${request.avatarUrl != null}" th:src="${request.avatarUrl}" alt="Avatar" class="w-100 h-100 object-fit-cover" />
-                                    <span th:if="${request.avatarUrl == null}" th:text="${!request.firstName.isEmpty() ? #strings.substring(request.firstName, 0, 1).toUpperCase() : 'M'}">M</span>
+                                    <span th:if="${request.avatarUrl == null}" th:text="${request.firstName != null and !request.firstName.isEmpty() ? #strings.substring(request.firstName, 0, 1).toUpperCase() : 'M'}">M</span>
                                 </div>
                                 <span class="user-name" th:text="${request.fullName}">Nguyễn Văn A</span>
                             </div>

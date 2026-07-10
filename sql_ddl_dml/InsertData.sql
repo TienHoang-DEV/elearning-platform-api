@@ -1691,7 +1691,7 @@ INSERT INTO orders (
 VALUES
     (1, 1000, 'PAID', 'PAYOS'),
     (2, 2000, 'PAID', 'PAYOS'),
-    (3, 5000, 'PENDING', 'PAYOS'),
+    (3, 5000, 'PAID', 'PAYOS'),
     (4, 10000, 'PENDING', 'PAYOS'),
     (5, 2000, 'PENDING', 'PAYOS'),
     (6, 1000, 'PENDING', 'PAYOS'),
@@ -1725,7 +1725,7 @@ VALUES
  GETDATE(),
  DATEADD(HOUR, 2, GETDATE())),
 
-(2, 'PAYOS', 'PAYOS_100002', 1000,
+(2, 'PAYOS', 'PAYOS_100002', 2000,
  'https://pay.payos.vn/100002',
  'https://qr.payos.vn/100002',
  'PAID',

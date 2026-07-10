@@ -30,7 +30,7 @@
                                 <th scope="col" class="text-end" style="width: 15%;">Giá hiện tại</th>
                                 <th scope="col" class="text-center" style="width: 15%;">Lượt đăng ký</th>
                                 <th scope="col" class="text-end" style="width: 15%;">Tổng doanh thu</th>
-                                <th scope="col" class="text-end text-success" style="width: 15%;">Thực nhận (70%)</th>
+                                <th scope="col" class="text-end" style="width: 15%;">Thanh toán cho Giảng viên</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -48,7 +48,7 @@
                                 <td class="text-end fw-semibold" th:text="${#numbers.formatDecimal(course.totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">
                                     0 đ
                                 </td>
-                                <td class="text-end text-success fw-bold" 
+                                <td class="text-end fw-bold" 
                                     th:text="${#numbers.formatDecimal(course.instructorShare, 0, 'COMMA', 0, 'POINT')} + ' đ'">
                                     0 đ
                                 </td>
@@ -69,9 +69,6 @@
             <button class="btn btn-secondary-modal"
                     onclick="document.getElementById('instructorRevenueDetailModal').classList.remove('active')">
                 <i class="ph ph-arrow-left me-1"></i> Đóng
-            </button>
-            <button class="btn btn-primary-modal" onclick="window.print()">
-                <i class="ph ph-printer me-1"></i> In chi tiết
             </button>
         </div>
     </div>

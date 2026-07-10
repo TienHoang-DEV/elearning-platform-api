@@ -53,8 +53,8 @@
                             <th scope="col" class="text-center">Số khóa học</th>
                             <th scope="col" class="text-center">Số lượt đăng ký</th>
                             <th scope="col" class="text-end">Tổng doanh thu</th>
-                            <th scope="col" class="text-end">Phí nền tảng (30%)</th>
-                            <th scope="col" class="text-end text-success">Thực nhận (70%)</th>
+                            <th scope="col" class="text-end">Phí nền tảng (Thực nhận)</th>
+                            <th scope="col" class="text-end">Thanh toán cho Giảng viên</th>
                             <th scope="col" class="text-center">Hành động</th>
                         </tr>
                     </thead>
@@ -73,10 +73,10 @@
                             <td class="text-end fw-semibold" th:text="${#numbers.formatDecimal(rev.totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">
                                 0 đ
                             </td>
-                            <td class="text-end text-secondary" th:text="${#numbers.formatDecimal(rev.platformShare, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                            <td class="text-end" th:text="${#numbers.formatDecimal(rev.platformShare, 0, 'COMMA', 0, 'POINT')} + ' đ'">
                                 0 đ
                             </td>
-                            <td class="text-end text-success fw-bold" th:text="${#numbers.formatDecimal(rev.instructorShare, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                            <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(rev.instructorShare, 0, 'COMMA', 0, 'POINT')} + ' đ'">
                                 0 đ
                             </td>
                             <td class="text-center">
