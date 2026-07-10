@@ -129,7 +129,7 @@
         <div class="modal fade" id="grantAccessModal" tabindex="-1" aria-labelledby="grantAccessModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg modal-grant-custom">
-                    <form th:action="@{/manager/grant-access}" method="post">
+                    <form id="formSubmit">
                         <input type="hidden" name="userId" id="modalUserId">
                         
                         <div class="modal-header-custom">
@@ -174,9 +174,7 @@
                                 <div class="select-wrapper-custom">
                                     <select name="reason" id="modalReasonSelect" class="form-select-custom" required>
                                         <option value="" disabled selected>-- Chọn lý do --</option>
-                                        <option value="Hỗ trợ học viên">Hỗ trợ học viên</option>
-                                        <option value="Lỗi thanh toán">Lỗi thanh toán</option>
-                                        <option value="Khác">Khác</option>
+                                        <option th:each="reason : ${reasons}" th:value="${reason.name()}" th:text="${reason.label}"></option>
                                     </select>
                                 </div>
                             </div>
@@ -199,7 +197,7 @@
                         
                         <div class="modal-footer-custom">
                             <button type="button" class="btn-cancel-custom" data-bs-dismiss="modal">Hủy</button>
-                            <button type="submit" class="btn-submit-custom">Cấp quyền</button>
+                            <button type="button" id="btnSubmitForm" class="btn-submit-custom">Cấp quyền</button>
                         </div>
                     </form>
                 </div>
@@ -235,6 +233,17 @@
                 const modal = new bootstrap.Modal(document.getElementById('grantAccessModal'));
                 modal.show();
             }
+
+            const form = document.querySelector("#formSubmit");
+            const button = document.querySelector("#btnSubmitForm");
+            button.addEventListener("click",async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const response = await fetch('/manager/grant-access', {
+                    method: 'POST',
+                    body: formData
+                });
+            });
 
             document.addEventListener('DOMContentLoaded', function () {
                 const searchInput = document.getElementById('courseSearchInput');

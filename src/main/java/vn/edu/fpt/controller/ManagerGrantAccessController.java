@@ -5,11 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import vn.edu.fpt.dto.course.CourseGrantDTO;
 import vn.edu.fpt.dto.user.LearnerInfomationGrantAccessDTO;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.EnrollmentGrantReason;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.CourseService;
 import vn.edu.fpt.service.UserService;
@@ -33,10 +35,13 @@ public class ManagerGrantAccessController {
 
         List<CourseGrantDTO> courses = courseService.findAllCourseGrant();
 
+        model.addAttribute("reasons", EnrollmentGrantReason.values());
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
         model.addAttribute("learners", learners);
         model.addAttribute("courses", courses);
         return "manager/grant-access/grant-access";
     }
+
+
 }
