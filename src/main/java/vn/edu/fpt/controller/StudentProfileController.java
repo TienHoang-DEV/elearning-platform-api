@@ -78,7 +78,7 @@ public class StudentProfileController {
     public String showStudentProfile(Model model) {
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/login_no";
+            return "redirect:/login";
         }
         
         StudentProfileDashboardDto dashboardData = studentProfileService.getDashboardData(user);
@@ -98,7 +98,7 @@ public class StudentProfileController {
             Model model) {
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/login_no";
+            return "redirect:/login";
         }
         
         StudentLearningDto learningData = myCourseService.getLearningData(user, filter, page);
@@ -117,7 +117,7 @@ public class StudentProfileController {
     public String showPurchaseHistory(Model model) {
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/login_no";
+            return "redirect:/login";
         }
         
         StudentPurchaseHistoryDto purchaseHistoryData = historyOrderService.getPurchaseHistoryData(user);

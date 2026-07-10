@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import vn.edu.fpt.dto.course.CourseListDto;
+import vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Integer>, CourseRepositoryCustom {
@@ -135,6 +136,21 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
         select new vn.edu.fpt.dto.course.CourseGrantDTO(c.id, c.title) from Course c 
 """)
     List<CourseGrantDTO> findAllCourseGrantDTO();
+
+    @Query("""
+        SELECT new vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO(
+            c.id, c.title, c.price,
+            COALESCE(SUM(CASE WHEN o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED THEN 1 ELSE 0 END), 0),
+            COALESCE(SUM(CASE WHEN o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED THEN oi.priceSnapshot ELSE 0 END), 0)
+        )
+        FROM Course c
+        LEFT JOIN OrderItem oi ON oi.course.id = c.id
+        LEFT JOIN oi.order o
+        WHERE c.instructor.id = :instructorId
+        GROUP BY c.id, c.title, c.price
+        ORDER BY COALESCE(SUM(CASE WHEN o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED THEN oi.priceSnapshot ELSE 0 END), 0) DESC
+    """)
+    List<InstructorCourseRevenueDTO> getCourseRevenueStatsByInstructor(@Param("instructorId") Integer instructorId);
 }
 
 

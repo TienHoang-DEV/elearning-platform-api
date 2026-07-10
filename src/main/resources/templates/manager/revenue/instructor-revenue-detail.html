@@ -1,0 +1,76 @@
+<!-- Modal Chi Tiết Doanh Thu Giảng Viên -->
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<div id="instructorRevenueDetailModal" class="transaction-modal-overlay" th:fragment="courseDetailsTable">
+    <div class="transaction-modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header-custom">
+            <div class="header-title">
+                <h2>Chi Tiết Doanh Thu</h2>
+                <p class="transaction-code-header">Giảng viên: <span id="instructorNameHeader">...</span></p>
+            </div>
+            <button class="btn-close-modal"
+                    onclick="document.getElementById('instructorRevenueDetailModal').classList.remove('active')" title="Đóng">
+                <i class="ph ph-x"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body-custom">
+            <div class="order-items-section">
+                <div class="section-header mb-3">
+                    <h3><i class="ph ph-book-open"></i> Danh sách khóa học & Doanh thu</h3>
+                    <span class="item-count" th:text="${courseDetails.size()} + ' khóa học'">0 khóa học</span>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr class="table-light">
+                                <th scope="col" style="width: 40%;">Tên khóa học</th>
+                                <th scope="col" class="text-end" style="width: 15%;">Giá hiện tại</th>
+                                <th scope="col" class="text-center" style="width: 15%;">Lượt đăng ký</th>
+                                <th scope="col" class="text-end" style="width: 15%;">Tổng doanh thu</th>
+                                <th scope="col" class="text-end" style="width: 15%;">Thanh toán cho Giảng viên</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="course : ${courseDetails}">
+                                <td>
+                                    <div class="fw-semibold text-wrap" th:text="${course.title}">Tên Khóa Học</div>
+                                    <small class="text-muted" th:text="'Mã KH: #' + ${course.courseId}">#1</small>
+                                </td>
+                                <td class="text-end" th:text="${#numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                    0 đ
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark px-2 py-1 fw-bold" th:text="${course.salesCount}">0</span>
+                                </td>
+                                <td class="text-end fw-semibold" th:text="${#numbers.formatDecimal(course.totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                    0 đ
+                                </td>
+                                <td class="text-end fw-bold" 
+                                    th:text="${#numbers.formatDecimal(course.instructorShare, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                    0 đ
+                                </td>
+                            </tr>
+                            <tr th:if="${courseDetails == null or courseDetails.isEmpty()}">
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    Giảng viên này chưa có doanh thu khóa học nào.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer-custom">
+            <button class="btn btn-secondary-modal"
+                    onclick="document.getElementById('instructorRevenueDetailModal').classList.remove('active')">
+                <i class="ph ph-arrow-left me-1"></i> Đóng
+            </button>
+        </div>
+    </div>
+</div>
+</html>
