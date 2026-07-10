@@ -2,11 +2,13 @@ package vn.edu.fpt.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import vn.edu.fpt.dto.course.CourseGrantDTO;
 import vn.edu.fpt.dto.user.LearnerInfomationGrantAccessDTO;
 import vn.edu.fpt.entity.Course;
@@ -14,10 +16,13 @@ import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.EnrollmentGrantReason;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.CourseService;
+import vn.edu.fpt.service.EnrollmentService;
 import vn.edu.fpt.service.UserService;
 import vn.edu.fpt.util.AppConstants;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -25,6 +30,7 @@ public class ManagerGrantAccessController {
 
     private final UserService userService;
     private final CourseService courseService;
+    private final EnrollmentService enrollmentService;
 
     @GetMapping("/manager/grant-access")
     public String managerGrantAccess(Model model, @RequestParam(value = "keyword", required = false) String keyword, @RequestParam(value = "page", required = false, defaultValue = "0") Integer page) {
@@ -41,6 +47,20 @@ public class ManagerGrantAccessController {
         model.addAttribute("learners", learners);
         model.addAttribute("courses", courses);
         return "manager/grant-access/grant-access";
+    }
+
+    @PostMapping("/manager/grant-access")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> grantAccessLearnerToCourse(@RequestParam("userId") Integer userId, @RequestParam("courseId") Integer courseId, @RequestParam("reason") String reason, @RequestParam(value = "note", required = false) String note, @RequestParam(value = "sendEmail", required = false) Boolean sendEmail) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            enrollmentService.grantAccessCourse(userId, courseId, reason, note, sendEmail);
+        } catch (Exception e) {
+            map.put("success", false);
+            map.put("error", e.getMessage());
+            map.put("message", e.getMessage());
+        }
+        return ResponseEntity.ok(map);
     }
 
 
