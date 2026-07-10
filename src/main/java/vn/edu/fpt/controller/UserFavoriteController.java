@@ -62,7 +62,7 @@ public class UserFavoriteController {
     public String showStep1(Model model) {
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/login_no";
+            return "redirect:/login";
         }
 
         List<CategoryDto> parents = categoryService.findByParentIsNullAndStatus("ACTIVE");
@@ -77,7 +77,7 @@ public class UserFavoriteController {
     public String showStep2(@RequestParam("parentId") Integer parentId, Model model) {
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/login_no";
+            return "redirect:/login";
         }
 
         Category parent = categoryRepository.findByIdAndStatus(parentId, "ACTIVE")
@@ -105,7 +105,7 @@ public class UserFavoriteController {
                                 HttpSession session) {
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/login_no";
+            return "redirect:/login";
         }
 
         // Tải toàn bộ các category con tương ứng

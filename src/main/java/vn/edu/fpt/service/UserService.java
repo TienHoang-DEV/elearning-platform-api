@@ -16,9 +16,11 @@ import vn.edu.fpt.util.Validation;
 import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.UserStatus;
+import vn.edu.fpt.enums.LogAction;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.exception.ResourceNotFoundException;
+import vn.edu.fpt.util.SecurityUtils;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,16 +40,19 @@ public class UserService {
     private AuthService authService;
     private DtoMapper dtoMapper;
     private CourseRepository courseRepository;
+    private SystemLogService systemLogService;
 
     public UserService(AzureBlobService azureBlobService, UserRepository repository,
                        Validation validation, AuthService authService,
-                       DtoMapper dtoMapper, CourseRepository courseRepository) {
+                       DtoMapper dtoMapper, CourseRepository courseRepository,
+                       SystemLogService systemLogService) {
         this.azureBlobService = azureBlobService;
         this.repository = repository;
         this.validation = validation;
         this.authService = authService;
         this.dtoMapper = dtoMapper;
         this.courseRepository = courseRepository;
+        this.systemLogService = systemLogService;
     }
 
     public Optional<User> findByEmail(String email) {
@@ -140,6 +145,17 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên với ID: " + id));
         instructor.setStatus(status);
         repository.save(instructor);
+
+        // Log action to SystemLog
+        User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser != null) {
+            LogAction action = (status == UserStatus.ACTIVE) ? LogAction.UNBLOCK_USER : 
+                               (status == UserStatus.BANNED) ? LogAction.BLOCK_USER : null;
+            if (action != null) {
+                String meta = "Giảng viên: " + instructor.getLastName() + " " + instructor.getFirstName() + " (" + instructor.getEmail() + ")";
+                systemLogService.log(currentUser, action, "USER", String.valueOf(id), meta);
+            }
+        }
     }
 
     // =========================================================================

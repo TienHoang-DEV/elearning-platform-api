@@ -462,3 +462,99 @@
     font-size: 0.8rem;
 }
 
+/* ── Curriculum Accordion Direct Display ── */
+.curriculum-accordion {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: var(--white);
+    box-shadow: var(--shadow-sm);
+}
+
+.curriculum-section-item {
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.curriculum-section-item:last-child {
+    border-bottom: none;
+}
+
+.curriculum-accordion .accordion-button {
+    background-color: var(--white);
+    color: var(--text-main);
+    padding: 16px 20px;
+    font-size: 1.05rem;
+    border: none;
+    box-shadow: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.curriculum-accordion .accordion-button:not(.collapsed) {
+    background-color: var(--bg-light);
+    color: var(--primary-blue);
+}
+
+.curriculum-accordion .accordion-button::after {
+    background-size: 1.15rem;
+    transition: transform 0.2s ease;
+}
+
+.lesson-item-container {
+    background-color: var(--white);
+    transition: background-color 0.2s ease;
+}
+
+.lesson-item-container:hover {
+    background-color: #fafbfc;
+}
+
+.lesson-title-container {
+    font-size: 0.98rem;
+    line-height: 1.4;
+}
+
+.lesson-duration {
+    font-weight: 500;
+}
+
+.lesson-materials-section {
+    border-left: 2px solid var(--border-color);
+}
+
+.lesson-material-link {
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-color);
+    color: var(--text-main) !important;
+    font-size: 0.82rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.lesson-material-link:hover {
+    background-color: #f0f7ff;
+    border-color: var(--primary-blue);
+    color: var(--primary-blue) !important;
+    transform: translateY(-1px);
+}
+
+.lesson-material-link i {
+    font-size: 1rem;
+}
+
+.fs-xxs {
+    font-size: 0.72rem;
+}
+
+.lesson-actions-block .btn {
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.lesson-actions-block .btn:hover {
+    transform: translateY(-1px);
+}
+
+

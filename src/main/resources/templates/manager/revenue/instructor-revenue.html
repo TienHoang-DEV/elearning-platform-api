@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/manager-layout}">
+<head>
+    <title>Academic Manager - Doanh thu Giảng viên</title>
+    <th:block layout:fragment="page-css">
+        <link rel="stylesheet" th:href="@{/css/manager/revenue.css}">
+        <link rel="stylesheet" th:href="@{/css/manager/detail-transaction.css}">
+    </th:block>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Tiêu đề trang -->
+        <div class="page-header d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h1>DOANH THU GIẢNG VIÊN</h1>
+                <p>Theo dõi doanh thu, lượt mua khóa học và thực nhận của từng giảng viên</p>
+            </div>
+            <a th:href="@{/manager/revenue/list}" class="btn btn-outline">
+                <i class="ph ph-arrow-left"></i> Quay lại Báo cáo
+            </a>
+        </div>
+
+        <!-- Thanh tìm kiếm -->
+        <div class="filter-search-wrapper mb-4">
+            <form th:action="@{/manager/revenue/instructor}" method="get" class="row g-3 align-items-end">
+                <div class="col-12 col-md-9">
+                    <label class="form-label fw-medium text-secondary small">Tìm kiếm giảng viên</label>
+                    <div class="input-group search-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted">
+                            <i class="ph ph-magnifying-glass"></i>
+                        </span>
+                        <input type="text" name="keyword"
+                               th:value="${keyword}"
+                               class="form-control border-start-0 ps-0 shadow-none"
+                               placeholder="Tìm theo tên, email giảng viên...">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bảng thống kê doanh thu giảng viên -->
+        <div class="transaction-card-table">
+            <div class="card-table-header">
+                <h2>DANH SÁCH DOANH THU GIẢNG VIÊN</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Giảng viên</th>
+                            <th scope="col" class="text-center">Số khóa học</th>
+                            <th scope="col" class="text-center">Số lượt đăng ký</th>
+                            <th scope="col" class="text-end">Tổng doanh thu</th>
+                            <th scope="col" class="text-end">Phí nền tảng (Thực nhận)</th>
+                            <th scope="col" class="text-end">Thanh toán cho Giảng viên</th>
+                            <th scope="col" class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="rev : ${instructorRevenues}" th:data-instructor-id="${rev.instructorId}">
+                            <td>
+                                <div class="fw-semibold" th:text="${rev.firstName + ' ' + rev.lastName}">Tên Giảng Viên</div>
+                                <small class="text-muted" th:text="${rev.email}">email@fpt.edu.vn</small>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark px-3 py-2 fw-semibold" th:text="${rev.totalCourses}">0</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark px-3 py-2 fw-semibold" th:text="${rev.totalSales}">0</span>
+                            </td>
+                            <td class="text-end fw-semibold" th:text="${#numbers.formatDecimal(rev.totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                0 đ
+                            </td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(rev.platformShare, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                0 đ
+                            </td>
+                            <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(rev.instructorShare, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                0 đ
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-outline btn-sm btn-view-details" title="Xem chi tiết">
+                                    <i class="ph ph-eye"></i> Chi tiết
+                                </button>
+                            </td>
+                        </tr>
+                        <tr th:if="${instructorRevenues == null or instructorRevenues.isEmpty()}">
+                            <td colspan="7" class="text-center text-muted py-4">
+                                Không tìm thấy giảng viên nào.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Phân trang -->
+        <div class="pagination-circle-container mt-4" th:if="${instructorRevenues != null and !instructorRevenues.isEmpty()}">
+            <div class="pagination-circle-buttons">
+                <!-- Previous -->
+                <a th:if="${!instructorRevenues.first}"
+                   th:href="@{/manager/revenue/instructor(page=${instructorRevenues.number - 1}, keyword=${keyword})}"
+                   class="page-circle-btn">
+                    <i class="ph ph-caret-left"></i>
+                </a>
+                <span th:unless="${!instructorRevenues.first}" class="page-circle-btn disabled">
+                    <i class="ph ph-caret-left"></i>
+                </span>
+
+                <!-- Page numbers -->
+                <a th:each="pageNum : ${#numbers.sequence(startPage, endPage)}"
+                   th:href="@{/manager/revenue/instructor(page=${pageNum}, keyword=${keyword})}"
+                   th:class="${instructorRevenues.number == pageNum ? 'page-circle-btn active' : 'page-circle-btn'}"
+                   th:text="${pageNum + 1}">1</a>
+
+                <!-- Next -->
+                <a th:if="${!instructorRevenues.last}"
+                   th:href="@{/manager/revenue/instructor(page=${instructorRevenues.number + 1}, keyword=${keyword})}"
+                   class="page-circle-btn">
+                    <i class="ph ph-caret-right"></i>
+                </a>
+                <span th:unless="${!instructorRevenues.last}" class="page-circle-btn disabled">
+                    <i class="ph ph-caret-right"></i>
+                </span>
+            </div>
+        </div>
+
+        <!-- Container chứa Modal Xem chi tiết (sẽ load dynamic qua AJAX) -->
+        <div id="detailsModalContainer"></div>
+    </div>
+
+    <th:block layout:fragment="page-js">
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Fetch modal và mở popup
+                document.querySelectorAll('.btn-view-details').forEach(btn => {
+                    btn.addEventListener('click', e => {
+                        e.preventDefault();
+                        const instructorId = btn.closest('tr').dataset.instructorId;
+                        const instructorName = btn.closest('tr').querySelector('.fw-semibold').textContent;
+                        
+                        let container = document.getElementById('detailsModalContainer');
+                        if (!container) {
+                            container = document.createElement('div');
+                            container.id = 'detailsModalContainer';
+                            document.body.appendChild(container);
+                        }
+                        
+                        fetch(`/manager/revenue/instructor/${instructorId}/details`)
+                            .then(r => r.text())
+                            .then(html => {
+                                container.innerHTML = html;
+                                document.getElementById('instructorNameHeader').textContent = instructorName;
+                                document.getElementById('instructorRevenueDetailModal').classList.add('active');
+                            })
+                            .catch(e => console.error('Lỗi khi tải chi tiết doanh thu giảng viên:', e));
+                    });
+                });
+
+                // Đóng modal khi click outside
+                document.addEventListener('click', function(e) {
+                    const modal = document.getElementById('instructorRevenueDetailModal');
+                    if (modal && e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+
+                // Đóng modal khi nhấn ESC
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        const modal = document.getElementById('instructorRevenueDetailModal');
+                        if (modal) modal.classList.remove('active');
+                    }
+                });
+            });
+        </script>
+    </th:block>
+</body>
+</html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -38,7 +38,7 @@
                 <span>Email hoặc mật khẩu không chính xác.</span>
             </div>
 
-            <form th:action="@{/login_no}"
+            <form th:action="@{/login}"
                   th:object="${loginRequest}"
                   method="POST"
                   class="main-form">
