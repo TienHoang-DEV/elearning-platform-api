@@ -15,6 +15,7 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
+    @Async("mailExecutor")
     public void sendResetPasswordEmail(String email, String token) {
 
         String url = "http://localhost:8080/reset-password?token=" + token;
@@ -27,6 +28,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async("mailExecutor")
     public void sendCourseApprovedEmail(String email, String instructorName, String courseTitle) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -43,6 +45,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async("mailExecutor")
     public void sendCourseRejectedEmail(String email, String instructorName, String courseTitle, String reason) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -60,6 +63,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async("mailExecutor")
     public void sendVerifyEmail(
             String email,
             String otp) {
