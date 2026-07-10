@@ -23,6 +23,9 @@ import vn.edu.fpt.util.AppConstants;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import vn.edu.fpt.dto.revenue_manager.InstructorRevenueForManagerDTO;
+import vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO;
 
 @Controller
 @RequestMapping("/manager")
@@ -61,5 +64,30 @@ public class ManagerDashboardController {
         return "manager/revenue/revenue-list";
     }
 
+    @GetMapping("/revenue/instructor")
+    public String instructorRevenueList(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+        Page<InstructorRevenueForManagerDTO> instructorRevenues =
+                managerDashboardService.getInstructorsRevenue(keyword, page);
 
+        int startPage = (instructorRevenues.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
+        int endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, instructorRevenues.getTotalPages() - 1);
+
+        model.addAttribute("instructorRevenues", instructorRevenues);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+
+        return "manager/revenue/instructor-revenue";
+    }
+
+    @GetMapping("/revenue/instructor/{id}/details")
+    public String instructorRevenueDetails(@PathVariable Integer id, Model model) {
+        List<InstructorCourseRevenueDTO> courseDetails =
+                managerDashboardService.getInstructorCourseRevenueDetails(id);
+        model.addAttribute("courseDetails", courseDetails);
+        return "manager/revenue/instructor-revenue-detail :: courseDetailsTable";
+    }
 }

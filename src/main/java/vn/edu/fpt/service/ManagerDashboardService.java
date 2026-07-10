@@ -2,9 +2,14 @@ package vn.edu.fpt.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import vn.edu.fpt.dto.manager.ManagerDashboardDTO;
 import vn.edu.fpt.dto.MonthlyRevenueDTO;
 import vn.edu.fpt.dto.revenue_manager.MonthlyRevenueForManagerDTO;
+import vn.edu.fpt.dto.revenue_manager.InstructorRevenueForManagerDTO;
+import vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO;
 import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.repository.CourseRepository;
@@ -165,5 +170,14 @@ public class ManagerDashboardService {
         }
         // tốc độ tăng trưởng là = ((doanh thu tháng này - doanh thu tháng trước) / daoanh thu tháng trước) * 100
         return ((monthlyRevenue.subtract(revenueLastMonth)).divide(revenueLastMonth, 2, RoundingMode.HALF_UP)).multiply(BigDecimal.valueOf(100)).doubleValue();
+    }
+
+    public Page<InstructorRevenueForManagerDTO> getInstructorsRevenue(String keyword, int page) {
+        Pageable pageable = PageRequest.of(page, 10);
+        return userRepository.getInstructorsRevenueStats(keyword, pageable);
+    }
+
+    public List<InstructorCourseRevenueDTO> getInstructorCourseRevenueDetails(Integer instructorId) {
+        return courseRepository.getCourseRevenueStatsByInstructor(instructorId);
     }
 }

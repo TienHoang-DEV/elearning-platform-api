@@ -33,7 +33,7 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @GetMapping("/login_no")
+    @GetMapping("/login")
     public String loginPage(Model model) {
 
         model.addAttribute(
@@ -123,7 +123,7 @@ public class AuthController {
             System.out.println("THÀNH CÔNGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG !");
             redirectAttributes.addFlashAttribute("toastMessage", "Đăng kí tài khoản thành công !");
             redirectAttributes.addFlashAttribute("toastType", "success");
-            return "redirect:/login_no";
+            return "redirect:/login";
 
         }
 

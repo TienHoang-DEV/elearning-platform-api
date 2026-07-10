@@ -51,7 +51,7 @@ public class    CartController {
     public String showCartPage(Model model) {
         User user = getAuthenticatedUser();
         if (user == null) {
-            return "redirect:/login_no";
+            return "redirect:/login";
         }
         CartPageDetailsDto details = cartService.getCartPageDetails(user);
 

@@ -135,7 +135,7 @@ public class EmailService {
                                     <p>Hãy bắt đầu hành trình chinh phục kiến thức mới ngay hôm nay bằng cách đăng nhập vào hệ thống học tập của chúng tôi.</p>
                     
                                     <div class="btn-wrapper">
-                                        <a href="http://localhost:8080/login_no" class="btn">Vào Học Ngay</a>
+                                        <a href="http://localhost:8080/login" class="btn">Vào Học Ngay</a>
                                     </div>
                                 </div>
                                 <div class="footer">

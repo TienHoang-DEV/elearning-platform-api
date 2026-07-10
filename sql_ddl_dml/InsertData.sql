@@ -1812,3 +1812,18 @@ VALUES
  DATEADD(HOUR, 2, GETDATE()));
 
 
+-- =========================
+-- ORDER ITEMS SAMPLE DATA
+-- =========================
+INSERT INTO order_items (order_id, course_id, price_snapshot, course_title_snapshot, created_at) 
+VALUES
+(1, 1, 1000.00, N'Java Core Từ Cơ Bản Đến Nâng Cao', GETDATE()),
+(2, 5, 2000.00, N'Python Cho Người Mới Bắt Đầu', GETDATE()),
+(3, 3, 5000.00, N'CSS Mastery', GETDATE()),
+(4, 4, 10000.00, N'Node.js REST API Với Express', GETDATE()),
+(5, 5, 2000.00, N'Python Cho Người Mới Bắt Đầu', GETDATE()),
+(6, 6, 1000.00, N'Swift Programming Fundamentals', GETDATE()),
+(7, 7, 1000.00, N'Xây Dựng Giao Diện Với SwiftUI', GETDATE()),
+(8, 9, 190000.00, N'HTML5 & CSS3 Cơ Bản Cho Người Mới', GETDATE()),
+(9, 10, 350000.00, N'Thiết Kế Web Landing Page Với HTML5', GETDATE()),
+(10, 11, 250000.00, N'Tailwind CSS Từ Zero Đến Hero', GETDATE());
