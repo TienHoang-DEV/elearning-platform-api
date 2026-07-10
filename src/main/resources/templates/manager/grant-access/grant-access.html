@@ -203,127 +203,22 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Toast Container (Bootstrap 5 Toast) -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+            <div id="resultToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" id="toastMessage">
+                        Thông báo
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <th:block layout:fragment="page-js">
-        <script>
-            function openGrantModal(button) {
-                const userId = button.getAttribute('data-user-id');
-                const userName = button.getAttribute('data-user-name');
-                const userEmail = button.getAttribute('data-user-email');
-                
-                document.getElementById('modalUserId').value = userId;
-                document.getElementById('modalUserName').textContent = userName;
-                document.getElementById('modalUserEmail').textContent = userEmail;
-
-                // Reset custom course dropdown
-                const searchInput = document.getElementById('courseSearchInput');
-                const hiddenInput = document.getElementById('modalCourseSelect');
-                const optionsContainer = document.getElementById('courseDropdownOptions');
-                
-                searchInput.value = '';
-                hiddenInput.value = '';
-                optionsContainer.querySelectorAll('.option-item').forEach(el => {
-                    el.classList.remove('selected');
-                    el.style.display = 'block';
-                });
-                const noResult = optionsContainer.querySelector('.no-result');
-                if (noResult) noResult.remove();
-                
-                const modal = new bootstrap.Modal(document.getElementById('grantAccessModal'));
-                modal.show();
-            }
-
-            const form = document.querySelector("#formSubmit");
-            const button = document.querySelector("#btnSubmitForm");
-            button.addEventListener("click",async (e) => {
-                e.preventDefault();
-                const formData = new FormData(form);
-                const response = await fetch('/manager/grant-access', {
-                    method: 'POST',
-                    body: formData
-                });
-            });
-
-            document.addEventListener('DOMContentLoaded', function () {
-                const searchInput = document.getElementById('courseSearchInput');
-                const optionsContainer = document.getElementById('courseDropdownOptions');
-                const hiddenInput = document.getElementById('modalCourseSelect');
-                const wrapper = searchInput.closest('.custom-search-select');
-                const optionItems = Array.from(optionsContainer.querySelectorAll('.option-item:not([style*="display: none"])'));
-
-                // Open dropdown on focus/click
-                searchInput.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    wrapper.classList.add('active');
-                });
-
-                // Filter items on input
-                searchInput.addEventListener('input', function () {
-                    const query = searchInput.value.toLowerCase().trim();
-                    wrapper.classList.add('active');
-                    let matches = 0;
-
-                    // Remove any existing "no result" items
-                    const existingNoResult = optionsContainer.querySelector('.no-result');
-                    if (existingNoResult) existingNoResult.remove();
-
-                    optionItems.forEach(item => {
-                        const text = item.textContent.toLowerCase();
-                        if (text.includes(query)) {
-                            item.style.display = 'block';
-                            matches++;
-                        } else {
-                            item.style.display = 'none';
-                        }
-                    });
-
-                    if (matches === 0) {
-                        const noResult = document.createElement('div');
-                        noResult.className = 'option-item no-result';
-                        noResult.textContent = 'Không tìm thấy khóa học nào phù hợp';
-                        optionsContainer.appendChild(noResult);
-                    }
-                });
-
-                // Select option
-                optionsContainer.addEventListener('click', function (e) {
-                    const target = e.target;
-                    if (target.classList.contains('option-item') && !target.classList.contains('no-result')) {
-                        const value = target.getAttribute('data-value');
-                        const text = target.textContent;
-
-                        // Highlight selected item
-                        optionsContainer.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
-                        target.classList.add('selected');
-
-                        // Update input and hidden value
-                        searchInput.value = text;
-                        hiddenInput.value = value;
-
-                        // Close dropdown
-                        wrapper.classList.remove('active');
-                    }
-                });
-
-                // Close when clicking outside
-                document.addEventListener('click', function (e) {
-                    if (!wrapper.contains(e.target)) {
-                        wrapper.classList.remove('active');
-                        const selectedOption = optionsContainer.querySelector('.option-item.selected');
-                        if (selectedOption) {
-                            searchInput.value = selectedOption.textContent;
-                        } else {
-                            searchInput.value = '';
-                            hiddenInput.value = '';
-                        }
-                        optionItems.forEach(item => item.style.display = 'block');
-                        const existingNoResult = optionsContainer.querySelector('.no-result');
-                        if (existingNoResult) existingNoResult.remove();
-                    }
-                });
-            });
-        </script>
+        <script th:src="@{/js/manager/grant-access.js}"></script>
     </th:block>
 </body>
 </html>

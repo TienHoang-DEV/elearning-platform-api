@@ -128,7 +128,7 @@ public class EmailService {
                                     <p>Chúng tôi rất vui mừng được thông báo rằng bạn đã được ban quản trị cấp quyền truy cập chính thức vào khóa học mới trên nền tảng của chúng tôi.</p>
                     
                                     <div class="course-box">
-                                        <h3 class="course-title">%s</h3>
+                                        <h3 class="course-title">[COURSE_TITLE]</h3>
                                         <p class="course-desc">Khóa học hiện đã mở, bạn có thể truy cập toàn bộ bài giảng, tài liệu học tập và bài tập thực hành ngay từ lúc này.</p>
                                     </div>
                     
@@ -146,7 +146,7 @@ public class EmailService {
                         </div>
                     </body>
                     </html>
-                    """.formatted(course.getTitle());
+                    """.replace("[COURSE_TITLE]", course.getTitle());
 
             helper.setText(htmlContent, true);
             mailSender.send(message);

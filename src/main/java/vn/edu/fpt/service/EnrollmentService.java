@@ -13,6 +13,7 @@ import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.EnrollmentRepository;
 import vn.edu.fpt.service.lesson.LessonProgressService;
 import vn.edu.fpt.service.lesson.LessonService;
+import vn.edu.fpt.util.SecurityUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -114,6 +115,7 @@ public class EnrollmentService {
         repository.save(enrollment);
         SystemLog systemLog = SystemLog.builder()
                 .action(LogAction.MANUAL_ENROLLMENT_GRANTED)
+                .user(SecurityUtils.getCurrentUser())
                 .targetType(Enrollment.class.getName())
                 .targetId(enrollment.getId().toString())
                 .meta("Lý do: " + reason + " Ghi chú " + note)

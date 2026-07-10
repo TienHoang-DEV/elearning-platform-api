@@ -55,6 +55,8 @@ public class ManagerGrantAccessController {
         Map<String, Object> map = new HashMap<>();
         try {
             enrollmentService.grantAccessCourse(userId, courseId, reason, note, sendEmail);
+            map.put("success", true);
+            map.put("message", "Thành công thêm người dùng vào khóa học");
         } catch (Exception e) {
             map.put("success", false);
             map.put("error", e.getMessage());
