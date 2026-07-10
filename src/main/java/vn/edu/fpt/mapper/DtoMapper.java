@@ -16,6 +16,7 @@ import vn.edu.fpt.dto.quizdto.QuizAnswerDTO;
 import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
+import vn.edu.fpt.dto.user.LearnerInfomationGrantAccessDTO;
 import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.*;
 
@@ -106,5 +107,10 @@ public interface DtoMapper {
     @Mapping(target = "lessonTitle", source = "lesson.title")
     @Mapping(target = "lessonId", source = "lesson.id")
     LessonNoteSiderbarDTO toLessonNoteSiderbarDto(LessonNote lessonNote);
+
+
+    @Mapping(expression = "java(user.getFirstName() + \" \" + user.getLastName())", target = "fullName")
+    @Mapping(source = "avatarUrl", target = "avatarUrl")
+    LearnerInfomationGrantAccessDTO toLearnerInfomationGrantAccessDto(User user);
 
 }

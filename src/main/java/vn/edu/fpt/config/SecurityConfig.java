@@ -60,6 +60,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/login_no", "/register",
                                 "/css/**", "/js/**",
+                                "/verify-otp",
+                                "/resend-otp",
                                 "/images/**", "/oauth2/**",
                                 "/forgot-password",
                                 "/reset-password",
@@ -70,6 +72,9 @@ public class SecurityConfig {
                                 "/course/detail"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/instructor/**").hasRole("INSTRUCTOR")
+                        .requestMatchers("/manager/**").hasRole("MANAGER")
+                        .requestMatchers("/instructorcourse/**").hasRole("INSTRUCTOR")
                         .anyRequest().authenticated()
                 )
 

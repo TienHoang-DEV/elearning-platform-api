@@ -180,5 +180,15 @@ public class LessonService {
         return repository.findDetailById(lessonId);
     }
 
+    public String findLessonUrl(Lesson lesson) {
+        try {
+            if (lesson == null || lesson.getVideoUrl() == null || lesson.getVideoUrl().trim().isEmpty()) {
+                return "https://www.w3schools.com/html/mov_bbb.mp4";
+            }
+            return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
+        } catch (Exception e) {
+            return "https://www.w3schools.com/html/mov_bbb.mp4";
+        }
+    }
 
 }

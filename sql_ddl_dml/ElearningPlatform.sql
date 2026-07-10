@@ -11,12 +11,12 @@
 -- CREATE DATABASE ElearningPlatform;
 -- GO
 
-USE ElearningPlatform;
-GO
-
+-- USE ElearningPlatform;
+-- GO
+--
 USE master;
 GO
-
+--
 IF EXISTS (SELECT * FROM sys.databases WHERE name = 'ElearningPlatform')
 BEGIN
     ALTER DATABASE ElearningPlatform SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
@@ -51,17 +51,17 @@ CREATE TABLE roles (
 );
 
 -- Seed dữ liệu vai trò mặc định
-IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'admin')
-    INSERT INTO roles (name, description) VALUES ('admin', N'Quản trị hệ thống');
+IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'ADMIN')
+    INSERT INTO roles (name, description) VALUES ('ADMIN', N'Quản trị hệ thống');
 
-IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'manager')
-    INSERT INTO roles (name, description) VALUES ('manager', N'Quản lý nội dung');
+IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'MANAGER')
+    INSERT INTO roles (name, description) VALUES ('MANAGER', N'Quản lý nội dung');
 
-IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'instructor')
-    INSERT INTO roles (name, description) VALUES ('instructor', N'Giảng viên');
+IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'INSTRUCTOR')
+    INSERT INTO roles (name, description) VALUES ('INSTRUCTOR', N'Giảng viên');
 
-IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'learner')
-    INSERT INTO roles (name, description) VALUES ('learner', N'Học viên');
+IF NOT EXISTS (SELECT 1 FROM roles WHERE name = 'LEARNER')
+    INSERT INTO roles (name, description) VALUES ('LEARNER', N'Học viên');
 
 -- =========================
 -- USERS
@@ -130,6 +130,32 @@ CREATE TABLE user_roles (
                                 FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
+-- ===========================
+-- EMAIL VERIFICATION TOKENS
+-- ===========================
+CREATE TABLE email_verification_tokens (
+                                           id INT IDENTITY(1,1) PRIMARY KEY,
+
+                                           created_at DATETIME2 NULL,
+                                           updated_at DATETIME2 NULL,
+
+                                           user_id INT NOT NULL UNIQUE,
+
+                                           otp_code VARCHAR(6) NOT NULL,
+
+                                           expired_at DATETIME2 NOT NULL,
+
+                                           used BIT NOT NULL
+                                               CONSTRAINT DF_email_verification_tokens_used DEFAULT(0),
+
+                                           resend_count INT NOT NULL
+                                               CONSTRAINT DF_email_verification_tokens_resend_count DEFAULT(0),
+
+                                           CONSTRAINT FK_email_verification_tokens_user
+                                               FOREIGN KEY (user_id)
+                                                   REFERENCES users(id)
+                                                   ON DELETE CASCADE
+);
 -- =========================
 -- PASSWORD RESET TOKENS
 -- =========================

@@ -3,12 +3,17 @@ package vn.edu.fpt.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.Enrollment;
+import vn.edu.fpt.entity.SystemLog;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.LogAction;
+import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.EnrollmentRepository;
 import vn.edu.fpt.service.lesson.LessonProgressService;
 import vn.edu.fpt.service.lesson.LessonService;
+import vn.edu.fpt.util.SecurityUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,6 +29,10 @@ public class EnrollmentService {
     private final EnrollmentRepository repository;
     private final LessonService lessonService;
     private final LessonProgressService lessonProgressService;
+    private final SystemLogService systemLogService;
+    private final UserService userService;
+    private final CourseService courseService;
+    private final EmailService emailService;
 
     public Set<Integer> getEnrolledCourseIds(User user) {
         Set<Integer> enrolledCourseIds = new HashSet<>();
@@ -79,5 +88,41 @@ public class EnrollmentService {
             }
         }
         repository.save(enrollment);
+    }
+
+
+    public void grantAccessCourse(Integer userId, Integer courseId, String reason, String note, Boolean sendEmail) {
+        if (userId == null) {
+            throw new RuntimeException("Không có id người dùng");
+        }
+        if (courseId == null) {
+            throw new CourseNotFoundException("Không tìm thấy khóa học");
+        }
+        if (reason == null) {
+            throw new RuntimeException("Lý do không được để trống");
+        }
+        if (sendEmail == null) {
+            sendEmail = false;
+        }
+        if (repository.existsByUserAndCourse(User.builder().id(userId).build(), Course.builder().id(courseId).build())) {
+         throw new RuntimeException("Người dùng với id = " + userId + " đã tham gia khóa học với id = " + courseId + " trước đó");
+        }
+        Enrollment enrollment = Enrollment.builder()
+                .user(User.builder().id(userId).build())
+                .course(Course.builder().id(courseId).build())
+                .progressPercent(BigDecimal.ZERO)
+                .build();
+        repository.save(enrollment);
+        SystemLog systemLog = SystemLog.builder()
+                .action(LogAction.MANUAL_ENROLLMENT_GRANTED)
+                .user(SecurityUtils.getCurrentUser())
+                .targetType(Enrollment.class.getName())
+                .targetId(enrollment.getId().toString())
+                .meta("Lý do: " + reason + " Ghi chú " + note)
+                .build();
+        systemLogService.save(systemLog);
+        if (sendEmail) {
+            emailService.sendGrantAccessCourseEmail(userService.findById(userId).getEmail(), courseService.findById(courseId));
+        }
     }
 }

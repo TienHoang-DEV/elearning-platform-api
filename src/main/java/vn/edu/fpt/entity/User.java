@@ -178,11 +178,7 @@ public class User extends BaseEntity {
         }
         for (UserRole ur : userRoles) {
             if (ur.getRole() != null) {
-                try {
-                    return RoleType.valueOf(ur.getRole().getName().toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    // ignore
-                }
+                return ur.getRole().getName();
             }
         }
         return RoleType.LEARNER;

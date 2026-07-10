@@ -1,37 +1,6 @@
-USE [ElearningPlatform];
-GO
+-- USE [ElearningPlatform];
+-- GO
 
--- =========================================================================
--- HỦY BỎ DỮ LIỆU CŨ VÀ RESET IDENTITY SEED ĐỂ ĐẢM BẢO CHẠY LẠI KHÔNG BỊ LỖI
--- =========================================================================
--- Tạm thời vô hiệu hóa tất cả các ràng buộc khóa ngoại để xóa sạch dữ liệu dễ dàng
-EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all"
-
-DELETE FROM feedbacks;
-DELETE FROM enrollments;
-DELETE FROM payments;
-DELETE FROM orders;
-DELETE FROM lesson_materials;
-DELETE FROM quiz_answers;
-DELETE FROM quiz_questions;
-DELETE FROM quizzes;
-DELETE FROM lessons;
-DELETE FROM course_sections;
-DELETE FROM courses;
-
--- Kích hoạt lại ràng buộc khóa ngoại
-EXEC sp_MSforeachtable "ALTER TABLE ? WITH CHECK CHECK CONSTRAINT all"
-
--- Reset identity seed về 0 để các ID tự tăng luôn bắt đầu từ 1
-IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('courses')) DBCC CHECKIDENT ('courses', RESEED, 0);
-IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('course_sections')) DBCC CHECKIDENT ('course_sections', RESEED, 0);
-IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('lessons')) DBCC CHECKIDENT ('lessons', RESEED, 0);
-IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('quizzes')) DBCC CHECKIDENT ('quizzes', RESEED, 0);
-IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('quiz_questions')) DBCC CHECKIDENT ('quiz_questions', RESEED, 0);
-IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('quiz_answers')) DBCC CHECKIDENT ('quiz_answers', RESEED, 0);
-IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('orders')) DBCC CHECKIDENT ('orders', RESEED, 0);
-IF EXISTS (SELECT 1 FROM sys.identity_columns WHERE object_id = OBJECT_ID('payments')) DBCC CHECKIDENT ('payments', RESEED, 0);
-GO
 
 -- =========================
 -- ROLES SAMPLE DATA
@@ -136,7 +105,28 @@ VALUES
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
  'avatar.jpg',
  NULL,
- 'ACTIVE');
+ 'ACTIVE'),
+
+(N'Nguyễn', N'Thảo', 'learner6@elearning.com', '0904000006', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Trần', N'Linh', 'learner7@elearning.com', '0904000007', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Lê', N'Kha', 'learner8@elearning.com', '0904000008', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Phạm', N'Phong', 'learner9@elearning.com', '0904000009', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Hoàng', N'Sơn', 'learner10@elearning.com', '0904000010', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Vũ', N'Lan', 'learner11@elearning.com', '0904000011', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Đặng', N'Hùng', 'learner12@elearning.com', '0904000012', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Bùi', N'Trang', 'learner13@elearning.com', '0904000013', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Đỗ', N'Phúc', 'learner14@elearning.com', '0904000014', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Hồ', N'Quân', 'learner15@elearning.com', '0904000015', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Ngô', N'Mai', 'learner16@elearning.com', '0904000016', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Dương', N'Nam', 'learner17@elearning.com', '0904000017', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Lý', N'Hà', 'learner18@elearning.com', '0904000018', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Vương', N'Tú', 'learner19@elearning.com', '0904000019', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Trịnh', N'Hải', 'learner20@elearning.com', '0904000020', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Đoàn', N'Hòa', 'learner21@elearning.com', '0904000021', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Lâm', N'Yến', 'learner22@elearning.com', '0904000022', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Phùng', N'Cường', 'learner23@elearning.com', '0904000023', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Tống', N'Huy', 'learner24@elearning.com', '0904000024', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
+(N'Diệp', N'Trúc', 'learner25@elearning.com', '0904000025', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE');
 
  -- =========================
 -- USER ROLES SAMPLE DATA
@@ -161,7 +151,27 @@ VALUES
 (8, 4),
 (9, 4),
 (10, 4),
-(11, 4);
+(11, 4),
+(12, 4),
+(13, 4),
+(14, 4),
+(15, 4),
+(16, 4),
+(17, 4),
+(18, 4),
+(19, 4),
+(20, 4),
+(21, 4),
+(22, 4),
+(23, 4),
+(24, 4),
+(25, 4),
+(26, 4),
+(27, 4),
+(28, 4),
+(29, 4),
+(30, 4),
+(31, 4);
 
 -- =========================
 -- CATEGORY
@@ -1801,4 +1811,4 @@ VALUES
  GETDATE(),
  DATEADD(HOUR, 2, GETDATE()));
 
-
+

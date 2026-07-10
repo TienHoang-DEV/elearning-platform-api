@@ -131,8 +131,12 @@
                                     th:text="${enrollment.course?.instructor != null ? enrollment.course.instructor.lastName + ' ' + enrollment.course.instructor.firstName : 'GIẢNG VIÊN'}">GIẢNG
                                     VIÊN</span>
                             </div>
-                            <a th:href="@{/course/{id}(id=${enrollment.course?.id})}"
-                                class="btn btn-primary btn-sm rounded-pill px-3 py-1 fw-bold fs-8">Học tiếp</a>
+                            <div class="d-flex align-items-center gap-2">
+                                <a th:href="@{/course/detail(id=${enrollment.course?.id})}"
+                                    class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 fw-bold fs-8">Chi tiết</a>
+                                <a th:href="@{/course/{id}(id=${enrollment.course?.id})}"
+                                    class="btn btn-primary btn-sm rounded-pill px-3 py-1 fw-bold fs-8">Học tiếp</a>
+                            </div>
                         </div>
                     </div>
                 </div>
