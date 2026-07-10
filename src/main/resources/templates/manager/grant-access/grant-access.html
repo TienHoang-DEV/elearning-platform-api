@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/manager-layout}">
+<head>
+    <title>Academic Manager - Cấp quyền khóa học</title>
+    <th:block layout:fragment="page-css">
+        <link rel="stylesheet" th:href="@{/css/manager/grant-access.css}">
+    </th:block>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="page-header d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="fw-bold font-heading mb-1">Cấp quyền truy cập khóa học</h1>
+                <p class="text-muted">Cấp quyền học tập trực tiếp cho học viên trên hệ thống.</p>
+            </div>
+        </div>
+
+        <!-- Alert Notifications -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 8px;">
+            <i class="fa-solid fa-circle-check me-2"></i>
+            <span th:text="${successMessage}">Cấp quyền thành công!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 8px;">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>
+            <span th:text="${errorMessage}">Đã xảy ra lỗi!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="grant-access-container">
+            <!-- Search Form -->
+            <div class="search-section">
+                <h5 class="fw-bold mb-3" style="color: #444;">Tìm kiếm học viên</h5>
+                <form th:action="@{/manager/grant-access}" method="get">
+                    <div class="search-box-wrapper">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <input type="text" name="keyword" th:value="${keyword}" 
+                               placeholder="Tìm kiếm học viên theo email hoặc số điện thoại..." 
+                               class="form-control" autocomplete="off">
+                    </div>
+                </form>
+            </div>
+
+            <div class="divider-dashed"></div>
+
+            <!-- Learners Table -->
+            <div class="table-responsive">
+                <table class="table table-hover learner-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Ảnh đại diện</th>
+                            <th>Họ và Tên</th>
+                            <th>Email</th>
+                            <th>Số điện thoại</th>
+                            <th class="text-end" style="width: 150px;">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="learner : ${learners}">
+                            <td>
+                                <div class="learner-avatar">
+                                    <img th:if="${learner.avatarUrl != null}" th:src="${learner.avatarUrl}" alt="Avatar" class="w-100 h-100 object-fit-cover rounded-circle" />
+                                    <span th:unless="${learner.avatarUrl != null}" th:text="${#strings.substring(learner.firstName, 0, 1).toUpperCase()}">A</span>
+                                </div>
+                            </td>
+                            <td class="fw-semibold text-dark" th:text="${learner.lastName + ' ' + learner.firstName}">Nguyễn Văn A</td>
+                            <td th:text="${learner.email}">a@gmail.com</td>
+                            <td th:text="${learner.phone != null ? learner.phone : 'Chưa cập nhật'}">0987654321</td>
+                            <td class="text-end">
+                                <button type="button" class="btn btn-select" 
+                                        th:data-user-id="${learner.id}"
+                                        th:data-user-name="${learner.lastName + ' ' + learner.firstName}"
+                                        onclick="openGrantModal(this)">
+                                    Chọn
+                                </button>
+                            </td>
+                        </tr>
+                        <tr th:if="${learners == null or learners.isEmpty()}">
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="ph ph-user-minus fs-1 mb-2 d-block"></i>
+                                Không tìm thấy học viên nào phù hợp.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Grant Course Access Modal -->
+        <div class="modal fade" id="grantAccessModal" tabindex="-1" aria-labelledby="grantAccessModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+                    <form th:action="@{/manager/grant-access}" method="post">
+                        <input type="hidden" name="userId" id="modalUserId">
+                        
+                        <div class="modal-header bg-light border-bottom px-4 py-3" style="border-top-left-radius: 12px; border-top-right-radius: 12px;">
+                            <h5 class="modal-title fw-bold text-dark font-heading d-flex align-items-center gap-2" id="grantAccessModalLabel">
+                                <i class="ph ph-shield-check text-primary fs-4"></i>Cấp quyền khóa học
+                            </h5>
+                            <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        
+                        <div class="modal-body p-4">
+                            <div class="mb-4">
+                                <label class="form-label text-muted fw-semibold fs-8 uppercase tracking-wider mb-2">Học viên nhận quyền</label>
+                                <div class="p-3 bg-light rounded-3 border">
+                                    <span id="modalUserName" class="fw-bold text-dark fs-6">Học viên</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted fw-semibold fs-8 uppercase tracking-wider mb-2" for="modalCourseSelect">Chọn khóa học</label>
+                                <select name="courseId" id="modalCourseSelect" class="form-select form-select-lg rounded-3 shadow-none border-secondary-subtle" required style="font-size: 0.95rem;">
+                                    <option value="" disabled selected>-- Chọn khóa học từ danh sách --</option>
+                                    <option th:each="course : ${courses}" th:value="${course.id}" th:text="${course.title}">Tên khóa học</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer border-top px-4 py-3">
+                            <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-primary rounded-3 px-4">Xác nhận cấp quyền</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="page-js">
+        <script>
+            function openGrantModal(button) {
+                const userId = button.getAttribute('data-user-id');
+                const userName = button.getAttribute('data-user-name');
+                
+                document.getElementById('modalUserId').value = userId;
+                document.getElementById('modalUserName').textContent = userName;
+                
+                const modal = new bootstrap.Modal(document.getElementById('grantAccessModal'));
+                modal.show();
+            }
+        </script>
+    </th:block>
+</body>
+</html>

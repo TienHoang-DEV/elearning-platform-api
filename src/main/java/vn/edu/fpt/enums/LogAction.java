@@ -23,6 +23,7 @@ public enum LogAction {
     REJECT_INSTRUCTOR("Từ chối giảng viên"),
     APPROVE_COURSE("Phê duyệt khóa học"),
     REJECT_COURSE("Từ chối khóa học"),
+    MANUAL_ENROLLMENT_GRANTED("Quản lí cấp quyền xem khóa học"),
 
     // Course Management
     CREATE_COURSE("Tạo khóa học"),
@@ -33,8 +34,7 @@ public enum LogAction {
 
     // Admin Operations
     BLOCK_USER("Khóa tài khoản"),
-    UNBLOCK_USER("Mở khóa tài khoản"),
-    UPDATE_SYSTEM_CONFIG("Cập nhật cấu hình hệ thống");
+    UNBLOCK_USER("Mở khóa tài khoản");
 
     private final String label;
 
