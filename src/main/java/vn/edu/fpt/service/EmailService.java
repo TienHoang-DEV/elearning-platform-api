@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.entity.Course;
 
@@ -87,6 +88,7 @@ public class EmailService {
 
     }
 
+    @Async("mailExecutor")
     public void sendGrantAccessCourseEmail(String toEmail, Course course) {
         try {
             MimeMessage message = mailSender.createMimeMessage();

@@ -11,6 +11,7 @@ public class LearnerInfomationGrantAccessDTO {
     private Integer id;
     private String avatarUrl;
     private String fullName;
+    private String lastName;
     private String email;
     private String phone;
 }

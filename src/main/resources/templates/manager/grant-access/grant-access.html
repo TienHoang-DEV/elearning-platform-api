@@ -55,25 +55,25 @@
                 <table class="table table-hover learner-table">
                     <thead>
                         <tr>
-                            <th style="width: 80px;">Ảnh đại diện</th>
+                            <th class="text-center" style="width: 120px; white-space: nowrap;">Ảnh đại diện</th>
                             <th>Họ và Tên</th>
                             <th>Email</th>
                             <th>Số điện thoại</th>
-                            <th class="text-end" style="width: 150px;">Hành động</th>
+                            <th class="text-center" style="width: 150px; white-space: nowrap;">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="learner : ${learners.content}">
-                            <td>
-                                <div class="learner-avatar">
-                                    <img th:if="${learner.avatarUrl != null}" th:src="${learner.avatarUrl}" alt="Avatar" class="w-100 h-100 object-fit-cover rounded-circle" />
-                                    <span th:unless="${learner.avatarUrl != null}" th:text="${#strings.substring(learner.fullName, 0, 1).toUpperCase()}">A</span>
+                            <td class="text-center">
+                                <div class="learner-avatar mx-auto">
+                                    <img th:if="${learner.avatarUrl != null && !#strings.isEmpty(learner.avatarUrl)}" th:src="${learner.avatarUrl}" alt="Avatar" class="w-100 h-100 object-fit-cover rounded-circle" />
+                                    <span th:unless="${learner.avatarUrl != null && !#strings.isEmpty(learner.avatarUrl)}" th:text="${learner.lastName != null && !learner.lastName.isEmpty() ? #strings.substring(learner.lastName, 0, 1).toUpperCase() : (learner.fullName != null && !learner.fullName.isEmpty() ? #strings.substring(learner.fullName, 0, 1).toUpperCase() : 'A')}">A</span>
                                 </div>
                             </td>
                             <td class="fw-semibold text-dark" th:text="${learner.fullName}">Nguyễn Văn A</td>
                             <td th:text="${learner.email}">a@gmail.com</td>
                             <td th:text="${learner.phone != null ? learner.phone : 'Chưa cập nhật'}">0987654321</td>
-                            <td class="text-end">
+                            <td class="text-center">
                                 <button type="button" class="btn btn-select" 
                                         th:data-user-id="${learner.id}"
                                         th:data-user-name="${learner.fullName}"

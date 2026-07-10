@@ -172,6 +172,25 @@ public class User extends BaseEntity {
                 avatarUrl;
     }
 
+    public String getCustomAvatarUrl() {
+        if (avatarUrl == null || avatarUrl.isBlank()) {
+            return null;
+        }
+        
+        if (googleId != null && !googleId.isBlank() && 
+            (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://"))) {
+            return avatarUrl;
+        }
+
+        if (!avatarUrl.startsWith("http://") && !avatarUrl.startsWith("https://")) {
+            return AppConstants.AZURE_STORAGE_BASE_URL + "/" +
+                    AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS + "/" +
+                    avatarUrl;
+        }
+
+        return null;
+    }
+
     public RoleType getRole() {
         if (userRoles == null || userRoles.isEmpty()) {
             return RoleType.LEARNER;
