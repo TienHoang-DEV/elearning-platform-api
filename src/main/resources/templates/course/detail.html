@@ -762,39 +762,44 @@
         }
 
         // Hàm gọi API thêm khóa học vào giỏ hàng qua Fetch API (AJAX)
-        function addToCart(btn, courseId) {
+        async function addToCart(btn, courseId) {
             btn.disabled = true; // Khóa nút bấm để chống spam click nhiều lần
 
-            // Gửi yêu cầu HTTP POST bất đồng bộ tới API /api/cart/add
-            fetch('/api/cart/add?courseId=' + courseId, { method: 'POST' })
-                .then(res => {
-                    // Nếu chưa đăng nhập (Spring Security trả về 401 hoặc redirect về trang đăng nhập)
-                    if (res.status === 401 || res.redirected || res.url.includes('/login') || res.url.includes('/login_no')) {
-                        throw new Error("UNAUTHORIZED");
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    btn.disabled = false; // Mở khóa lại nút bấm sau khi nhận phản hồi
-                    if (data.success) { // Nếu thêm thành công
-                        const badge = document.getElementById('cart-badge-count');
-                        if (badge) {
-                            badge.textContent = data.cartSize; // Cập nhật số lượng giỏ hàng trên Header
-                        }
-                        showToast(data.message, data.newlyAdded ? 'success' : 'warning');
-                    } else {
-                        showToast(data.message || 'Không thể thêm vào giỏ hàng.', 'warning');
-                    }
-                })
-                .catch(err => {
-                    btn.disabled = false;
-                    console.error('Lỗi khi thêm vào giỏ hàng:', err);
-                    if (err.message === "UNAUTHORIZED") {
+            try {
+                // Gửi yêu cầu HTTP POST bất đồng bộ tới API /api/cart/add
+                const response = await fetch('/api/cart/add?courseId=' + courseId, { method: 'POST' });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.redirected || response.url.includes('/login') || response.url.includes('/login_no')) {
                         showToast('Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.', 'warning');
-                    } else {
-                        showToast('Có lỗi xảy ra khi thêm vào giỏ hàng.', 'warning');
+                        setTimeout(() => window.location.href = '/login', 2000);
+                        return;
                     }
-                });
+                    let errMsg = 'Có lỗi xảy ra khi thêm vào giỏ hàng.';
+                    try {
+                        const errData = await response.json();
+                        errMsg = errData.message || errData.error || errMsg;
+                    } catch (e) {}
+                    throw new Error(errMsg);
+                }
+
+                const data = await response.json();
+                
+                if (data.success) { // Nếu thêm thành công
+                    const badge = document.getElementById('cart-badge-count');
+                    if (badge) {
+                        badge.textContent = data.cartSize; // Cập nhật số lượng giỏ hàng trên Header
+                    }
+                    showToast(data.message, data.newlyAdded ? 'success' : 'warning');
+                } else {
+                    showToast(data.message || 'Không thể thêm vào giỏ hàng.', 'warning');
+                }
+            } catch (error) {
+                console.error('Lỗi khi thêm vào giỏ hàng:', error);
+                showToast(error.message, 'warning');
+            } finally {
+                btn.disabled = false; // Mở khóa lại nút bấm sau khi nhận phản hồi
+            }
         }
 
         // Hàm hiển thị Toast thông báo
@@ -864,7 +869,7 @@
         const videoModal = document.getElementById('videoModal');
         if (videoModal) {
             // Lắng nghe sự kiện 'show.bs.modal' khi popup chuẩn bị mở ra
-            videoModal.addEventListener('show.bs.modal', function (event) {
+            videoModal.addEventListener('show.bs.modal', async function (event) {
                 // event.relatedTarget là thẻ HTML (nút bấm/thẻ link) đã kích hoạt mở modal này
                 const trigger = event.relatedTarget;
                 if (!trigger) return;
@@ -882,15 +887,25 @@
                         modalTitle.textContent = "Xem thử khóa học - " + lessonTitle;
                     }
 
-                    // Gọi Fetch API (GET) tới controller để lấy URL video bảo mật từ Azure
-                    fetch("/lesson/" + lessonId)
-                        .then(response => response.text()) // Nhận URL dạng text thường
-                        .then(url => {
-                            video.src = url; // Gán link video vào thuộc tính src của thẻ video
-                            video.load();    // Tải tài nguyên video mới
-                            video.play().catch(e => console.log("Autoplay prevented:", e)); // Tự động phát video
-                        })
-                        .catch(err => console.error("Error loading preview video:", err));
+                    try {
+                        // Gọi Fetch API (GET) tới controller để lấy URL video bảo mật từ Azure
+                        const response = await fetch("/lesson/" + lessonId);
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                showToast('Vui lòng đăng nhập để xem!', 'warning');
+                                return;
+                            }
+                            throw new Error('Có lỗi khi tải video xem thử.');
+                        }
+                        
+                        const url = await response.text(); // Nhận URL dạng text thường
+                        video.src = url; // Gán link video vào thuộc tính src của thẻ video
+                        video.load();    // Tải tài nguyên video mới
+                        video.play().catch(e => console.log("Autoplay prevented:", e)); // Tự động phát video
+                    } catch (err) {
+                        console.error("Error loading preview video:", err);
+                        showToast(err.message, 'warning');
+                    }
                 }
             });
 
