@@ -124,8 +124,8 @@
             model.addAttribute("quizzes", quizPage.getContent());
             model.addAttribute("currentStatus", status);
 
-            LessonDto lessonDto = lessonService.getLessonById(lessonId);
-            model.addAttribute("lesson", lessonDto);
+        LessonDto lessonDto = lessonService.getLessonById(lessonId);
+        model.addAttribute("lesson", lessonDto);
 
             model.addAttribute("quiz", new QuizDTO());
 
@@ -234,4 +234,6 @@
             return "redirect:/instructorcourse/" + courseId + "/curriculum";
         }
 
-    }
+
+}
+

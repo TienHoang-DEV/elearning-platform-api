@@ -69,7 +69,7 @@ public class AdminProfileController {
             return "redirect:/admin/profile";
         }
 
-        // Validate Phone
+        // Xác thực Số điện thoại
         if (phone != null && !phone.isBlank()) {
             User existingPhoneUser = userRepository.findUserByPhone(phone.trim());
             if (existingPhoneUser != null && !existingPhoneUser.getId().equals(user.getId())) {
@@ -84,7 +84,7 @@ public class AdminProfileController {
         user.setBio(bio != null ? bio.trim() : "");
         user.setUpdatedAt(LocalDateTime.now());
 
-        // Process avatar if uploaded
+        // Xử lý ảnh đại diện nếu có tải lên
         if (avatarFile != null && !avatarFile.isEmpty()) {
             if (avatarFile.getSize() > 2 * 1024 * 1024) {
                 redirectAttributes.addFlashAttribute("error", "Kích thước ảnh đại diện không được vượt quá 2MB.");

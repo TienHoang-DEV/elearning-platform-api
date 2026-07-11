@@ -10,6 +10,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.core.authority.AuthorityUtils;
+import java.util.Set;
 import vn.edu.fpt.service.CustomOAuth2UserService;
 import vn.edu.fpt.service.CustomUserDetailsService;
 
@@ -19,6 +22,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
     }
 
@@ -40,6 +44,22 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AuthenticationSuccessHandler customSuccessHandler() {
+        return (request, response, authentication) -> {
+            Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+            if (roles.contains("ROLE_ADMIN")) {
+                response.sendRedirect("/admin/dashboard");
+            } else if (roles.contains("ROLE_MANAGER")) {
+                response.sendRedirect("/manager/dashboard");
+            } else if (roles.contains("ROLE_INSTRUCTOR")) {
+                response.sendRedirect("/instructor/dashboard");
+            } else {
+                response.sendRedirect("/home");
+            }
+        };
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             DaoAuthenticationProvider authenticationProvider,
@@ -57,8 +77,10 @@ public class SecurityConfig {
 //                    )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/login_no", "/register",
+                                "/login", "/register",
                                 "/css/**", "/js/**",
+                                "/verify-otp",
+                                "/resend-otp",
                                 "/images/**", "/oauth2/**",
                                 "/forgot-password",
                                 "/reset-password",
@@ -69,33 +91,36 @@ public class SecurityConfig {
                                 "/course/detail"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/instructor/**").hasRole("INSTRUCTOR")
+                        .requestMatchers("/manager/**").hasRole("MANAGER")
+                        .requestMatchers("/instructorcourse/**").hasRole("INSTRUCTOR")
                         .anyRequest().authenticated()
                 )
 
                 .formLogin(form -> form
-                        .loginPage("/login_no")
-                        .loginProcessingUrl("/login_no")
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
                         .usernameParameter("email")   // thêm dòng này
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/home", true)
-                        .failureUrl("/login_no?error")
+                        .successHandler(customSuccessHandler())
+                        .failureUrl("/login?error")
                         .permitAll()
                 )
 
                 .oauth2Login(oauth -> oauth
-                        .loginPage("/login_no")
-                        .defaultSuccessUrl("/home", true)
+                        .loginPage("/login")
+                        .successHandler(customSuccessHandler())
                         .userInfoEndpoint(userInfo ->
                                 userInfo.userService(oAuth2UserService)
                         )
                 )
 
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login_no")
+                        .logoutSuccessUrl("/login")
                         .permitAll()
                 )
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(new org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint("/login_no"))
+                        .authenticationEntryPoint(new org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint("/login"))
                 );
 
         return http.build();

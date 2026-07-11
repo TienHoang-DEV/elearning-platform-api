@@ -13,6 +13,8 @@ import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.service.AdminService;
 import vn.edu.fpt.service.UserService;
+import vn.edu.fpt.service.SystemLogService;
+import vn.edu.fpt.entity.SystemLog;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,10 +26,12 @@ public class AdminController {
 
     private final UserService userService;
     private final AdminService adminService;
+    private final SystemLogService systemLogService;
 
-    public AdminController(UserService userService, AdminService adminService) {
+    public AdminController(UserService userService, AdminService adminService, SystemLogService systemLogService) {
         this.userService = userService;
         this.adminService = adminService;
+        this.systemLogService = systemLogService;
     }
 
     /**
@@ -85,7 +89,9 @@ public class AdminController {
     @GetMapping("/manager/detail/{id}")
     public String detailManager(@PathVariable Integer id, Model model) {
         UserDto request = userService.getManagerDetail(id);
+        List<SystemLog> logs = systemLogService.getLogsByUserId(id);
         model.addAttribute("request", request);
+        model.addAttribute("logs", logs);
         return "admin/manager/manager-detail";
     }
 

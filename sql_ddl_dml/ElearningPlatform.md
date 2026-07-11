@@ -1,19 +1,31 @@
-USE master
-IF DB_ID('ElearningPlatform') IS NOT NULL
-BEGIN
-    ALTER DATABASE ElearningPlatform
-    SET SINGLE_USER
-    WITH ROLLBACK IMMEDIATE;
+[//]: # (USE master)
 
-    DROP DATABASE ElearningPlatform;
-END
-GO
+[//]: # (IF DB_ID&#40;'ElearningPlatform'&#41; IS NOT NULL)
 
-CREATE DATABASE ElearningPlatform;
-GO
+[//]: # (BEGIN)
 
-USE ElearningPlatform;
-GO
+[//]: # (    ALTER DATABASE ElearningPlatform)
+
+[//]: # (    SET SINGLE_USER)
+
+[//]: # (    WITH ROLLBACK IMMEDIATE;)
+
+[//]: # ()
+[//]: # (    DROP DATABASE ElearningPlatform;)
+
+[//]: # (END)
+
+[//]: # (GO)
+
+[//]: # ()
+[//]: # (CREATE DATABASE ElearningPlatform;)
+
+[//]: # (GO)
+
+[//]: # ()
+[//]: # (USE ElearningPlatform;)
+
+[//]: # (GO)
 
 -- =========================
 -- ROLES

@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.util.AppConstants;
 
 import java.util.Collection;
@@ -29,7 +30,7 @@ public class CustomUserDetails implements UserDetails {
         if (user.getRoles() != null) {
             for (vn.edu.fpt.entity.Role role : user.getRoles()) {
                 authorities.add(new SimpleGrantedAuthority(
-                        "ROLE_" + role.getName().toUpperCase()
+                        "ROLE_" + role.getName().name().toUpperCase()
                 ));
             }
         }
@@ -72,6 +73,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.getStatus() == UserStatus.ACTIVE;
     }
 }

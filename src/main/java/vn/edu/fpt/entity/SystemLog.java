@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import vn.edu.fpt.enums.LogAction;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,8 +19,9 @@ public class SystemLog extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(length = 255)
-    private String action;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "action", length = 255, nullable = false)
+    private LogAction action;
 
     @Column(name = "target_type", length = 100)
     private String targetType;

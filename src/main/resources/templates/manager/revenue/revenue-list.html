@@ -15,7 +15,10 @@
                 <h1 th:text="'Báo cáo Doanh thu tháng ' + ${today.getMonthValue()} + '/' + ${today.getYear()}"></h1>
                 <p>Tổng quan về tài chính và doanh thu của hệ thống.</p>
             </div>
-            <a th:href="@{/manager/transaction-history/list}" class="btn btn-outline">Xem tất cả giao dịch <i class="ph ph-arrow-right"></i></a>
+            <div class="d-flex gap-2">
+                <a th:href="@{/manager/revenue/instructor}" class="btn btn-outline">Doanh thu Giảng viên</a>
+                <a th:href="@{/manager/transaction-history/list}" class="btn btn-outline">Xem tất cả giao dịch</a>
+            </div>
         </div>
         
         <div class="rev-grid">

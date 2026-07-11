@@ -2,7 +2,8 @@ package vn.edu.fpt.enums;
 
 public enum UserStatus {
     ACTIVE("Hoạt động"),
-    BANNED("Bị khóa");
+    BANNED("Bị khóa"),
+    INACTIVE("Chưa kích hoạt");
 
     private final String label;
 

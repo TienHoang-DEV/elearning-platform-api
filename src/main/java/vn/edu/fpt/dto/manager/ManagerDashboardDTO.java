@@ -1,4 +1,4 @@
-package vn.edu.fpt.dto;
+package vn.edu.fpt.dto.manager;
 
 import lombok.Getter;
 import lombok.Setter;

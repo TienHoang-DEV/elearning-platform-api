@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 //import vn.edu.fpt.dto.UserDto;
 import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
@@ -15,6 +16,7 @@ import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.QuestionType;
 import vn.edu.fpt.enums.QuizStatus;
 import vn.edu.fpt.service.quiz.QuizAttemptService;
+import vn.edu.fpt.service.quiz.QuizImportService;
 import vn.edu.fpt.service.quiz.QuizQuestionService;
 import vn.edu.fpt.service.quiz.QuizService;
 import vn.edu.fpt.util.SecurityUtils;
@@ -28,13 +30,15 @@ public class InstructorQuizController {
     private final QuizService quizService;
     private final QuizQuestionService quizQuestionService;
     private final QuizAttemptService quizAttemptService;
+    private final QuizImportService quizImportService;
 
 
-    public InstructorQuizController(QuizService quizService, QuizQuestionService quizQuestionService, QuizAttemptService quizAttemptService)
+    public InstructorQuizController(QuizService quizService, QuizQuestionService quizQuestionService, QuizAttemptService quizAttemptService, QuizImportService quizImportService)
     {
         this.quizService = quizService;
         this.quizQuestionService = quizQuestionService;
         this.quizAttemptService = quizAttemptService;
+        this.quizImportService = quizImportService;
     }
 
 
@@ -317,6 +321,50 @@ public class InstructorQuizController {
         model.addAttribute("pageSize", currentSize);
 
         return "instructor_course/quiz-detail"; // Tên file HTML của bạn (view-quiz-detail.html)
+    }
+
+    @PostMapping("/import-excel")
+    public String importExcel(
+
+            @RequestParam("excelFile")
+            MultipartFile excelFile,
+
+            @RequestParam("quizId")
+            Integer quizId,
+
+            @RequestParam("importMode")
+            String importMode,
+
+            RedirectAttributes redirectAttributes
+
+    ) {
+
+        try {
+
+            quizImportService.importQuiz(
+
+                    excelFile,
+
+                    quizId,
+
+                    importMode
+
+            );
+
+            redirectAttributes.addFlashAttribute("toastMessage", "Import quiz thành công !");
+            redirectAttributes.addFlashAttribute("toastType", "success");
+
+        }
+
+        catch (Exception ex) {
+            ex.printStackTrace();
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+            redirectAttributes.addFlashAttribute("toastType", "error");
+
+        }
+
+        return "redirect:/instructor/quiz/quiz-manage/" + quizId;
+
     }
 
 }

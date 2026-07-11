@@ -243,12 +243,15 @@
                         <!-- Checkout CTA Button -->
                         <button
                             class="btn btn-primary w-100 py-3 fw-bold fs-6 d-flex align-items-center justify-content-center gap-2 rounded-3 shadow-primary mb-3"
-                            id="btn-checkout" th:disabled="${selectedItemsCount == 0}"
-                            th:classappend="${selectedItemsCount == 0 ? 'opacity-50' : ''}"
-                            th:style="${selectedItemsCount == 0 ? 'cursor: not-allowed;' : 'cursor: pointer;'}">
+                            id="btn-checkout" th:disabled="${selectedItemsCount == 0 or total < 2000}"
+                            th:classappend="${selectedItemsCount == 0 or total < 2000 ? 'opacity-50' : ''}"
+                            th:style="${selectedItemsCount == 0 or total < 2000 ? 'cursor: not-allowed;' : 'cursor: pointer;'}">
                             <span>Thanh toán ngay</span>
                             <i data-lucide="credit-card" style="width: 20px; height: 20px;"></i>
                         </button>
+                        <p class="text-danger fs-8 fw-semibold text-center mt-2" th:if="${selectedItemsCount > 0 and total < 2000}">
+                            * Tổng thanh toán phải từ 2,000 VNĐ trở lên để thực hiện thanh toán qua cổng PayOS.
+                        </p>
 
                         <!-- Security badge label -->
                         <div class="d-flex align-items-center justify-content-center gap-2 text-muted fs-8 pt-2">
@@ -270,6 +273,25 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+
+    <!-- Bootstrap Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1100;">
+        <div class="toast align-items-center border-0 rounded-3 shadow-lg toast-success" id="cartToast"
+            role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-3 p-3">
+                    <i data-lucide="check-circle" class="toast-icon-success" style="width: 24px; height: 24px;"></i>
+                    <i data-lucide="alert-circle" class="toast-icon-warning" style="width: 24px; height: 24px;"></i>
+                    <div class="toast-content flex-grow-1">
+                        <p class="toast-title fw-bold m-0 fs-7">Thành công!</p>
+                        <p class="toast-message m-0 fs-8" id="toast-message-text">Thông báo</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close me-3 m-auto shadow-none" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
 
     <!-- Custom JavaScript -->
     <script th:src="@{/js/cart.js}"></script>

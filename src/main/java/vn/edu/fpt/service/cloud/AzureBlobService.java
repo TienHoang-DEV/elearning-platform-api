@@ -29,13 +29,6 @@ public class AzureBlobService {
 
     public AzureBlobService() {
         String connectionString = System.getProperty("AZURE_STORAGE_CONNECTION_STRING");
-        if (connectionString == null || connectionString.isBlank()) {
-            connectionString = System.getenv("AZURE_STORAGE_CONNECTION_STRING");
-        }
-        if (connectionString == null || connectionString.isBlank()) {
-            // Sử dụng chuỗi kết nối giả lập để tránh lỗi khởi tạo ApplicationContext khi chạy kiểm thử (Unit Test) hoặc khởi động không cấu hình môi trường
-            connectionString = "UseDevelopmentStorage=true";
-        }
         this.blobServiceClient = new BlobServiceClientBuilder()
                 .connectionString(connectionString)
                 .buildClient();
@@ -121,6 +114,9 @@ public class AzureBlobService {
         return URLDecoder.decode(blobName, StandardCharsets.UTF_8);
     }
 
+    public String getPublicUrl(String containerName, String blobName) {
+        return getBlobClient(containerName, blobName).getBlobUrl();
+    }
     public void deleteFile(String azureStorageContainerMaterials, String fileUrl) {
 
     }

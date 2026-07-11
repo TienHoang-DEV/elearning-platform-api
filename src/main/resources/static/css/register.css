@@ -1,265 +1,530 @@
-/* RESET */
+/* ==========================================
+   VISUAL SPLIT LAYOUT BRAND SYSTEM
+   ========================================== */
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+    box-sizing: border-box !important;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 :root {
-    --primary: #3b82f6;
-    --soft-blue: #DCEEFF;
-    --border: #E2E8F0;
-    --text-main: #0F172A;
-    --text-sub: #64748B;
-    --radius: 12px;
+    --brand-blue: #2563eb;       /* Tông màu xanh thương hiệu chính */
+    --brand-blue-hover: #1d4ed8; /* Tông màu xanh đậm khi hover */
+    --accent-light: rgba(37, 99, 235, 0.06);
+    --border-color: #e2e8f0;
+    --border-hover: #cbd5e1;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+
+    /* System Colors */
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --danger-border: #ffeeee;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #e6fced;
 }
 
 body {
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
-.register-container {
+/* Khung chia đôi màn hình thông minh chống phí không gian */
+.modern-split-container {
     display: flex;
     min-height: 100vh;
+    width: 100vw;
 }
 
-/* LEFT SIDE (FORM) */
-.register-split-left {
-    flex: 1.1;
+/* Phía bên trái chiếm không gian form rộng rãi */
+.auth-split-left {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 40px;
-    background-color: white;
+    background-color: #ffffff;
+    overflow-y: auto;
 }
 
-.form-wrapper {
+.form-wrapper-box {
     width: 100%;
-    max-width: 400px;
+    max-width: 440px; /* Độ rộng hoàn hảo cho form đăng ký */
 }
 
-.brand-logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1.4rem;
+/* LOGO của bạn được đồng bộ màu thương hiệu sang trọng */
+.brand-logo-premium {
+    color: var(--brand-blue) !important;
+}
+.brand-logo-premium i {
+    font-size: 1.5rem;
+    color: var(--brand-blue);
+}
+.brand-logo-premium span {
+    color: var(--brand-blue) !important;
+    letter-spacing: -0.5px;
+}
+
+.auth-header-text {
+    margin-bottom: 28px;
+}
+
+.auth-header-text h1 {
+    font-size: 1.7rem;
     font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 30px;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
 }
 
-.form-header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; }
-.form-header p { color: var(--text-sub); font-size: 0.9rem; margin-bottom: 25px; }
-
-/* FORM ELEMENTS */
-.register-form { display: flex; flex-direction: column; gap: 15px; }
-.form-row { display: flex; gap: 12px; }
-.input-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; color: var(--text-main); }
-.input-group input {
-    width: 100%; padding: 11px 14px; border: 1px solid var(--border);
-    border-radius: var(--radius); background: #F8FAFC; outline: none; font-size: 0.9rem;
-    transition: all 0.2s ease;
+.auth-header-text p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
 }
-.input-group input:focus {
-    border-color: var(--primary);
-    background: #FFFFFF;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
+
+/* ==========================================
+   INPUTS FIELD SYSTEM
+   ========================================== */
+.auth-form-action {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
 }
-.input-with-icon { position: relative; display: flex; align-items: center; }
-.input-with-icon i { position: absolute; left: 14px; color: var(--text-sub); font-size: 0.85rem; }
-.input-with-icon input { padding-left: 40px; }
 
-.btn-submit {
-    background: var(--primary); color: white; padding: 12px; border: none;
-    border-radius: var(--radius); font-weight: 600; cursor: pointer; margin-top: 5px;
-    transition: background 0.2s;
+/* Hàng đôi Họ và Tên phân chia 50/50 hoàn hảo */
+.form-grid-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
 }
-.btn-submit:hover { background: #2563eb; }
 
-.form-divider { display: flex; align-items: center; margin: 5px 0; color: var(--text-sub); font-size: 0.8rem; }
-.form-divider::before, .form-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
-.form-divider span { padding: 0 10px; }
-
-/* FIX: Cải tiến hiển thị nút Google */
-.btn-google {
-    background: white; border: 1px solid var(--border); padding: 11px;
-    border-radius: var(--radius); display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer;
-    font-size: 0.9rem; font-weight: 500; color: #475569; transition: background 0.2s;
+.input-field-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
-.btn-google:hover { background: #F8FAFC; }
-.google-icon { flex-shrink: 0; }
 
-/* TERMS & CHECKBOX */
-.terms-wrapper { margin: 2px 0; }
-.custom-checkbox { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
-.custom-checkbox input { display: none; }
-.checkmark { width: 18px; height: 18px; border: 1.5px solid var(--border); border-radius: 4px; position: relative; flex-shrink: 0; background: #F8FAFC; }
-.custom-checkbox input:checked + .checkmark { background: var(--primary); border-color: var(--primary); }
-.custom-checkbox input:checked + .checkmark::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #FFF; font-size: 10px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-.terms-text { font-size: 0.85rem; color: var(--text-sub); line-height: 1.4; }
-.terms-text a { color: var(--primary); text-decoration: none; font-weight: 600; }
+.input-field-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
 
-/* FIX: Thiết kế lại Footer Đăng Nhập cao cấp, mượt mà */
-.form-footer {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px dashed var(--border);
+.input-wrapper {
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-}
-.form-footer p { font-size: 0.85rem; color: var(--text-sub); }
-.login-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--primary);
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-.login-link i {
-    font-size: 0.85rem;
-    transition: transform 0.2s ease;
-}
-.login-link:hover {
-    color: #2563eb;
-}
-.login-link:hover i {
-    transform: translateX(3px); /* Hiệu ứng đẩy icon nhẹ khi hover */
+    width: 100%;
 }
 
-/* RIGHT SIDE (DÀN TRẢI BỐ CỤC TRÊN ẢNH) */
-.register-split-right {
-    flex: 0.9;
+.input-wrapper input {
+    width: 100%;
+    padding: 11px 16px;
+    font-size: 0.92rem;
+    color: var(--text-primary);
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-wrapper input:focus {
+    border-color: var(--brand-blue);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px var(--accent-light);
+}
+
+.input-wrapper .input-icon {
+    position: absolute;
+    left: 16px;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    pointer-events: none;
+}
+
+.input-wrapper:has(.input-icon) input {
+    padding-left: 44px;
+}
+
+/* ==========================================
+   NÚT ĐĂNG KÝ VÀ XÁC THỰC MÀU XANH DƯƠNG ĐỒNG BỘ
+   ========================================== */
+.btn-blue-submit {
+    width: 100%;
+    background: var(--brand-blue);
+    color: #ffffff;
+    padding: 13px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-blue-submit:hover {
+    background: var(--brand-blue-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Các thành phần bổ trợ */
+.divider-text {
+    display: flex;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin: 4px 0;
+}
+
+.divider-text::before, .divider-text::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+}
+
+.divider-text span {
+    padding: 0 12px;
+}
+
+.btn-premium-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-premium-google:hover {
+    background: #f8fafc;
+    border-color: var(--border-hover);
+}
+
+/* Checkbox Điều khoản */
+.terms-container {
+    margin: 2px 0;
+}
+
+.premium-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.premium-checkbox input {
+    display: none;
+}
+
+.premium-checkbox .custom-box {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 6px;
+    background: #f8fafc;
+    position: relative;
+    transition: all 0.15s;
+}
+
+.premium-checkbox input:checked + .custom-box {
+    background: var(--brand-blue);
+    border-color: var(--brand-blue);
+}
+
+.premium-checkbox input:checked + .custom-box::after {
+    content: "\f00c";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 9px;
+    color: #ffffff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.premium-checkbox .text-content {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.premium-checkbox .text-content a {
+    color: var(--brand-blue);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Thông báo lỗi */
+.error-text {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--danger);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.error-text::before {
+    content: "\f06a";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+
+.input-field-group:has(.error-text) input {
+    border-color: var(--danger-border) !important;
+    background: var(--danger-bg) !important;
+    color: var(--danger);
+}
+
+.auth-footer-link {
+    text-align: center;
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border-color);
+}
+
+.auth-footer-link p {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.auth-footer-link a {
+    color: var(--brand-blue);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* ==========================================
+   PHÍA BÊN PHẢI: BANNER ẢNH NỀN CAO CẤP LẤY ĐẦY KHÔNG GIAN
+   ========================================== */
+.auth-split-right {
+    flex: 1.1; /* Chiếm diện tích rộng hơn một chút tạo sự phóng khoáng */
     position: relative;
     background-image: url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1200');
     background-size: cover;
     background-position: center;
-    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 80px;
 }
 
-.color-fit-overlay {
+/* Ẩn ảnh bên phải trên thiết bị di động/máy tính bảng nhỏ để dồn không gian cho form */
+@media (max-width: 1024px) {
+    .auth-split-right { display: none; }
+}
+
+.premium-image-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(220, 238, 255, 0.4) 0%, rgba(15, 23, 42, 0.2) 100%);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(37, 99, 235, 0.45) 100%);
     z-index: 1;
 }
 
-.distributed-content {
+.creative-slogan-box {
     position: relative;
-    z-index: 5;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 60px;
-    color: white;
+    z-index: 2;
+    max-width: 500px;
+    color: #ffffff;
 }
 
-.experience-tag {
+.badge-premium {
     font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(5px);
-    padding: 6px 15px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    padding: 6px 16px;
     border-radius: 50px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    display: inline-block;
+    margin-bottom: 24px;
 }
 
-.middle-info { max-width: 450px; }
-.middle-info h2 { font-size: 2.8rem; font-weight: 700; line-height: 1.1; margin-bottom: 15px; text-shadow: 0 2px 15px rgba(0, 0, 0, 0.2); }
-.middle-info p { font-size: 1.05rem; line-height: 1.5; opacity: 0.9; font-weight: 300; }
-
-.bottom-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    padding: 25px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-.value-item { display: flex; align-items: center; gap: 12px; flex: 1; }
-.value-icon { width: 35px; height: 35px; background: white; color: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
-.value-text strong { display: block; font-size: 0.85rem; margin-bottom: 2px; }
-.value-text p { font-size: 0.75rem; opacity: 0.8; }
-
-/* --- THIẾT KẾ THÔNG BÁO LỖI CAO CẤP --- */
-
-/* 1. Định dạng lại container chứa input để quản lý vị trí lỗi */
-.input-group {
-    position: relative; /* Giúp định vị thông báo lỗi nếu cần thiết */
-    display: flex;
-    flex-direction: column;
+.creative-slogan-box h2 {
+    font-size: 2.6rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 18px;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
-/* 2. Style cho thông báo lỗi */
-.error-message {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 6px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #ef4444; /* Màu đỏ mềm mại của Tailwind */
-    animation: fadeInError 0.25s ease-out; /* Hiệu ứng xuất hiện mượt */
+.creative-slogan-box p {
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0.85;
+    font-weight: 300;
 }
 
-/* Tự động thêm icon chấm than trước text lỗi bằng CSS mà không cần sửa HTML */
-.error-message::before {
-    content: "\f06a"; /* Icon circle-exclamation của Font Awesome */
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    font-size: 0.85rem;
+/* ==========================================
+   MODAL OTP PREMIUM DESIGN
+   ========================================== */
+.premium-otp-card {
+    border: none !important;
+    border-radius: 24px !important;
+    padding: 40px 32px !important;
+    background: #ffffff !important;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.16) !important;
+    position: relative;
 }
 
-/* 3. Hiệu ứng đổi màu viền Ô Input khi có lỗi đi kèm */
-/* Thymeleaf khi có lỗi ở field nào sẽ sinh ra cấu trúc tương tự, ta tận dụng để đổi màu input */
-.input-group:has(.error-message) input {
-    border-color: #fca5a5; /* Viền đỏ nhạt */
-    background-color: #fef2f2; /* Nền hồng siêu nhạt */
-}
-
-.input-group:has(.error-message) input:focus {
-    border-color: #ef4444;
-    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08); /* Sương mờ màu đỏ khi focus */
-}
-
-/* Hiệu ứng đổi màu luôn cả icon trong ô input nếu có lỗi */
-.input-group:has(.error-message) .input-with-icon i {
-    color: #ef4444;
-}
-
-/* Animation xuất hiện mượt mà */
-@keyframes fadeInError {
-    from {
-        opacity: 0;
-        transform: translateY(-4px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.register-split-left {
-    flex: 1.1;
+.close-otp-modal {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px;
-    background-color: white;
-    overflow-y: auto; /* Thêm dòng này để cuộn mượt mà nếu màn hình quá nhỏ */
+    transition: background 0.2s;
 }
 
-/* RESPONSIVE */
-@media (max-width: 1024px) {
-    .register-split-right { display: none; }
+.close-otp-modal:hover {
+    background: #f1f5f9;
+}
+
+.otp-visual-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--accent-light);
+    color: var(--brand-blue);
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+}
+
+.otp-title-area h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.otp-title-area p {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 28px;
+}
+
+.otp-fields-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.otp-cell {
+    width: 45px;
+    height: 52px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    background: #f8fafc;
+    outline: none;
+    transition: all 0.15s;
+}
+
+.otp-cell:focus {
+    border-color: var(--brand-blue);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px var(--accent-light);
+}
+
+/* Custom Alerts */
+.custom-alert {
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.danger-alert {
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    color: var(--danger);
+}
+.danger-alert::before {
+    content: "\f06a";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+
+.success-alert {
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    color: var(--success);
+}
+.success-alert::before {
+    content: "\f058";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+
+.otp-action-footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+#timerText {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+#countdownTimer {
+    color: var(--brand-blue);
+    font-weight: 600;
+}
+
+.btn-text-resend {
+    background: none;
+    border: none;
+    color: var(--brand-blue);
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.btn-text-resend:disabled {
+    color: #94a3b8;
+    cursor: not-allowed;
 }

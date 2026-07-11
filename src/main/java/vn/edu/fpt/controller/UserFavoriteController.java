@@ -40,29 +40,14 @@ public class UserFavoriteController {
     }
 
     private User getSessionUser() {
-        try {
-            User currentUser = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
-            if (currentUser != null) {
-                return userRepository.findById(currentUser.getId()).orElse(currentUser);
-            }
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                User sessionUser = (User) session.getAttribute("user");
-                if (sessionUser != null) {
-                    return userRepository.findById(sessionUser.getId()).orElse(sessionUser);
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return null;
+        return vn.edu.fpt.util.SecurityUtils.getCurrentUser();
     }
 
     @GetMapping("/student/favorites/step1")
     public String showStep1(Model model) {
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/login_no";
+            return "redirect:/login";
         }
 
         List<CategoryDto> parents = categoryService.findByParentIsNullAndStatus("ACTIVE");
@@ -77,7 +62,7 @@ public class UserFavoriteController {
     public String showStep2(@RequestParam("parentId") Integer parentId, Model model) {
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/login_no";
+            return "redirect:/login";
         }
 
         Category parent = categoryRepository.findByIdAndStatus(parentId, "ACTIVE")
@@ -105,18 +90,13 @@ public class UserFavoriteController {
                                 HttpSession session) {
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/login_no";
+            return "redirect:/login";
         }
 
-        // Tải toàn bộ các category con tương ứng
         Set<Category> newFavorites = new HashSet<>();
         if (childIds != null && !childIds.isEmpty()) {
             List<Category> selectedChildren = categoryRepository.findAllById(childIds);
             newFavorites.addAll(selectedChildren);
-        } else {
-            // Tự động chọn tất cả danh mục con của parentId nếu người dùng không chọn gì
-            List<Category> allChildren = categoryRepository.findByParentIdAndStatus(parentId, "ACTIVE");
-            newFavorites.addAll(allChildren);
         }
 
         user.getFavoriteCategories().clear();

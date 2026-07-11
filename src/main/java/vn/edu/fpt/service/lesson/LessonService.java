@@ -14,10 +14,15 @@ import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.LessonRepository;
 import vn.edu.fpt.service.material.LessonMaterialService;
+import vn.edu.fpt.service.material.LessonMaterialService;
 import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.SecurityUtils;
+
+import vn.edu.fpt.repository.EnrollmentRepository;
+import vn.edu.fpt.entity.Course;
+import vn.edu.fpt.enums.RoleType;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,7 +38,24 @@ public class LessonService {
     private final AzureBlobService azureBlobService;
     private final DtoMapper dtoMapper;
     private final CourseSectionService courseSectionService;
+    private final EnrollmentRepository enrollmentRepository;
     private final LessonMaterialService lessonMaterialService;
+
+    public boolean hasAccessToLesson(User user, Lesson lesson) {
+        if (user == null || lesson == null || lesson.getCourseSection() == null) {
+            return false;
+        }
+        Course course = lesson.getCourseSection().getCourse();
+        RoleType role = user.getRole();
+        if (role == RoleType.ADMIN || role == RoleType.MANAGER) {
+            return true;
+        }
+        if (role == RoleType.INSTRUCTOR) {
+            return course.getInstructor() != null && course.getInstructor().getId().equals(user.getId());
+        }
+        return enrollmentRepository.existsByUserAndCourse(user, course);
+    }
+
 
     public List<Lesson> findAll() {
         return repository.findAll();
@@ -182,6 +204,16 @@ public class LessonService {
         return repository.findDetailById(lessonId);
     }
 
+    public String findLessonUrl(Lesson lesson) {
+        try {
+            if (lesson == null || lesson.getVideoUrl() == null || lesson.getVideoUrl().trim().isEmpty()) {
+                return "https://www.w3schools.com/html/mov_bbb.mp4";
+            }
+            return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
+        } catch (Exception e) {
+            return "https://www.w3schools.com/html/mov_bbb.mp4";
+        }
+    }
 
     public Lesson updateLesson(Integer lessonId, LessonDto lessonDto, MultipartFile videoFile) {
         // Validate ID
@@ -253,7 +285,7 @@ public class LessonService {
             throw new ResourceNotFoundException("Bài giảng không tìm thấy với id: " + lessonId);
         }
 
-        // 1. Xóa video từ Azure
+
         if (lesson.getVideoUrl() != null && !lesson.getVideoUrl().isEmpty()) {
             try {
                 azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
@@ -263,7 +295,7 @@ public class LessonService {
             }
         }
 
-        // 2. Xóa tất cả materials
+
         if (lesson.getMaterials() != null && !lesson.getMaterials().isEmpty()) {
             lesson.getMaterials().forEach(material -> {
                 try {
@@ -274,7 +306,7 @@ public class LessonService {
             });
         }
 
-        // 3. Xóa lesson từ database (cascade delete quizzes)
+
         repository.deleteById(lessonId);
         System.out.println("✓ Xóa bài giảng thành công: " + lessonId);
     }

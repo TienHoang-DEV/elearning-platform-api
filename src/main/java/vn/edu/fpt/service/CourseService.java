@@ -8,10 +8,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.*;
-import vn.edu.fpt.dto.course.CategoryDto;
-import vn.edu.fpt.dto.course.CourseContentSidebarDTO;
-import vn.edu.fpt.dto.course.CourseDto;
-import vn.edu.fpt.dto.course.CourseListDto;
+import vn.edu.fpt.dto.course.*;
 import vn.edu.fpt.dto.home.HomeDto;
 import vn.edu.fpt.dto.lesson.LessonNoteSiderbarDTO;
 import vn.edu.fpt.dto.lesson.LessonSiderbarDTO;
@@ -659,11 +656,16 @@ public class CourseService {
                 .course(course)
                 .rating(rating)
                 .comment(comment)
+                .status("VISIBLE")
                 .createdAt(LocalDateTime.now())
                 .build();
 
         feedbackRepository.save(feedback);
         return null;
+    }
+
+    public List<CourseGrantDTO> findAllCourseGrant() {
+        return repository.findAllCourseGrantDTO();
     }
 }
 
