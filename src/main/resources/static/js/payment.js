@@ -1,30 +1,177 @@
-// Countdown timer
-let totalSeconds = 14 * 60 + 32;
-const circle = document.getElementById('timerCircle');
-const full = 2 * Math.PI * 19; // circumference
+// ============================================================
+// INITIALIZATION
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Validate payment ID
+    if (!paymentId) {
+        alert('Không tìm thấy thông tin thanh toán. Vui lòng quay lại giỏ hàng.');
+        window.location.href = '/cart';
+        return;
+    }
 
-function updateTimer() {
-    if (totalSeconds <= 0) return;
-    totalSeconds--;
-    const m = String(Math.floor(totalSeconds / 60)).padStart(2,'0');
-    const s = String(totalSeconds % 60).padStart(2,'0');
-    const label = `${m}:${s}`;
-    document.getElementById('timerText').textContent = label;
-    document.getElementById('expireTimer').textContent = label;
-    // Update ring
-    const pct = totalSeconds / (15 * 60);
-    const offset = full * (1 - pct);
-    circle.setAttribute('stroke-dasharray', full.toFixed(1));
-    circle.setAttribute('stroke-dashoffset', offset.toFixed(1));
-    if (totalSeconds <= 60) circle.style.stroke = '#D32F2F';
+    setupEventListeners();
+    
+    if (expiredAtStr) {
+        startCountdown(new Date(expiredAtStr));
+    }
+    
+    checkPaymentStatus();
+});
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+function setupEventListeners() {
+    // Copy button event delegation
+    document.addEventListener('click', function(e) {
+        if (e.target.dataset.action === 'copy') {
+            const targetId = e.target.dataset.target;
+            const label = e.target.dataset.label;
+            const text = document.querySelector(targetId).textContent.trim();
+            
+            if (!text || text.includes('Chờ tải...')) return;
+            
+            copyToClipboard(text, label);
+        }
+    });
+    
+    // Proceed cancel button
+    const proceedCancelBtn = document.getElementById('proceedCancelBtn');
+    if (proceedCancelBtn) {
+        proceedCancelBtn.addEventListener('click', proceedCancelTransaction);
+    }
 }
-setInterval(updateTimer, 1000);
 
-// Copy
-function copyText(text, label) {
-    navigator.clipboard.writeText(text).catch(() => {});
-    const t = document.getElementById('');
-    t.textContent = `✔ Đã sao chép ${label}!`;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2000);
+// ============================================================
+// COUNTDOWN TIMER
+// ============================================================
+function startCountdown(expirationDate) {
+    const timerElement = document.getElementById('expireTimer');
+    
+    const countdown = setInterval(function() {
+        const now = new Date().getTime();
+        const expireTime = expirationDate.getTime();
+        const distance = expireTime - now;
+
+        if (distance < 0) {
+            clearInterval(countdown);
+            if (timerElement) timerElement.textContent = '00:00';
+            alert('Mã QR đã hết hạn!');
+            window.location.href = '/cart';
+            return;
+        }
+
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        const formattedTime = (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        if (timerElement) timerElement.textContent = formattedTime;
+    }, 1000);
+}
+
+// ============================================================
+// COPY TO CLIPBOARD
+// ============================================================
+function copyToClipboard(text, label) {
+    navigator.clipboard.writeText(text).then(() => {
+        showCopyToast('Đã sao chép ' + label + '!');
+    });
+}
+
+// ============================================================
+// PAYMENT STATUS CHECKING
+// ============================================================
+function checkPaymentStatus() {
+    if (!paymentId) return;
+
+    const interval = setInterval(async () => {
+        try {
+            const response = await fetch(`/api/payments/${paymentId}/status`);
+            const data = await response.json();
+            
+            if (data.status === 'PAID') {
+                clearInterval(interval);
+                showNotification('Thanh toán thành công!', 'Hệ thống đang chuyển bạn đến trang bài học...');
+                setTimeout(() => {
+                    window.location.href = '/student/my-learning';
+                }, 2000);
+            } else if (data.status === 'CANCELLED' || data.status === 'EXPIRED') {
+                clearInterval(interval);
+                showError('Đơn hàng đã bị hủy hoặc hết hạn.');
+                setTimeout(() => {
+                    window.location.href = '/cart';
+                }, 2000);
+            }
+        } catch (error) {
+            // Silent fail - allow user to manually cancel if needed
+        }
+    }, 3000); // Check every 3 seconds
+}
+
+// ============================================================
+// CANCEL TRANSACTION
+// ============================================================
+async function proceedCancelTransaction() {
+    if (!paymentId) return;
+
+    const proceedBtn = document.getElementById('proceedCancelBtn');
+    const originalText = proceedBtn.textContent;
+    
+    proceedBtn.disabled = true;
+    proceedBtn.textContent = 'Đang thực hiện hủy...';
+
+    try {
+        const response = await fetch(`/api/payments/${paymentId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('confirmCancelModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            showNotification('Hủy giao dịch thành công!', 'Quay lại giỏ hàng.');
+            setTimeout(() => {
+                window.location.href = '/cart';
+            }, 1000);
+        } else {
+            showError(data.error || 'Không thể hủy giao dịch.');
+            proceedBtn.disabled = false;
+            proceedBtn.textContent = originalText;
+        }
+    } catch (error) {
+        showError('Lỗi kết nối hệ thống khi hủy giao dịch.');
+        proceedBtn.disabled = false;
+        proceedBtn.textContent = originalText;
+    }
+}
+
+// ============================================================
+// TOAST NOTIFICATIONS (Bootstrap Toast API)
+// ============================================================
+function showCopyToast(message) {
+    const toastEl = document.getElementById('toastCopy');
+    toastEl.querySelector('.toast-body').textContent = '✔ ' + message;
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
+}
+
+function showNotification(title, message) {
+    const toastEl = document.getElementById('statusToast');
+    document.getElementById('toastMessage').textContent = message;
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
+}
+
+function showError(message) {
+    const toastEl = document.getElementById('errorToast');
+    document.getElementById('errorMessage').textContent = message;
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
 }

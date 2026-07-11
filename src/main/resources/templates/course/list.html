@@ -261,7 +261,7 @@
                                 th:data-rating="${course.averageRating}" th:data-price="${course.price}"
                                 th:data-category-id="${course.category != null ? course.category.id : ''}">
                                 <!-- Left: Thumbnail -->
-                                <a th:href="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id)} ? @{/student/my-learning} : @{/course/detail(id=${course.id})}"
+                                <a th:href="@{/course/detail(id=${course.id})}"
                                     class="course-thumbnail-link">
                                     <img th:src="${course.thumbnailPath}" th:alt="${course.title}"
                                         class="w-100 h-100 object-fit-cover"
@@ -274,7 +274,7 @@
                                 <!-- Right: Info -->
                                 <div class="course-info-wrapper">
                                     <div>
-                                        <a th:href="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id)} ? @{/student/my-learning} : @{/course/detail(id=${course.id})}"
+                                        <a th:href="@{/course/detail(id=${course.id})}"
                                             class="text-decoration-none text-dark">
                                             <h3 class="course-item-title fw-bold fs-6 mb-2 font-heading"
                                                 th:text="${course.title}">
@@ -313,7 +313,7 @@
                                                     class="course-meta-icon"></i> 31 phút</span>
                                             <span class="d-flex align-items-center gap-1"><i data-lucide="zap"
                                                     class="course-meta-icon"></i> <span th:text="${course.level}">Cơ
-                                                    bản</span></span>
+                                                     bản</span></span>
                                             <span class="d-flex align-items-center gap-1"><i data-lucide="eye"
                                                     class="course-meta-icon"></i> <span
                                                     th:text="${course.enrollmentsCount} + ' lượt mua'">0 lượt
@@ -330,7 +330,7 @@
 
                                             <!-- Nếu đã mua khóa học -->
                                             <a th:if="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id)}"
-                                                th:href="@{/student/my-learning}"
+                                                th:href="@{/course/detail(id=${course.id})}"
                                                 class="btn btn-outline-success px-3 py-2 fw-bold fs-8 d-flex align-items-center gap-2 rounded-3 text-decoration-none">
                                                 <i data-lucide="check-circle" style="width:16px;"></i> Đã mua
                                             </a>

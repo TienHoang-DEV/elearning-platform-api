@@ -42,7 +42,14 @@
                     <span>Phản hồi</span>
                 </a>
             </li>
+            <li th:classappend="${activePage == 'grant-access'} ? 'active' : ''">
+                <a th:href="@{/manager/grant-access}">
+                    <i class="ph ph-shield-check"></i>
+                    <span>Cấp quyền khóa học</span>
+                </a>
+            </li>
         </ul>
     </nav>
 </aside>
+
 </html>

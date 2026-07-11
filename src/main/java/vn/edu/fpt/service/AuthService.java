@@ -11,6 +11,7 @@ import vn.edu.fpt.dto.RegisterRequest;
 import vn.edu.fpt.entity.EmailVerificationToken;
 import vn.edu.fpt.entity.Role;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.RoleType;
 import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.repository.EmailVerificationTokenRepository;
 import vn.edu.fpt.repository.RoleRepository;
@@ -97,7 +98,7 @@ public class AuthService {
 
 
             Role role = roleRepository
-                .findByName("learner")
+                .findByName(RoleType.LEARNER)
                 .orElseThrow();
 
         User user = new User();

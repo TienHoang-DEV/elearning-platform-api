@@ -608,9 +608,9 @@
 
                                 <!-- Nếu đã mua khóa học -->
                                 <a th:if="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id)}"
-                                    th:href="@{/student/my-learning}"
-                                    class="btn btn-outline-success w-100 py-3 fw-bold fs-7 rounded-3 d-flex align-items-center justify-content-center gap-2 text-decoration-none">
-                                    <i data-lucide="check-circle" style="width:16px;"></i> Đã mua
+                                    th:href="@{/course/{courseId}(courseId=${course.id})}"
+                                    class="btn btn-success w-100 py-3 fw-bold fs-7 rounded-3 d-flex align-items-center justify-content-center gap-2 text-decoration-none text-white">
+                                    <i data-lucide="play-circle" style="width:16px;"></i> Học tiếp
                                 </a>
 
                                 <!-- Nếu chưa mua -->

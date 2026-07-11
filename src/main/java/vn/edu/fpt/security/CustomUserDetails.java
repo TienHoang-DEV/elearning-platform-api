@@ -30,7 +30,7 @@ public class CustomUserDetails implements UserDetails {
         if (user.getRoles() != null) {
             for (vn.edu.fpt.entity.Role role : user.getRoles()) {
                 authorities.add(new SimpleGrantedAuthority(
-                        "ROLE_" + role.getName().toUpperCase()
+                        "ROLE_" + role.getName().name().toUpperCase()
                 ));
             }
         }

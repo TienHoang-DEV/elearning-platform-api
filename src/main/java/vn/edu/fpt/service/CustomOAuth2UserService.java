@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.entity.Role;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.RoleType;
 import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.repository.RoleRepository;
 import vn.edu.fpt.repository.UserRepository;
@@ -49,8 +50,7 @@ public class CustomOAuth2UserService
 
             Role role =
                     roleRepository
-                            .findByName(
-                                    "learner")
+                            .findByName(RoleType.LEARNER)
                             .orElseThrow();
 
             String firstName =

@@ -30,7 +30,7 @@ public class CustomOAuth2User implements OAuth2User {
         if (user.getRoles() != null) {
             for (vn.edu.fpt.entity.Role role : user.getRoles()) {
                 authorities.add(new SimpleGrantedAuthority(
-                        "ROLE_" + role.getName().toUpperCase()
+                        "ROLE_" + role.getName().name()
                 ));
             }
         }

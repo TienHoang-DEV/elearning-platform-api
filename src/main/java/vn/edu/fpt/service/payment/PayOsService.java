@@ -14,6 +14,8 @@ import vn.payos.PayOS;
 import vn.payos.exception.PayOSException;
 import vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest;
 import vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse;
+import vn.edu.fpt.enums.LogAction;
+import vn.edu.fpt.repository.SystemLogRepository;
 
 import vn.edu.fpt.util.AppConstants;
 
@@ -31,6 +33,7 @@ public class PayOsService {
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final SystemLogRepository systemLogRepository;
 
     public Payment createPaymentOrder(Order order, String returnUrl, String cancelUrl) {
         try {
@@ -95,7 +98,15 @@ public class PayOsService {
                     .expiredAt(LocalDateTime.now().plusMinutes(AppConstants.PAYMENT_EXPIRATION_MINUTES))
                     .build();
 
-            return paymentRepository.save(payment);
+            Payment savedPayment = paymentRepository.save(payment);
+            saveSystemLog(savedPayment, LogAction.CREATE_PAYMENT, String.format(
+                "{\"amount\": %s, \"orderId\": %d, \"gatewayOrderCode\": \"%s\"}",
+                savedPayment.getAmount().toString(),
+                order.getId(),
+                savedPayment.getGatewayOrderCode()
+            ));
+
+            return savedPayment;
 
         } catch (Exception e) {
             log.error("Lỗi khi tạo đơn hàng PayOS", e);
@@ -112,6 +123,13 @@ public class PayOsService {
         payment.setStatus(PaymentStatus.PAID);
         payment.setPaidAt(LocalDateTime.now());
         paymentRepository.save(payment);
+
+        saveSystemLog(payment, LogAction.PAYMENT_COMPLETED, String.format(
+            "{\"amount\": %s, \"orderId\": %d, \"gatewayOrderCode\": \"%s\"}",
+            payment.getAmount().toString(),
+            payment.getOrder() != null ? payment.getOrder().getId() : 0,
+            payment.getGatewayOrderCode()
+        ));
 
         Order order = payment.getOrder();
         if (order != null) {
@@ -176,6 +194,13 @@ public class PayOsService {
         payment.setStatus(PaymentStatus.CANCELLED);
         paymentRepository.save(payment);
 
+        saveSystemLog(payment, LogAction.CANCEL_PAYMENT, String.format(
+            "{\"amount\": %s, \"orderId\": %d, \"gatewayOrderCode\": \"%s\"}",
+            payment.getAmount().toString(),
+            payment.getOrder() != null ? payment.getOrder().getId() : 0,
+            payment.getGatewayOrderCode()
+        ));
+
         Order order = payment.getOrder();
         if (order != null) {
             order.setStatus(OrderStatus.CANCELLED);
@@ -190,6 +215,13 @@ public class PayOsService {
         log.info("Đang hết hạn giao dịch ID: {}", payment.getId());
         payment.setStatus(PaymentStatus.EXPIRED);
         paymentRepository.save(payment);
+
+        saveSystemLog(payment, LogAction.EXPIRE_PAYMENT, String.format(
+            "{\"amount\": %s, \"orderId\": %d, \"gatewayOrderCode\": \"%s\"}",
+            payment.getAmount().toString(),
+            payment.getOrder() != null ? payment.getOrder().getId() : 0,
+            payment.getGatewayOrderCode()
+        ));
 
         Order order = payment.getOrder();
         if (order != null) {
@@ -210,6 +242,22 @@ public class PayOsService {
         if (order != null) {
             order.setStatus(OrderStatus.CANCELLED);
             orderRepository.save(order);
+        }
+    }
+
+    private void saveSystemLog(Payment payment, LogAction action, String meta) {
+        try {
+            SystemLog systemLog = SystemLog.builder()
+                    .user(payment.getOrder().getUser())
+                    .action(action)
+                    .targetType("PAYMENT")
+                    .targetId(String.valueOf(payment.getId()))
+                    .meta(meta)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            systemLogRepository.save(systemLog);
+        } catch (Exception e) {
+            log.error("Lỗi khi ghi system log cho giao dịch ID {}: {}", payment.getId(), e.getMessage());
         }
     }
 }

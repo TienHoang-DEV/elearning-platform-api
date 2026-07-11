@@ -7,9 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.CourseStatus;
+import vn.edu.fpt.enums.LogAction;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.CourseRepository;
+import vn.edu.fpt.util.SecurityUtils;
 
 @Service
 @Transactional
@@ -18,11 +20,13 @@ public class ManagerCourseService {
     private final CourseRepository repository;
     private final DtoMapper dtoMapper;
     private final EmailService emailService;
+    private final SystemLogService systemLogService;
 
-    public ManagerCourseService(CourseRepository repository, DtoMapper dtoMapper, EmailService emailService) {
+    public ManagerCourseService(CourseRepository repository, DtoMapper dtoMapper, EmailService emailService, SystemLogService systemLogService) {
         this.repository = repository;
         this.dtoMapper = dtoMapper;
         this.emailService = emailService;
+        this.systemLogService = systemLogService;
     }
 
     public Page<CourseDto> searchAndFilter(String keyword, CourseStatus status, Integer categoryId, Pageable pageable) {
@@ -41,11 +45,25 @@ public class ManagerCourseService {
         if (status == CourseStatus.REJECTED) {
             course.setRejectionReason(rejectionReason);
         } else if (status == CourseStatus.PUBLISHED) {
-            course.setRejectionReason(null); // Clear rejection reason if approved
+            course.setRejectionReason(null); // Xóa lý do từ chối nếu khóa học được phê duyệt
         }
         repository.save(course);
 
-        // Send email notification to instructor
+        // Ghi log hoạt động vào SystemLog
+        vn.edu.fpt.entity.User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser != null) {
+            LogAction action = (status == CourseStatus.PUBLISHED) ? LogAction.APPROVE_COURSE : 
+                               (status == CourseStatus.REJECTED) ? LogAction.REJECT_COURSE : null;
+            if (action != null) {
+                String meta = "Tên khóa học: " + course.getTitle();
+                if (status == CourseStatus.REJECTED && rejectionReason != null) {
+                    meta += " | Lý do từ chối: " + rejectionReason;
+                }
+                systemLogService.log(currentUser, action, "COURSE", String.valueOf(id), meta);
+            }
+        }
+
+        // Gửi email thông báo cho giảng viên
         try {
             if (status == CourseStatus.PUBLISHED) {
                 if (course.getInstructor() != null && course.getInstructor().getEmail() != null) {

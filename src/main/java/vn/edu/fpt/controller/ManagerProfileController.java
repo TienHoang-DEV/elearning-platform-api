@@ -34,7 +34,7 @@ public class ManagerProfileController {
         if (currentUser == null) {
             return "redirect:/login";
         }
-        // Fetch fresh copy from DB to ensure up-to-date values
+        // Lấy bản ghi mới nhất từ DB để đảm bảo dữ liệu luôn được cập nhật
         User user = userRepository.findById(currentUser.getId()).orElse(currentUser);
         model.addAttribute("user", user);
         return "manager/profile/profile";
@@ -70,7 +70,7 @@ public class ManagerProfileController {
             return "redirect:/manager/profile";
         }
 
-        // Validate Phone
+        // Xác thực Số điện thoại
         if (phone != null && !phone.isBlank()) {
             User existingPhoneUser = userRepository.findUserByPhone(phone.trim());
             if (existingPhoneUser != null && !existingPhoneUser.getId().equals(user.getId())) {
@@ -85,7 +85,7 @@ public class ManagerProfileController {
         user.setBio(bio != null ? bio.trim() : "");
         user.setUpdatedAt(LocalDateTime.now());
 
-        // Process avatar if uploaded
+        // Xử lý ảnh đại diện nếu có tải lên
         if (avatarFile != null && !avatarFile.isEmpty()) {
             if (avatarFile.getSize() > 2 * 1024 * 1024) {
                 redirectAttributes.addFlashAttribute("error", "Kích thước ảnh đại diện không được vượt quá 2MB.");

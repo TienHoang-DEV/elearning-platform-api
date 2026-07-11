@@ -11,10 +11,17 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import java.util.Optional;
 
+import vn.edu.fpt.dto.home.HomeDto;
+import vn.edu.fpt.dto.user.StudentLearningDto;
 import vn.edu.fpt.dto.user.StudentProfileDashboardDto;
+import vn.edu.fpt.dto.user.StudentPurchaseHistoryDto;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.repository.UserRepository;
+import vn.edu.fpt.service.CourseService;
+import vn.edu.fpt.service.HistoryOrderService;
+import vn.edu.fpt.service.MyCourseService;
 import vn.edu.fpt.service.StudentProfileService;
+import vn.edu.fpt.service.cloud.AzureBlobService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -23,26 +30,63 @@ import jakarta.servlet.http.HttpSession;
 public class StudentProfileController {
 
     private final UserRepository userRepository;
+    private final CourseService courseService;
     private final StudentProfileService studentProfileService;
-    private final vn.edu.fpt.service.cloud.AzureBlobService azureBlobService;
+    private final MyCourseService myCourseService;
+    private final HistoryOrderService historyOrderService;
+    private final AzureBlobService azureBlobService;
 
     public StudentProfileController(UserRepository userRepository,
+                                    CourseService courseService,
                                     StudentProfileService studentProfileService,
-                                    vn.edu.fpt.service.cloud.AzureBlobService azureBlobService) {
+                                    MyCourseService myCourseService,
+                                    HistoryOrderService historyOrderService,
+                                    AzureBlobService azureBlobService) {
         this.userRepository = userRepository;
+        this.courseService = courseService;
         this.studentProfileService = studentProfileService;
+        this.myCourseService = myCourseService;
+        this.historyOrderService = historyOrderService;
         this.azureBlobService = azureBlobService;
     }
 
     private User getSessionUser() {
-        return vn.edu.fpt.util.SecurityUtils.getCurrentUser();
+        try {
+            User currentUser = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
+            if (currentUser != null) {
+                return userRepository.findById(currentUser.getId()).orElse(currentUser);
+            }
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                User sessionUser = (User) session.getAttribute("user");
+                if (sessionUser != null) {
+                    return userRepository.findById(sessionUser.getId()).orElse(sessionUser);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    @GetMapping("/")
+    public String showHomePage(Model model) {
+        User currentUser = getSessionUser();
+        if (currentUser != null) {
+            if (!currentUser.isFavoriteSetupCompleted()) {
+                return "redirect:/student/favorites/step1";
+            }
+        }
+        HomeDto homeData = courseService.getHomeData(currentUser);
+        model.addAttribute("homeData", homeData);
+        return "home/home";
     }
 
     @GetMapping("/student/profile")
     public String showStudentProfile(Model model) {
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/login_no";
+            return "redirect:/login";
         }
         
         StudentProfileDashboardDto dashboardData = studentProfileService.getDashboardData(user);
@@ -68,7 +112,7 @@ public class StudentProfileController {
         
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/login_no";
+            return "redirect:/login";
         }
 
         if (firstName == null || firstName.trim().isEmpty() || lastName == null || lastName.trim().isEmpty() || email == null || email.trim().isEmpty()) {
@@ -114,6 +158,43 @@ public class StudentProfileController {
 
         redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin hồ sơ tài khoản thành công!");
         return "redirect:/student/profile";
+    }
+
+    @GetMapping("/student/my-learning")
+    public String showMyLearning(
+            @RequestParam(value = "filter", defaultValue = "all") String filter,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            Model model) {
+        User user = getSessionUser();
+        if (user == null) {
+            return "redirect:/login";
+        }
+        
+        StudentLearningDto learningData = myCourseService.getLearningData(user, filter, page);
+        
+        model.addAttribute("currentUser", learningData.getCurrentUser());
+        model.addAttribute("enrollments", learningData.getEnrollments());
+        model.addAttribute("enrollmentsCount", learningData.getEnrollmentsCount());
+        model.addAttribute("filter", learningData.getFilter());
+        model.addAttribute("currentPage", learningData.getCurrentPage());
+        model.addAttribute("totalPages", learningData.getTotalPages());
+        
+        return "my_learning/my_learning";
+    }
+
+    @GetMapping("/student/purchase-history")
+    public String showPurchaseHistory(Model model) {
+        User user = getSessionUser();
+        if (user == null) {
+            return "redirect:/login";
+        }
+        
+        StudentPurchaseHistoryDto purchaseHistoryData = historyOrderService.getPurchaseHistoryData(user);
+        
+        model.addAttribute("currentUser", purchaseHistoryData.getCurrentUser());
+        model.addAttribute("orders", purchaseHistoryData.getOrders());
+        
+        return "purchase_history/purchase_history";
     }
 
 }

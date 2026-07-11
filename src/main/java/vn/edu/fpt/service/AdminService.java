@@ -27,7 +27,7 @@ public class AdminService {
         List<BigDecimal> chartData = new ArrayList<>();
         int currentYear = java.time.LocalDateTime.now().getYear();
 
-        // Initialize 12 months with ZERO
+        // Khởi tạo 12 tháng với giá trị 0
         for (int i = 1; i <= 12; i++) {
             chartData.add(BigDecimal.ZERO);
         }
@@ -46,7 +46,7 @@ public class AdminService {
             BigDecimal amount = row.getRevenue();
 
             if (year == currentYear && month >= 1 && month <= 12) {
-                // Platform revenue is 30% of total payment amount
+                // Doanh thu nền tảng chiếm 30% tổng số tiền thanh toán
                 BigDecimal platformRevenue = amount.multiply(BigDecimal.valueOf(AppConstants.PLATFORM_FEE));
                 chartData.set(month - 1, platformRevenue);
             }
