@@ -48,7 +48,7 @@ public class AzureBlobService {
 
             blobClient.upload(file.getInputStream(), file.getSize(), true);
             blobClient.setHttpHeaders(new BlobHttpHeaders().setContentType(file.getContentType()));
-            return blobClient.getBlobUrl();
+            return blobClient.getBlobName();
         } catch (Exception e) {
             throw new RuntimeException("Error");
         }
@@ -121,4 +121,7 @@ public class AzureBlobService {
         return URLDecoder.decode(blobName, StandardCharsets.UTF_8);
     }
 
+    public void deleteFile(String azureStorageContainerMaterials, String fileUrl) {
+
+    }
 }

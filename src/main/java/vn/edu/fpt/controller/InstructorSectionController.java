@@ -26,6 +26,7 @@ public class InstructorSectionController {
 
     @PostMapping("/{courseId}/sections")
     public String createSection(@PathVariable("courseId") Integer courseId,
+                                @RequestParam("source") String source,
                                 @Valid @ModelAttribute("section") CourseSectionDto courseSectionDto,
                                 BindingResult bindingResult,
                                 RedirectAttributes redirectAttributes) {
@@ -39,6 +40,9 @@ public class InstructorSectionController {
             Course course = courseService.findById(courseId);
             courseSectionService.SaveSection(courseSectionDto, course);
             redirectAttributes.addFlashAttribute("success", "Thêm chương thành công!");
+            if("edit".equals(source)){
+                return "redirect:/instructorcourse/" + courseId + "/edit";
+            }
         } catch (CourseSectionValidation e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
         } catch (Exception e) {
@@ -50,7 +54,8 @@ public class InstructorSectionController {
 
 
     @PostMapping("/{courseId}/sections/{sectionId}/edit")
-    public String editSection(@PathVariable("courseId") Integer courseId,
+    public String editSection(@RequestParam("source") String source,
+                              @PathVariable("courseId") Integer courseId,
                               @PathVariable("sectionId") Integer sectionId,
                               @Valid @ModelAttribute("section") CourseSectionDto courseSectionDto,
                               BindingResult bindingResult,
@@ -66,6 +71,9 @@ public class InstructorSectionController {
         try {
             courseSectionService.updateCourseSection(sectionId, courseSectionDto);
             redirectAttributes.addFlashAttribute("success", "Chỉnh sửa chương thành công!");
+            if("edit".equals(source)){
+                return "redirect:/instructorcourse/" + courseId + "/edit";
+            }
         } catch (CourseSectionValidation e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
         } catch (Exception e) {
@@ -77,10 +85,14 @@ public class InstructorSectionController {
 
     @Transactional
     @PostMapping("/{courseId}/sections/{sectionId}/delete")
-    public String deleteSection(@PathVariable("courseId") Integer courseId,
+    public String deleteSection(@RequestParam("source") String source,
+                                @PathVariable("courseId") Integer courseId,
                                 @PathVariable("sectionId") Integer sectionId,
                                 RedirectAttributes redirectAttributes){
         courseSectionService.deleteSection(sectionId);
+        if("edit".equals(source)){
+            return "redirect:/instructorcourse/" + courseId + "/edit";
+        }
         return "redirect:/instructorcourse/" + courseId + "/curriculum";
     }
 

@@ -65,6 +65,8 @@ document.addEventListener('DOMContentLoaded', function () {
     ===================================================== */
     initVideoUpload();
 
+    initEditVideoUpload();
+
 
 
 
@@ -83,6 +85,8 @@ document.addEventListener('DOMContentLoaded', function () {
        15. MATERIAL FILE PREVIEW
     ===================================================== */
     initMaterialPreview();
+
+    initEditMaterialPreview();
 
 });
 
@@ -330,10 +334,28 @@ function initPricing() {
     });
 }
 
-function initVideoUpload() {
-    const input = document.getElementById('videoFileInput');
-    const container = document.getElementById('videoPreviewContainer');
-    const durationInput = document.getElementById('durationSecondsInput');
+function initVideoUpload(){
+    initVideoUploadById(
+        'videoFileInput',
+        'videoPreviewContainer',
+        'durationSecondsInput'
+    );
+}
+
+
+function initEditVideoUpload(){
+    initVideoUploadById(
+        'editVideoFileInput',
+        'editVideoPreviewContainer',
+        'editDurationSecondsInput'
+    );
+}
+
+
+function initVideoUploadById(inputId, containerId, durationId) {
+    const input = document.getElementById(inputId);
+    const container = document.getElementById(containerId);
+    const durationInput = document.getElementById(durationId);
 
     if (!input) return;
 
@@ -501,14 +523,6 @@ function updateCurriculumPreview() {
     preview.innerHTML = html;
 }
 
-
-function deleteLesson(lessonId) {
-    if (!confirm('Xóa bài giảng này?')) return;
-    fetch(`/instructorcourse/lessons/${lessonId}/delete`, { method: 'POST' })
-        .then(r => { if (r.ok) location.reload(); });
-}
-
-
 function openEditSectionModal(dataset) {
 
     const form = document.getElementById("editSectionForm");
@@ -523,13 +537,182 @@ function openEditSectionModal(dataset) {
 }
 
 
+// function openEditLessonModal(dataset) {
+//     const form = document.getElementById('editLessonForm');
+//     const courseId = dataset.courseId;
+//     const sectionId = dataset.sectionId;
+//     const lessonId = dataset.lessonId;
+//
+//     form.action = `/instructor/sections/${sectionId}/lessons/${lessonId}/edit`;
+//
+//     document.getElementById('editCourseid').value = courseId;
+//     document.getElementById('editSectionId').value = sectionId;
+//     document.getElementById('editLessonId').value = lessonId;
+//
+//     document.getElementById('editLessonName').value = dataset.lessonTitle || '';
+//     document.getElementById('editLessonFreeToggle').checked = dataset.lessonFree === 'true';
+//
+//     document.getElementById('editVideoPreviewContainer').innerHTML = '';
+//     document.getElementById('editVideoFileInput').value = '';
+//
+//     document.getElementById('editMaterialInput').value = '';
+//     document.getElementById('editMaterialList').innerHTML = '';
+//
+//
+//     if (dataset.materials) {
+//         try {
+//             const materials = JSON.parse(dataset.materials);
+//             renderExistingMaterials(materials, lessonId, courseId);
+//         } catch (e) {
+//             console.error('Error parsing materials:', e);
+//         }
+//     }
+//
+//     // Reset media tabs
+//     document.querySelectorAll('.media-tab[data-group="edit-lesson-media"]').forEach(tab => {
+//         tab.classList.toggle('active', tab.dataset.type === 'video');
+//     });
+//     document.querySelectorAll('.media-content[data-group="edit-lesson-media"]').forEach(content => {
+//         content.style.display = content.dataset.type === 'video' ? '' : 'none';
+//     });
+//
+//     openModal('modal-edit-lesson');
+// }
 
 function openEditLessonModal(dataset) {
     const form = document.getElementById('editLessonForm');
-    currentEditLessonId = dataset.lessonId;
-    document.getElementById('editLessonTitle').value = dataset.lessonTitle;
-    document.getElementById('editLessonFree').checked = dataset.lessonFree === 'true';
-    openModal('editLessonModal');
+    const courseId = dataset.courseId;
+    const sectionId = dataset.sectionId;
+    const lessonId = dataset.lessonId;
+
+    form.action = `/instructor/sections/${sectionId}/lessons/${lessonId}/edit`;
+
+    document.getElementById('editCourseid').value = courseId;
+    document.getElementById('editSectionId').value = sectionId;
+    document.getElementById('editLessonId').value = lessonId;
+
+    document.getElementById('editLessonName').value = dataset.lessonTitle || '';
+    document.getElementById('editLessonFreeToggle').checked = dataset.lessonFree === 'true';
+
+    // === XỬ LÝ HIỂN THỊ VIDEO CŨ Ở ĐÂY ===
+    const videoPreviewContainer = document.getElementById('editVideoPreviewContainer');
+    videoPreviewContainer.innerHTML = '';
+    document.getElementById('editVideoFileInput').value = '';
+
+    // Giả định trong dataset của bạn có truyền 'lessonVideoUrl' hoặc 'videoUrl'
+    const oldVideoUrl = dataset.lessonVideoUrl || dataset.videoUrl;
+    if (oldVideoUrl && oldVideoUrl !== 'null' && oldVideoUrl !== '') {
+        videoPreviewContainer.innerHTML = `
+            <div class="old-video-info" style="margin-top: 10px; padding: 10px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px;">
+                <p style="font-size: 13px; color: #555; margin-bottom: 5px;">🎬 <strong>Video hiện tại của bài giảng:</strong></p>
+                <video src="${oldVideoUrl}" controls style="width:100%; border-radius:4px; max-height:180px;"></video>
+            </div>
+        `;
+    }
+
+    // === XỬ LÝ HIỂN THỊ TÀI LIỆU CŨ ===
+    document.getElementById('editMaterialInput').value = '';
+    document.getElementById('editMaterialList').innerHTML = '';
+
+    if (dataset.materials) {
+        try {
+            const materials = JSON.parse(dataset.materials);
+            renderExistingMaterials(materials, lessonId, courseId);
+        } catch (e) {
+            console.error('Error parsing materials:', e);
+        }
+    }
+
+    // Reset media tabs
+    document.querySelectorAll('.media-tab[data-group="edit-lesson-media"]').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.type === 'video');
+    });
+    document.querySelectorAll('.media-content[data-group="edit-lesson-media"]').forEach(content => {
+        content.style.display = content.dataset.type === 'video' ? '' : 'none';
+    });
+
+    openModal('modal-edit-lesson');
+}
+
+
+
+function deleteLesson(lessonId, courseId) {
+    if (!lessonId || !courseId) {
+        alert('ID không hợp lệ!');
+        return;
+    }
+
+    if (!confirm('Xóa bài giảng này? Tất cả materials và quizzes sẽ bị xóa theo.')) {
+        return;
+    }
+
+    // Tạo form ẩn để submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/instructor/lessons/${lessonId}/delete?courseId=${courseId}`;
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function deleteMaterial(materialId, lessonId, courseId) {
+    if (!materialId || !lessonId || !courseId) {
+        alert(' ID không hợp lệ!');
+        return;
+    }
+
+    if (!confirm('Xóa tài liệu này?')) {
+        return;
+    }
+
+    // Tạo form ẩn để submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/instructor/materials/${materialId}/delete?lessonId=${lessonId}&courseId=${courseId}`;
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function renderExistingMaterials(materials, lessonId, courseId) {
+    const container = document.getElementById('existingMaterialsContainer');
+    if (!materials || materials.length === 0) {
+        container.innerHTML = '<p style="color:#999; font-size:0.9rem;">📭 Chưa có tài liệu nào</p>';
+        return;
+    }
+
+    const iconMap = {
+        pdf:  { icon: 'ti-file-type-pdf', color: '#E24B4A' },
+        docx: { icon: 'ti-file-type-doc', color: '#185FA5' },
+        pptx: { icon: 'ti-file-type-ppt', color: '#D85A30' },
+        xlsx: { icon: 'ti-file-type-xls', color: '#3B6D11' },
+    };
+
+    container.innerHTML = materials.map(material => {
+        const ext = material.fileName.split('.').pop().toLowerCase();
+        const m = iconMap[ext] || { icon: 'ti-file', color: '#888' };
+        const mb = (material.fileSize / 1024 / 1024).toFixed(1);
+
+        return `
+        <div style="display:flex; align-items:center; gap:10px; margin-top:8px; padding:10px 12px; 
+                    border:0.5px solid var(--border-color); border-radius:8px; background:var(--bg-light);">
+            <i class="ti ${m.icon}" style="font-size:20px; color:${m.color}; flex-shrink:0;"></i>
+            <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${material.fileName}
+                </div>
+                <div style="font-size:12px; color:var(--text-muted);">${mb} MB</div>
+            </div>
+            <form method="POST" 
+                  action="/instructor/materials/${material.id}/delete?lessonId=${lessonId}&courseId=${courseId}"
+                  style="display:inline;">
+                <button type="submit" 
+                        onclick="return confirm('Xóa tài liệu này?');"
+                        style="background:none; border:none; cursor:pointer; color:var(--text-danger); 
+                               padding:4px; font-size:16px;">
+                    ✕
+                </button>
+            </form>
+        </div>`;
+    }).join('');
 }
 
 
@@ -538,34 +721,6 @@ function deleteSection(sectionId, courseId) {
     fetch(`/instructorcourse/${courseId}/sections/${sectionId}/delete`, { method: 'POST' })
         .then(r => { if (r.ok) location.reload(); });
 }
-
-
-function saveEditLesson() {
-    const title = document.getElementById('editLessonTitle').value.trim();
-    if (!title) {
-        alert('Vui lòng nhập tên bài giảng');
-        return;
-    }
-
-    const isFree = document.getElementById('editLessonFree').checked;
-    const body = new URLSearchParams();
-    body.append('title', title);
-    body.append('isFreePreview', isFree);
-
-    fetch(`/instructorcourse/lesson/${currentEditLessonId}/save`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: body.toString()
-    })
-        .then(response => {
-            if (response.ok) location.reload();
-        })
-        .catch(error => alert('Lỗi: ' + error.message));
-
-    closeModal('editLessonModal');
-}
-
-
 
 
 function openAddLessonModal(sectionId) {
@@ -634,9 +789,22 @@ function initWizardButtons() {
 /* =====================
    MATERIAL FILE PREVIEW
 ===================== */
-function initMaterialPreview() {
-    const input     = document.getElementById("MaterialInput");
-    const list      = document.getElementById("materialList");
+function initMaterialPreview(){
+    initMaterialPreviewByID(
+        "MaterialInput",
+        "materialList"
+    );
+}
+
+function initEditMaterialPreview(){
+    initMaterialPreviewByID(
+        "editMaterialInput",
+        "editMaterialList"
+    );
+}
+function initMaterialPreviewByID(inputId, listId) {
+    const input     = document.getElementById(inputId);
+    const list      = document.getElementById(listId);
     const dt        = new DataTransfer(); // giữ file trong input thật
 
     if (!input || !list) return;

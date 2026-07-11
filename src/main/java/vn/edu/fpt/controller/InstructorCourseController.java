@@ -24,6 +24,7 @@ import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
 import vn.edu.fpt.service.lesson.LessonService;
+import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.SecurityUtils;
 
 
@@ -65,6 +66,8 @@ public class InstructorCourseController {
         Page<CourseDto> reject = courseService.findByInstructorAndStatus(user, PageRequest.of(pageReject, size, sort), CourseStatus.REJECTED);
         Page<CourseDto> hidden = courseService.findByInstructorAndStatus(user, PageRequest.of(pageHidden, size, sort), CourseStatus.HIDDEN);
         Page<CourseDto> pending = courseService.findByInstructorAndStatus(user, PageRequest.of(pagePending, size, sort), CourseStatus.PENDING);
+
+        loadFormModel(model);
 
         model.addAttribute("listpublished", published.getContent());
         model.addAttribute("publishedPage", published);
@@ -115,6 +118,7 @@ public class InstructorCourseController {
                 categoryService.findByParentIsNotNulAndStatus("ACTIVE"));
         model.addAttribute("section", new CourseSectionDto());
         model.addAttribute("lesson", new LessonDto());
+        model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
     }
 
     @PostMapping("/save")
@@ -167,7 +171,9 @@ public class InstructorCourseController {
         model.addAttribute("lesson", new LessonDto());
         model.addAttribute("sections", listSection);
         model.addAttribute("totalLessons", courseSectionService.totalLesson(listSection));
+        model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
         return "instructor_course/editcourse";
+
     }
 
     @GetMapping("/{id}/view")
@@ -180,7 +186,8 @@ public class InstructorCourseController {
                 .sum();
         model.addAttribute("totalLessons", totalLessons);
         model.addAttribute("courseDetal", courseRespon);
-        return "instructor_course/view_course_demo";
+        model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
+        return "instructor_course/viewCourse";
     }
 
     @GetMapping("/{id}/edit")
@@ -196,6 +203,7 @@ public class InstructorCourseController {
         model.addAttribute("sections", sections);
         model.addAttribute("totalLessons", totalesson);
         model.addAttribute("courseId", courseId);
+        model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
 
         ///Object rộng để binding
         loadFormModel(model);

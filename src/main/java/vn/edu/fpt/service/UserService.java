@@ -7,6 +7,7 @@ import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.UserValidationException;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.cloud.AzureBlobService;
+import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.Validation;
 
 import vn.edu.fpt.dto.user.UserDto;
@@ -85,7 +86,7 @@ public class UserService {
                 throw new UserValidationException("file","Vui lòng chọn ảnh có kích thước không vượt quá 2MB.");
             }
 
-            String url = azureBlobService.saveFile(profileDto.getFile(), "user-avatars");
+            String url = azureBlobService.saveFile(profileDto.getFile(), AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS);
             user.setAvatarUrl(url);
         }
 

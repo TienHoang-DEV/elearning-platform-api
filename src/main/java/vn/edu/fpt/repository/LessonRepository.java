@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import vn.edu.fpt.dto.lesson.LessonSiderbarDTO;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.entity.Lesson;
+import vn.edu.fpt.entity.LessonMaterial;
 import vn.edu.fpt.entity.User;
 
 import java.util.List;
@@ -77,4 +78,19 @@ public interface LessonRepository extends JpaRepository<Lesson, Integer> {
                                 select new vn.edu.fpt.dto.lesson.LessonSiderbarDTO(l.id, l.durationSeconds, l.title, l.position, l.videoUrl) from Lesson l where l.courseSection.id = :id order by l.position asc
                         """)
         List<LessonSiderbarDTO> findLessonBySecionId(@Param("id") Integer id);
+
+       //Check trùng tên bài hoọc
+        @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END " +
+                "FROM Lesson l " +
+                "WHERE l.title = :title " +
+                "AND l.courseSection.id = :sectionId " +
+                "AND l.id != :excludeLessonId")
+        boolean existsByTitleAndCourseSection_IdAndIdNot(
+                @Param("title") String title,
+                @Param("sectionId") Integer sectionId,
+                @Param("excludeLessonId") Integer excludeLessonId
+        );
+
+
+
 }

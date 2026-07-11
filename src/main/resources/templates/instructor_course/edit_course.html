@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi"  xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -5,6 +6,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Learning Hub - Chỉnh Sửa Khóa Học</title>
     <link rel="stylesheet" th:href="@{/css/edit_course.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* CSS bổ sung để phục vụ cụm danh sách tài liệu đa cấp (Dropdown) */
+        .preview-material-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .material-dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: #fff;
+            min-width: 220px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            z-index: 100;
+            margin-top: 4px;
+            padding: 6px 0;
+        }
+        .material-dropdown-menu.show {
+            display: block;
+        }
+        .material-dropdown-item {
+            padding: 8px 14px;
+            font-size: 13px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .material-dropdown-item:hover {
+            background-color: #f1f5f9;
+        }
+    </style>
 </head>
 <body>
 
@@ -17,20 +59,16 @@
     </div>
 
     <form th:action="@{/instructorcourse/{id}/edit(id=*{id})}" method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${CourseRequest}">
-
         <div class="card">
             <div class="card-title">Thông Tin Chung</div>
 
-            <!-- Tiêu đề -->
             <div class="form-group" style="margin-bottom:16px;">
                 <label>Tiêu Đề Khóa Học <span class="required">*</span></label>
-                <!-- HARDCODE: tiêu đề khóa học -->
                 <input type="text" th:field="*{title}" class="form-control" id="courseTitleInput"
                        value="Lập Trình Java Spring Boot Thực Chiến" required/>
                 <div class="form-hint">Tối đa 60 ký tự</div>
             </div>
 
-            <!-- Mô tả -->
             <div class="form-group" style="margin-bottom:16px;">
                 <label>Mô Tả Khóa Học</label>
                 <div class="rich-toolbar">
@@ -38,7 +76,6 @@
                     <button data-cmd="italic" type="button"><i>I</i></button>
                     <button data-cmd="underline" type="button"><u>U</u></button>
                 </div>
-                <!-- HARDCODE: nội dung mô tả ban đầu -->
                 <div class="rich-editor" id="courseDescEditor" contenteditable="true"
                      data-placeholder="Nhập mô tả đầy đủ cho khóa học...">
                     Khóa học này sẽ hướng dẫn bạn từ cơ bản đến nâng cao về lập trình Web với Java Spring Boot.
@@ -48,11 +85,9 @@
                        required/>
             </div>
 
-            <!-- Level & Category -->
             <div class="form-grid" style="margin-top:16px;">
                 <div class="form-group">
                     <label>Trình Độ Khóa Học</label>
-                    <!-- HARDCODE: "Trung cấp" đang được chọn -->
                     <select th:field="*{level}" class="form-control">
                         <option value="">Chọn trình độ</option>
                         <option th:each="l : ${courselevels}" th:value="${l}"
@@ -66,7 +101,6 @@
                         <option th:each="ca : ${categoryparents}"
                                 th:value="${ca.id}"
                                 th:text="${ca.name}">
-
                         </option>
                     </select>
                     <label>Danh Mục Phụ Khóa Học</label>
@@ -81,21 +115,17 @@
                 </div>
             </div>
 
-            <!-- Giá khóa học -->
             <div class="form-group" style="margin-top:16px;">
                 <label>Giá Khóa Học</label>
-                <!-- HARDCODE: giá khóa học -->
                 <input type="number" class="form-control" th:field="*{price}" value="399000" min="0"/>
                 <div class="form-hint">Nhập 0 nếu khóa học miễn phí</div>
             </div>
 
-            <!-- Thumbnail -->
             <div class="form-group" style="margin-top:16px;">
                 <label>Hình Thu Nhỏ Của Khóa Học</label>
                 <div class="thumbnail-upload" onclick="document.getElementById('thumbnailInput').click()">
-                    <!-- HARDCODE: ảnh thumbnail -->
                     <img id="thumbnailPreview"
-                         th:src="${CourseRequest.thumbnailUrl}"
+                         th:src="${urlAvatar + CourseRequest.thumbnailUrl}"
                          th:style="${CourseRequest.thumbnailUrl == null or CourseRequest.thumbnailUrl == ''} ? 'display:none;' : ''"
                          alt="Thumbnail Preview"/>
                     <div id="uploadPlaceholder" style="display:none;">
@@ -125,120 +155,147 @@
         </div>
 
         <div id="curriculumList">
-            <!-- Lặp qua từng Chương -->
             <div th:each="section : ${sections}" class="section-item" th:data-section-id="${section.id}">
+
                 <div class="section-header">
                     <span class="drag-handle">⠿</span>
                     <span class="section-number" th:text="'Chương ' + ${section.position}">Chương 1</span>
                     <span class="section-title" th:text="${section.title}">Tên chương</span>
                     <div class="section-actions">
-                        <!-- Nút mở modal thêm bài giảng cấp ID chương -->
                         <button type="button" class="btn btn-sm btn-outline"
                                 th:data-section-id="${section.id}"
                                 onclick="openAddLessonModal(this.dataset.sectionId)">
                             + Thêm Bài Giảng
                         </button>
-                        <!-- Form gửi yêu cầu xóa chương -->
-                        <form th:action="@{/instructorcourse/{courseId}/sections/{sectionId}/delete(courseId=${courseId}, sectionId=${section.id})}"
-                              method="POST" style="display:inline;" onsubmit="return confirm('Xóa chương này?')">
-                            <button type="submit" class="btn btn-sm btn-danger">🗑</button>
-                        </form>
+                        <button type="button" class="btn btn-sm btn-danger"
+                                th:data-section-id="${section.id}"
+                                th:data-section-title="${section.title}"
+                                th:data-course-id="${section.course.id}"
+                                onclick="openEditSectionModal(this.dataset)">
+                            <i class="bi bi-pencil-square" style="font-size:11px;"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger"
+                                th:data-section-id="${section.id}"
+                                th:data-course-id="${section.course.id}"
+                                onclick="deleteSection(this.dataset.sectionId, this.dataset.courseId)">
+                            <i class="bi bi-trash" style="font-size:11px;"></i>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Danh sách bài giảng trong chương -->
                 <div class="lesson-list">
                     <div th:each="lesson : ${section.lessons}" class="lesson-item" th:data-lesson-id="${lesson.id}">
                         <span class="drag-handle">⠿</span>
-                        <span class="lesson-icon">🎬</span>
-                        <span class="lesson-title" th:text="'Bài ' + ${lesson.position} + ': ' + ${lesson.title}">Bài 1</span>
+                        <span class="lesson-icon"></span>
+                        <span class="lesson-title" th:text="'Bài ' + ${lesson.position} + ': ' + ${lesson.title}">Tên bài giảng</span>
                         <span th:if="${lesson.isFreePreview}" class="badge badge-free">Miễn phí</span>
                         <div class="lesson-actions">
-                            <!-- Nút mở modal sửa bài giảng truyền thông tin qua dataset -->
                             <button type="button" class="btn btn-sm btn-outline"
                                     th:data-lesson-id="${lesson.id}"
                                     th:data-lesson-title="${lesson.title}"
                                     th:data-lesson-free="${lesson.isFreePreview}"
-                                    onclick="openEditLessonModal(this.dataset)">✏️</button>
-                            <!-- Form gửi yêu cầu xóa bài giảng -->
-                            <form th:action="@{/instructor/lessons/{lessonId}/delete(lessonId=${lesson.id})}"
-                                  method="POST" style="display:inline;" onsubmit="return confirm('Xóa bài giảng này?')">
-                                <button type="submit" class="btn btn-sm btn-danger">🗑</button>
-                            </form>
+                                    th:data-course-id="${section.course.id}"
+                                    th:data-section-id="${section.id}"
+                                    onclick="openEditLessonModal(this.dataset)">
+                                <i class="bi bi-pencil-square" style="font-size:11px;"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger"
+                                    th:data-lesson-id="${lesson.id}"
+                                    th:data-course-id="${section.course.id}"
+                                    onclick="deleteLesson(this.dataset.lessonId, this.dataset.courseId)">
+                                <i class="bi bi-trash" style="font-size:11px;"></i>
+                            </button>
                         </div>
                     </div>
                     <div th:if="${#lists.isEmpty(section.lessons)}" class="table-empty" style="padding:12px 16px;">
                         Chưa có bài giảng nào
                     </div>
                 </div>
+
             </div>
         </div>
 
+
+
         <div class="add-section-btn" id="addSectionBtn">＋ Thêm Mục (Chương)</div>
 
-        <!-- ===== Xem trước chương trình giảng dạy ===== -->
+        <!-- ===== XEM TRƯỚC CHƯƠNG TRÌNH GIẢNG DẠY + NÚT PHÁT MEDIA ===== -->
         <div class="preview-panel" style="margin-top:20px;">
             <div class="preview-panel-header">Xem trước chương trình giảng dạy</div>
             <div class="preview-panel-body" style="padding:0;background:var(--bg-card);">
 
                 <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); background:#f8fafc;">
                     <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px;">
-                        Chương trình giảng dạy
+                        Chương trình giảng dạy hiển thị cho học viên
                     </span>
-                    <!-- HARDCODE: tổng số chương / bài học -->
-                    <span style="font-size:12px; color:var(--text-muted);">2 Chương · 2 bài học</span>
                 </div>
 
-                <!-- Preview Chương 1 -->
-                <div style="border-bottom:1px solid var(--border);">
+                <!-- Lặp danh sách chương đổ vào Preview -->
+                <div th:each="section : ${sections}" style="border-bottom:1px solid var(--border);">
                     <div style="display:flex; align-items:center; gap:12px; padding:14px 18px; cursor:pointer;"
                          onclick="this.nextElementSibling.classList.toggle('open'); this.querySelector('.cp-chev').classList.toggle('open')">
                         <span class="cp-chev" style="display:inline-block;color:var(--text-muted);">▾</span>
                         <div style="flex:1;">
-                            <div style="font-size:14px; font-weight:600;">Chương 1: Giới thiệu Spring Boot</div>
-                            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">2 bài học</div>
+                            <div style="font-size:14px; font-weight:600;" th:text="'Chương ' + ${section.position} + ': ' + ${section.title}">Chương 1</div>
+                            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;" th:text="${#lists.size(section.lessons)} + ' bài học'">0 bài học</div>
                         </div>
                     </div>
+
                     <div class="cp-lessons" style="display:none; border-top:1px solid var(--border);">
-                        <div style="display:flex; align-items:center; gap:12px; padding:10px 18px 10px 48px; border-bottom:1px solid var(--border);">
-                            <span>▶️</span>
-                            <div style="flex:1;">
-                                <div style="font-size:13px;">Bài 1: Spring Boot là gì?</div>
-                                <!-- HARDCODE: thời lượng + số tài liệu -->
-                                <div style="font-size:12px; color:var(--text-muted); margin-top:2px; display:flex; gap:8px;">
-                                    <span>🕒 05:32</span>
-                                    <span>📄 1 tài liệu</span>
+                        <!-- Lặp danh sách bài giảng -->
+                        <div th:each="lesson : ${section.lessons}" style="display:flex; align-items:center; justify-content:space-between; padding:10px 18px 10px 48px; border-bottom:1px solid var(--border);">
+                            <div style="display:flex; align-items:center; gap:12px; flex:1;">
+                                <span>▶️</span>
+                                <div>
+                                    <div style="font-size:13px;" th:text="'Bài ' + ${lesson.position} + ': ' + ${lesson.title}">Tên bài</div>
+                                </div>
+                            </div>
+
+                            <!-- HÀNH VI XEM THỬ MEDIA (HỖ TRỢ LIST MATERIAL) -->
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <!-- Nút xem Video -->
+                                <button type="button" class="btn btn-sm btn-outline"
+                                        th:data-lesson-id="${lesson.id}"
+                                        onclick="playPreviewVideo(this.dataset.lessonId)"
+                                        style="padding:4px 10px; font-size:12px; display:flex; align-items:center; gap:4px;">
+                                    <i class="bi bi-play-circle-fill"></i> Xem Video
+                                </button>
+
+                                <!-- Cụm Dropdown Xử lý danh sách tài liệu -->
+                                <div class="preview-material-dropdown">
+                                    <button type="button" class="btn btn-sm btn-outline"
+                                            onclick="toggleMaterialDropdown(this, event)"
+                                            style="padding:4px 10px; font-size:12px; display:flex; align-items:center; gap:4px;">
+                                        <i class="bi bi-file-earmark-text"></i> Tài liệu <i class="bi bi-chevron-down" style="font-size: 10px;"></i>
+                                    </button>
+
+                                    <!-- Menu đổ xuống chứa danh sách tài liệu từ cơ sở dữ liệu -->
+                                    <div class="material-dropdown-menu">
+                                        <!-- Lặp qua list materials của lesson -->
+                                        <div th:each="mat : ${lesson.materials}"
+                                             class="material-dropdown-item"
+                                             th:data-url="${mat.fileUrl}"
+                                             th:text="${mat.fileName != null ? mat.fileName : 'Tài liệu không tên'}"
+                                             onclick="viewPreviewMaterial(this.dataset.url)">
+                                            Tên file tài liệu.pdf
+                                        </div>
+                                        <!-- Hiển thị nếu bài học trống tài liệu -->
+                                        <div th:if="${#lists.isEmpty(lesson.materials)}" class="material-dropdown-item" style="color:var(--text-muted); cursor:default;">
+                                            Không có tài liệu đính kèm
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div style="display:flex; align-items:center; gap:12px; padding:10px 18px 10px 48px;">
-                            <span>▶️</span>
-                            <div style="flex:1;">
-                                <div style="font-size:13px;">Bài 2: Cài đặt môi trường</div>
-                                <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-                                    <span>🕒 08:10</span>
-                                </div>
-                            </div>
+                        <div th:if="${#lists.isEmpty(section.lessons)}" style="padding:12px 48px; font-size:13px; color:var(--text-muted);">
+                            Chưa có bài học nào trong chương này.
                         </div>
                     </div>
                 </div>
-
-                <!-- Preview Chương 2 (rỗng) -->
-                <div>
-                    <div style="display:flex; align-items:center; gap:12px; padding:14px 18px; cursor:pointer;"
-                         onclick="this.nextElementSibling.classList.toggle('open'); this.querySelector('.cp-chev').classList.toggle('open')">
-                        <span class="cp-chev" style="display:inline-block;color:var(--text-muted);">▾</span>
-                        <div style="flex:1;">
-                            <div style="font-size:14px; font-weight:600;">Chương 2: REST API với Spring Boot</div>
-                            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">0 bài học</div>
-                        </div>
-                    </div>
-                    <div class="cp-lessons" style="display:none;"></div>
-                </div>
-
             </div>
         </div>
     </div>
+
 
     <div class="gap-row">
         <a href="#" class="btn btn-outline">← Quay về khóa học</a>
@@ -248,24 +305,20 @@
 </main>
 
 <!-- =====================================================
-     MODALS
+     MODALS QUẢN LÝ KHÁC
 ====================================================== -->
-
-<!-- Modal: Thêm Chương -->
 <div class="modal-overlay" id="modal-add-section">
     <div class="modal">
         <div class="modal-header">
-            <h3>➕ Thêm Chương Mới</h3>
+            <h3>Thêm Chương Mới</h3>
             <button class="modal-close" data-close-modal="modal-add-section">✕</button>
         </div>
-        <form action="#" method="POST">
+        <form th:action="@{/instructorcourse/{id}/sections(id=${courseId})}" method="POST" th:object="${section}">
+            <input type="hidden" name="source" value="edit">
             <div class="modal-body">
-                <!-- HARDCODE: thông báo thành công demo (bật bằng cách bỏ comment) -->
-                <!-- <div class="alert alert-success">Thêm chương thành công!</div> -->
                 <div class="form-group">
                     <label>Tên Chương <span class="required">*</span></label>
-                    <input type="text" name="title" class="form-control"
-                           placeholder="VD: Giới thiệu về guitar điện" required/>
+                    <input type="text" th:field="*{title}" class="form-control" placeholder="VD: Giới thiệu về guitar điện" required/>
                 </div>
             </div>
             <div class="modal-footer">
@@ -276,40 +329,71 @@
     </div>
 </div>
 
-<!-- Modal: Thêm Bài Giảng -->
+
+<!-- =====================================================
+     Sửa section
+====================================================== -->
+
+<div class="modal-overlay" id="modal-edit-section">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Chỉnh Sửa Chương</h3>
+            <button class="modal-close" data-close-modal="modal-edit-section">✕</button>
+        </div>
+        <form   method="POST"
+                th:object="${section}"
+                id="editSectionForm">
+            <input type="hidden" name="sectionId" id="editSectionId"/>
+            <input type="hidden" name="courseId" id="editSectionCourseId"/>
+            <input type="hidden" name="source" id="editSectionSource" value="edit">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Tên Chương <span class="required">*</span></label>
+                    <input type="text" th:field="*{title}"  id="editSectionTitle" class="form-control" required/>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" data-close-modal="modal-edit-section">Hủy</button>
+                <button type="submit" class="btn btn-primary">Cập nhật</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- =====================================================
+     Thêm bai giang
+====================================================== -->
+
+
 <div class="modal-overlay" id="modal-add-lesson">
     <div class="modal modal-lg">
         <div class="modal-header">
             <h3>Thêm Bài Giảng</h3>
             <button class="modal-close" data-close-modal="modal-add-lesson">✕</button>
         </div>
-
-        <form action="#" method="POST" enctype="multipart/form-data" id="addLessonForm">
+        <form method="POST" enctype="multipart/form-data" id="addLessonForm" th:object="${lesson}">
             <input type="hidden" name="sectionId" id="addLessonSectionId"/>
-            <!-- HARDCODE: courseId -->
-            <input type="hidden" name="courseId" id="addLessonCourseId" value="1"/>
+            <input type="hidden" name="courseId" id="addLessonCourseId" th:value="${courseId}"/>
 
             <div class="modal-body">
                 <div class="form-group" style="margin-bottom:16px;">
                     <label>Tên Bài Giảng <span class="required">*</span></label>
-                    <input type="text" name="title" id="lessonNameInput" class="form-control"
-                           placeholder="VD: Phân biệt guitar thùng và guitar điện" required/>
+                    <input type="text" th:field="*{title}" id="lessonNameInput" class="form-control" placeholder="VD: Phân biệt..." required/>
                 </div>
 
                 <div class="lesson-media-tabs" data-group="lesson-media">
                     <div class="media-tab active" data-group="lesson-media" data-type="video">
-                        <span class="tab-icon">🎬</span> TẢI VIDEO LÊN
+                        <span class="tab-icon"></span> TẢI VIDEO LÊN
                     </div>
                     <div class="media-tab" data-group="lesson-media" data-type="file">
-                        <span class="tab-icon">📎</span> TÀI LIỆU
+                        <span class="tab-icon"></span> TẢI LIỆU
                     </div>
                 </div>
 
                 <div class="media-content" data-group="lesson-media" data-type="video">
                     <div class="file-upload-area" onclick="document.getElementById('videoFileInput').click()">
-                        <div class="upload-icon">🎬</div>
+                        <div class="upload-icon"></div>
                         <p>Kéo thả hoặc nhấn để tải video lên</p>
-                        <p style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">MP4, MOV, AVI. Tối đa 2GB.</p>
                         <span class="choose-btn">Chọn Video File</span>
                     </div>
                     <input type="file" id="videoFileInput" name="videoFile" accept="video/*" style="display:none;"/>
@@ -319,13 +403,11 @@
 
                 <div class="media-content" data-group="lesson-media" data-type="file" style="display:none;">
                     <div class="file-upload-area" onclick="document.getElementById('MaterialInput').click()">
-                        <div class="upload-icon">📄</div>
+                        <div class="upload-icon"></div>
                         <p>Kéo thả hoặc nhấn để tải tài liệu lên</p>
-                        <p style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">Tối đa 2GB mỗi file.</p>
                         <span class="choose-btn">Chọn Tài Liệu</span>
                     </div>
-                    <input type="file" id="MaterialInput" name="materialFiles"
-                           accept=".pdf,.docx,.pptx,.xlsx" style="display:none;" multiple/>
+                    <input type="file" id="MaterialInput" name="materialFiles" accept=".pdf,.docx,.pptx,.xlsx" style="display:none;" multiple/>
                     <div id="materialList"></div>
                 </div>
 
@@ -335,48 +417,52 @@
                         <span class="toggle-slider"></span>
                     </label>
                     <label for="lessonFreeToggle" style="cursor:pointer;">
-                        🆓 Cho phép xem bài giảng này <strong>miễn phí</strong> (preview)
+                        Cho phép xem bài giảng này <strong>miễn phí</strong> (preview)
                     </label>
                 </div>
             </div>
-
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" data-close-modal="modal-add-lesson">Hủy</button>
-                <button type="submit" class="btn btn-primary">💾 Lưu Bài Giảng</button>
+                <button type="submit" class="btn btn-primary">Lưu Bài Giảng</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Modal: Sửa Bài Giảng -->
+
+<!-- =====================================================
+     Sửa bài giảng
+====================================================== -->
+
 <div class="modal-overlay" id="modal-edit-lesson">
     <div class="modal modal-lg">
         <div class="modal-header">
-            <h3>✏️ Chỉnh Sửa Bài Giảng</h3>
+            <h3>Chỉnh Sửa Bài Giảng</h3>
             <button class="modal-close" data-close-modal="modal-edit-lesson">✕</button>
         </div>
-        <form action="#" method="POST" enctype="multipart/form-data">
+        <form  method="POST" enctype="multipart/form-data" th:object="${lesson}" id="editLessonForm">
             <input type="hidden" name="lessonId" id="editLessonId"/>
+            <input type="hidden" name="courseId" id="editLessonCourseId"/>
+            <input type="hidden" name="sectionId" id="editLessonSectionId"/>
 
             <div class="modal-body">
                 <div class="form-group" style="margin-bottom:16px;">
                     <label>Tên Bài Giảng</label>
-                    <input type="text" name="title" class="form-control" id="editLessonName"
-                           placeholder="Tên bài giảng"/>
+                    <input type="text" th:field="*{title}" class="form-control" id="editLessonName" placeholder="Tên bài giảng"/>
                 </div>
 
                 <div class="lesson-media-tabs" data-group="edit-media">
                     <div class="media-tab active" data-group="edit-media" data-type="video">
-                        <span class="tab-icon">🎬</span> TẢI VIDEO LÊN
+                        <span class="tab-icon"></span> TẢI VIDEO LÊN
                     </div>
                     <div class="media-tab" data-group="edit-media" data-type="file">
-                        <span class="tab-icon">📎</span> FILE ĐÍNH KÈM
+                        <span class="tab-icon"></span> FILE ĐÍNH KÈM
                     </div>
                 </div>
 
                 <div class="media-content" data-group="edit-media" data-type="video">
                     <div class="file-upload-area" onclick="document.getElementById('editVideoInput').click()">
-                        <div class="upload-icon">🎬</div>
+                        <div class="upload-icon"></div>
                         <p>Tải video mới lên (để thay thế video cũ)</p>
                         <span class="choose-btn">Chọn Video</span>
                     </div>
@@ -385,12 +471,11 @@
 
                 <div class="media-content" data-group="edit-media" data-type="file" style="display:none;">
                     <div class="file-upload-area" onclick="document.getElementById('editDocInput').click()">
-                        <div class="upload-icon">📄</div>
+                        <div class="upload-icon"></div>
                         <p>Tải tài liệu mới lên</p>
                         <span class="choose-btn">Chọn Tài Liệu</span>
                     </div>
-                    <input type="file" id="editDocInput" name="docFile"
-                           accept=".pdf,.doc,.docx,.ppt,.pptx" style="display:none;"/>
+                    <input type="file" id="editDocInput" name="docFile" accept=".pdf,.doc,.docx,.ppt,.pptx" style="display:none;"/>
                 </div>
 
                 <div class="free-preview-toggle">
@@ -398,21 +483,39 @@
                         <input type="checkbox" name="isFreePreview" id="editLessonFreeToggle"/>
                         <span class="toggle-slider"></span>
                     </label>
-                    <label for="editLessonFreeToggle">🆓 Cho phép xem miễn phí (preview)</label>
+                    <label for="editLessonFreeToggle">Cho phép xem miễn phí (preview)</label>
                 </div>
             </div>
-
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary btn-lg">Lưu</button>
+                <button type="button" class="btn btn-outline" data-close-modal="modal-edit-lesson">Hủy</button>
+                <button type="submit" class="btn btn-primary">Lưu</button>
             </div>
         </form>
     </div>
 </div>
 
+<!-- =====================================================
+     MODALS XEM TRƯỚC CHUYÊN DỤNG (VIDEO & FILE COI TRỰC TIẾP)
+====================================================== -->
+<!-- Modal Xem Thử Video -->
+<div class="modal-overlay" id="modal-preview-video">
+    <div class="modal modal-lg" style="max-width: 750px;">
+        <div class="modal-header">
+            <h3>🎬 Xem Thử Video Bài Giảng</h3>
+            <button class="modal-close" onclick="closeVideoModal()">✕</button>
+        </div>
+        <div class="modal-body" style="padding: 0; background: #000; display: flex; justify-content: center;">
+            <video id="previewPlayer" controls controlsList="nodownload" style="width: 100%; max-height: 450px;">
+                Trình duyệt của bạn không hỗ trợ phát video này.
+            </video>
+        </div>
+    </div>
+</div>
+
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-
-        /* ===== 1. FORM THÔNG TIN CHUNG: rich text editor + thumbnail ===== */
+        /* Rich Editor & Thumbnail Logic */
         const form = document.getElementById('courseInfoForm');
         const editor = document.getElementById('courseDescEditor');
         if (form && editor) {
@@ -440,53 +543,51 @@
             }
         });
 
-        /* ===== 2. MODAL OPEN / CLOSE ===== */
+        /* Modal Toggle */
         document.querySelectorAll('[data-close-modal]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                closeModal(btn.dataset.closeModal);
-            });
+            btn.addEventListener('click', () => { closeModal(btn.dataset.closeModal); });
         });
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) closeModal(overlay.id);
+                if (e.target === overlay) {
+                    if (overlay.id === 'modal-preview-video') {
+                        closeVideoModal();
+                    } else {
+                        closeModal(overlay.id);
+                    }
+                }
             });
         });
 
-        /* ===== 3. LESSON MEDIA TABS (Video / Tài liệu) ===== */
+        /* Tabs Media */
         document.querySelectorAll('.media-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 const group = tab.dataset.group;
                 const type = tab.dataset.type;
-
-                document.querySelectorAll(`.media-tab[data-group="${group}"]`)
-                    .forEach(t => t.classList.remove('active'));
+                document.querySelectorAll(`.media-tab[data-group="${group}"]`).forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-
-                document.querySelectorAll(`.media-content[data-group="${group}"]`)
-                    .forEach(c => c.style.display = (c.dataset.type === type) ? 'block' : 'none');
+                document.querySelectorAll(`.media-content[data-group="${group}"]`).forEach(c => c.style.display = (c.dataset.type === type) ? 'block' : 'none');
             });
         });
 
-        /* ===== 4. VIDEO PREVIEW + lấy duration (modal Thêm Bài Giảng) ===== */
+        /* Video Preview Duration */
         document.getElementById('videoFileInput').addEventListener('change', function (e) {
             const file = e.target.files[0];
             const container = document.getElementById('videoPreviewContainer');
             container.innerHTML = '';
             if (!file) return;
-
             const video = document.createElement('video');
             video.src = URL.createObjectURL(file);
             video.controls = true;
             video.style.width = '100%';
             video.style.marginTop = '10px';
             container.appendChild(video);
-
             video.addEventListener('loadedmetadata', () => {
                 document.getElementById('durationSecondsInput').value = Math.round(video.duration);
             });
         });
 
-        /* ===== 5. MATERIAL LIST (modal Thêm Bài Giảng) ===== */
+        /* Material Selection */
         document.getElementById('MaterialInput').addEventListener('change', function (e) {
             const list = document.getElementById('materialList');
             list.innerHTML = '';
@@ -499,22 +600,20 @@
             });
         });
 
-        /* ===== 6. ADD SECTION BUTTON -> mở modal thêm chương ===== */
-        document.getElementById('addSectionBtn').addEventListener('click', () => {
-            openModal('modal-add-section');
+        document.getElementById('addSectionBtn').addEventListener('click', () => { openModal('modal-add-section'); });
+
+        /* SỰ KIỆN: Đóng toàn bộ dropdown tài liệu nếu click chuột ra ngoài */
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.material-dropdown-menu').forEach(m => m.classList.remove('show'));
         });
     });
 
-    /* ===== Helper mở/đóng modal ===== */
-    function openModal(id) {
-        document.getElementById(id).classList.add('active');
-    }
-    function closeModal(id) {
-        document.getElementById(id).classList.remove('active');
-    }
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-    /* ===== Mở modal Thêm Bài Giảng, gắn sectionId ===== */
     function openAddLessonModal(sectionId) {
+        const form = document.getElementById('addLessonForm');
+        form.action = `/instructor/sections/${sectionId}/lessons?source=edit`
         document.getElementById('addLessonSectionId').value = sectionId;
         document.getElementById('addLessonForm').reset();
         document.getElementById('videoPreviewContainer').innerHTML = '';
@@ -522,24 +621,111 @@
         openModal('modal-add-lesson');
     }
 
-    /* ===== Mở modal Sửa Bài Giảng, đổ dữ liệu có sẵn vào form ===== */
+    /* MỞ MODAL SỬA CHƯƠNG */
+    function openEditSectionModal(dataset) {
+       const form = document.getElementById('editSectionForm')
+        form.action =
+            `/instructorcourse/${dataset.courseId}/sections/${dataset.sectionId}/edit`;
+        document.getElementById('editSectionId').value = dataset.sectionId;
+        document.getElementById('editSectionCourseId').value = dataset.courseId;
+        document.getElementById('editSectionTitle').value = dataset.sectionTitle || '';
+        document.getElementById('editSectionSource').value = 'edit';
+        openModal('modal-edit-section');
+    }
+
+    /* MỞ MODAL SỬA BÀI GIẢNG */
     function openEditLessonModal(dataset) {
+        const form = document.getElementById('editLessonForm');
+        form.action = `/instructor/sections/${dataset.sectionId}/lessons/${dataset.lessonId}/edit?source=edit`;
         document.getElementById('editLessonId').value = dataset.lessonId;
+        document.getElementById('editLessonCourseId').value = dataset.courseId;
+        document.getElementById('editLessonSectionId').value = dataset.sectionId;
         document.getElementById('editLessonName').value = dataset.lessonTitle || '';
         document.getElementById('editLessonFreeToggle').checked = (dataset.lessonFree === 'true');
         openModal('modal-edit-lesson');
     }
 
-    /* ===== Demo: xóa chương / bài giảng (hardcode, chỉ confirm rồi xóa khỏi DOM) ===== */
-    function deleteSection(sectionId) {
-        if (confirm('Xóa chương này? (demo - không gọi backend)')) {
-            document.querySelector(`.section-item[data-section-id="${sectionId}"]`)?.remove();
-        }
+    /* =====================================================
+         XỬ LÝ ĐÓNG MỞ DROPDOWN & XEM TRƯỚC MEDIA
+    ====================================================== */
+    function toggleMaterialDropdown(button, event) {
+        event.stopPropagation(); // Ngăn chặn lan truyền sự kiện đóng tự động lên document
+        const currentDropdown = button.nextElementSibling;
+
+        // Đóng các dropdown khác đang mở trước khi mở dropdown hiện tại
+        document.querySelectorAll('.material-dropdown-menu').forEach(menu => {
+            if (menu !== currentDropdown) menu.classList.remove('show');
+        });
+
+        currentDropdown.classList.toggle('show');
     }
-    function deleteLesson(lessonId) {
-        if (confirm('Xóa bài giảng này? (demo - không gọi backend)')) {
-            document.querySelector(`.lesson-item[data-lesson-id="${lessonId}"]`)?.remove();
+
+    function playPreviewVideo(lessonId) {
+
+        fetch("/lesson/" + lessonId)
+            .then(res => res.text())
+            .then(url => {
+
+                const player = document.getElementById("previewPlayer");
+
+                player.src = url;
+                player.load();
+
+                openModal("modal-preview-video");
+
+                player.play().catch(() => {});
+            });
+
+    }
+
+    function closeVideoModal() {
+
+        const player = document.getElementById("previewPlayer");
+
+        player.pause();
+
+        player.removeAttribute("src");
+
+        player.load();
+
+        closeModal("modal-preview-video");
+
+    }
+
+
+    function viewPreviewMaterial(materialUrl) {
+        if (!materialUrl || materialUrl === 'null' || materialUrl === '') {
+            alert("Không tìm thấy đường dẫn tài liệu đính kèm này.");
+            return;
         }
+        const viewer = document.getElementById('materialViewer');
+        viewer.src = materialUrl;
+        openModal('modal-preview-material');
+    }
+
+
+    function deleteSection(sectionId, courseId) {
+        if (!confirm('Xóa chương này và tất cả bài giảng bên trong?')) return;
+        fetch(`/instructorcourse/${courseId}/sections/${sectionId}/delete?source=edit`, { method: 'POST' })
+            .then(r => { if (r.ok) location.reload(); });
+
+    }
+
+    function deleteLesson(lessonId, courseId) {
+        if (!lessonId || !courseId) {
+            alert('ID không hợp lệ!');
+            return;
+        }
+
+        if (!confirm('Xóa bài giảng này? Tất cả materials và quizzes sẽ bị xóa theo.')) {
+            return;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/instructor/lessons/${lessonId}/delete?courseId=${courseId}&source=edit`;
+        document.body.appendChild(form);
+        form.submit();
     }
 </script>
 </body>
