@@ -49,11 +49,25 @@ function displayMessage(message, type = 'warning') {
 // Helper gọi API chuẩn hóa bắt lỗi
 async function handleApiCall(url, options = {}) {
     try {
-        const response = await fetch(url, options);
+        const fetchOptions = {
+            ...options,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                ...options.headers
+            }
+        };
+
+        const response = await fetch(url, fetchOptions);
+        
+        // Phát hiện bị redirect về trang đăng nhập do Spring Security (302 -> 200 HTML)
+        if (response.redirected || response.url.includes('/login') || response.url.includes('/login_no')) {
+            displayMessage('Bạn chưa đăng nhập. Vui lòng đăng nhập!', 'warning');
+            return null;
+        }
+
         if (!response.ok) {
             if (response.status === 401) {
                 displayMessage('Bạn chưa đăng nhập. Vui lòng đăng nhập!', 'warning');
-                setTimeout(() => window.location.href = '/login', 2000);
                 return null;
             }
             let errMsg = 'Có lỗi xảy ra từ máy chủ.';
@@ -63,6 +77,12 @@ async function handleApiCall(url, options = {}) {
             } catch (e) {}
             throw new Error(errMsg);
         }
+        
+        const contentType = response.headers.get("content-type");
+        if (!contentType || contentType.indexOf("application/json") === -1) {
+            throw new Error("Lỗi máy chủ: Dữ liệu trả về không phải JSON hợp lệ.");
+        }
+
         return await response.json();
     } catch (error) {
         console.error('Lỗi call API:', error);

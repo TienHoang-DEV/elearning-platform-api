@@ -767,12 +767,20 @@
 
             try {
                 // Gửi yêu cầu HTTP POST bất đồng bộ tới API /api/cart/add
-                const response = await fetch('/api/cart/add?courseId=' + courseId, { method: 'POST' });
+                const response = await fetch('/api/cart/add?courseId=' + courseId, { 
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
                 
+                // Trình duyệt tự động follow redirect 302 về trang login và trả về 200 OK của trang HTML
+                if (response.redirected || response.url.includes('/login') || response.url.includes('/login_no')) {
+                    showToast('Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.', 'warning');
+                    return;
+                }
+
                 if (!response.ok) {
-                    if (response.status === 401 || response.redirected || response.url.includes('/login') || response.url.includes('/login_no')) {
+                    if (response.status === 401) {
                         showToast('Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.', 'warning');
-                        setTimeout(() => window.location.href = '/login', 2000);
                         return;
                     }
                     let errMsg = 'Có lỗi xảy ra khi thêm vào giỏ hàng.';
@@ -781,6 +789,11 @@
                         errMsg = errData.message || errData.error || errMsg;
                     } catch (e) {}
                     throw new Error(errMsg);
+                }
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || contentType.indexOf("application/json") === -1) {
+                    throw new Error("Lỗi máy chủ: Không trả về JSON.");
                 }
 
                 const data = await response.json();
