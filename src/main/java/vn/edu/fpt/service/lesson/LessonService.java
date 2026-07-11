@@ -18,6 +18,10 @@ import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.SecurityUtils;
 
+import vn.edu.fpt.repository.EnrollmentRepository;
+import vn.edu.fpt.entity.Course;
+import vn.edu.fpt.enums.RoleType;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +36,22 @@ public class LessonService {
     private final AzureBlobService azureBlobService;
     private final DtoMapper dtoMapper;
     private final CourseSectionService courseSectionService;
+    private final EnrollmentRepository enrollmentRepository;
+
+    public boolean hasAccessToLesson(User user, Lesson lesson) {
+        if (user == null || lesson == null || lesson.getCourseSection() == null) {
+            return false;
+        }
+        Course course = lesson.getCourseSection().getCourse();
+        RoleType role = user.getRole();
+        if (role == RoleType.ADMIN || role == RoleType.MANAGER) {
+            return true;
+        }
+        if (role == RoleType.INSTRUCTOR) {
+            return course.getInstructor() != null && course.getInstructor().getId().equals(user.getId());
+        }
+        return enrollmentRepository.existsByUserAndCourse(user, course);
+    }
 
     public List<Lesson> findAll() {
         return repository.findAll();

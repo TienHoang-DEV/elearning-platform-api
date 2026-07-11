@@ -59,7 +59,18 @@ public class ListLessonCourseController {
     @GetMapping("/lesson/{lessonId}")
     @ResponseBody
     public String lessonView(@PathVariable("lessonId") Integer lessonId) {
-       return lessonService.findLessonUrl(lessonId);
+        User user = SecurityUtils.getCurrentUser();
+        if (user == null) {
+            return null;
+        }
+        Lesson lesson = lessonService.findById(lessonId).orElse(null);
+        if (lesson == null) {
+            return null;
+        }
+        if (!lessonService.hasAccessToLesson(user, lesson)) {
+            return null;
+        }
+        return lessonService.findLessonUrl(lesson);
     }
 
     @GetMapping("/lesson-completed/{lessonId}")

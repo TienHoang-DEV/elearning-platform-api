@@ -12,12 +12,15 @@ import vn.edu.fpt.entity.LessonMaterial;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.repository.LessonMaterialRepository;
 import vn.edu.fpt.repository.LessonRepository;
-import vn.edu.fpt.service.cloud.AzureBlobService;
-import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.repository.EnrollmentRepository;
+import vn.edu.fpt.entity.Course;
+import vn.edu.fpt.enums.RoleType;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import vn.edu.fpt.service.cloud.AzureBlobService;
+import vn.edu.fpt.util.AppConstants;
 
 @Service
 @Transactional
@@ -26,6 +29,23 @@ public class LessonMaterialService {
     private final LessonMaterialRepository repository;
     private final AzureBlobService azureBlobService;
     private final LessonRepository lessonRepository;
+    private final EnrollmentRepository enrollmentRepository;
+
+    public boolean hasAccessToMaterial(User user, LessonMaterial material) {
+        if (user == null || material == null || material.getLesson() == null ||
+                material.getLesson().getCourseSection() == null) {
+            return false;
+        }
+        Course course = material.getLesson().getCourseSection().getCourse();
+        RoleType role = user.getRole();
+        if (role == RoleType.ADMIN || role == RoleType.MANAGER) {
+            return true;
+        }
+        if (role == RoleType.INSTRUCTOR) {
+            return course.getInstructor() != null && course.getInstructor().getId().equals(user.getId());
+        }
+        return enrollmentRepository.existsByUserAndCourse(user, course);
+    }
 
 
     public void saveAllMaterial(List<MultipartFile> file, Integer lessonId, User user){

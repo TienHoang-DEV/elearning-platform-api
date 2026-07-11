@@ -108,15 +108,10 @@ public class UserFavoriteController {
             return "redirect:/login";
         }
 
-        // Tải toàn bộ các category con tương ứng
         Set<Category> newFavorites = new HashSet<>();
         if (childIds != null && !childIds.isEmpty()) {
             List<Category> selectedChildren = categoryRepository.findAllById(childIds);
             newFavorites.addAll(selectedChildren);
-        } else {
-            // Tự động chọn tất cả danh mục con của parentId nếu người dùng không chọn gì
-            List<Category> allChildren = categoryRepository.findByParentIdAndStatus(parentId, "ACTIVE");
-            newFavorites.addAll(allChildren);
         }
 
         user.getFavoriteCategories().clear();
