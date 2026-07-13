@@ -122,8 +122,18 @@ function initializeCheckoutButton() {
                 }
 
                 const data = await response.json();
-                // Redirect to payment page with payment ID
-                window.location.href = `/payment?id=${data.id}`;
+                if (data.status === 'PAID') {
+                    const myModal = new bootstrap.Modal(document.getElementById('freeSuccessModal'), {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    document.getElementById('btn-go-learning').addEventListener('click', () => {
+                        window.location.href = '/student/my-learning';
+                    });
+                    myModal.show();
+                } else {
+                    window.location.href = `/payment?id=${data.id}`;
+                }
             } catch (error) {
                 console.error('Checkout error:', error);
                 alert(error.message);
