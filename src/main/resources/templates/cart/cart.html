@@ -274,6 +274,25 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
+    <!-- Bootstrap Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1100;">
+        <div class="toast align-items-center border-0 rounded-3 shadow-lg toast-success" id="cartToast"
+            role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-3 p-3">
+                    <i data-lucide="check-circle" class="toast-icon-success" style="width: 24px; height: 24px;"></i>
+                    <i data-lucide="alert-circle" class="toast-icon-warning" style="width: 24px; height: 24px;"></i>
+                    <div class="toast-content flex-grow-1">
+                        <p class="toast-title fw-bold m-0 fs-7">Thành công!</p>
+                        <p class="toast-message m-0 fs-8" id="toast-message-text">Thông báo</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close me-3 m-auto shadow-none" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <!-- Custom JavaScript -->
     <script th:src="@{/js/cart.js}"></script>
     <script>lucide.createIcons();</script>

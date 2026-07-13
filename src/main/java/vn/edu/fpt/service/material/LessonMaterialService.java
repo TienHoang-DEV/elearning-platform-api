@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.LessonMaterial;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.LessonMaterialRepository;
 import vn.edu.fpt.repository.LessonRepository;
 import vn.edu.fpt.repository.EnrollmentRepository;
@@ -109,6 +110,27 @@ public class LessonMaterialService {
                 lessonMaterial.getFileUrl()
         );
         return azureBlobService.dowloadFile(blobClient);
+    }
+
+
+    @Transactional
+    public void deleteMaterialById(Integer materialId) {
+        if (materialId == null || materialId <= 0) {
+            throw new RuntimeException("ID tài liệu không hợp lệ");
+        }
+
+        LessonMaterial material = repository.findById(materialId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tài liệu không tìm thấy với id: " + materialId));
+
+        if (material.getFileUrl() != null && !material.getFileUrl().isEmpty()) {
+            try {
+                azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, material.getFileUrl());
+            } catch (Exception e) {
+                System.err.println("Cảnh báo: Không thể xóa file: " + e.getMessage());
+            }
+        }
+
+        repository.deleteById(materialId);
     }
 }
 

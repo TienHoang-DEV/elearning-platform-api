@@ -54,10 +54,17 @@
                                     th:data-lesson-id="${lesson.id}"
                                     th:data-lesson-title="${lesson.title}"
                                     th:data-lesson-free="${lesson.isFreePreview}"
-                                    onclick="openEditLessonModal(this.dataset)"><i class="bi bi-pencil-square" style="font-size:11px;"></i></button>
+                                    th:data-course-id="${section.course.id}"
+                                    th:data-section-id="${section.id}"
+                                    onclick="openEditLessonModal(this.dataset)">
+                                <i class="bi bi-pencil-square" style="font-size:11px;"></i>
+                            </button>
                             <button type="button" class="btn btn-sm btn-danger"
                                     th:data-lesson-id="${lesson.id}"
-                                    onclick="deleteLesson(this.dataset.lessonId)"><i class="bi bi-trash" style="font-size:11px;"></i></button>
+                                    th:data-course-id="${section.course.id}"
+                                    onclick="deleteLesson(this.dataset.lessonId, this.dataset.courseId)">
+                                <i class="bi bi-trash" style="font-size:11px;"></i>
+                            </button>
                         </div>
                     </div>
                     <div th:if="${#lists.isEmpty(section.lessons)}"

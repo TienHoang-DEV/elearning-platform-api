@@ -55,6 +55,7 @@ public class CourseService {
 
     // Page course của mỗi instructor
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
+
         return repository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
     }
 
@@ -98,7 +99,7 @@ public class CourseService {
 
         String thumbnailUrl = course.getThumbnailUrl();
         if (courseCreateDto.getThumbnailFile() != null && !courseCreateDto.getThumbnailFile().isEmpty()) {
-            thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), "course-thumbnails");
+            thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS);
         }
 
         Category category = categoryRepository.findById(courseCreateDto.getCategoryId())
