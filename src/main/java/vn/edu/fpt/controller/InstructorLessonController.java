@@ -133,48 +133,42 @@
         }
 
 
-
         @PostMapping("/sections/{sectionId}/lessons")
         public String createLesson(
-                                   @RequestParam("source") String source,
-                                   @PathVariable("sectionId") Integer sectionId,
-                                   @RequestParam("courseId") Integer courseId,
-                                   @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
-                                   @RequestParam(value = "materialFiles", required = false) List<MultipartFile> materials,
-                                   @Valid @ModelAttribute("lesson") LessonDto lessonDto,
-                                   BindingResult bindingResult,
-                                   RedirectAttributes redirectAttributes) {
+                @RequestParam(value = "source", defaultValue = "create") String source,
+                @PathVariable("sectionId") Integer sectionId,
+                @RequestParam("courseId") Integer courseId,
+                @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
+                @RequestParam(value = "materialFiles", required = false) List<MultipartFile> materials,
+                @Valid @ModelAttribute("lesson") LessonDto lessonDto,
+                BindingResult bindingResult,
+                RedirectAttributes redirectAttributes) {
 
-
-           User instrutor = SecurityUtils.getCurrentUser();
+            User instructor = SecurityUtils.getCurrentUser();
 
             if (bindingResult.hasErrors()) {
                 redirectAttributes.addFlashAttribute("error", "Dữ liệu nhập không hợp lệ.");
-                return "redirect:/instructorcourse/" + courseId + "/curriculum";
+                return redirectAfterCurriculumAction(source, courseId);
             }
 
             try {
                 Lesson tmp = lessonService.saveLesson(sectionId, lessonDto, videoFile);
-                lessonMaterialService.saveAllMaterial(materials,tmp.getId(), instrutor);
+                lessonMaterialService.saveAllMaterial(materials, tmp.getId(), instructor);
                 redirectAttributes.addFlashAttribute("success", "Thêm bài giảng thành công!");
-                if("edit".equals(source)){
-                    return "redirect:/instructorcourse/" + courseId + "/edit";
-                }
             } catch (RuntimeException e) {
                 redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
             }
 
-            return "redirect:/instructorcourse/" + courseId + "/curriculum";
+            return redirectAfterCurriculumAction(source, courseId);
         }
 
         @PostMapping("/sections/{sectionId}/lessons/{lessonId}/edit")
         public String updateLesson(
-                @RequestParam("source") String source,
+                @RequestParam(value = "source", defaultValue = "create") String source,
                 @PathVariable("sectionId") Integer sectionId,
                 @PathVariable("lessonId") Integer lessonId,
                 @RequestParam("courseId") Integer courseId,
                 @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
-                @RequestParam(value = "materialFiles", required = false) List<MultipartFile> newMaterials,
                 @ModelAttribute("lesson") LessonDto lessonDto,
                 RedirectAttributes redirectAttributes) {
 
@@ -182,57 +176,39 @@
 
             try {
                 lessonService.updateLesson(lessonId, lessonDto, videoFile);
-
-
-                if (newMaterials != null && !newMaterials.isEmpty()) {
-                    lessonMaterialService.saveAllMaterial(newMaterials, lessonId, instructor);
-                }
-
-                redirectAttributes.addFlashAttribute("success", "✓ Cập nhật bài giảng thành công!");
-                if("edit".equals(source)){
-                    return "redirect:/instructorcourse/" + courseId + "/edit";
-                }
+                redirectAttributes.addFlashAttribute("success", "Cập nhật bài giảng thành công!");
             } catch (RuntimeException e) {
                 redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
+                // FIX: trước đây rơi xuống return cuối, bỏ qua source.
             }
 
-            return "redirect:/instructorcourse/" + courseId + "/curriculum";
+            return redirectAfterCurriculumAction(source, courseId);
         }
-
 
         @PostMapping("/lessons/{lessonId}/delete")
         public String deleteLesson(
-                @RequestParam("source") String source,
+                @RequestParam(value = "source", defaultValue = "create") String source,
                 @PathVariable("lessonId") Integer lessonId,
                 @RequestParam("courseId") Integer courseId,
                 RedirectAttributes redirectAttributes) {
 
             try {
                 lessonService.deleteLesson(lessonId);
-                redirectAttributes.addFlashAttribute("success", "✓ Xóa bài giảng thành công!");
-                return "redirect:/instructorcourse/" + courseId + "/edit";
+                redirectAttributes.addFlashAttribute("success", "Xóa bài giảng thành công!");
             } catch (RuntimeException e) {
                 redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
+                // FIX: trước đây rơi xuống return cuối, bỏ qua source.
             }
 
-            return "redirect:/instructorcourse/" + courseId + "/curriculum";
+            return redirectAfterCurriculumAction(source, courseId);
         }
 
-        @PostMapping("/materials/{materialId}/delete")
-        public String deleteMaterial(
-                @PathVariable("materialId") Integer materialId,
-                @RequestParam("lessonId") Integer lessonId,
-                @RequestParam("courseId") Integer courseId,
-                RedirectAttributes redirectAttributes) {
-            try {
-                lessonMaterialService.deleteMaterialById(materialId);
-                redirectAttributes.addFlashAttribute("success", "✓ Xóa tài liệu thành công!");
-            } catch (RuntimeException e) {
-                redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
-            }
-
-            return "redirect:/instructorcourse/" + courseId + "/curriculum";
+        private String redirectAfterCurriculumAction(String source, Integer courseId) {
+            return "edit".equals(source)
+                    ? "redirect:/instructorcourse/" + courseId + "/edit"
+                    : "redirect:/instructorcourse/" + courseId + "/curriculum";
         }
+
 
 
 }

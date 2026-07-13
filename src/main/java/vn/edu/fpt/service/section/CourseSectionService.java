@@ -2,8 +2,7 @@ package vn.edu.fpt.service.section;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.fpt.dto.CourseCreateDto;
-import vn.edu.fpt.dto.LessonMaterialDto;
+import vn.edu.fpt.dto.*;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.exception.CourseNotFoundException;
@@ -15,9 +14,6 @@ import vn.edu.fpt.repository.CourseSectionRepository;
 
 import java.time.LocalDateTime;
 import java.util.*;
-
-import vn.edu.fpt.dto.CourseSectionDto;
-import vn.edu.fpt.dto.LessonDto;
 
 @Service
 @Transactional
@@ -170,17 +166,30 @@ public class CourseSectionService {
                         lessonDto.setPosition(l.getPosition());
                         lessonDto.setDurationSeconds(l.getDurationSeconds());
                         lessonDto.setIsFreePreview(l.getIsFreePreview());
+                        lessonDto.setQuizzes(
+                                l.getQuizzes().stream().map(q -> LessonQuizDto.builder()
+                                        .id(q.getId())
+                                        .title(q.getTitle())
+                                        .status(q.getStatus())
+                                        .questionCount(q.getQuestions() != null ? q.getQuestions().size() : 0)
+                                        .build()
+                                ).toList()
+                        );
                         lessonDto.setMaterials(
                                 l.getMaterials().stream()
                                         .map(m -> LessonMaterialDto.builder()
                                                 .id(m.getId())
                                                 .fileName(m.getFileName())
+                                                .fileUrl(m.getFileUrl())
+                                                .fileType(m.getFileType())
+                                                .fileSize(m.getFileSize())
                                                 .build()
                                         )
                                         .toList()
                         );
                         return lessonDto;
                     }).toList();
+
             courseSectionDto.setLessons(lessons);
 
             courseSectionDtos.add(courseSectionDto);

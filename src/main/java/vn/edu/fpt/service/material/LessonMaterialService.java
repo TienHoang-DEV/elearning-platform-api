@@ -113,7 +113,6 @@ public class LessonMaterialService {
     }
 
 
-    @Transactional
     public void deleteMaterialById(Integer materialId) {
         if (materialId == null || materialId <= 0) {
             throw new RuntimeException("ID tài liệu không hợp lệ");
@@ -121,16 +120,36 @@ public class LessonMaterialService {
 
         LessonMaterial material = repository.findById(materialId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tài liệu không tìm thấy với id: " + materialId));
+        Lesson lesson = material.getLesson();
+        if (lesson != null) {
+            lesson.removeMaterial(material);
+        }
+        repository.delete(material);
+    }
 
-        if (material.getFileUrl() != null && !material.getFileUrl().isEmpty()) {
-            try {
-                azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, material.getFileUrl());
-            } catch (Exception e) {
-                System.err.println("Cảnh báo: Không thể xóa file: " + e.getMessage());
-            }
+    public void updateMaterial(Integer materialId, List<MultipartFile> materialFile, User user) {
+        LessonMaterial material = repository
+                .findById(materialId)
+                .orElseThrow(() ->
+                        new RuntimeException("Không tìm thấy tài liệu")
+                );
+
+        if (materialFile == null || materialFile.isEmpty()) {
+            return;
         }
 
-        repository.deleteById(materialId);
+        for(MultipartFile file : materialFile){
+            String newFilePath = azureBlobService.saveFile(file, AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS);
+
+            material.setFileName(file.getOriginalFilename());
+            material.setFileUrl(newFilePath);
+            material.setInstructor(user);
+            material.setUpdatedAt(LocalDateTime.now());
+
+            repository.save(material);
+        }
     }
+
+
 }
 

@@ -81,6 +81,41 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
             """)
     Optional<Course> findByIdWithSectionsAndLessons(@Param("id") Integer id);
 
+    @Query("select count(s) from CourseSection s where s.course.id = :courseId")
+    long countSectionsByCourseId(@Param("courseId") Integer courseId);
+
+    @Query("""
+            select count(s) from CourseSection s
+            where s.course.id = :courseId
+            and not exists (
+                select l.id from Lesson l where l.courseSection.id = s.id
+            )
+            """)
+    long countSectionsWithoutLessons(@Param("courseId") Integer courseId);
+
+    @Query("""
+            select count(l) from Lesson l
+            where l.courseSection.course.id = :courseId
+            """)
+    long countLessonsByCourseId(@Param("courseId") Integer courseId);
+
+    @Query("""
+            select count(distinct l.id) from Lesson l
+            left join l.materials m
+            where l.courseSection.course.id = :courseId
+            and (
+                (l.videoUrl is not null and trim(l.videoUrl) <> '')
+                or m.id is not null
+            )
+            """)
+    long countLessonsHavingVideoOrMaterial(@Param("courseId") Integer courseId);
+
+    @Query("""
+            select count(q) from Quiz q
+            where q.lesson.courseSection.course.id = :courseId
+            """)
+    long countQuizzesByCourseId(@Param("courseId") Integer courseId);
+
     @Query("""
             select distinct c from Course c 
             left join fetch c.instructor i 
