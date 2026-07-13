@@ -2,6 +2,7 @@ package vn.edu.fpt.dto;
 
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
+import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.entity.LessonMaterial;
 
 import java.util.List;
@@ -27,4 +28,6 @@ public class LessonDto {
         long minutes = (durationSeconds % 3600) / 60;
         return hours > 0 ? hours + "h " + minutes + "m" : minutes + "m";
     }
+
+    List<LessonQuizDto> quizzes;
 }

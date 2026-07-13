@@ -78,7 +78,7 @@
                         </div>
                     </div>
                     <div class="course-card-actions">
-                        <a th:href="@{/instructor/courses/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem Chi Tiết</a>
+                        <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem</a>
                     </div>
                 </div>
             </div>
@@ -142,15 +142,15 @@
                         </div>
                     </div>
                     <div class="course-card-actions">
-                        <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Chỉnh Sửa Lại</a>
+                        <a th:href="@{/instructorcourse/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Chỉnh Sửa Lại</a>
                         <div class="course-card-more">
                             <details class="dropdown">
                                 <summary class="btn btn-sm btn-outline">⋯</summary>
                                 <div class="dropdown-menu">
-                                    <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Xem Chi Tiết</a>
-                                    <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Xem Lí Do Từ Chối</a>
-                                    <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Gửi Lại</a>
-                                    <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline danger">Xoá</a>
+                                    <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem Chi Tiết</a>
+                                    <a th:href="@{/instructorcourse/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Xem Lí Do Từ Chối</a>
+                                    <a th:href="@{/instructorcourse/{id}/submit-review(id=${course.id})}" class="btn btn-sm btn-outline">Gửi Lại</a>
+                                    <a th:href="@{/instructorcourse/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline danger">Xoá</a>
                                 </div>
                             </details>
                         </div>
