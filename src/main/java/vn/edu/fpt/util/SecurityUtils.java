@@ -1,16 +1,18 @@
 package vn.edu.fpt.util;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.security.CustomOAuth2User;
 import vn.edu.fpt.security.CustomUserDetails;
 import vn.edu.fpt.entity.User;
 @org.springframework.stereotype.Component
 public class SecurityUtils {
 
-    private static vn.edu.fpt.repository.UserRepository userRepository;
+    private static UserRepository userRepository;
 
-    @org.springframework.beans.factory.annotation.Autowired
-    public void setUserRepository(vn.edu.fpt.repository.UserRepository userRepository) {
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
         SecurityUtils.userRepository = userRepository;
     }
 
