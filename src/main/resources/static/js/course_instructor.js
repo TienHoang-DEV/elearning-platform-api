@@ -4,6 +4,9 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
+    initToastNotifications();
+    initSubmitReviewPolicy();
+
     /* =====================================================
        1. SIDEBAR NAVIGATION (SPA mode - nếu dùng 1 file)
           Nếu đã tách file thì bỏ qua phần này,
@@ -65,6 +68,8 @@ document.addEventListener('DOMContentLoaded', function () {
     ===================================================== */
     initVideoUpload();
 
+    initEditVideoUpload();
+
 
 
 
@@ -83,6 +88,8 @@ document.addEventListener('DOMContentLoaded', function () {
        15. MATERIAL FILE PREVIEW
     ===================================================== */
     initMaterialPreview();
+
+    initEditMaterialPreview();
 
 });
 
@@ -330,10 +337,28 @@ function initPricing() {
     });
 }
 
-function initVideoUpload() {
-    const input = document.getElementById('videoFileInput');
-    const container = document.getElementById('videoPreviewContainer');
-    const durationInput = document.getElementById('durationSecondsInput');
+function initVideoUpload(){
+    initVideoUploadById(
+        'videoFileInput',
+        'videoPreviewContainer',
+        'durationSecondsInput'
+    );
+}
+
+
+function initEditVideoUpload(){
+    initVideoUploadById(
+        'editVideoFileInput',
+        'editVideoPreviewContainer',
+        'editDurationSecondsInput'
+    );
+}
+
+
+function initVideoUploadById(inputId, containerId, durationId) {
+    const input = document.getElementById(inputId);
+    const container = document.getElementById(containerId);
+    const durationInput = document.getElementById(durationId);
 
     if (!input) return;
 
@@ -501,20 +526,12 @@ function updateCurriculumPreview() {
     preview.innerHTML = html;
 }
 
-
-function deleteLesson(lessonId) {
-    if (!confirm('Xóa bài giảng này?')) return;
-    fetch(`/instructorcourse/lessons/${lessonId}/delete`, { method: 'POST' })
-        .then(r => { if (r.ok) location.reload(); });
-}
-
-
 function openEditSectionModal(dataset) {
-
+    const source = dataset.source || 'create'
     const form = document.getElementById("editSectionForm");
 
     form.action =
-        `/instructorcourse/${dataset.courseId}/sections/${dataset.sectionId}/edit`;
+        `/instructorcourse/${dataset.courseId}/sections/${dataset.sectionId}/edit?source=${source}`;
 
     document.getElementById("editSectionTitle").value =
         dataset.sectionTitle;
@@ -526,52 +543,150 @@ function openEditSectionModal(dataset) {
 
 function openEditLessonModal(dataset) {
     const form = document.getElementById('editLessonForm');
-    currentEditLessonId = dataset.lessonId;
-    document.getElementById('editLessonTitle').value = dataset.lessonTitle;
-    document.getElementById('editLessonFree').checked = dataset.lessonFree === 'true';
-    openModal('editLessonModal');
+    const source = dataset.source || 'create';
+    const courseId = dataset.courseId;
+    const sectionId = dataset.sectionId;
+    const lessonId = dataset.lessonId;
+
+    form.action = `/instructor/sections/${sectionId}/lessons/${lessonId}/edit?source=${source}`;
+
+    document.getElementById('editCourseid').value = courseId;
+    document.getElementById('editSectionId').value = sectionId;
+    document.getElementById('editLessonId').value = lessonId;
+
+    document.getElementById('editLessonName').value = dataset.lessonTitle || '';
+    document.getElementById('editLessonFreeToggle').checked = dataset.lessonFree === 'true';
+
+
+    const videoPreviewContainer = document.getElementById('editVideoPreviewContainer');
+    videoPreviewContainer.innerHTML = '';
+    document.getElementById('editVideoFileInput').value = '';
+
+
+    const oldVideoUrl = dataset.lessonVideoUrl || dataset.videoUrl;
+    if (oldVideoUrl && oldVideoUrl !== 'null' && oldVideoUrl !== '') {
+        videoPreviewContainer.innerHTML = `
+            <div class="old-video-info" style="margin-top: 10px; padding: 10px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px;">
+                <p style="font-size: 13px; color: #555; margin-bottom: 5px;">🎬 <strong>Video hiện tại của bài giảng:</strong></p>
+                <video src="${oldVideoUrl}" controls style="width:100%; border-radius:4px; max-height:180px;"></video>
+            </div>
+        `;
+    }
+
+    // Reset media tabs
+    document.querySelectorAll('.media-tab[data-group="edit-lesson-media"]').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.type === 'video');
+    });
+    document.querySelectorAll('.media-content[data-group="edit-lesson-media"]').forEach(content => {
+        content.style.display = content.dataset.type === 'video' ? '' : 'none';
+    });
+
+    openModal('modal-edit-lesson');
 }
 
 
-function deleteSection(sectionId, courseId) {
+
+function deleteLesson(lessonId, courseId, source) {
+    source = source || 'create';
+    if (!lessonId || !courseId) {
+        alert('ID không hợp lệ!');
+        return;
+    }
+
+    if (!confirm('Xóa bài giảng này? Tất cả materials và quizzes sẽ bị xóa theo.')) {
+        return;
+    }
+
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/instructor/lessons/${lessonId}/delete?courseId=${courseId}&source=${source}`;
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function deleteMaterial(courseId, materialId, source) {
+    source = source || 'create';
+    if (!materialId || !courseId) {
+        alert(' ID không hợp lệ!');
+        return;
+    }
+
+    if (!confirm('Xóa tài liệu này?')) {
+        return;
+    }
+
+    // Tạo form ẩn để submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/instructor/materials/${materialId}/delete?source=${source}`;
+    const courseInput = document.createElement('input');
+    courseInput.type = 'hidden';
+    courseInput.name = 'courseId';
+    courseInput.value = courseId;
+    form.appendChild(courseInput);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+
+
+function renderExistingMaterials(materials, lessonId, courseId) {
+    const container = document.getElementById('existingMaterialsContainer');
+    if (!materials || materials.length === 0) {
+        container.innerHTML = '<p style="color:#999; font-size:0.9rem;">📭 Chưa có tài liệu nào</p>';
+        return;
+    }
+
+    const iconMap = {
+        pdf:  { icon: 'ti-file-type-pdf', color: '#E24B4A' },
+        docx: { icon: 'ti-file-type-doc', color: '#185FA5' },
+        pptx: { icon: 'ti-file-type-ppt', color: '#D85A30' },
+        xlsx: { icon: 'ti-file-type-xls', color: '#3B6D11' },
+    };
+
+    container.innerHTML = materials.map(material => {
+        const ext = material.fileName.split('.').pop().toLowerCase();
+        const m = iconMap[ext] || { icon: 'ti-file', color: '#888' };
+        const mb = (material.fileSize / 1024 / 1024).toFixed(1);
+
+        return `
+        <div style="display:flex; align-items:center; gap:10px; margin-top:8px; padding:10px 12px; 
+                    border:0.5px solid var(--border-color); border-radius:8px; background:var(--bg-light);">
+            <i class="ti ${m.icon}" style="font-size:20px; color:${m.color}; flex-shrink:0;"></i>
+            <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${material.fileName}
+                </div>
+                <div style="font-size:12px; color:var(--text-muted);">${mb} MB</div>
+            </div>
+            <form method="POST" 
+                  action="/instructor/materials/${material.id}/delete?lessonId=${lessonId}&courseId=${courseId}"
+                  style="display:inline;">
+                <button type="submit" 
+                        onclick="return confirm('Xóa tài liệu này?');"
+                        style="background:none; border:none; cursor:pointer; color:var(--text-danger); 
+                               padding:4px; font-size:16px;">
+                    ✕
+                </button>
+            </form>
+        </div>`;
+    }).join('');
+}
+
+
+function deleteSection(sectionId, courseId, source) {
+    source = source || 'create';
     if (!confirm('Xóa chương này và tất cả bài giảng bên trong?')) return;
-    fetch(`/instructorcourse/${courseId}/sections/${sectionId}/delete`, { method: 'POST' })
+    fetch(`/instructorcourse/${courseId}/sections/${sectionId}/delete?source=${source}`, { method: 'POST' })
         .then(r => { if (r.ok) location.reload(); });
 }
 
 
-function saveEditLesson() {
-    const title = document.getElementById('editLessonTitle').value.trim();
-    if (!title) {
-        alert('Vui lòng nhập tên bài giảng');
-        return;
-    }
-
-    const isFree = document.getElementById('editLessonFree').checked;
-    const body = new URLSearchParams();
-    body.append('title', title);
-    body.append('isFreePreview', isFree);
-
-    fetch(`/instructorcourse/lesson/${currentEditLessonId}/save`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: body.toString()
-    })
-        .then(response => {
-            if (response.ok) location.reload();
-        })
-        .catch(error => alert('Lỗi: ' + error.message));
-
-    closeModal('editLessonModal');
-}
-
-
-
-
-function openAddLessonModal(sectionId) {
+function openAddLessonModal(sectionId, source) {
     const form = document.getElementById('addLessonForm');
-
-    form.action = `/instructor/sections/${sectionId}/lessons`;
+    source = source || 'create';
+    form.action = `/instructor/sections/${sectionId}/lessons?source=${source}`;
 
     document.getElementById('addLessonSectionId').value = sectionId;
 
@@ -592,6 +707,55 @@ function initSubmitRequest() {
         btn.disabled = true;
         btn.textContent = '✅ Đã Gửi';
     });
+}
+
+function initSubmitReviewPolicy() {
+    const form = document.getElementById('submitReviewForm');
+    const checkbox = document.getElementById('acceptPolicyInput');
+    const button = document.getElementById('submitReviewBtn');
+    if (!form || !checkbox || !button) return;
+
+    const readyExceptPolicy = form.dataset.readyExceptPolicy === 'true';
+    const policyItem = document.querySelector('[data-policy-item="true"]');
+    const policyStatusIcon = policyItem?.querySelector('.result-icon i');
+    const policyTrailingIcon = policyItem?.querySelector('.item-check, .item-empty');
+    const policyMissing = document.querySelector('[data-policy-missing="true"]');
+    const missingBox = policyMissing?.closest('.missing-box');
+
+    const updateState = () => {
+        const accepted = checkbox.checked;
+        button.disabled = !(readyExceptPolicy && accepted);
+
+        if (policyItem) {
+            policyItem.classList.toggle('is-ok', accepted);
+            policyItem.classList.toggle('is-missing', !accepted);
+        }
+
+        if (policyStatusIcon) {
+            policyStatusIcon.className = accepted
+                ? 'bi bi-check-lg'
+                : 'bi bi-exclamation-triangle-fill';
+        }
+
+        if (policyTrailingIcon) {
+            policyTrailingIcon.className = accepted
+                ? 'bi bi-check-square-fill item-check'
+                : 'bi bi-square item-empty';
+        }
+
+        if (policyMissing) {
+            policyMissing.style.display = accepted ? 'none' : '';
+        }
+
+        if (missingBox) {
+            const hasVisibleMissing = Array.from(missingBox.querySelectorAll('li'))
+                .some(item => item.style.display !== 'none');
+            missingBox.style.display = hasVisibleMissing ? '' : 'none';
+        }
+    };
+
+    checkbox.addEventListener('change', updateState);
+    updateState();
 }
 
 /* =====================
@@ -634,9 +798,22 @@ function initWizardButtons() {
 /* =====================
    MATERIAL FILE PREVIEW
 ===================== */
-function initMaterialPreview() {
-    const input     = document.getElementById("MaterialInput");
-    const list      = document.getElementById("materialList");
+function initMaterialPreview(){
+    initMaterialPreviewByID(
+        "MaterialInput",
+        "materialList"
+    );
+}
+
+function initEditMaterialPreview(){
+    initMaterialPreviewByID(
+        "editMaterialInput",
+        "editMaterialList"
+    );
+}
+function initMaterialPreviewByID(inputId, listId) {
+    const input     = document.getElementById(inputId);
+    const list      = document.getElementById(listId);
     const dt        = new DataTransfer(); // giữ file trong input thật
 
     if (!input || !list) return;
@@ -688,6 +865,55 @@ function initMaterialPreview() {
         renderList();
     };
 }
+
+function appendSourceParam(url, source){
+    const sep = url.includes('?') ? '&' : '?';
+    return url + sep + 'source=' + encodeURIComponent(source || 'create');
+}
+function openAddMaterialModal(dataset) {
+    const form = document.getElementById('addMaterialForm');
+   const source = dataset.source || 'create';
+    if (!form || !dataset.lessonId) {
+        alert('Không tìm thấy thông tin bài giảng!');
+        return;
+    }
+
+    form.action = appendSourceParam(dataset.actionUrl, source);
+
+    document.getElementById('addMaterialLessonId').value =
+        dataset.lessonId;
+
+    document.getElementById('addMaterialCourseId').value =
+        dataset.courseId;
+
+    document.getElementById('addMaterialFile').value = '';
+
+    const preview =
+        document.getElementById('addMaterialPreview');
+
+    if (preview) {
+        preview.innerHTML = '';
+    }
+
+    openModal('modal-add-material');
+}
+
+function initToastNotifications() {
+    document.querySelectorAll('.app-toast').forEach(toast => {
+        const close = toast.querySelector('.toast-close');
+        const hide = () => {
+            toast.classList.add('toast-hide');
+            window.setTimeout(() => toast.remove(), 180);
+        };
+
+        if (close) {
+            close.addEventListener('click', hide);
+        }
+
+        window.setTimeout(hide, 4200);
+    });
+}
+
 
 /* =====================
    UTILS

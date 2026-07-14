@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,6 +31,15 @@ public class GlobalExceptionHandler {
             return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
         }
         return "error/404";
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public Object handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        if (isApiRequest(request)) {
+            ErrorResponse body = new ErrorResponse(HttpStatus.FORBIDDEN.value(), "Forbidden", ex.getMessage(), request.getRequestURI());
+            return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+        }
+        return "error/403";
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

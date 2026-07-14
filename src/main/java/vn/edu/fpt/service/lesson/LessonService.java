@@ -13,6 +13,8 @@ import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.LessonRepository;
+import vn.edu.fpt.service.material.LessonMaterialService;
+import vn.edu.fpt.service.material.LessonMaterialService;
 import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
@@ -37,6 +39,7 @@ public class LessonService {
     private final DtoMapper dtoMapper;
     private final CourseSectionService courseSectionService;
     private final EnrollmentRepository enrollmentRepository;
+    private final LessonMaterialService lessonMaterialService;
 
     public boolean hasAccessToLesson(User user, Lesson lesson) {
         if (user == null || lesson == null || lesson.getCourseSection() == null) {
@@ -52,6 +55,7 @@ public class LessonService {
         }
         return enrollmentRepository.existsByUserAndCourse(user, course);
     }
+
 
     public List<Lesson> findAll() {
         return repository.findAll();
@@ -117,7 +121,7 @@ public class LessonService {
 
         Integer po = repository.findMaxPositionLesson(sectiondId);  
 
-        String video_url = azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, file.getOriginalFilename());
+        String video_url = azureBlobService.saveFile(file, AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS);
         Lesson l = new Lesson();
         l.setTitle(lessonDto.getTitle());
         l.setVideoUrl(video_url);
@@ -188,7 +192,7 @@ public class LessonService {
                 return nextLesson;
             }
         }
-        return null;
+        return nextLessons.get(0);
     }
 
     public LessonDto getLessonById(Integer lessonId){
@@ -211,4 +215,99 @@ public class LessonService {
         }
     }
 
+    public Lesson updateLesson(Integer lessonId, LessonDto lessonDto, MultipartFile videoFile) {
+        // Validate ID
+        if (lessonId == null || lessonId <= 0) {
+            throw new RuntimeException("ID bài giảng không hợp lệ");
+        }
+
+        Lesson lesson = repository.findById(lessonId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bài giảng không tìm thấy với id: " + lessonId));
+
+        // Validate title
+        if (lessonDto.getTitle() == null || lessonDto.getTitle().trim().isEmpty()) {
+            throw new RuntimeException("Tiêu đề bài học không được để trống");
+        }
+        if (lessonDto.getTitle().length() > 255) {
+            throw new RuntimeException("Tiêu đề bài học quá dài");
+        }
+
+        boolean titleExists = repository.existsByTitleAndCourseSection_IdAndIdNot(
+                lessonDto.getTitle(),
+                lesson.getCourseSection().getId(),
+                lessonId
+        );
+        if (titleExists) {
+            throw new RuntimeException("Tiêu đề bài này đã tồn tại trong chương");
+        }
+
+
+        lesson.setTitle(lessonDto.getTitle().trim());
+
+        lesson.setIsFreePreview(lessonDto.getIsFreePreview() != null ? lessonDto.getIsFreePreview() : false);
+
+        if (videoFile != null && !videoFile.isEmpty()) {
+            if (lesson.getVideoUrl() != null && !lesson.getVideoUrl().isEmpty()) {
+                try {
+                    azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
+                } catch (Exception e) {
+                    System.err.println("⚠️ Warning: Không thể xóa video cũ: " + e.getMessage());
+                }
+            }
+
+
+            String newVideoUrl = azureBlobService.saveFile(videoFile, AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS);
+            lesson.setVideoUrl(newVideoUrl);
+
+
+            if (lessonDto.getDurationSeconds() != null && lessonDto.getDurationSeconds() > 0) {
+                lesson.setDurationSeconds(lessonDto.getDurationSeconds());
+            }
+        } else {
+            if (lessonDto.getDurationSeconds() != null && lessonDto.getDurationSeconds() > 0) {
+                lesson.setDurationSeconds(lessonDto.getDurationSeconds());
+            }
+        }
+
+        lesson.setModerationStatus(LessonModerationStatus.PENDING.toString());
+
+        return repository.save(lesson);
+    }
+
+
+    public void deleteLesson(Integer lessonId) {
+        if (lessonId == null || lessonId <= 0) {
+            throw new RuntimeException("ID bài giảng không hợp lệ");
+        }
+
+        Lesson lesson = repository.findByIdWithMaterials(lessonId).orElseThrow();
+        if (lesson == null) {
+            throw new ResourceNotFoundException("Bài giảng không tìm thấy với id: " + lessonId);
+        }
+
+
+        if (lesson.getVideoUrl() != null && !lesson.getVideoUrl().isEmpty()) {
+            try {
+                azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
+                System.out.println("✓ Xóa video thành công: " + lesson.getVideoUrl());
+            } catch (Exception e) {
+                System.err.println("⚠️ Warning: Không thể xóa video: " + e.getMessage());
+            }
+        }
+
+
+        if (lesson.getMaterials() != null && !lesson.getMaterials().isEmpty()) {
+            lesson.getMaterials().forEach(material -> {
+                try {
+                    lessonMaterialService.deleteMaterialById(material.getId());
+                } catch (Exception e) {
+                    System.err.println("⚠️ Warning: Không thể xóa material: " + e.getMessage());
+                }
+            });
+        }
+
+
+        repository.deleteById(lessonId);
+        System.out.println("✓ Xóa bài giảng thành công: " + lessonId);
+    }
 }

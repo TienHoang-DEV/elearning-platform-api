@@ -113,4 +113,6 @@ public interface DtoMapper {
     @Mapping(source = "customAvatarUrl", target = "avatarUrl")
     @Mapping(source = "lastName", target = "lastName")
     LearnerInfomationGrantAccessDTO toLearnerInfomationGrantAccessDto(User user);
+
+    Quiz toQuiz(QuizDTO quizDTO);
 }

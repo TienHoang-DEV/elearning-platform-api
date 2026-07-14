@@ -36,7 +36,7 @@
             <div class="course-grid" th:if="${listpublished != null and not #lists.isEmpty(listpublished)}">
                 <div class="course-card" th:each="course, stat : ${listpublished}">
                     <div class="course-card-thumb">
-                        <img th:if="${course.thumbnailUrl != null}" th:src="${course.thumbnailUrl}" alt="course thumbnail"/>
+                        <img th:if="${course.thumbnailUrl != null}" th:src="${urlAvatar + course.thumbnailUrl}" alt="course thumbnail"/>
                         <div class="course-card-thumb-placeholder" th:unless="${course.thumbnailUrl != null}">🎓</div>
                         <span class="course-card-badge">#<span th:text="${publishedPage.number * publishedPage.size + stat.count}"></span></span>
                     </div>
@@ -51,7 +51,7 @@
                         </div>
                     </div>
                     <div class="course-card-actions">
-                        <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Xem Chi Tiết</a>
+                        <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem</a>
                         <a th:href="@{/instructor/{id}/reviews(id=${course.id})}" class="btn btn-sm btn-outline">Xem Đánh Giá</a>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
             <div class="course-grid" th:if="${listpending != null and not #lists.isEmpty(listpending)}">
                 <div class="course-card" th:each="course, stat : ${listpending}">
                     <div class="course-card-thumb">
-                        <img th:if="${course.thumbnailUrl != null}" th:src="${course.thumbnailUrl}" alt="course thumbnail"/>
+                        <img th:if="${course.thumbnailUrl != null}" th:src="${urlAvatar + course.thumbnailUrl}"  alt="course thumbnail"/>
                         <div class="course-card-thumb-placeholder" th:unless="${course.thumbnailUrl != null}">🎓</div>
                         <span class="course-card-status status-pending">Chờ duyệt</span>
                     </div>
@@ -78,7 +78,7 @@
                         </div>
                     </div>
                     <div class="course-card-actions">
-                        <a th:href="@{/instructor/courses/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem Chi Tiết</a>
+                        <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem</a>
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
             <div class="course-grid" th:if="${listdraft != null and not #lists.isEmpty(listdraft)}">
                 <div class="course-card" th:each="course, stat : ${listdraft}">
                     <div class="course-card-thumb">
-                        <img th:if="${course.thumbnailUrl != null}" th:src="${course.thumbnailUrl}" alt="course thumbnail"/>
+                        <img th:if="${course.thumbnailUrl != null}" th:src="${urlAvatar + course.thumbnailUrl}"  alt="course thumbnail"/>
                         <div class="course-card-thumb-placeholder" th:unless="${course.thumbnailUrl != null}">🎓</div>
                         <span class="course-card-status status-draft">Nháp</span>
                     </div>
@@ -131,7 +131,7 @@
             <div class="course-grid" th:if="${listrejected != null and not #lists.isEmpty(listrejected)}">
                 <div class="course-card" th:each="course, stat : ${listrejected}">
                     <div class="course-card-thumb">
-                        <img th:if="${course.thumbnailUrl != null}" th:src="${course.thumbnailUrl}" alt="course thumbnailUrl"/>
+                        <img th:if="${course.thumbnailUrl != null}" th:src="${urlAvatar + course.thumbnailUrl}"  alt="course thumbnailUrl"/>
                         <div class="course-card-thumb-placeholder" th:unless="${course.thumbnailUrl != null}">🎓</div>
                         <span class="course-card-status status-rejected">Bị từ chối</span>
                     </div>
@@ -142,15 +142,15 @@
                         </div>
                     </div>
                     <div class="course-card-actions">
-                        <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Chỉnh Sửa Lại</a>
+                        <a th:href="@{/instructorcourse/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Chỉnh Sửa Lại</a>
                         <div class="course-card-more">
                             <details class="dropdown">
                                 <summary class="btn btn-sm btn-outline">⋯</summary>
                                 <div class="dropdown-menu">
-                                    <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Xem Chi Tiết</a>
-                                    <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Xem Lí Do Từ Chối</a>
-                                    <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Gửi Lại</a>
-                                    <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline danger">Xoá</a>
+                                    <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem Chi Tiết</a>
+                                    <a th:href="@{/instructorcourse/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Xem Lí Do Từ Chối</a>
+                                    <a th:href="@{/instructorcourse/{id}/submit-review(id=${course.id})}" class="btn btn-sm btn-outline">Gửi Lại</a>
+                                    <a th:href="@{/instructorcourse/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline danger">Xoá</a>
                                 </div>
                             </details>
                         </div>
@@ -168,8 +168,8 @@
             <div class="course-grid" th:if="${listhidden != null and not #lists.isEmpty(listhidden)}">
                 <div class="course-card" th:each="course, stat: ${listhidden}">
                     <div class="course-card-thumb">
-                        <img th:if="${course.thumbnailUrl != null}" th:src="${course.thumbnailUrl}" alt="course thumbnailUrl"/>
-                        <div class="course-card-thumb-placeholder" th:unless="${course.thumbnailUrl != null}">🎓</div>
+                        <img th:if="${course.thumbnailUrl != null}" th:src="${urlAvatar + course.thumbnailUrl}"  alt="course thumbnailUrl"/>
+                        <div class="course-card-thumb-placeholder" th:unless="${course.thumbnailUrl != null}"></div>
                         <span class="course-card-status status-hidden">Ẩn</span>
                     </div>
                     <div class="course-card-body">

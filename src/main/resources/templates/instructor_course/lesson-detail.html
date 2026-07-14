@@ -73,7 +73,7 @@
         </nav>
 
         <div class="sidebar-footer">
-            <a th:href="@{/instructorcourse/curriculum(courseId=${courseId != null ? courseId : ''})}" class="btn btn-back-home w-100 py-2.5 fw-semibold fs-7 d-flex align-items-center justify-content-center gap-2 shadow-sm">
+            <a th:href="@{/instructorcourse/{courseId}/curriculum(courseId=${course.id})}" class="btn btn-back-home w-100 py-2.5 fw-semibold fs-7 d-flex align-items-center justify-content-center gap-2 shadow-sm">
                 <i data-lucide="arrow-left" style="width:16px;"></i> Quay về Giáo trình
             </a>
         </div>

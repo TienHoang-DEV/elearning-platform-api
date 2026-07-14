@@ -208,6 +208,11 @@ a { text-decoration: none; color: inherit; }
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(37,99,235,.1);
 }
+.form-control.is-invalid,
+.rich-editor.is-invalid {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(220,38,38,.08);
+}
 .form-control[readonly] { background: #f9fafb; color: var(--text-muted); cursor: not-allowed; }
 
 textarea.form-control { resize: vertical; min-height: 72px; }
@@ -1047,6 +1052,85 @@ tbody tr:last-child td { border-bottom: none; }
 @media (max-width:576px){
     .course-grid{grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));}
     .course-card-title{font-size:14px;}
+}
+
+.toast-stack {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: min(380px, calc(100vw - 32px));
+    pointer-events: none;
+}
+
+.app-toast {
+    pointer-events: auto;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    gap: 10px;
+    padding: 13px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, .16);
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.45;
+    animation: toastSlideIn .18s ease-out;
+}
+
+.app-toast.toast-hide {
+    animation: toastSlideOut .18s ease-in forwards;
+}
+
+.toast-success {
+    border-color: #bbf7d0;
+    background: var(--success-light);
+    color: #166534;
+}
+
+.toast-error {
+    border-color: #fecaca;
+    background: var(--danger-light);
+    color: #991b1b;
+}
+
+.toast-close {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0 2px;
+    opacity: .7;
+}
+
+.toast-close:hover {
+    opacity: 1;
+}
+
+@keyframes toastSlideIn {
+    from { opacity: 0; transform: translateX(18px); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes toastSlideOut {
+    to { opacity: 0; transform: translateX(18px); }
+}
+
+@media (max-width: 640px) {
+    .toast-stack {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+        width: auto;
+    }
 }
 
 

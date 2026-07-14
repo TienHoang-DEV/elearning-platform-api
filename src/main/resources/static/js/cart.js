@@ -170,7 +170,18 @@ function initializeCheckoutButton() {
                 headers: { 'Content-Type': 'application/json' }
             });
             if (data) {
-                window.location.href = `/payment?id=${data.id}`;
+                if (data.status === 'PAID') {
+                    const myModal = new bootstrap.Modal(document.getElementById('freeSuccessModal'), {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    document.getElementById('btn-go-learning').addEventListener('click', () => {
+                        window.location.href = '/student/my-learning';
+                    });
+                    myModal.show();
+                } else {
+                    window.location.href = `/payment?id=${data.id}`;
+                }
             } else {
                 checkoutBtn.disabled = false;
             }

@@ -24,6 +24,7 @@ import vn.edu.fpt.service.CategoryService;
 import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
 import vn.edu.fpt.service.lesson.LessonService;
+import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.SecurityUtils;
 
 
@@ -65,6 +66,8 @@ public class InstructorCourseController {
         Page<CourseDto> reject = courseService.findByInstructorAndStatus(user, PageRequest.of(pageReject, size, sort), CourseStatus.REJECTED);
         Page<CourseDto> hidden = courseService.findByInstructorAndStatus(user, PageRequest.of(pageHidden, size, sort), CourseStatus.HIDDEN);
         Page<CourseDto> pending = courseService.findByInstructorAndStatus(user, PageRequest.of(pagePending, size, sort), CourseStatus.PENDING);
+
+        loadFormModel(model);
 
         model.addAttribute("listpublished", published.getContent());
         model.addAttribute("publishedPage", published);
@@ -108,6 +111,7 @@ public class InstructorCourseController {
 
 
     private void loadFormModel(Model model){
+        List<CourseLevel> levels = Arrays.asList(CourseLevel.values());
         model.addAttribute("courselevels", Arrays.asList(CourseLevel.values()));
         model.addAttribute("categoryparents",
                 categoryService.findByParentIsNullAndStatus("ACTIVE"));
@@ -115,6 +119,8 @@ public class InstructorCourseController {
                 categoryService.findByParentIsNotNulAndStatus("ACTIVE"));
         model.addAttribute("section", new CourseSectionDto());
         model.addAttribute("lesson", new LessonDto());
+        model.addAttribute("courselevels", levels);
+        model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
     }
 
     @PostMapping("/save")
@@ -128,6 +134,7 @@ public class InstructorCourseController {
         if (bindingResult.hasErrors()) {
             loadFormModel(model);
             model.addAttribute("activeStep", "info");
+            model.addAttribute("error", "Vui lòng kiểm tra lại các thông tin chưa hợp lệ.");
             return "instructor_course/editcourse";
         }
 
@@ -135,10 +142,14 @@ public class InstructorCourseController {
             User u = SecurityUtils.getCurrentUser();
             Course saved = courseService.save(u, courseDto);
             Integer id = saved.getId();
+            boolean isUpdate = courseDto.getId() != null;
 
             attributes.addFlashAttribute("success",
-                    "Thêm khoá học thành công!");
-            if ("save_continue".equals(status)) {
+                    isUpdate ? "Cập nhật khoá học thành công!" : "Thêm khoá học thành công!");
+            if (isUpdate && ("save".equals(status) || "save_publish".equals(status))) {
+                return "redirect:/instructorcourse/" + id + "/submit-review";
+            }
+            if (!isUpdate || "save_continue".equals(status)) {
                 return "redirect:/instructorcourse/" + id + "/curriculum";
             }
             return "redirect:/instructorcourse/create";
@@ -152,6 +163,7 @@ public class InstructorCourseController {
 
             loadFormModel(model);
             model.addAttribute("activeStep", "info");
+            model.addAttribute("error", e.getMessage());
             return "instructor_course/editcourse";
         }
     }
@@ -167,7 +179,9 @@ public class InstructorCourseController {
         model.addAttribute("lesson", new LessonDto());
         model.addAttribute("sections", listSection);
         model.addAttribute("totalLessons", courseSectionService.totalLesson(listSection));
+        model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
         return "instructor_course/editcourse";
+
     }
 
     @GetMapping("/{id}/view")
@@ -180,7 +194,40 @@ public class InstructorCourseController {
                 .sum();
         model.addAttribute("totalLessons", totalLessons);
         model.addAttribute("courseDetal", courseRespon);
-        return "instructor_course/view_course_demo";
+        model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
+        return "instructor_course/viewCourse";
+    }
+
+    @GetMapping("/{id}/submit-review")
+    public String submitReviewPage(@PathVariable("id") Integer courseId, Model model) {
+        User user = SecurityUtils.getCurrentUser();
+        loadSubmitReviewModel(courseId, user, model);
+        return "instructor_course/editcourse";
+    }
+
+    @PostMapping("/{id}/submit-review")
+    public String submitReview(@PathVariable("id") Integer courseId,
+                               @RequestParam(name = "acceptPolicy", defaultValue = "false") boolean acceptPolicy,
+                               RedirectAttributes redirectAttributes,
+                               Model model) {
+        User user = SecurityUtils.getCurrentUser();
+        try {
+            courseService.submitCourseForApproval(courseId, user, acceptPolicy);
+            redirectAttributes.addFlashAttribute("success", "Đã gửi yêu cầu xét duyệt khóa học thành công!");
+            return "redirect:/instructorcourse/courses?tab=pending";
+        } catch (CourseValidationException e) {
+            model.addAttribute("error", e.getMessage());
+            loadSubmitReviewModel(courseId, user, model);
+            return "instructor_course/editcourse";
+        }
+    }
+
+    private void loadSubmitReviewModel(Integer courseId, User user, Model model) {
+        loadFormModel(model);
+        model.addAttribute("activeStep", "publish");
+        model.addAttribute("courseId", courseId);
+        model.addAttribute("courseRequest", courseService.findById(courseId));
+        model.addAttribute("submitReview", courseService.getSubmitReview(courseId, user, false));
     }
 
     @GetMapping("/{id}/edit")
@@ -191,16 +238,15 @@ public class InstructorCourseController {
             List<CourseSectionDto> sections = courseSectionService.findByCourseAndLesson(courseId);
 
             int totalesson = courseSectionService.totalLesson(sections);
-
-        model.addAttribute("CourseRequest", dto);
-        model.addAttribute("sections", sections);
-        model.addAttribute("totalLessons", totalesson);
+        model.addAttribute("courseRequest", dto);
+        model.addAttribute("activeStep", "info");
         model.addAttribute("courseId", courseId);
+        model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
 
         ///Object rộng để binding
         loadFormModel(model);
 
-       return "instructor_course/edit_course";
+       return "instructor_course/editcourse";
     }
 
     @PostMapping("/{id}/edit")
@@ -212,13 +258,14 @@ public class InstructorCourseController {
      if(bindingResult.hasErrors()){
          loadFormModel(model);
          model.addAttribute("activeStep", "info");
+         model.addAttribute("error", "Vui lòng kiểm tra lại các thông tin chưa hợp lệ.");
          return "instructor_course/edit_course";
      }
      try{
          User user = SecurityUtils.getCurrentUser();
          courseService.save(user, coursedto);
          redirectAttributes.addFlashAttribute("success", "Chỉnh Sửa Khoá Học Thành Công");
-         return "redirect:/instructorcourse/"+coursedto.getId()+"/edit";
+         return "redirect:/instructorcourse/"+coursedto.getId()+"/submit-review";
      }catch(CourseValidationException e){
 
          bindingResult.rejectValue(
@@ -228,6 +275,7 @@ public class InstructorCourseController {
 
          loadFormModel(model);
          model.addAttribute("activeStep", "info");
+         model.addAttribute("error", e.getMessage());
          return "instructor_course/edit_course";
      }
 
@@ -242,6 +290,8 @@ public class InstructorCourseController {
         redirectAttributes.addFlashAttribute("success", "Xoá khoá học thành công");
         return "redirect:/instructorcourse/courses?tab=" + tab;
     }
+
+
 
 
 

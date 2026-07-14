@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.LessonMaterial;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.LessonMaterialRepository;
 import vn.edu.fpt.repository.LessonRepository;
 import vn.edu.fpt.repository.EnrollmentRepository;
@@ -110,5 +111,45 @@ public class LessonMaterialService {
         );
         return azureBlobService.dowloadFile(blobClient);
     }
+
+
+    public void deleteMaterialById(Integer materialId) {
+        if (materialId == null || materialId <= 0) {
+            throw new RuntimeException("ID tài liệu không hợp lệ");
+        }
+
+        LessonMaterial material = repository.findById(materialId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tài liệu không tìm thấy với id: " + materialId));
+        Lesson lesson = material.getLesson();
+        if (lesson != null) {
+            lesson.removeMaterial(material);
+        }
+        repository.delete(material);
+    }
+
+    public void updateMaterial(Integer materialId, List<MultipartFile> materialFile, User user) {
+        LessonMaterial material = repository
+                .findById(materialId)
+                .orElseThrow(() ->
+                        new RuntimeException("Không tìm thấy tài liệu")
+                );
+
+        if (materialFile == null || materialFile.isEmpty()) {
+            return;
+        }
+
+        for(MultipartFile file : materialFile){
+            String newFilePath = azureBlobService.saveFile(file, AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS);
+
+            material.setFileName(file.getOriginalFilename());
+            material.setFileUrl(newFilePath);
+            material.setInstructor(user);
+            material.setUpdatedAt(LocalDateTime.now());
+
+            repository.save(material);
+        }
+    }
+
+
 }
 

@@ -94,7 +94,7 @@ public class UserService {
                 throw new UserValidationException("file","Vui lòng chọn ảnh có kích thước không vượt quá 2MB.");
             }
 
-            String url = azureBlobService.saveFile(profileDto.getFile(), "user-avatars");
+            String url = azureBlobService.saveFile(profileDto.getFile(), AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS);
             user.setAvatarUrl(url);
         }
 

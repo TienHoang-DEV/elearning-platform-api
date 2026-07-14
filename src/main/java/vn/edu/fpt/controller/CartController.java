@@ -1,5 +1,6 @@
 package vn.edu.fpt.controller;
 
+import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@org.springframework.transaction.annotation.Transactional
+@Transactional
 public class    CartController {
 
     private final CartService cartService;
@@ -28,7 +29,7 @@ public class    CartController {
         return vn.edu.fpt.util.SecurityUtils.getCurrentUser();
     }
 
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     @GetMapping("/cart")
     public String showCartPage(Model model) {
         User user = getAuthenticatedUser();
