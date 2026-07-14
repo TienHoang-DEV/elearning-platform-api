@@ -38,7 +38,6 @@ public class ManagerDashboardController {
     public String dashboard(Model model) {
         ManagerDashboardDTO data = managerDashboardService.getDashboardData();
 
-        // Thêm các thuộc tính vào model
         model.addAttribute("totalInstructors", data.getTotalInstructors());
         model.addAttribute("totalLearners", data.getTotalLearners());
         model.addAttribute("pendingCourses", data.getPendingCourses());
@@ -83,11 +82,11 @@ public class ManagerDashboardController {
         return "manager/revenue/instructor-revenue";
     }
 
-    @GetMapping("/revenue/instructor/{id}/details")
+    @GetMapping("/revenue/instructor/details/{id}")
     public String instructorRevenueDetails(@PathVariable Integer id, Model model) {
         List<InstructorCourseRevenueDTO> courseDetails =
                 managerDashboardService.getInstructorCourseRevenueDetails(id);
         model.addAttribute("courseDetails", courseDetails);
-        return "manager/revenue/instructor-revenue-detail :: courseDetailsTable";
+        return "manager/revenue/instructor-revenue-detail";
     }
 }

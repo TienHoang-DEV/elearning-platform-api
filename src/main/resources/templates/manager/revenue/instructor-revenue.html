@@ -147,7 +147,7 @@
                             document.body.appendChild(container);
                         }
                         
-                        fetch(`/manager/revenue/instructor/${instructorId}/details`)
+                        fetch(`/manager/revenue/instructor/details/${instructorId}`)
                             .then(r => r.text())
                             .then(html => {
                                 container.innerHTML = html;
