@@ -1,5 +1,6 @@
 package vn.edu.fpt.controller;
 
+import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@org.springframework.transaction.annotation.Transactional
+@Transactional
 public class    CartController {
 
     private final CartService cartService;
@@ -25,28 +26,10 @@ public class    CartController {
     }
 
     private User getAuthenticatedUser() {
-        try {
-            User currentUser = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
-            if (currentUser != null) {
-                return userRepository.findById(currentUser.getId()).orElse(currentUser);
-            }
-            jakarta.servlet.http.HttpServletRequest request = 
-                ((org.springframework.web.context.request.ServletRequestAttributes) 
-                 org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes())
-                .getRequest();
-            jakarta.servlet.http.HttpSession session = request.getSession(false);
-            if (session != null) {
-                User sessionUser = (User) session.getAttribute("user");
-                if (sessionUser != null) {
-                    return userRepository.findById(sessionUser.getId()).orElse(sessionUser);
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return null;
+        return vn.edu.fpt.util.SecurityUtils.getCurrentUser();
     }
 
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     @GetMapping("/cart")
     public String showCartPage(Model model) {
         User user = getAuthenticatedUser();

@@ -82,7 +82,7 @@ public class PaymentService {
         }
 
         CartPageDetailsDto cartDetails = cartService.getCartPageDetails(user);
-        if (cartDetails.getTotal() < 2000) {
+        if (cartDetails.getTotal() > 0 && cartDetails.getTotal() < 2000) {
             throw new BadRequestException("Tổng giá trị đơn hàng phải từ 2,000 VNĐ trở lên để thực hiện thanh toán!");
         }
 
@@ -110,6 +110,26 @@ public class PaymentService {
         }
 
         order = orderService.save(order);
+
+        if (cartDetails.getTotal() == 0) {
+            Payment payment = Payment.builder()
+                    .order(order)
+                    .gateway("FREE")
+                    .amount(BigDecimal.ZERO)
+                    .status(PaymentStatus.PENDING)
+                    .gatewayOrderCode(String.valueOf(System.currentTimeMillis() / 1000))
+                    .paymentUrl("")
+                    .qrCodeUrl("")
+                    .accountNumber("")
+                    .description("Free Enrollment")
+                    .bankName("")
+                    .accountHolder("")
+                    .expiredAt(LocalDateTime.now().plusMinutes(1))
+                    .build();
+            Payment savedPayment = repository.save(payment);
+            payOsService.completePayment(savedPayment);
+            return savedPayment;
+        }
 
         String returnUrl = "https://learninghubswp391.eastasia.cloudapp.azure.com/payment/success";
         String cancelUrl = "https://learninghubswp391.eastasia.cloudapp.azure.com/payment/cancel";
@@ -194,6 +214,9 @@ public class PaymentService {
     }
 
     public Page<TransactionListDTO> getTransactionByFilter(String statuss, LocalDateTime fromDate, LocalDateTime toDate, String keyword, int page) {
+        if (keyword != null) {
+            keyword = keyword.trim();
+        }
         PaymentStatus status = null;
         if (statuss != null && !statuss.isBlank()) {
             status = PaymentStatus.valueOf(statuss);

@@ -40,22 +40,7 @@ public class UserFavoriteController {
     }
 
     private User getSessionUser() {
-        try {
-            User currentUser = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
-            if (currentUser != null) {
-                return userRepository.findById(currentUser.getId()).orElse(currentUser);
-            }
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                User sessionUser = (User) session.getAttribute("user");
-                if (sessionUser != null) {
-                    return userRepository.findById(sessionUser.getId()).orElse(sessionUser);
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return null;
+        return vn.edu.fpt.util.SecurityUtils.getCurrentUser();
     }
 
     @GetMapping("/student/favorites/step1")
@@ -108,15 +93,10 @@ public class UserFavoriteController {
             return "redirect:/login";
         }
 
-        // Tải toàn bộ các category con tương ứng
         Set<Category> newFavorites = new HashSet<>();
         if (childIds != null && !childIds.isEmpty()) {
             List<Category> selectedChildren = categoryRepository.findAllById(childIds);
             newFavorites.addAll(selectedChildren);
-        } else {
-            // Tự động chọn tất cả danh mục con của parentId nếu người dùng không chọn gì
-            List<Category> allChildren = categoryRepository.findByParentIdAndStatus(parentId, "ACTIVE");
-            newFavorites.addAll(allChildren);
         }
 
         user.getFavoriteCategories().clear();

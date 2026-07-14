@@ -1,3 +1,4 @@
+
 package vn.edu.fpt.controller;
 
 import jakarta.transaction.Transactional;
@@ -26,13 +27,14 @@ public class InstructorSectionController {
 
     @PostMapping("/{courseId}/sections")
     public String createSection(@PathVariable("courseId") Integer courseId,
+                                @RequestParam(value = "source", defaultValue = "create") String source,
                                 @Valid @ModelAttribute("section") CourseSectionDto courseSectionDto,
                                 BindingResult bindingResult,
                                 RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("error", "Dữ liệu nhập không hợp lệ.");
-            return "redirect:/instructorcourse/" + courseId + "/curriculum";
+            return redirectAfterCurriculumAction(source, courseId); // FIX: trước đây bỏ qua source
         }
 
         try {
@@ -45,22 +47,22 @@ public class InstructorSectionController {
             redirectAttributes.addFlashAttribute("error", "Lỗi hệ thống: " + e.getMessage());
         }
 
-        return "redirect:/instructorcourse/" + courseId + "/curriculum";
+        return redirectAfterCurriculumAction(source, courseId);
     }
 
 
     @PostMapping("/{courseId}/sections/{sectionId}/edit")
-    public String editSection(@PathVariable("courseId") Integer courseId,
+    public String editSection(@RequestParam(value = "source", defaultValue = "create") String source,
+                              @PathVariable("courseId") Integer courseId,
                               @PathVariable("sectionId") Integer sectionId,
                               @Valid @ModelAttribute("section") CourseSectionDto courseSectionDto,
                               BindingResult bindingResult,
                               RedirectAttributes redirectAttributes
-                              ){
-
+    ) {
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("error", "Dữ liệu nhập không hợp lệ.");
-            return "redirect:/instructorcourse/" + courseId + "/curriculum";
+            return redirectAfterCurriculumAction(source, courseId); // FIX
         }
 
         try {
@@ -72,17 +74,28 @@ public class InstructorSectionController {
             redirectAttributes.addFlashAttribute("error", "Lỗi hệ thống: " + e.getMessage());
         }
 
-        return "redirect:/instructorcourse/" + courseId + "/curriculum";
+        return redirectAfterCurriculumAction(source, courseId);
     }
 
     @Transactional
     @PostMapping("/{courseId}/sections/{sectionId}/delete")
-    public String deleteSection(@PathVariable("courseId") Integer courseId,
+    public String deleteSection(@RequestParam(value = "source", defaultValue = "create") String source,
+                                @PathVariable("courseId") Integer courseId,
                                 @PathVariable("sectionId") Integer sectionId,
-                                RedirectAttributes redirectAttributes){
-        courseSectionService.deleteSection(sectionId);
-        return "redirect:/instructorcourse/" + courseId + "/curriculum";
+                                RedirectAttributes redirectAttributes) {
+        try {
+            courseSectionService.deleteSection(sectionId);
+            redirectAttributes.addFlashAttribute("success", "Xoá chương thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xoá chương: " + e.getMessage());
+        }
+        return redirectAfterCurriculumAction(source, courseId);
     }
 
+    private String redirectAfterCurriculumAction(String source, Integer courseId) {
+        return "edit".equals(source)
+                ? "redirect:/instructorcourse/" + courseId + "/edit"
+                : "redirect:/instructorcourse/" + courseId + "/curriculum";
+    }
 
 }

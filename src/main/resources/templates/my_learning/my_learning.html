@@ -135,7 +135,8 @@
                                 <a th:href="@{/course/detail(id=${enrollment.course?.id})}"
                                     class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 fw-bold fs-8">Chi tiết</a>
                                 <a th:href="@{/course/{id}(id=${enrollment.course?.id})}"
-                                    class="btn btn-primary btn-sm rounded-pill px-3 py-1 fw-bold fs-8">Học tiếp</a>
+                                    class="btn btn-primary btn-sm rounded-pill px-3 py-1 fw-bold fs-8"
+                                    th:text="${enrollment.progressPercent != null && enrollment.progressPercent.doubleValue() >= 100} ? 'Đã hoàn thành' : 'Học tiếp'">Học tiếp</a>
                             </div>
                         </div>
                     </div>

@@ -136,7 +136,7 @@
                 <!-- Tab Panel 3: Lesson Document (Hidden by default) -->
                 <div class="tab-panel-item d-none" id="panel-document">
                     <div th:each="material : ${sidebar.materials}">
-                        <div class="lesson-document-viewer">
+                        <div class="lesson-document-viewer mb-4">
                             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
                                 <div>
                                     <h3 class="tab-panel-subtitle fw-bold fs-6 mb-2 font-heading d-flex align-items-center gap-2 text-dark">
@@ -198,12 +198,6 @@
                                         th:attr="data-document-endpoint=@{/temp/material/lesson/{lessonId}/url(lessonId=${sidebar.lesson.id})}, data-file-name=${material != null ? material.fileName : ''}, data-file-type=${material != null ? material.fileType : ''}, data-file-size=${material != null ? material.fileSize : ''}, data-created-at=${material != null and material.createdAt != null ? material.createdAt : ''}"
                                         allowfullscreen>
                                 </iframe>
-                            </div>
-
-                            <div class="alert alert-info d-flex align-items-start gap-2 mt-3 mb-0 fs-8" role="note">
-                                <i data-lucide="info" class="flex-shrink-0 mt-0.5"
-                                   style="width: 16px; height: 16px;"></i>
-                                <span>Office Viewer yêu cầu URL tài liệu trên Azure có thể truy cập công khai hoặc có SAS token hợp lệ.</span>
                             </div>
                         </div>
                     </div>

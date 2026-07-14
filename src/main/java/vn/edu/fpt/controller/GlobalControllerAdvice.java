@@ -42,7 +42,6 @@ public class GlobalControllerAdvice {
         if (uri.startsWith("/api/") || uri.startsWith("/api") || uri.contains("/material/url")) {
             return false;
         }
-        // Loại trừ các file tĩnh phổ biến
         if (uri.contains(".")) {
             String ext = uri.substring(uri.lastIndexOf("."));
             if (ext.matches("\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|map|json|html)$")) {
@@ -71,17 +70,6 @@ public class GlobalControllerAdvice {
         }
         try {
             User user = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
-            if (user != null) {
-                user = userRepository.findById(user.getId()).orElse(null);
-            } else {
-                HttpSession session = request.getSession(false);
-                if (session != null) {
-                    User sessionUser = (User) session.getAttribute("user");
-                    if (sessionUser != null) {
-                        user = userRepository.findById(sessionUser.getId()).orElse(null);
-                    }
-                }
-            }
             return user != null ? dtoMapper.toUserDto(user) : null;
         } catch (Exception e) {
             e.printStackTrace();
@@ -96,17 +84,6 @@ public class GlobalControllerAdvice {
         }
         try {
             User user = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
-            if (user != null) {
-                user = userRepository.findById(user.getId()).orElse(null);
-            } else {
-                HttpSession session = request.getSession(false);
-                if (session != null) {
-                    User sessionUser = (User) session.getAttribute("user");
-                    if (sessionUser != null) {
-                        user = userRepository.findById(sessionUser.getId()).orElse(null);
-                    }
-                }
-            }
             if (user != null) {
                 Cart cart = cartService.getOrCreateCartForUser(user);
                 return cartItemService.countItemsInCart(cart);

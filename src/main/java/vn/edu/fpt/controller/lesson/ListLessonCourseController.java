@@ -38,7 +38,6 @@ public class ListLessonCourseController {
     public String listSection(@PathVariable Integer courseId) {
         User user = SecurityUtils.getCurrentUser();
 
-        // truyền vào user id để tìm cùng khóa học, nếu người dùng chưa tham gia vào khóa mà cố tình nhập trên thanh url sẽ báo lỗi
         Course course = courseService.findByCourseIdAndUserId(courseId, user.getId());
 
         Integer lessonIdFinalCompleted = lessonService.findLessonIdFinalCompletedByCourseIdAndUserId(course.getId(), user.getId());
@@ -59,7 +58,18 @@ public class ListLessonCourseController {
     @GetMapping("/lesson/{lessonId}")
     @ResponseBody
     public String lessonView(@PathVariable("lessonId") Integer lessonId) {
-       return lessonService.findLessonUrl(lessonId);
+        User user = SecurityUtils.getCurrentUser();
+        if (user == null) {
+            return null;
+        }
+        Lesson lesson = lessonService.findById(lessonId).orElse(null);
+        if (lesson == null) {
+            return null;
+        }
+        if (!lessonService.hasAccessToLesson(user, lesson)) {
+            return null;
+        }
+        return lessonService.findLessonUrl(lesson);
     }
 
     @GetMapping("/lesson-completed/{lessonId}")

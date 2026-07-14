@@ -762,96 +762,127 @@
         }
 
         // Hàm gọi API thêm khóa học vào giỏ hàng qua Fetch API (AJAX)
-        function addToCart(btn, courseId) {
+        async function addToCart(btn, courseId) {
             btn.disabled = true; // Khóa nút bấm để chống spam click nhiều lần
 
-            // Gửi yêu cầu HTTP POST bất đồng bộ tới API /api/cart/add
-            fetch('/api/cart/add?courseId=' + courseId, { method: 'POST' })
-                .then(res => res.json()) // Chuyển đổi phản hồi thô của server sang định dạng JSON
-                .then(data => {
-                    btn.disabled = false; // Mở khóa lại nút bấm sau khi nhận phản hồi
-                    if (data.success) { // Nếu thêm thành công
-                        const badge = document.getElementById('cart-badge-count');
-                        if (badge) {
-                            badge.textContent = data.cartSize; // Cập nhật số lượng giỏ hàng trên Header
-                        }
-
-                        // Hiển thị Bootstrap Toast thông báo thay vì alert
-                        const toastEl = document.getElementById('cartToast');
-                        const messageEl = document.getElementById('toast-message-text');
-                        if (toastEl && messageEl) {
-                            messageEl.textContent = data.message; // Gán nội dung thông báo động từ server
-
-                            const titleEl = toastEl.querySelector('.toast-title');
-                            const iconEl = toastEl.querySelector('[data-lucide]');
-                            const closeBtn = toastEl.querySelector('.btn-close');
-
-                            if (data.newlyAdded) {
-                                // Giao diện màu xanh (Thành công)
-                                toastEl.classList.remove('bg-warning', 'text-dark');
-                                toastEl.classList.add('bg-success', 'text-white');
-
-                                if (titleEl) {
-                                    titleEl.textContent = "Thành công!";
-                                    titleEl.classList.remove('text-dark');
-                                    titleEl.classList.add('text-white');
-                                }
-                                if (messageEl) {
-                                    messageEl.style.setProperty('color', 'rgba(255, 255, 255, 0.9)', 'important');
-                                }
-                                if (iconEl) {
-                                    iconEl.setAttribute('data-lucide', 'check-circle');
-                                    iconEl.className = 'text-white';
-                                }
-                                if (closeBtn) {
-                                    closeBtn.classList.add('btn-close-white');
-                                }
-                            } else {
-                                // Giao diện màu vàng (Cảnh báo/Đã có trong giỏ)
-                                toastEl.classList.remove('bg-success', 'text-white');
-                                toastEl.classList.add('bg-warning', 'text-dark');
-
-                                if (titleEl) {
-                                    titleEl.textContent = "Thông báo!";
-                                    titleEl.classList.remove('text-white');
-                                    titleEl.classList.add('text-dark');
-                                }
-                                if (messageEl) {
-                                    messageEl.style.setProperty('color', 'rgba(0, 0, 0, 0.8)', 'important');
-                                }
-                                if (iconEl) {
-                                    iconEl.setAttribute('data-lucide', 'alert-circle');
-                                    iconEl.className = 'text-dark';
-                                }
-                                if (closeBtn) {
-                                    closeBtn.classList.remove('btn-close-white');
-                                }
-                            }
-
-                            // Tạo lại icon Lucide nếu thuộc tính thay đổi
-                            if (typeof lucide !== 'undefined') {
-                                lucide.createIcons();
-                            }
-
-                            const toast = new bootstrap.Toast(toastEl);
-                            toast.show();
-                        }
-                    } else {
-                        alert(data.message || 'Không thể thêm vào giỏ hàng.'); // Hiển thị lỗi
-                    }
-                })
-                .catch(err => {
-                    btn.disabled = false;
-                    console.error('Lỗi khi thêm vào giỏ hàng:', err);
-                    alert('Có lỗi xảy ra khi thêm vào giỏ hàng.');
+            try {
+                // Gửi yêu cầu HTTP POST bất đồng bộ tới API /api/cart/add
+                const response = await fetch('/api/cart/add?courseId=' + courseId, { 
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 });
+                
+                // Trình duyệt tự động follow redirect 302 về trang login và trả về 200 OK của trang HTML
+                if (response.redirected || response.url.includes('/login') || response.url.includes('/login_no')) {
+                    showToast('Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.', 'warning');
+                    return;
+                }
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showToast('Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.', 'warning');
+                        return;
+                    }
+                    let errMsg = 'Có lỗi xảy ra khi thêm vào giỏ hàng.';
+                    try {
+                        const errData = await response.json();
+                        errMsg = errData.message || errData.error || errMsg;
+                    } catch (e) {}
+                    throw new Error(errMsg);
+                }
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || contentType.indexOf("application/json") === -1) {
+                    throw new Error("Lỗi máy chủ: Không trả về JSON.");
+                }
+
+                const data = await response.json();
+                
+                if (data.success) { // Nếu thêm thành công
+                    const badge = document.getElementById('cart-badge-count');
+                    if (badge) {
+                        badge.textContent = data.cartSize; // Cập nhật số lượng giỏ hàng trên Header
+                    }
+                    showToast(data.message, data.newlyAdded ? 'success' : 'warning');
+                } else {
+                    showToast(data.message || 'Không thể thêm vào giỏ hàng.', 'warning');
+                }
+            } catch (error) {
+                console.error('Lỗi khi thêm vào giỏ hàng:', error);
+                showToast(error.message, 'warning');
+            } finally {
+                btn.disabled = false; // Mở khóa lại nút bấm sau khi nhận phản hồi
+            }
+        }
+
+        // Hàm hiển thị Toast thông báo
+        function showToast(message, type = 'success') {
+            const toastEl = document.getElementById('cartToast');
+            const messageEl = document.getElementById('toast-message-text');
+            if (toastEl && messageEl) {
+                messageEl.textContent = message; // Gán nội dung thông báo động từ server
+
+                const titleEl = toastEl.querySelector('.toast-title');
+                const iconEl = toastEl.querySelector('[data-lucide]');
+                const closeBtn = toastEl.querySelector('.btn-close');
+
+                if (type === 'success') {
+                    // Giao diện màu xanh (Thành công)
+                    toastEl.classList.remove('bg-warning', 'text-dark');
+                    toastEl.classList.add('bg-success', 'text-white');
+
+                    if (titleEl) {
+                        titleEl.textContent = "Thành công!";
+                        titleEl.classList.remove('text-dark');
+                        titleEl.classList.add('text-white');
+                    }
+                    if (messageEl) {
+                        messageEl.style.setProperty('color', 'rgba(255, 255, 255, 0.9)', 'important');
+                    }
+                    if (iconEl) {
+                        iconEl.setAttribute('data-lucide', 'check-circle');
+                        iconEl.className = 'text-white';
+                    }
+                    if (closeBtn) {
+                        closeBtn.classList.add('btn-close-white');
+                    }
+                } else {
+                    // Giao diện màu vàng (Cảnh báo/Đã có trong giỏ/Lỗi)
+                    toastEl.classList.remove('bg-success', 'text-white');
+                    toastEl.classList.add('bg-warning', 'text-dark');
+
+                    if (titleEl) {
+                        titleEl.textContent = "Thông báo!";
+                        titleEl.classList.remove('text-white');
+                        titleEl.classList.add('text-dark');
+                    }
+                    if (messageEl) {
+                        messageEl.style.setProperty('color', 'rgba(0, 0, 0, 0.8)', 'important');
+                    }
+                    if (iconEl) {
+                        iconEl.setAttribute('data-lucide', 'alert-circle');
+                        iconEl.className = 'text-dark';
+                    }
+                    if (closeBtn) {
+                        closeBtn.classList.remove('btn-close-white');
+                    }
+                }
+
+                // Tự động cập nhật icon Lucide nếu thuộc tính thay đổi
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+
+                const toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            }
         }
 
         // Tự động tạm dừng video khi đóng popup và tải video khi mở popup
         const videoModal = document.getElementById('videoModal');
         if (videoModal) {
             // Lắng nghe sự kiện 'show.bs.modal' khi popup chuẩn bị mở ra
-            videoModal.addEventListener('show.bs.modal', function (event) {
+            videoModal.addEventListener('show.bs.modal', async function (event) {
                 // event.relatedTarget là thẻ HTML (nút bấm/thẻ link) đã kích hoạt mở modal này
                 const trigger = event.relatedTarget;
                 if (!trigger) return;
@@ -869,15 +900,25 @@
                         modalTitle.textContent = "Xem thử khóa học - " + lessonTitle;
                     }
 
-                    // Gọi Fetch API (GET) tới controller để lấy URL video bảo mật từ Azure
-                    fetch("/lesson/" + lessonId)
-                        .then(response => response.text()) // Nhận URL dạng text thường
-                        .then(url => {
-                            video.src = url; // Gán link video vào thuộc tính src của thẻ video
-                            video.load();    // Tải tài nguyên video mới
-                            video.play().catch(e => console.log("Autoplay prevented:", e)); // Tự động phát video
-                        })
-                        .catch(err => console.error("Error loading preview video:", err));
+                    try {
+                        // Gọi Fetch API (GET) tới controller để lấy URL video bảo mật từ Azure
+                        const response = await fetch("/lesson/" + lessonId);
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                showToast('Vui lòng đăng nhập để xem!', 'warning');
+                                return;
+                            }
+                            throw new Error('Có lỗi khi tải video xem thử.');
+                        }
+                        
+                        const url = await response.text(); // Nhận URL dạng text thường
+                        video.src = url; // Gán link video vào thuộc tính src của thẻ video
+                        video.load();    // Tải tài nguyên video mới
+                        video.play().catch(e => console.log("Autoplay prevented:", e)); // Tự động phát video
+                    } catch (err) {
+                        console.error("Error loading preview video:", err);
+                        showToast(err.message, 'warning');
+                    }
                 }
             });
 

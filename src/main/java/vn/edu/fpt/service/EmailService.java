@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.entity.Course;
 
@@ -14,6 +15,7 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
+    @Async("mailExecutor")
     public void sendResetPasswordEmail(String email, String token) {
 
         String url = "http://localhost:8080/reset-password?token=" + token;
@@ -26,6 +28,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async("mailExecutor")
     public void sendCourseApprovedEmail(String email, String instructorName, String courseTitle) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -42,6 +45,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async("mailExecutor")
     public void sendCourseRejectedEmail(String email, String instructorName, String courseTitle, String reason) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -59,6 +63,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async("mailExecutor")
     public void sendVerifyEmail(
             String email,
             String otp) {
@@ -87,6 +92,7 @@ public class EmailService {
 
     }
 
+    @Async("mailExecutor")
     public void sendGrantAccessCourseEmail(String toEmail, Course course) {
         try {
             MimeMessage message = mailSender.createMimeMessage();

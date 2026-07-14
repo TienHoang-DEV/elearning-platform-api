@@ -110,7 +110,9 @@ public interface DtoMapper {
 
 
     @Mapping(expression = "java(user.getFirstName() + \" \" + user.getLastName())", target = "fullName")
-    @Mapping(source = "avatarUrl", target = "avatarUrl")
+    @Mapping(source = "customAvatarUrl", target = "avatarUrl")
+    @Mapping(source = "lastName", target = "lastName")
     LearnerInfomationGrantAccessDTO toLearnerInfomationGrantAccessDto(User user);
 
+    Quiz toQuiz(QuizDTO quizDTO);
 }

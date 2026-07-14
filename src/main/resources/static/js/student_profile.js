@@ -4,42 +4,85 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
 
-    // 2. Change Avatar Simulation
-    const btnChangeAvatar = document.getElementById('btn-change-avatar');
-    const userAvatars = document.querySelectorAll('.user-avatar, .student-avatar-wrapper img');
+    // 2. Avatar Selection and Operations (Visual Previews before Form Submission)
+    const btnUploadAvatar = document.getElementById('btn-upload-avatar');
+    const btnDeleteAvatar = document.getElementById('btn-delete-avatar');
+    const btnSaveAvatar = document.getElementById('btn-save-avatar');
+    const avatarFileInput = document.getElementById('avatarFileInput');
+    const deleteAvatarInput = document.getElementById('deleteAvatarInput');
+    const avatarContainer = document.getElementById('avatarContainer');
 
-    if (btnChangeAvatar) {
-        btnChangeAvatar.addEventListener('click', () => {
-            const newImgUrl = prompt('Nhập URL ảnh đại diện mới để cập nhật (hoặc để trống để sử dụng avatar mặc định):');
-            if (newImgUrl !== null) {
-                const finalUrl = newImgUrl.trim() !== '' ? newImgUrl.trim() : '../../image/student2.png';
-                userAvatars.forEach(img => {
-                    img.src = finalUrl;
-                });
-                alert('Ảnh đại diện của học viên đã được cập nhật thành công!');
+    const enableSaveAvatarButton = () => {
+        if (btnSaveAvatar) {
+            btnSaveAvatar.removeAttribute('disabled');
+            btnSaveAvatar.classList.remove('bg-opacity-25', 'cursor-not-allowed');
+            btnSaveAvatar.classList.add('bg-primary');
+        }
+    };
+
+    if (btnUploadAvatar && avatarFileInput) {
+        btnUploadAvatar.addEventListener('click', () => {
+            avatarFileInput.click();
+        });
+
+        avatarFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                // Check size limit (1MB)
+                if (file.size > 1024 * 1024) {
+                    alert('Kích thước ảnh đại diện không được vượt quá 1MB!');
+                    avatarFileInput.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    avatarContainer.innerHTML = `<img src="${event.target.result}" alt="Avatar" class="w-100 h-100 object-fit-cover" id="studentAvatarImg"/>`;
+                    deleteAvatarInput.value = "false";
+                    enableSaveAvatarButton();
+                };
+                reader.readAsDataURL(file);
             }
         });
     }
 
-    // 3. Simulated Menu Links Action
-    const menuOptions = {
-        'opt-info': 'Thông tin cá nhân',
-        'opt-certificates': 'Đang tải danh sách 5 chứng chỉ hoàn thành...',
-        'opt-settings': 'Đang mở bảng Cài đặt tài khoản...',
-        'opt-help': 'Đang kết nối tới Trung tâm Trợ giúp khách hàng...'
-    };
+    if (btnDeleteAvatar && deleteAvatarInput) {
+        btnDeleteAvatar.addEventListener('click', () => {
+            if (confirm('Bạn có chắc chắn muốn xóa ảnh đại diện hiện tại?')) {
+                avatarContainer.innerHTML = `<span id="studentAvatarInitial">H</span>`;
+                deleteAvatarInput.value = "true";
+                if (avatarFileInput) {
+                    avatarFileInput.value = '';
+                }
+                enableSaveAvatarButton();
+            }
+        });
+    }
 
-    Object.entries(menuOptions).forEach(([id, message]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.addEventListener('click', (e) => {
-                e.preventDefault();
-                alert(`[Giả lập] ${message}`);
-            });
+    // 3. Persistent Global Theme Switcher
+    const interfaceMode = document.getElementById('interface-mode');
+    if (interfaceMode) {
+        // Initialize state from localStorage
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
+            interfaceMode.value = 'Chế độ tối';
+        } else {
+            interfaceMode.value = 'Chế độ sáng';
         }
-    });
 
-    // 4. Search bar enter key redirect
+        interfaceMode.addEventListener('change', (e) => {
+            const selectedMode = e.target.value;
+            if (selectedMode === 'Chế độ tối') {
+                localStorage.setItem('theme', 'dark');
+                document.documentElement.classList.add('dark-theme');
+            } else {
+                localStorage.setItem('theme', 'light');
+                document.documentElement.classList.remove('dark-theme');
+            }
+        });
+    }
+
+    // 4. Search Bar Redirect
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
         searchInput.addEventListener('keypress', (e) => {

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.HtmlUtils;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.dto.course.*;
 import vn.edu.fpt.dto.home.HomeDto;
@@ -55,6 +56,7 @@ public class CourseService {
 
     // Page course của mỗi instructor
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
+
         return repository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
     }
 
@@ -96,9 +98,16 @@ public class CourseService {
                     "Tiêu đề khóa học phải có ít nhất 3 ký tự.");
         }
 
+        String descriptionText = toPlainText(courseCreateDto.getDescription());
+        if (descriptionText.length() < 50) {
+            throw new CourseValidationException(
+                    "description",
+                    "Mô tả khóa học phải có tối thiểu 50 ký tự.");
+        }
+
         String thumbnailUrl = course.getThumbnailUrl();
         if (courseCreateDto.getThumbnailFile() != null && !courseCreateDto.getThumbnailFile().isEmpty()) {
-            thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), "course-thumbnails");
+            thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS);
         }
 
         Category category = categoryRepository.findById(courseCreateDto.getCategoryId())
@@ -115,6 +124,16 @@ public class CourseService {
     }
 
 
+    private String toPlainText(String html) {
+        if (html == null) {
+            return "";
+        }
+        return HtmlUtils.htmlUnescape(html)
+                .replaceAll("<[^>]*>", " ")
+                .replace('\u00A0', ' ')
+                .trim();
+    }
+
     ///getCourseForEdit
     public CourseCreateDto getCourseForEdit(Integer coureId, User user){
         Course course = repository.findById(coureId).orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khoá học có id = " + coureId));
@@ -126,6 +145,7 @@ public class CourseService {
         CourseCreateDto courseCreateDto = new CourseCreateDto();
         courseCreateDto.setId(course.getId());
         courseCreateDto.setTitle(course.getTitle());
+        courseCreateDto.setDescription(course.getDescription());
         courseCreateDto.setPrice(course.getPrice());
         courseCreateDto.setThumbnailUrl(course.getThumbnailUrl());
         courseCreateDto.setLevel(course.getLevel());
@@ -404,6 +424,143 @@ public class CourseService {
     public Course findByCourseIdAndUserId(Integer courseId, Integer userId) {
         return repository.findByCourseIdAndUserId(courseId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
+    }
+
+    public CourseSubmitReviewDto getSubmitReview(Integer courseId, User user, boolean acceptedPolicy) {
+        Course course = repository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id " + courseId));
+
+        CourseSubmitReviewDto dto = new CourseSubmitReviewDto();
+        dto.setCourseId(course.getId());
+        dto.setCourseTitle(course.getTitle());
+        dto.setCourseStatus(course.getStatus());
+
+        boolean owner = user != null
+                && course.getInstructor() != null
+                && course.getInstructor().getId().equals(user.getId());
+        boolean editableStatus = course.getStatus() == CourseStatus.DRAFT || course.getStatus() == CourseStatus.REJECTED;
+        boolean noPendingRequest = course.getStatus() != CourseStatus.PENDING;
+
+        long sectionCount = repository.countSectionsByCourseId(courseId);
+        long lessonCount = repository.countLessonsByCourseId(courseId);
+
+        addCheck(dto.getContentChecks(), dto.getMissingMessages(),
+                "Tiêu đề khóa học: 10-120 ký tự",
+                hasLengthBetween(course.getTitle(), 10, 120),
+                "Tiêu đề khóa học phải có từ 10 đến 120 ký tự");
+        addCheck(dto.getContentChecks(), dto.getMissingMessages(),
+                "Mô tả khóa học: tối thiểu 50 ký tự",
+                plainLength(course.getDescription()) >= 50,
+                "Mô tả khóa học cần tối thiểu 50 ký tự");
+        addCheck(dto.getContentChecks(), dto.getMissingMessages(),
+                "Ảnh đại diện khóa học đã tải lên",
+                hasText(course.getThumbnailUrl()),
+                "Chưa tải ảnh đại diện khóa học");
+        addCheck(dto.getContentChecks(), dto.getMissingMessages(),
+                "Danh mục, trình độ và giá đã điền",
+                course.getCategory() != null && hasText(course.getLevel()) && course.getPrice() != null,
+                "Chưa điền đủ danh mục, trình độ hoặc giá khóa học");
+        addCheck(dto.getContentChecks(), dto.getMissingMessages(),
+                "Có ít nhất 1 section",
+                sectionCount > 0,
+                "Khóa học cần có ít nhất 1 section");
+        addCheck(dto.getContentChecks(), dto.getMissingMessages(),
+                "Mỗi section có ít nhất 1 bài học",
+                sectionCount > 0 && repository.countSectionsWithoutLessons(courseId) == 0,
+                "Mỗi section cần có ít nhất 1 bài học");
+        addCheck(dto.getContentChecks(), dto.getMissingMessages(),
+                "Có ít nhất 1 video hoặc tài liệu học tập",
+                lessonCount > 0 && repository.countLessonsHavingVideoOrMaterial(courseId) > 0,
+                "Thiếu video hoặc tài liệu học tập");
+        addCheck(dto.getContentChecks(), dto.getMissingMessages(),
+                "Có ít nhất 1 quiz / bài tập cuối khóa",
+                repository.countQuizzesByCourseId(courseId) > 0,
+                "Thiếu quiz / bài tập cuối khóa");
+
+        addCheck(dto.getBusinessChecks(), dto.getMissingMessages(),
+                "Người gửi là giảng viên sở hữu khóa học",
+                owner,
+                "Bạn không phải giảng viên sở hữu khóa học này");
+        addCheck(dto.getBusinessChecks(), dto.getMissingMessages(),
+                "Khóa học ở trạng thái Draft hoặc Rejected",
+                editableStatus,
+                "Chỉ khóa học bản nháp hoặc bị từ chối mới được gửi duyệt");
+        addCheck(dto.getBusinessChecks(), dto.getMissingMessages(),
+                "Không tồn tại request đang chờ duyệt",
+                noPendingRequest,
+                "Khóa học đang chờ duyệt, không thể gửi thêm request");
+        addCheck(dto.getBusinessChecks(), dto.getMissingMessages(),
+                "Manager / bộ phận duyệt được gán tự động",
+                true,
+                null);
+
+        CourseSubmitReviewDto.CheckItem policy = new CourseSubmitReviewDto.CheckItem(
+                "Đã tick cam kết bản quyền và chính sách",
+                acceptedPolicy,
+                true);
+        dto.getBusinessChecks().add(policy);
+        if (!acceptedPolicy) {
+            dto.getMissingMessages().add("Chưa tick cam kết bản quyền và chính sách");
+        }
+
+        int total = dto.getContentChecks().size() + dto.getBusinessChecks().size();
+        int completed = 0;
+        for (CourseSubmitReviewDto.CheckItem item : dto.getContentChecks()) {
+            if (item.isPassed()) completed++;
+        }
+        for (CourseSubmitReviewDto.CheckItem item : dto.getBusinessChecks()) {
+            if (item.isPassed()) completed++;
+        }
+
+        dto.setTotalCount(total);
+        dto.setCompletedCount(completed);
+        dto.setPercent(total == 0 ? 0 : (int) Math.round(completed * 100.0 / total));
+        dto.setSubmitReady(completed == total);
+        return dto;
+    }
+
+    @Transactional
+    public void submitCourseForApproval(Integer courseId, User user, boolean acceptedPolicy) {
+        CourseSubmitReviewDto review = getSubmitReview(courseId, user, acceptedPolicy);
+        if (!review.isSubmitReady()) {
+            throw new CourseValidationException("submitReview", String.join("; ", review.getMissingMessages()));
+        }
+
+        Course course = repository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id " + courseId));
+        course.setStatus(CourseStatus.PENDING);
+        course.setRejectionReason(null);
+        course.setApprovedAt(null);
+        course.setApprovedBy(null);
+        course.setUpdateAt(LocalDateTime.now());
+        repository.save(course);
+    }
+
+    private void addCheck(List<CourseSubmitReviewDto.CheckItem> checks, List<String> missingMessages,
+                          String label, boolean passed, String missingMessage) {
+        checks.add(new CourseSubmitReviewDto.CheckItem(label, passed));
+        if (!passed && missingMessage != null) {
+            missingMessages.add(missingMessage);
+        }
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+
+    private boolean hasLengthBetween(String value, int min, int max) {
+        if (!hasText(value)) {
+            return false;
+        }
+        int length = value.trim().length();
+        return length >= min && length <= max;
+    }
+
+    private int plainLength(String value) {
+        if (value == null) {
+            return 0;
+        }
+        return value.replaceAll("<[^>]*>", "").trim().length();
     }
 
 

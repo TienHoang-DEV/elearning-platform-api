@@ -30,14 +30,14 @@ VALUES
 (N'Nguyễn', N'An', 'admin1@elearning.com', '0901000001',
  NULL,
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
- 'avatar.jpg',
+ '01da5229-793f-49a5-a3a6-a181f9d4d19f_Screenshot%202026-07-01%20083102.png',
  NULL,
  'ACTIVE'),
 
 (N'Trần', N'Bình', 'admin2@elearning.com', '0901000002',
  NULL,
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
- 'avatar.jpg',
+ '06a98026-0028-498b-b6f4-af64ce94cbe0_i1.jpg',
  NULL,
  'ACTIVE'),
 
@@ -45,14 +45,14 @@ VALUES
 (N'Lê', N'Cường', 'manager1@elearning.com', '0902000001',
  NULL,
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
- 'avatar.jpg',
+ '2605ba54-3b34-4dd8-936f-827d591e8cc9_kawai_ks2.jpg',
  NULL,
  'ACTIVE'),
 
 (N'Phạm', N'Dung', 'manager2@elearning.com', '0902000002',
  NULL,
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
- 'avatar.jpg',
+ 'images.jpg',
  NULL,
  'ACTIVE'),
 
@@ -60,14 +60,14 @@ VALUES
 (N'Hoàng', N'Giang', 'instructor1@elearning.com', '0903000001',
  N'Java Backend Instructor với hơn 5 năm kinh nghiệm.',
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
- 'avatar.jpg',
+ 'images (1).jpg',
  NULL,
  'ACTIVE'),
 
 (N'Vũ', N'Hải', 'instructor2@elearning.com', '0903000002',
  N'Spring Boot và SQL Server Instructor.',
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
- 'avatar.jpg',
+ 'images (2).jpg',
  NULL,
  'ACTIVE'),
 
@@ -75,58 +75,58 @@ VALUES
 (N'Đỗ', N'Minh', 'learner1@elearning.com', '0904000001',
  NULL,
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
- 'avatar.jpg',
+ 'images (3).jpg',
  NULL,
  'ACTIVE'),
 
 (N'Bùi', N'Ngọc', 'learner2@elearning.com', '0904000002',
  NULL,
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
- 'avatar.jpg',
+ 'images (4).jpg',
  NULL,
  'ACTIVE'),
 
 (N'Nguyễn', N'Tuấn', 'learner3@elearning.com', '0904000003',
  NULL,
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
- 'avatar.jpg',
+ 'images (17).jpg',
  NULL,
  'ACTIVE'),
 
 (N'Lê', N'Hương', 'learner4@elearning.com', '0904000004',
  NULL,
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
- 'avatar.jpg',
+ 'images (16).jpg',
  NULL,
  'ACTIVE'),
 
 (N'Phạm', N'Vy', 'learner5@elearning.com', '0904000005',
  NULL,
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
- 'avatar.jpg',
+ 'images (15).jpg',
  NULL,
  'ACTIVE'),
 
-(N'Nguyễn', N'Thảo', 'learner6@elearning.com', '0904000006', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Trần', N'Linh', 'learner7@elearning.com', '0904000007', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Lê', N'Kha', 'learner8@elearning.com', '0904000008', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Phạm', N'Phong', 'learner9@elearning.com', '0904000009', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Hoàng', N'Sơn', 'learner10@elearning.com', '0904000010', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Vũ', N'Lan', 'learner11@elearning.com', '0904000011', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Đặng', N'Hùng', 'learner12@elearning.com', '0904000012', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Bùi', N'Trang', 'learner13@elearning.com', '0904000013', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Đỗ', N'Phúc', 'learner14@elearning.com', '0904000014', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Hồ', N'Quân', 'learner15@elearning.com', '0904000015', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Ngô', N'Mai', 'learner16@elearning.com', '0904000016', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Dương', N'Nam', 'learner17@elearning.com', '0904000017', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Lý', N'Hà', 'learner18@elearning.com', '0904000018', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Vương', N'Tú', 'learner19@elearning.com', '0904000019', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Trịnh', N'Hải', 'learner20@elearning.com', '0904000020', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Đoàn', N'Hòa', 'learner21@elearning.com', '0904000021', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Lâm', N'Yến', 'learner22@elearning.com', '0904000022', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Phùng', N'Cường', 'learner23@elearning.com', '0904000023', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Tống', N'Huy', 'learner24@elearning.com', '0904000024', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE'),
-(N'Diệp', N'Trúc', 'learner25@elearning.com', '0904000025', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'avatar.jpg', NULL, 'ACTIVE');
+(N'Nguyễn', N'Thảo', 'learner6@elearning.com', '0904000006', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (14).jpg', NULL, 'ACTIVE'),
+(N'Trần', N'Linh', 'learner7@elearning.com', '0904000007', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (13).jpg', NULL, 'ACTIVE'),
+(N'Lê', N'Kha', 'learner8@elearning.com', '0904000008', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (12).jpg', NULL, 'ACTIVE'),
+(N'Phạm', N'Phong', 'learner9@elearning.com', '0904000009', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (11).jpg', NULL, 'ACTIVE'),
+(N'Hoàng', N'Sơn', 'learner10@elearning.com', '0904000010', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (10).jpg', NULL, 'ACTIVE'),
+(N'Vũ', N'Lan', 'learner11@elearning.com', '0904000011', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', '01da5229-793f-49a5-a3a6-a181f9d4d19f_Screenshot%202026-07-01%20083102.png', NULL, 'ACTIVE'),
+(N'Đặng', N'Hùng', 'learner12@elearning.com', '0904000012', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', '06a98026-0028-498b-b6f4-af64ce94cbe0_i1.jpg', NULL, 'ACTIVE'),
+(N'Bùi', N'Trang', 'learner13@elearning.com', '0904000013', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', '2605ba54-3b34-4dd8-936f-827d591e8cc9_kawai_ks2.jpg', NULL, 'ACTIVE'),
+(N'Đỗ', N'Phúc', 'learner14@elearning.com', '0904000014', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images.jpg', NULL, 'ACTIVE'),
+(N'Hồ', N'Quân', 'learner15@elearning.com', '0904000015', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (1).jpg', NULL, 'ACTIVE'),
+(N'Ngô', N'Mai', 'learner16@elearning.com', '0904000016', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (2).jpg', NULL, 'ACTIVE'),
+(N'Dương', N'Nam', 'learner17@elearning.com', '0904000017', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (3).jpg', NULL, 'ACTIVE'),
+(N'Lý', N'Hà', 'learner18@elearning.com', '0904000018', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (4).jpg', NULL, 'ACTIVE'),
+(N'Vương', N'Tú', 'learner19@elearning.com', '0904000019', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (17).jpg', NULL, 'ACTIVE'),
+(N'Trịnh', N'Hải', 'learner20@elearning.com', '0904000020', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (16).jpg', NULL, 'ACTIVE'),
+(N'Đoàn', N'Hòa', 'learner21@elearning.com', '0904000021', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (15).jpg', NULL, 'ACTIVE'),
+(N'Lâm', N'Yến', 'learner22@elearning.com', '0904000022', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (14).jpg', NULL, 'ACTIVE'),
+(N'Phùng', N'Cường', 'learner23@elearning.com', '0904000023', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (13).jpg', NULL, 'ACTIVE'),
+(N'Tống', N'Huy', 'learner24@elearning.com', '0904000024', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (12).jpg', NULL, 'ACTIVE'),
+(N'Diệp', N'Trúc', 'learner25@elearning.com', '0904000025', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (11).jpg', NULL, 'ACTIVE');
 
  -- =========================
 -- USER ROLES SAMPLE DATA
@@ -696,53 +696,47 @@ INSERT INTO course_sections (course_id, title, position) VALUES
 -- Mỗi section có 3 bài học
 -- =========================
 
-DECLARE @sectionId INT = 1;
+INSERT INTO lessons (
+    section_id,
+    title,
+    video_url,
+    duration_seconds,
+    position,
+    is_published,
+    moderation_status
+)
+SELECT 
+    cs.id,
+    CASE 
+        WHEN CHARINDEX(':', cs.title) > 0 
+        THEN SUBSTRING(cs.title, CHARINDEX(':', cs.title) + 2, LEN(cs.title))
+        ELSE cs.title
+    END + 
+    CASE n.num
+        WHEN 1 THEN N' - Bài 1: Khái niệm & Cơ bản'
+        WHEN 2 THEN N' - Bài 2: Thực hành & Chi tiết'
+        WHEN 3 THEN N' - Bài 3: Tổng kết & Ứng dụng'
+    END,
+    CASE n.num
+        WHEN 1 THEN 'Recording 2026-05-28 212131.mp4'
+        WHEN 2 THEN N'Lập trình C - 03. Cách xuất dữ liệu ra màn hình lập trình C - Hàm printf - Tự học lập trình C.mp4'
+        WHEN 3 THEN N'Lập trình C - 04. Cách nhập dữ liệu từ bàn phím trong lập trình C - Tự học lập trình C.mp4'
+    END,
+    CASE n.num
+        WHEN 1 THEN 600
+        WHEN 2 THEN 720
+        WHEN 3 THEN 840
+    END,
+    n.num,
+    1,
+    'APPROVED'
+FROM course_sections cs
+CROSS JOIN (
+    SELECT 1 AS num UNION ALL
+    SELECT 2 AS num UNION ALL
+    SELECT 3 AS num
+) n;
 
-WHILE @sectionId <= 72
-BEGIN
-
-    INSERT INTO lessons (
-        section_id,
-        title,
-        video_url,
-        duration_seconds,
-        position,
-        is_published,
-        moderation_status
-    )
-    VALUES
-    (
-        @sectionId,
-        N'Bài 1',
-        'Recording 2026-05-28 212131.mp4',
-        600,
-        1,
-        1,
-        'APPROVED'
-    ),
-
-    (
-        @sectionId,
-        N'Bài 2',
-        N'Lập trình C - 03. Cách xuất dữ liệu ra màn hình lập trình C - Hàm printf - Tự học lập trình C.mp4',
-        720,
-        2,
-        1,
-        'APPROVED'
-    ),
-
-    (
-        @sectionId,
-        N'Bài 3',
-        N'Lập trình C - 04. Cách nhập dữ liệu từ bàn phím trong lập trình C - Tự học lập trình C.mp4',
-        840,
-        3,
-        1,
-        'APPROVED'
-    );
-
-    SET @sectionId = @sectionId + 1;
-END
 
 -- =========================
 -- QUIZZES SAMPLE DATA
@@ -1672,15 +1666,19 @@ INSERT INTO lesson_materials
     file_size
 )
 VALUES
-    (5, 1, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 2, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 3, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 4, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 5, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 6, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 7, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 8, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576),
-    (5, 9, N'[28Tech]. BUOI 1.pdf', '[28Tech]. BUOI 1.pdf', 'pdf', 1048576);
+    (5, 1, N'Junit_Jacoco_Assignment_Sample.docx', '45d7c134-5be5-44f2-8009-d84c3fdc383d_Junit_Jacoco_Assignment_Sample.docx', 'docx', 1048576),
+    (5, 1, N'Lab4_Requirements.pdf', 'f9846ac0-7788-414e-b102-e85190b373a5_Lab4_Requirements.pdf', 'pdf', 1048576),
+    (5, 2, N'Team 5_SE2034_Defect Log FE.xlsx', '45243280-d293-476a-9fda-439b37acab95_Team 5_SE2034_Defect Log FE.xlsx', 'xlsx', 1048576),
+    (5, 2, N'blog.haposoft.com-Bản dịch ISTQB.docx', '40a9db01-e535-46fb-8954-ab7694f0e964_blog.haposoft.com-Bản dịch ISTQB.docx', 'docx', 1048576),
+    (5, 3, N'Team 5_SE2034_Defect Log FE.xlsx', '36f3ac2b-9e84-4b6c-8bff-52b93cfe2af1_Team 5_SE2034_Defect Log FE.xlsx', 'xlsx', 1048576),
+    (5, 3, N'[giao.lang] Thymeleaf in 5 minutes-25.0619.AI generated.docx', 'dd1f1f23-3e2e-415d-9873-81979b464aaf_[giao.lang] Thymeleaf in 5 minutes-25.0619.AI generated.docx', 'docx', 1048576),
+    (5, 3, N'Lab4_Requirements.pdf', 'f9846ac0-7788-414e-b102-e85190b373a5_Lab4_Requirements.pdf', 'pdf', 1048576),
+    (5, 4, N'Team 5_SE2034_Defect Log FE.xlsx', '36f3ac2b-9e84-4b6c-8bff-52b93cfe2af1_Team 5_SE2034_Defect Log FE.xlsx', 'xlsx', 1048576),
+    (5, 5, N'Junit_Jacoco_Assignment_Sample.docx', '4df90b30-ff0f-4d11-b50f-8463cdae22b7_Junit_Jacoco_Assignment_Sample.docx', 'docx', 1048576),
+    (5, 6, N'[giao.lang] Thymeleaf in 5 minutes-25.0619.AI generated.docx', 'dd1f1f23-3e2e-415d-9873-81979b464aaf_[giao.lang] Thymeleaf in 5 minutes-25.0619.AI generated.docx', 'docx', 1048576),
+    (5, 7, N'Lab4_Requirements.pdf', 'f9846ac0-7788-414e-b102-e85190b373a5_Lab4_Requirements.pdf', 'pdf', 1048576),
+    (5, 8, N'Junit_Jacoco_Assignment_Sample.docx', '45d7c134-5be5-44f2-8009-d84c3fdc383d_Junit_Jacoco_Assignment_Sample.docx', 'docx', 1048576),
+    (5, 9, N'Team 5_SE2034_Defect Log FE.xlsx', '45243280-d293-476a-9fda-439b37acab95_Team 5_SE2034_Defect Log FE.xlsx', 'xlsx', 1048576);
 
 INSERT INTO orders (
     user_id,
