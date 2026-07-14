@@ -192,7 +192,7 @@ public class LessonService {
                 return nextLesson;
             }
         }
-        return null;
+        return nextLessons.get(0);
     }
 
     public LessonDto getLessonById(Integer lessonId){
