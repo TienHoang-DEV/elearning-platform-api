@@ -189,6 +189,35 @@
 
                         </div>
                     </form>
+
+                    <!-- Change Password Section (Only for users with password) -->
+                    <div class="mt-4" th:if="${currentUser.passwordHash != null}">
+                        <section class="border-card rounded-4 p-4 p-md-5">
+                            <h2 class="h4 fw-bold mb-4">Thay đổi mật khẩu</h2>
+                            <form th:action="@{/student/profile/change-password}" method="post">
+                                <div class="row g-3">
+                                    <div class="col-md-12 d-flex flex-column gap-2">
+                                        <label class="fw-bold text-dark fs-7" for="oldPassword">Mật khẩu hiện tại</label>
+                                        <input class="form-control p-3 border-secondary-subtle" id="oldPassword" name="oldPassword" type="password" required placeholder="Nhập mật khẩu hiện tại"/>
+                                    </div>
+                                    <div class="col-md-6 d-flex flex-column gap-2">
+                                        <label class="fw-bold text-dark fs-7" for="newPassword">Mật khẩu mới</label>
+                                        <input class="form-control p-3 border-secondary-subtle" id="newPassword" name="newPassword" type="password" required placeholder="Nhập mật khẩu mới"/>
+                                    </div>
+                                    <div class="col-md-6 d-flex flex-column gap-2">
+                                        <label class="fw-bold text-dark fs-7" for="confirmPassword">Xác nhận mật khẩu</label>
+                                        <input class="form-control p-3 border-secondary-subtle" id="confirmPassword" name="confirmPassword" type="password" required placeholder="Nhập lại mật khẩu mới"/>
+                                    </div>
+                                    <div class="col-12 pt-2">
+                                        <button class="btn btn-outline-primary border-2 px-4 py-3 fw-bold rounded-3" type="submit" style="border-color: #0056d2; color: #0056d2;">
+                                            Cập nhật mật khẩu
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </section>
+                    </div>
+
                 </div>
 
                 <!-- 2. TÙY CHỌN GIAO TIẾP PANE -->
