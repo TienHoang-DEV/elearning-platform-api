@@ -42,7 +42,6 @@ public class GlobalControllerAdvice {
         if (uri.startsWith("/api/") || uri.startsWith("/api") || uri.contains("/material/url")) {
             return false;
         }
-        // Loại trừ các file tĩnh phổ biến
         if (uri.contains(".")) {
             String ext = uri.substring(uri.lastIndexOf("."));
             if (ext.matches("\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|map|json|html)$")) {

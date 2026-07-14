@@ -214,6 +214,9 @@ public class PaymentService {
     }
 
     public Page<TransactionListDTO> getTransactionByFilter(String statuss, LocalDateTime fromDate, LocalDateTime toDate, String keyword, int page) {
+        if (keyword != null) {
+            keyword = keyword.trim();
+        }
         PaymentStatus status = null;
         if (statuss != null && !statuss.isBlank()) {
             status = PaymentStatus.valueOf(statuss);
