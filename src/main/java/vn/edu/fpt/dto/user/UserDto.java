@@ -23,6 +23,7 @@ public class UserDto {
     private RoleType role;
     private UserStatus status;
     private Integer courseCount;
+    private Boolean hasPassword;
 
 
 

@@ -180,7 +180,7 @@ public class CartService {
         return cartItemService.countItemsInCart(cart);
     }
 
-    public void toggleSelect(Integer cartItemId, Boolean selected) {
+    public void  toggleSelect(Integer cartItemId, Boolean selected) {
         CartItem item = cartItemService.findById(cartItemId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm trong giỏ hàng."));
         if (selected != null) {

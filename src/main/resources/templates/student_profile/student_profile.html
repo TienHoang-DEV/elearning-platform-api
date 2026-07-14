@@ -26,7 +26,7 @@
 <body class="bg-page">
 
     <!-- Header Navigation -->
-    <header th:replace="fragments/header :: header"></header>
+    <header th:replace="~{fragments/header :: header}"></header>
 
     <!-- Main Content Layout -->
     <main class="py-5">
@@ -191,7 +191,7 @@
                     </form>
 
                     <!-- Change Password Section (Only for users with password) -->
-                    <div class="mt-4" th:if="${currentUser.passwordHash != null}">
+                    <div class="mt-4" th:if="${currentUser.hasPassword}">
                         <section class="border-card rounded-4 p-4 p-md-5">
                             <h2 class="h4 fw-bold mb-4">Thay đổi mật khẩu</h2>
                             <form th:action="@{/student/profile/change-password}" method="post">
