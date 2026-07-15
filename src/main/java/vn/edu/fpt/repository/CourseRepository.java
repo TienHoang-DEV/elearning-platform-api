@@ -144,8 +144,9 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
 
     @Query("SELECT c FROM Course c " +
             "LEFT JOIN FETCH c.instructor i " +
+            "LEFT JOIN FETCH c.category cat " +
             "WHERE (:status IS NULL OR c.status = :status) " +
-            "AND (:categoryId IS NULL OR c.category.id = :categoryId) " +
+            "AND (:categoryId IS NULL OR cat.id = :categoryId) " +
             "AND (:keyword IS NULL OR :keyword = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Course> searchAndFilter(
             @Param("keyword") String keyword,

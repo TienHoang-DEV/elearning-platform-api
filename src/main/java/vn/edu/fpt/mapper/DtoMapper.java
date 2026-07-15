@@ -36,6 +36,12 @@ public interface DtoMapper {
     @Mapping(target = "courseCount", expression = "java(user.getCourses() != null ? user.getCourses().size() : 0)")
     UserDto toSimpleUserDto(User user);
 
+    @Named("toVerySimpleUserDto")
+    @Mapping(target = "avatarUrl", expression = "java(user.getFullAvatarUrl())")
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "courseCount", ignore = true)
+    UserDto toVerySimpleUserDto(User user);
+
     @Mapping(target = "averageRating", expression = "java(course.getAverageRating())")
     @Mapping(target = "ratingCount", expression = "java(course.getRatingCount())")
     @Mapping(target = "totalLessonsCount", expression = "java(course.getTotalLessonsCount())")
@@ -57,7 +63,9 @@ public interface DtoMapper {
     @Mapping(target = "firstLessonId", ignore = true)
     @Mapping(target = "enrollmentsCount", ignore = true)
     @Mapping(target = "category", qualifiedByName = "toSimpleCategoryDto")
-    @Mapping(target = "instructor", qualifiedByName = "toSimpleUserDto")
+    @Mapping(target = "instructor", qualifiedByName = "toVerySimpleUserDto")
+    @Mapping(target = "thumbnailPath", expression = "java(course.getThumbnailPath())")
+    @Mapping(target = "rejectionReason", source = "rejectionReason")
     CourseDto toSimpleCourseDto(Course course);
 
     @Mapping(target = "courseCount", expression = "java(category.getCourses() != null ? category.getCourses().size() : 0)")

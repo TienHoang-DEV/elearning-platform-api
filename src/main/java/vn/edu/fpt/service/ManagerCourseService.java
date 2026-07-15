@@ -31,7 +31,7 @@ public class ManagerCourseService {
 
     public Page<CourseDto> searchAndFilter(String keyword, CourseStatus status, Integer categoryId, Pageable pageable) {
         return repository.searchAndFilter(keyword, status, categoryId, pageable)
-                .map(dtoMapper::toCourseDto);
+                .map(dtoMapper::toSimpleCourseDto);
     }
 
     public void updateCourseStatus(Integer id, CourseStatus status) {
