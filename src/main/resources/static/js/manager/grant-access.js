@@ -1,4 +1,4 @@
-function openGrantModal(button) {
+async function openGrantModal(button) {
     const userId = button.getAttribute('data-user-id');
     const userName = button.getAttribute('data-user-name');
     const userEmail = button.getAttribute('data-user-email');
@@ -9,21 +9,65 @@ function openGrantModal(button) {
 
     // Reset custom course dropdown
     const searchInput = document.getElementById('courseSearchInput');
-    const hiddenInput = document.getElementById('modalCourseSelect');
+    const container = document.getElementById('hiddenCourseInputsContainer');
+    const badgesContainer = document.getElementById('selectedCoursesBadges');
     const optionsContainer = document.getElementById('courseDropdownOptions');
     
-    searchInput.value = '';
-    hiddenInput.value = '';
-    optionsContainer.querySelectorAll('.option-item').forEach(el => {
-        el.classList.remove('selected');
-        el.style.display = 'block';
-    });
-    const noResult = optionsContainer.querySelector('.no-result');
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.placeholder = "Đang tải danh sách khóa học...";
+        searchInput.disabled = true;
+    }
+    if (container) container.innerHTML = '';
+    if (badgesContainer) badgesContainer.innerHTML = '';
+    if (optionsContainer) {
+        optionsContainer.innerHTML = '<div class="option-item" data-value="" style="display: none;">-- Chọn khóa học --</div>';
+    }
+    
+    try {
+        const response = await fetch(`/manager/grant-access/available-courses?userId=${userId}`);
+        if (!response.ok) {
+            throw new Error("Không thể tải danh sách khóa học khả dụng");
+        }
+        const courses = await response.json();
+        
+        // Rebuild option items
+        if (optionsContainer) {
+            courses.forEach(course => {
+                const opt = document.createElement('div');
+                opt.className = 'option-item';
+                opt.setAttribute('data-value', course.id);
+                opt.style.display = 'block';
+                opt.innerHTML = `<span>${course.courseName}</span>`;
+                optionsContainer.appendChild(opt);
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        showToast("Lỗi khi tải danh sách khóa học.", "danger");
+    } finally {
+        if (searchInput) {
+            searchInput.placeholder = "Tìm kiếm và chọn khóa học...";
+            searchInput.disabled = false;
+        }
+    }
+    
+    const noResult = optionsContainer ? optionsContainer.querySelector('.no-result') : null;
     if (noResult) noResult.remove();
     
     const modal = new bootstrap.Modal(document.getElementById('grantAccessModal'));
     modal.show();
 }
+
+window.deselectCourse = function(id) {
+    console.log("Deselecting course ID:", id);
+    const option = document.querySelector(`#courseDropdownOptions .option-item[data-value="${id}"]`);
+    if (option) {
+        option.classList.remove('selected');
+        option.style.display = 'block';
+        updateSelectedCoursesDisplay();
+    }
+};
 
 const form = document.querySelector("#formSubmit");
 const button = document.querySelector("#btnSubmitForm");
@@ -31,10 +75,10 @@ const button = document.querySelector("#btnSubmitForm");
 if (form && button) {
     button.addEventListener("click", async (e) => {
         e.preventDefault();
-        const courseId = document.getElementById('modalCourseSelect').value;
+        const courseIdInputs = document.querySelectorAll('#hiddenCourseInputsContainer input[name="courseId"]');
         const reason = document.getElementById('modalReasonSelect').value;
-        if (!courseId) {
-            showToast("Vui lòng chọn khóa học!", "warning");
+        if (courseIdInputs.length === 0) {
+            showToast("Vui lòng chọn ít nhất một khóa học!", "warning");
             return;
         }
         if (!reason) {
@@ -67,7 +111,7 @@ if (form && button) {
                     if (backdrop) backdrop.remove();
                 }
 
-                showToast("Cấp quyền truy cập khóa học thành công!", "success");
+                showToast(result.message || "Cấp quyền truy cập khóa học thành công!", "success");
                 
                 // Reload trang sau 1.5s để cập nhật danh sách
                 setTimeout(() => {
@@ -100,22 +144,62 @@ function showToast(message, type) {
     }
     
     toastMessage.textContent = message;
-    const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+    const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
     toast.show();
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+function updateSelectedCoursesDisplay() {
+    const container = document.getElementById('hiddenCourseInputsContainer');
+    const badgesContainer = document.getElementById('selectedCoursesBadges');
+    const selectedOptions = document.querySelectorAll('#courseDropdownOptions .option-item.selected');
+    
+    console.log("Selected options count:", selectedOptions.length);
+    if (container) container.innerHTML = '';
+    if (badgesContainer) badgesContainer.innerHTML = '';
+    
+    selectedOptions.forEach(opt => {
+        const id = opt.getAttribute('data-value');
+        const nameSpan = opt.querySelector('span');
+        const name = nameSpan ? nameSpan.textContent : opt.textContent.trim();
+        
+        console.log("Rendering selected item ID:", id, "Name:", name);
+        if (container) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'courseId';
+            hiddenInput.value = id;
+            container.appendChild(hiddenInput);
+        }
+        
+        if (badgesContainer) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'd-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-light w-100';
+            itemDiv.style.fontSize = '0.9rem';
+            itemDiv.innerHTML = `
+                <span class="fw-semibold text-dark">${name}</span>
+                <button type="button" class="btn btn-sm btn-outline-danger border-0 p-1 lh-1" onclick="deselectCourse(${id})">
+                    <i class="ph ph-trash" style="font-size: 1.15rem; cursor: pointer;"></i>
+                </button>
+            `;
+            badgesContainer.appendChild(itemDiv);
+        }
+    });
+}
+
+function initializeSelector() {
     const searchInput = document.getElementById('courseSearchInput');
     const optionsContainer = document.getElementById('courseDropdownOptions');
-    const hiddenInput = document.getElementById('modalCourseSelect');
-    const wrapper = searchInput.closest('.custom-search-select');
-    const optionItems = Array.from(optionsContainer.querySelectorAll('.option-item:not([style*="display: none"])'));
+    const wrapper = searchInput ? searchInput.closest('.custom-search-select') : null;
     
-    if (searchInput && optionsContainer) {
+    console.log("Initializing selector components:", { searchInput, optionsContainer, wrapper });
+    
+    if (searchInput && optionsContainer && wrapper) {
+        
         searchInput.addEventListener('click', function (e) {
             e.stopPropagation();
             wrapper.classList.add('active');
         });
+        
         searchInput.addEventListener('input', function () {
             const query = searchInput.value.toLowerCase().trim();
             wrapper.classList.add('active');
@@ -123,11 +207,19 @@ document.addEventListener('DOMContentLoaded', function () {
             const existingNoResult = optionsContainer.querySelector('.no-result');
             if (existingNoResult) existingNoResult.remove();
 
+            // Query dynamic items inside input handler to support dynamic elements
+            const optionItems = Array.from(optionsContainer.querySelectorAll('.option-item')).filter(item => item.getAttribute('data-value') !== '');
+
             optionItems.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                if (text.includes(query)) {
-                    item.style.display = 'block';
-                    matches++;
+                if (!item.classList.contains('selected')) {
+                    const span = item.querySelector('span');
+                    const text = span ? span.textContent.toLowerCase() : item.textContent.toLowerCase();
+                    if (text.includes(query)) {
+                        item.style.display = 'block';
+                        matches++;
+                    } else {
+                        item.style.display = 'none';
+                    }
                 } else {
                     item.style.display = 'none';
                 }
@@ -140,32 +232,52 @@ document.addEventListener('DOMContentLoaded', function () {
                 optionsContainer.appendChild(noResult);
             }
         });
+        
         optionsContainer.addEventListener('click', function (e) {
-            const target = e.target;
-            if (target.classList.contains('option-item') && !target.classList.contains('no-result')) {
-                const value = target.getAttribute('data-value');
-                const text = target.textContent;
-                optionsContainer.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
-                target.classList.add('selected');
-                searchInput.value = text;
-                hiddenInput.value = value;
-                wrapper.classList.remove('active');
+            const target = e.target.closest('.option-item');
+            console.log("Option clicked:", target);
+            if (target && !target.classList.contains('no-result')) {
+                const id = target.getAttribute('data-value');
+                if (id) {
+                    target.classList.add('selected');
+                    target.style.display = 'none';
+                    updateSelectedCoursesDisplay();
+                    
+                    searchInput.value = '';
+                    wrapper.classList.remove('active');
+                    
+                    // Reset visibility on other items dynamically
+                    const optionItems = Array.from(optionsContainer.querySelectorAll('.option-item')).filter(item => item.getAttribute('data-value') !== '');
+                    optionItems.forEach(item => {
+                        if (!item.classList.contains('selected')) {
+                            item.style.display = 'block';
+                        }
+                    });
+                    const existingNoResult = optionsContainer.querySelector('.no-result');
+                    if (existingNoResult) existingNoResult.remove();
+                }
             }
         });
+        
         document.addEventListener('click', function (e) {
             if (!wrapper.contains(e.target)) {
                 wrapper.classList.remove('active');
-                const selectedOption = optionsContainer.querySelector('.option-item.selected');
-                if (selectedOption) {
-                    searchInput.value = selectedOption.textContent;
-                } else {
-                    searchInput.value = '';
-                    hiddenInput.value = '';
-                }
-                optionItems.forEach(item => item.style.display = 'block');
+                searchInput.value = '';
+                const optionItems = Array.from(optionsContainer.querySelectorAll('.option-item')).filter(item => item.getAttribute('data-value') !== '');
+                optionItems.forEach(item => {
+                    if (!item.classList.contains('selected')) {
+                        item.style.display = 'block';
+                    }
+                });
                 const existingNoResult = optionsContainer.querySelector('.no-result');
                 if (existingNoResult) existingNoResult.remove();
             }
         });
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSelector);
+} else {
+    initializeSelector();
+}

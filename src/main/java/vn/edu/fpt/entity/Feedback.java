@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import vn.edu.fpt.enums.FeedbackStatus;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -28,8 +30,9 @@ public class Feedback extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String comment;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private String status;
+    private FeedbackStatus status;
 
 }
 

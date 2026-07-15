@@ -507,6 +507,48 @@ function initializeReviews() {
         });
     }
 
+    // Handle AJAX review form submission
+    const reviewForm = document.getElementById("ajaxReviewForm");
+    if (reviewForm) {
+        reviewForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const submitBtn = reviewForm.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData(reviewForm);
+                const response = await fetch(reviewForm.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                const reviewModalEl = document.getElementById('courseReviewModal');
+                const reviewModal = bootstrap.Modal.getInstance(reviewModalEl);
+                if (reviewModal) {
+                    reviewModal.hide();
+                }
+
+                if (response.ok && result.success) {
+                    showStatusModal(true, result.message || "Gửi đánh giá thành công!");
+                } else {
+                    showStatusModal(false, result.message || "Gửi đánh giá thất bại.");
+                }
+            } catch (err) {
+                console.error(err);
+                const reviewModalEl = document.getElementById('courseReviewModal');
+                const reviewModal = bootstrap.Modal.getInstance(reviewModalEl);
+                if (reviewModal) {
+                    reviewModal.hide();
+                }
+                showStatusModal(false, "Không thể kết nối đến máy chủ.");
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        });
+    }
+
     // Check backend messages and show status modal
     if (successMessage) {
         showStatusModal(true, successMessage);

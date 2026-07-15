@@ -29,6 +29,9 @@ public class FeedbackService {
     public boolean hasUserReviewedCourse(Integer userId, Integer courseId) {
         return repository.existsByUserIdAndCourseId(userId, courseId);
     }
+    public Optional<Feedback> findByUserIdAndCourseId(Integer userId, Integer courseId) {
+        return repository.findByUserIdAndCourseId(userId, courseId);
+    }
 
     public void updateReview(Integer feedbackId, Integer rating, String comment, User user) {
         Feedback feedback = repository.findById(feedbackId)
@@ -43,4 +46,16 @@ public class FeedbackService {
         feedback.setCreatedAt(java.time.LocalDateTime.now());
         repository.save(feedback);
     }
+
+    public void deleteReview(Integer feedbackId, User user) {
+        Feedback feedback = repository.findById(feedbackId)
+                .orElseThrow(() -> new ResourceNotFoundException("Đánh giá không tồn tại"));
+
+        if (user == null || !feedback.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Bạn không có quyền xóa đánh giá này!");
+        }
+
+        repository.delete(feedback);
+    }
 }
+

@@ -129,7 +129,7 @@ VALUES
 (N'Diệp', N'Trúc', 'learner25@elearning.com', '0904000025', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (11).jpg', NULL, 'ACTIVE');
 
  -- =========================
--- USER ROLES SAMPLE DATA
+-- USER ROLES SAMPLE DATAở 
 -- =========================
 
 INSERT INTO user_roles (user_id, role_id)
@@ -533,6 +533,18 @@ VALUES
     'PUBLISHED',
     4,
     GETDATE()
+),
+(
+    5,
+    6,
+    N'ReactJS Thực Chiến Nâng Cao 25',
+    N'Học ReactJS chuyên sâu với các bài giảng thực tế từ TrungQuanDev.',
+    N'ReactJS Thực Chiến.png',
+    150000,
+    'ADVANCED',
+    'PUBLISHED',
+    3,
+    GETDATE()
 );
 
 -- =========================
@@ -691,6 +703,12 @@ INSERT INTO course_sections (course_id, title, position) VALUES
 (24, N'Chương 2: Đăng nhập & Đăng ký', 2),
 (24, N'Chương 3: Realtime Database & Storage', 3);
 
+-- Course 25: ReactJS Thực Chiến Nâng Cao 25
+INSERT INTO course_sections (course_id, title, position) VALUES
+(25, N'Chương 1: Khởi đầu dự án 25', 1),
+(25, N'Chương 2: Thiết kế giao diện & Hooks 25', 2),
+(25, N'Chương 3: Tối ưu hóa ứng dụng 25', 3);
+
 -- =========================
 -- LESSONS SAMPLE DATA
 -- Mỗi section có 3 bài học
@@ -718,7 +736,7 @@ SELECT
         WHEN 3 THEN N' - Bài 3: Tổng kết & Ứng dụng'
     END,
     CASE n.num
-        WHEN 1 THEN 'Recording 2026-05-28 212131.mp4'
+        WHEN 1 THEN N'Recording 2026-05-28 212131.mp4'
         WHEN 2 THEN N'Lập trình C - 03. Cách xuất dữ liệu ra màn hình lập trình C - Hàm printf - Tự học lập trình C.mp4'
         WHEN 3 THEN N'Lập trình C - 04. Cách nhập dữ liệu từ bàn phím trong lập trình C - Tự học lập trình C.mp4'
     END,
@@ -735,7 +753,116 @@ CROSS JOIN (
     SELECT 1 AS num UNION ALL
     SELECT 2 AS num UNION ALL
     SELECT 3 AS num
-) n;
+) n
+WHERE cs.course_id NOT IN (2, 3, 4, 25);
+
+
+-- Chèn lesson tùy chỉnh cho course id = 2, chia đều vào 3 section
+DECLARE @secId1 INT = (SELECT id FROM course_sections WHERE course_id = 2 AND position = 1);
+DECLARE @secId2 INT = (SELECT id FROM course_sections WHERE course_id = 2 AND position = 2);
+DECLARE @secId3 INT = (SELECT id FROM course_sections WHERE course_id = 2 AND position = 3);
+
+-- Section 1: React Fundamentals
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@secId1, N'1. Cài đặt môi trường cho dự án (NVM, Node, Git, Yarn...vv) - ReactJS + Material UI - TrungQuanDev (1)', N'1. Cài đặt môi trường cho dự án (NVM, Node, Git, Yarn...vv) - ReactJS + Material UI - TrungQuanDev (1).mp4', 600, 1, 1, 'APPROVED'),
+(@secId1, N'2. Vite, Create React App và NextJS - Lựa chọn cái nào- - ReactJS + Material UI - TrungQuanDev', N'2. Vite, Create React App và NextJS - Lựa chọn cái nào- - ReactJS + Material UI - TrungQuanDev.mp4', 720, 2, 1, 'APPROVED'),
+(@secId1, N'3. Vite - Hiểu toàn bộ Code Base ban đầu - Push lên GitHub - ReactJS + Material UI - TrungQuanDev', N'3. Vite - Hiểu toàn bộ Code Base ban đầu - Push lên GitHub - ReactJS + Material UI - TrungQuanDev.mp4', 840, 3, 1, 'APPROVED');
+
+-- Section 2: React Hooks
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@secId2, N'4. JSX là gì- Hiểu Tường Tận về JSX cho các bạn - ReactJS + Material UI - TrungQuanDev', N'4. JSX là gì- Hiểu Tường Tận về JSX cho các bạn - ReactJS + Material UI - TrungQuanDev.mp4', 900, 1, 1, 'APPROVED'),
+(@secId2, N'1.1 Cách đọc đúng của Vite -vit- (video ngắn bổ sung) - ReactJS + Material UI - TrungQuanDev', N'1.1 Cách đọc đúng của Vite -vit- (video ngắn bổ sung) - ReactJS + Material UI - TrungQuanDev.mp4', 300, 2, 1, 'APPROVED'),
+(@secId2, N'5. Semantic Versioning là gì- Lưu ý Quan Trọng về bộ Code Base của dự án - ReactJS + Material UI', N'5. Semantic Versioning là gì- Lưu ý Quan Trọng về bộ Code Base của dự án - ReactJS + Material UI.mp4', 960, 3, 1, 'APPROVED');
+
+-- Section 3: Redux Toolkit
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@secId3, N'8. Cài đặt và sử dụng Material UI (Emotion, Fonts, Icons…vv) - ReactJS + Material UI - TrungQuanDev', N'8. Cài đặt và sử dụng Material UI (Emotion, Fonts, Icons…vv) - ReactJS + Material UI - TrungQuanDev.mp4', 1020, 1, 1, 'APPROVED'),
+(@secId3, N'7. Material UI, TailwindCSS, Bootstrap - Chọn cái nào- - ReactJS + Material UI - TrungQuanDev', N'7. Material UI, TailwindCSS, Bootstrap - Chọn cái nào- - ReactJS + Material UI - TrungQuanDev.mp4', 1080, 2, 1, 'APPROVED'),
+(@secId3, N'9. Tổng kết chương và xây dựng giao diện thực chiến - ReactJS + Material UI - TrungQuanDev', N'9. Tổng kết chương và xây dựng giao diện thực chiến - ReactJS + Material UI - TrungQuanDev.mp4', 1200, 3, 1, 'APPROVED');
+
+
+-- Chèn lesson tùy chỉnh cho course id = 3, chia đều vào 3 section
+DECLARE @course3SecId1 INT = (SELECT id FROM course_sections WHERE course_id = 3 AND position = 1);
+DECLARE @course3SecId2 INT = (SELECT id FROM course_sections WHERE course_id = 3 AND position = 2);
+DECLARE @course3SecId3 INT = (SELECT id FROM course_sections WHERE course_id = 3 AND position = 3);
+
+-- Section 1: CSS Cơ Bản
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course3SecId1, N'1. Cài đặt môi trường cho dự án (NVM, Node, Git, Yarn...vv) - ReactJS + Material UI - TrungQuanDev (1)', N'1. Cài đặt môi trường cho dự án (NVM, Node, Git, Yarn...vv) - ReactJS + Material UI - TrungQuanDev (1).mp4', 600, 1, 1, 'APPROVED'),
+(@course3SecId1, N'3. Tạo Local Development Server đơn giản để Code dễ dàng - HTML CSS Master A-Z - TrungQuanDev', N'3. Tạo Local Development Server đơn giản để Code dễ dàng - HTML CSS Master A-Z - TrungQuanDev.mp4', 720, 2, 1, 'APPROVED'),
+(@course3SecId1, N'9. HTML Links - Thẻ liên kết là gì và ứng dụng như thế nào- - HTML CSS Master A-Z - TrungQuanDev', N'9. HTML Links - Thẻ liên kết là gì và ứng dụng như thế nào- - HTML CSS Master A-Z - TrungQuanDev.mp4', 840, 3, 1, 'APPROVED');
+
+-- Section 2: Flexbox và Grid
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course3SecId2, N'6. HTML Styles - Làm đẹp giao diện trang web như thế nào- - HTML CSS Master A-Z - TrungQuanDev', N'6. HTML Styles - Làm đẹp giao diện trang web như thế nào- - HTML CSS Master A-Z - TrungQuanDev.mp4', 900, 1, 1, 'APPROVED'),
+(@course3SecId2, N'5. HTML Paragraphs - Đoạn văn bản - HTML CSS Master A-Z - TrungQuanDev', N'5. HTML Paragraphs - Đoạn văn bản - HTML CSS Master A-Z - TrungQuanDev.mp4', 800, 2, 1, 'APPROVED'),
+(@course3SecId2, N'1. HTML là gì- Cấu trúc cơ bản của một trang Web- - HTML CSS Master A-Z - TrungQuanDev', N'1. HTML là gì- Cấu trúc cơ bản của một trang Web- - HTML CSS Master A-Z - TrungQuanDev.mp4', 960, 3, 1, 'APPROVED');
+
+-- Section 3: Responsive Design
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course3SecId3, N'7. Formatting Elements - Những thẻ định dạng văn bản đặc biệt - HTML CSS Master A-Z - TrungQuanDev', N'7. Formatting Elements - Những thẻ định dạng văn bản đặc biệt - HTML CSS Master A-Z - TrungQuanDev.mp4', 1020, 1, 1, 'APPROVED'),
+(@course3SecId3, N'4. JSX là gì- Hiểu Tường Tận về JSX cho các bạn - ReactJS + Material UI - TrungQuanDev', N'4. JSX là gì- Hiểu Tường Tận về JSX cho các bạn - ReactJS + Material UI - TrungQuanDev.mp4', 1080, 2, 1, 'APPROVED'),
+(@course3SecId3, N'10. Tổng kết chương và thực hành tạo trang Landing Page cơ bản - HTML CSS Master A-Z - TrungQuanDev', N'10. Tổng kết chương và thực hành tạo trang Landing Page cơ bản - HTML CSS Master A-Z - TrungQuanDev.mp4', 1200, 3, 1, 'APPROVED');
+
+
+-- Chèn lesson tùy chỉnh cho course id = 4, chia đều vào 3 section
+DECLARE @course4SecId1 INT = (SELECT id FROM course_sections WHERE course_id = 4 AND position = 1);
+DECLARE @course4SecId2 INT = (SELECT id FROM course_sections WHERE course_id = 4 AND position = 2);
+DECLARE @course4SecId3 INT = (SELECT id FROM course_sections WHERE course_id = 4 AND position = 3);
+
+-- Section 1: Node.js Cơ Bản
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course4SecId1, N'Khám phá cách xây dựng REST API cực kỳ hiệu quả sử dụng NodeJS', N'Khám phá cách xây dựng REST API cực kỳ hiệu quả sử dụng NodeJS.mp4', 600, 1, 1, 'APPROVED'),
+(@course4SecId1, N'Hướng Dẫn Cấu Hình Visual Studio Code Cho API NodeJS MongoDB TypeScript', N'Hướng Dẫn Cấu Hình Visual Studio Code Cho API NodeJS MongoDB TypeScript.mp4', 720, 2, 1, 'APPROVED'),
+(@course4SecId1, N'Giới thiệu về TypeScipt - Xây dựng REST API với NodeJS, TypeScript và MongoDB - Khóa học MERN Stack', N'Giới thiệu về TypeScipt - Xây dựng REST API với NodeJS, TypeScript và MongoDB - Khóa học MERN Stack.mp4', 840, 3, 1, 'APPROVED');
+
+-- Section 2: Express Framework
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course4SecId2, N'5 Bước Cài Đặt REST API NodeJS, MongoDB & TypeScript CHO NGƯỜI MỚI', N'5 Bước Cài Đặt REST API NodeJS, MongoDB & TypeScript CHO NGƯỜI MỚI.mp4', 900, 1, 1, 'APPROVED'),
+(@course4SecId2, N'Khóa học Xây Dựng REST API NodeJS, TypeScript & MongoDB - Khóa Học MERN Stack TEDU', N'Khóa học Xây Dựng REST API NodeJS, TypeScript & MongoDB - Khóa Học MERN Stack TEDU.mp4', 800, 2, 1, 'APPROVED'),
+(@course4SecId2, N'Giới thiệu MongoDB - Học REST API với NodeJS, TypeScript và MongoDB từ A-Z - Khóa học TEDU', N'Giới thiệu MongoDB - Học REST API với NodeJS, TypeScript và MongoDB từ A-Z - Khóa học TEDU.mp4', 960, 3, 1, 'APPROVED');
+
+-- Section 3: REST API Thực Chiến
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course4SecId3, N'Giới thiệu về NodeJS - Xây dựng REST API cho Mobile & Web (TEDU)', N'Giới thiệu về NodeJS - Xây dựng REST API cho Mobile & Web (TEDU).mp4', 1020, 1, 1, 'APPROVED'),
+(@course4SecId3, N'Khởi tạo REST API với NodeJS, MongoDB & TypeScript - Học MERN Stack TEDU', N'Khởi tạo REST API với NodeJS, MongoDB & TypeScript - Học MERN Stack TEDU.mp4', 1080, 2, 1, 'APPROVED'),
+(@course4SecId3, N'Phân Tích ER Theo Tư Duy NoSQL - REST API NodeJS & MongoDB - TEDU', N'Phân Tích ER Theo Tư Duy NoSQL - REST API NodeJS & MongoDB - TEDU.mp4', 1200, 3, 1, 'APPROVED');
+
+
+-- Chèn lesson tùy chỉnh cho course id = 25, chia đều vào 3 section
+DECLARE @course25SecId1 INT = (SELECT id FROM course_sections WHERE course_id = 25 AND position = 1);
+DECLARE @course25SecId2 INT = (SELECT id FROM course_sections WHERE course_id = 25 AND position = 2);
+DECLARE @course25SecId3 INT = (SELECT id FROM course_sections WHERE course_id = 25 AND position = 3);
+
+-- Section 1: Khởi đầu dự án 25
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course25SecId1, N'1. Cài đặt môi trường cho dự án (NVM, Node, Git, Yarn...vv) - ReactJS + Material UI - TrungQuanDev (1)', N'1. Cài đặt môi trường cho dự án (NVM, Node, Git, Yarn...vv) - ReactJS + Material UI - TrungQuanDev (1).mp4', 600, 1, 1, 'APPROVED'),
+(@course25SecId1, N'2. Vite, Create React App và NextJS - Lựa chọn cái nào- - ReactJS + Material UI - TrungQuanDev', N'2. Vite, Create React App và NextJS - Lựa chọn cái nào- - ReactJS + Material UI - TrungQuanDev.mp4', 720, 2, 1, 'APPROVED'),
+(@course25SecId1, N'3. Vite - Hiểu toàn bộ Code Base ban đầu - Push lên GitHub - ReactJS + Material UI - TrungQuanDev', N'3. Vite - Hiểu toàn bộ Code Base ban đầu - Push lên GitHub - ReactJS + Material UI - TrungQuanDev.mp4', 840, 3, 1, 'APPROVED');
+
+-- Section 2: Thiết kế giao diện & Hooks 25
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course25SecId2, N'4. JSX là gì- Hiểu Tường Tận về JSX cho các bạn - ReactJS + Material UI - TrungQuanDev', N'4. JSX là gì- Hiểu Tường Tận về JSX cho các bạn - ReactJS + Material UI - TrungQuanDev.mp4', 900, 1, 1, 'APPROVED'),
+(@course25SecId2, N'1.1 Cách đọc đúng của Vite -vit- (video ngắn bổ sung) - ReactJS + Material UI - TrungQuanDev', N'1.1 Cách đọc đúng của Vite -vit- (video ngắn bổ sung) - ReactJS + Material UI - TrungQuanDev.mp4', 300, 2, 1, 'APPROVED'),
+(@course25SecId2, N'5. Semantic Versioning là gì- Lưu ý Quan Trọng về bộ Code Base của dự án - ReactJS + Material UI', N'5. Semantic Versioning là gì- Lưu ý Quan Trọng về bộ Code Base của dự án - ReactJS + Material UI.mp4', 960, 3, 1, 'APPROVED');
+
+-- Section 3: Tối ưu hóa ứng dụng 25
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course25SecId3, N'8. Cài đặt và sử dụng Material UI (Emotion, Fonts, Icons…vv) - ReactJS + Material UI - TrungQuanDev', N'8. Cài đặt và sử dụng Material UI (Emotion, Fonts, Icons…vv) - ReactJS + Material UI - TrungQuanDev.mp4', 1020, 1, 1, 'APPROVED'),
+(@course25SecId3, N'7. Material UI, TailwindCSS, Bootstrap - Chọn cái nào- - ReactJS + Material UI - TrungQuanDev', N'7. Material UI, TailwindCSS, Bootstrap - Chọn cái nào- - ReactJS + Material UI - TrungQuanDev.mp4', 1080, 2, 1, 'APPROVED'),
+(@course25SecId3, N'10. Tổng kết chương và thực hành tạo trang Landing Page cơ bản - HTML CSS Master A-Z - TrungQuanDev', N'10. Tổng kết chương và thực hành tạo trang Landing Page cơ bản - HTML CSS Master A-Z - TrungQuanDev.mp4', 1200, 3, 1, 'APPROVED');
 
 
 -- =========================
@@ -743,9 +870,10 @@ CROSS JOIN (
 -- 1 quiz cho mỗi lesson
 -- =========================
 
+DECLARE @maxLessonId INT = (SELECT MAX(id) FROM lessons);
 DECLARE @lessonId INT = 1;
 
-WHILE @lessonId <= 216
+WHILE @lessonId <= @maxLessonId
 BEGIN
 
     INSERT INTO quizzes (
@@ -767,7 +895,7 @@ END
 -- ==========================================
 DECLARE @lessonId2 INT = 1;
 
-WHILE @lessonId2 <= 216
+WHILE @lessonId2 <= @maxLessonId
 BEGIN
 
     INSERT INTO quizzes (

@@ -21,8 +21,11 @@ import vn.edu.fpt.service.quiz.QuizQuestionService;
 import vn.edu.fpt.service.quiz.QuizService;
 import vn.edu.fpt.util.SecurityUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.*;
 
+@Slf4j
 @Controller
 @RequestMapping("/instructor/quiz")
 public class InstructorQuizController {
@@ -357,7 +360,7 @@ public class InstructorQuizController {
         }
 
         catch (Exception ex) {
-            ex.printStackTrace();
+            log.error("Error importing quiz from Excel: ", ex);
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
             redirectAttributes.addFlashAttribute("toastType", "error");
 
