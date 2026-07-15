@@ -17,6 +17,7 @@ import vn.edu.fpt.dto.lesson.SectionSiderbarDTO;
 import vn.edu.fpt.entity.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.enums.CourseStatus;
+import vn.edu.fpt.enums.FeedbackStatus;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
@@ -795,29 +796,28 @@ public class CourseService {
         return progressVal >= AppConstants.PERCENT_COMPLETED_LESSON_TO_COMMENT;
     }
 
-    public String addCourseReview(User user, Integer courseId, Integer rating, String comment) {
+    public Feedback addCourseReview(User user, Integer courseId, Integer rating, String comment) {
         if (feedbackService.hasUserReviewedCourse(user.getId(), courseId)) {
-            return "Bạn đã gửi đánh giá cho khóa học này trước đó rồi!";
+            throw new IllegalArgumentException("Bạn đã gửi đánh giá cho khóa học này trước đó rồi!");
         }
 
         if (!canUserReviewCourse(user, courseId)) {
-            return "Bạn cần hoàn thành ít nhất 30% tiến trình bài học để đánh giá khóa học này!";
+            throw new IllegalArgumentException("Bạn cần hoàn thành ít nhất 30% tiến trình bài học để đánh giá khóa học này!");
         }
 
         Course course = repository.findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khóa học"));
+                .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học"));
 
         Feedback feedback = Feedback.builder()
                 .user(user)
                 .course(course)
                 .rating(rating)
                 .comment(comment)
-                .status("VISIBLE")
+                .status(FeedbackStatus.VISIBLE)
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        feedbackRepository.save(feedback);
-        return null;
+        return feedbackRepository.save(feedback);
     }
 
     public List<CourseGrantDTO> findAllCourseGrant() {

@@ -1,5 +1,6 @@
 package vn.edu.fpt.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -34,28 +35,16 @@ import java.util.Map;
 import java.util.Set;
 
 @Controller
+@RequiredArgsConstructor
 public class CourseController {
 
-    @Autowired
-    private CourseService courseService;
-
-    @Autowired
-    private FeedbackService feedbackService;
-
-    @Autowired
-    private CategoryService categoryService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private EnrollmentService enrollmentService;
-
-    @Autowired
-    private CartService cartService;
-
-    @Autowired
-    private CartItemService cartItemService;
+    private final CourseService courseService;
+    private final FeedbackService feedbackService;
+    private final CategoryService categoryService;
+    private final UserService userService;
+    private final EnrollmentService enrollmentService;
+    private final CartService cartService;
+    private final CartItemService cartItemService;
 
     private User getSessionUser() {
         return SecurityUtils.getCurrentUser();
@@ -110,15 +99,12 @@ public class CourseController {
     public String showCourseDetail(@RequestParam("id") Integer id, Model model) {
         CourseDto courseDto = courseService.getCourseDetail(id);
         model.addAttribute("course", courseDto);
-
         User user = getSessionUser();
         if (user != null) {
             java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
             model.addAttribute("enrolledCourseIds", enrolledCourseIds);
-
             boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), id);
             model.addAttribute("hasReviewed", hasReviewed);
-
             boolean canReview = courseService.canUserReviewCourse(user, id);
             model.addAttribute("canReview", canReview);
         }
@@ -137,21 +123,8 @@ public class CourseController {
             response.put("message", "Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.");
             return ResponseEntity.status(401).body(response);
         }
-
         try {
-            String errorMessage = courseService.addCourseReview(user, courseId, rating, comment);
-            if (errorMessage != null) {
-                response.put("success", false);
-                response.put("message", errorMessage);
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            Feedback feedback = feedbackService.findByUserIdAndCourseId(user.getId(), courseId).orElse(null);
-            if (feedback == null) {
-                response.put("success", false);
-                response.put("message", "Đã xảy ra lỗi khi tạo đánh giá.");
-                return ResponseEntity.status(500).body(response);
-            }
+            Feedback feedback = courseService.addCourseReview(user, courseId, rating, comment);
             
             Map<String, Object> fbData = new HashMap<>();
             fbData.put("id", feedback.getId());
@@ -189,19 +162,15 @@ public class CourseController {
             response.put("message", "Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.");
             return ResponseEntity.status(401).body(response);
         }
-        
-        Feedback feedback = feedbackService.findById(feedbackId).orElse(null);
-        if (feedback == null) {
-            response.put("success", false);
-            response.put("message", "Đánh giá không tồn tại!");
-            return ResponseEntity.status(404).body(response);
-        }
-        
         try {
             feedbackService.updateReview(feedbackId, rating, comment, user);
             response.put("success", true);
             response.put("message", "Cập nhật đánh giá thành công!");
             return ResponseEntity.ok(response);
+        } catch (ResourceNotFoundException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(404).body(response);
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", e.getMessage());
@@ -219,19 +188,15 @@ public class CourseController {
             response.put("message", "Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.");
             return ResponseEntity.status(401).body(response);
         }
-        
-        Feedback feedback = feedbackService.findById(feedbackId).orElse(null);
-        if (feedback == null) {
-            response.put("success", false);
-            response.put("message", "Đánh giá không tồn tại!");
-            return ResponseEntity.status(404).body(response);
-        }
-        
         try {
             feedbackService.deleteReview(feedbackId, user);
             response.put("success", true);
             response.put("message", "Xóa đánh giá thành công!");
             return ResponseEntity.ok(response);
+        } catch (ResourceNotFoundException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(404).body(response);
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", e.getMessage());
