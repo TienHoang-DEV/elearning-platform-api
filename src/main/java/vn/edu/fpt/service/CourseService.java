@@ -823,5 +823,9 @@ public class CourseService {
     public List<CourseGrantDTO> findAllCourseGrant() {
         return repository.findAllCourseGrantDTO();
     }
+
+    public List<CourseGrantDTO> findAvailableCoursesForUser(Integer userId) {
+        return repository.findAvailableCoursesForUser(userId);
+    }
 }
 

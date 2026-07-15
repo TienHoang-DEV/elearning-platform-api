@@ -29,14 +29,6 @@
 
         <!-- Error info -->
         <div class="error-info">
-            <div class="error-info-item" th:if="${path != null}">
-                <span class="info-label">Đường dẫn</span>
-                <span class="info-value" th:text="${path}"></span>
-            </div>
-            <div class="error-info-item">
-                <span class="info-label">Mã lỗi</span>
-                <span class="info-value" th:text="${status != null ? status : '404'}">404</span>
-            </div>
             <div class="error-info-item" th:if="${timestamp != null}">
                 <span class="info-label">Thời gian</span>
                 <span class="info-value" th:text="${#temporals.format(timestamp, 'HH:mm:ss dd/MM/yyyy')}"></span>

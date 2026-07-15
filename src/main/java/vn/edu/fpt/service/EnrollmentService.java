@@ -125,4 +125,49 @@ public class EnrollmentService {
             emailService.sendGrantAccessCourseEmail(userService.findById(userId).getEmail(), courseService.findById(courseId));
         }
     }
+
+    public String grantAccessCourses(Integer userId, List<Integer> courseIds, String reason, String note, Boolean sendEmail) {
+        if (userId == null) {
+            throw new RuntimeException("Không có id người dùng");
+        }
+        if (courseIds == null || courseIds.isEmpty()) {
+            throw new RuntimeException("Vui lòng chọn ít nhất một khóa học");
+        }
+        if (reason == null) {
+            throw new RuntimeException("Lý do không được để trống");
+        }
+        
+        int successCount = 0;
+        StringBuilder alreadyEnrolledMsg = new StringBuilder();
+        List<Course> enrolledCourses = new java.util.ArrayList<>();
+        
+        for (Integer courseId : courseIds) {
+            try {
+                grantAccessCourse(userId, courseId, reason, note, false);
+                enrolledCourses.add(courseService.findById(courseId));
+                successCount++;
+            } catch (RuntimeException e) {
+                if (e.getMessage() != null && e.getMessage().contains("đã tham gia khóa học")) {
+                    alreadyEnrolledMsg.append(e.getMessage()).append(". ");
+                } else {
+                    throw e;
+                }
+            }
+        }
+        
+        if (successCount == 0 && alreadyEnrolledMsg.length() > 0) {
+            throw new RuntimeException(alreadyEnrolledMsg.toString());
+        }
+        
+        if (sendEmail != null && sendEmail && !enrolledCourses.isEmpty()) {
+            String toEmail = userService.findById(userId).getEmail();
+            emailService.sendGrantAccessCoursesEmail(toEmail, enrolledCourses);
+        }
+        
+        String msg = "Thành công thêm người dùng vào " + successCount + " khóa học.";
+        if (alreadyEnrolledMsg.length() > 0) {
+            msg += " Lưu ý: " + alreadyEnrolledMsg.toString();
+        }
+        return msg;
+    }
 }
