@@ -7,6 +7,7 @@ import com.azure.storage.blob.models.BlobHttpHeaders;
 import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -27,8 +28,10 @@ public class AzureBlobService {
 
     private final BlobServiceClient blobServiceClient;
 
-    public AzureBlobService() {
-        String connectionString = System.getProperty("AZURE_STORAGE_CONNECTION_STRING");
+    public AzureBlobService(@Value("${AZURE_STORAGE_CONNECTION_STRING}") String connectionString) {
+        if (connectionString == null) {
+            throw new RuntimeException("AZURE_STORAGE_CONNECTION_STRING is null");
+        }
         this.blobServiceClient = new BlobServiceClientBuilder()
                 .connectionString(connectionString)
                 .buildClient();

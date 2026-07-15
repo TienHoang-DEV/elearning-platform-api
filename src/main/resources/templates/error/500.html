@@ -10,7 +10,7 @@
 <body class="error-page">
 
     <div class="error-container">
-        <span class="error-label label-500">Internal Server Error</span>
+        <span class="error-label label-500">Lỗi máy chủ</span>
 
         <div>
             <h1 class="error-code code-500" data-code="500"
@@ -20,10 +20,10 @@
         <hr class="error-divider divider-500">
 
         <h2 class="error-title"
-            th:text="${error != null ? error : 'Đã xảy ra sự cố hệ thống'}">Đã xảy ra sự cố hệ thống</h2>
+            th:text="${error != null && error != 'Internal Server Error' ? error : 'Đã xảy ra sự cố hệ thống'}">Đã xảy ra sự cố hệ thống</h2>
 
         <p class="error-description"
-           th:text="${message != null ? message : 'Máy chủ gặp lỗi bất ngờ khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.'}">
+           th:text="${message != null && message != 'Internal Server Error' ? message : 'Máy chủ gặp lỗi bất ngờ khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.'}">
             Máy chủ gặp lỗi bất ngờ khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.
         </p>
 

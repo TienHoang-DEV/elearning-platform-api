@@ -20,10 +20,10 @@
         <hr class="error-divider divider-404">
 
         <h2 class="error-title"
-            th:text="${error != null ? error : 'Ôi Khum!'}">Ôi Khum!</h2>
+            th:text="${error != null && error != 'Not Found' ? error : 'Không tìm thấy trang'}">Không tìm thấy trang</h2>
 
         <p class="error-description"
-           th:text="${message != null ? message : 'Có vẻ như trang bạn cần tìm đã bị xóa hoặc không tồn tại. Thử quay lại trang chủ nhé.'}">
+           th:text="${message != null && message != 'Not Found' && !#strings.startsWith(message, 'No static resource') && !#strings.startsWith(message, 'No handler found') ? message : 'Có vẻ như trang bạn cần tìm đã bị xóa hoặc không tồn tại. Thử quay lại trang chủ nhé.'}">
             Có vẻ như trang bạn cần tìm đã bị xóa hoặc không tồn tại. Thử quay lại trang chủ nhé.
         </p>
 

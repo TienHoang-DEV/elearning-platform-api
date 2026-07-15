@@ -9,10 +9,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -31,9 +34,7 @@ public class GlobalExceptionHandler {
         mav.addObject("timestamp", LocalDateTime.now());
 
         if (ex != null) {
-            StringWriter sw = new StringWriter();
-            ex.printStackTrace(new PrintWriter(sw));
-            mav.addObject("trace", sw.toString());
+            log.error("An error occurred at {}: ", request.getRequestURI(), ex);
         }
         return mav;
     }
@@ -54,7 +55,7 @@ public class GlobalExceptionHandler {
             return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
         }
 
-        return buildErrorView("error/403", HttpStatus.FORBIDDEN, "Truy cập bị từ chối", ex.getMessage(), request, ex);
+        return buildErrorView("error/403", HttpStatus.FORBIDDEN, "Truy cập bị từ chối", "Bạn không có quyền truy cập vào trang này. Vui lòng đăng nhập với tài khoản phù hợp.", request, ex);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -81,7 +82,7 @@ public class GlobalExceptionHandler {
             ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), "Not Found", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
         }
-        return buildErrorView("error/404", HttpStatus.NOT_FOUND, "Không tìm thấy trang", ex.getMessage(), request, ex);
+        return buildErrorView("error/404", HttpStatus.NOT_FOUND, "Không tìm thấy trang", "Không tìm thấy trang yêu cầu hoặc trang đã bị xóa.", request, ex);
     }
 
     @ExceptionHandler(Exception.class)
@@ -90,7 +91,7 @@ public class GlobalExceptionHandler {
             ErrorResponse body = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return buildErrorView("error/500", HttpStatus.INTERNAL_SERVER_ERROR, "Đã xảy ra sự cố hệ thống", ex.getMessage(), request, ex);
+        return buildErrorView("error/500", HttpStatus.INTERNAL_SERVER_ERROR, "Đã xảy ra sự cố hệ thống", "Máy chủ gặp sự cố bất ngờ khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.", request, ex);
     }
 
     @ExceptionHandler(PaymentCallApiException.class)

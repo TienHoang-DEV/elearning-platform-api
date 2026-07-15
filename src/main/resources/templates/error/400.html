@@ -10,7 +10,7 @@
 <body class="error-page">
 
     <div class="error-container">
-        <span class="error-label label-400">Bad Request</span>
+        <span class="error-label label-400">Yêu cầu không hợp lệ</span>
 
         <div>
             <h1 class="error-code code-400" data-code="400"
@@ -20,10 +20,10 @@
         <hr class="error-divider divider-400">
 
         <h2 class="error-title"
-            th:text="${error != null ? error : 'Yêu cầu không hợp lệ'}">Yêu cầu không hợp lệ</h2>
+            th:text="${error != null && error != 'Bad Request' ? error : 'Yêu cầu không hợp lệ'}">Yêu cầu không hợp lệ</h2>
 
         <p class="error-description"
-           th:text="${message != null ? message : 'Máy chủ không thể xử lý yêu cầu vì dữ liệu gửi lên không hợp lệ hoặc bị thiếu thông tin.'}">
+           th:text="${message != null && message != 'Bad Request' ? message : 'Máy chủ không thể xử lý yêu cầu vì dữ liệu gửi lên không hợp lệ hoặc bị thiếu thông tin.'}">
             Máy chủ không thể xử lý yêu cầu vì dữ liệu gửi lên không hợp lệ hoặc bị thiếu thông tin.
         </p>
 

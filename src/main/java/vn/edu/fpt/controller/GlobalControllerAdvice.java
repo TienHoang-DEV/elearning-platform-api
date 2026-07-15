@@ -14,8 +14,11 @@ import vn.edu.fpt.service.CartItemService;
 import vn.edu.fpt.service.CartService;
 import vn.edu.fpt.service.CategoryService;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalControllerAdvice {
 
@@ -72,7 +75,7 @@ public class GlobalControllerAdvice {
             User user = vn.edu.fpt.util.SecurityUtils.getCurrentUser();
             return user != null ? dtoMapper.toUserDto(user) : null;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error getting current user: ", e);
         }
         return null;
     }
@@ -89,7 +92,7 @@ public class GlobalControllerAdvice {
                 return cartItemService.countItemsInCart(cart);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error getting cart size: ", e);
         }
         return 0;
     }

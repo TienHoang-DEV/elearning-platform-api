@@ -10,7 +10,7 @@
 <body class="error-page">
 
     <div class="error-container">
-        <span class="error-label label-403">Forbidden</span>
+        <span class="error-label label-403">Truy cập bị từ chối</span>
 
         <div>
             <h1 class="error-code code-403" data-code="403"
@@ -20,10 +20,10 @@
         <hr class="error-divider divider-403">
 
         <h2 class="error-title"
-            th:text="${error != null ? error : 'Truy cập bị từ chối'}">Truy cập bị từ chối</h2>
+            th:text="${error != null && error != 'Forbidden' ? error : 'Truy cập bị từ chối'}">Truy cập bị từ chối</h2>
 
         <p class="error-description"
-           th:text="${message != null ? message : 'Bạn không có quyền truy cập vào trang này. Vui lòng đăng nhập với tài khoản phù hợp.'}">
+           th:text="${message != null && message != 'Forbidden' && message != 'Access is denied' ? message : 'Bạn không có quyền truy cập vào trang này. Vui lòng đăng nhập với tài khoản phù hợp.'}">
             Bạn không có quyền truy cập vào trang này. Vui lòng đăng nhập với tài khoản phù hợp.
         </p>
 
