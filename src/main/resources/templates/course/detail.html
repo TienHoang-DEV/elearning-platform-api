@@ -499,6 +499,18 @@
                                                 data-bs-toggle="modal" data-bs-target="#editReviewModal">
                                                 <i class="fa-regular fa-pen-to-square me-1"></i>Sửa
                                             </button>
+                                            <button th:if="${currentUser != null && currentUser.id == fb.user.id}"
+                                                class="btn btn-link btn-sm text-danger p-0 me-2 text-decoration-none fs-8 fw-semibold btn-delete-review"
+                                                th:data-feedback-id="${fb.id}"
+                                                onclick="if(confirm('Bạn có chắc chắn muốn xóa đánh giá này không?')) { document.getElementById('delete-feedback-form-' + this.getAttribute('data-feedback-id')).submit(); }">
+                                                <i class="fa-regular fa-trash-can me-1"></i>Xóa
+                                            </button>
+                                            <form th:if="${currentUser != null && currentUser.id == fb.user.id}"
+                                                th:id="'delete-feedback-form-' + ${fb.id}"
+                                                th:action="@{/course/review/delete}"
+                                                method="post" style="display: none;">
+                                                <input type="hidden" name="feedbackId" th:value="${fb.id}">
+                                            </form>
                                             <span class="text-muted fs-8"
                                                 th:text="${fb.createdAt != null} ? ${#temporals.format(fb.createdAt, 'dd/MM/yyyy')} : 'Gần đây'">2
                                                 ngày trước</span>

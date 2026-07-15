@@ -176,4 +176,28 @@ public class CourseController {
         
         return "redirect:/course/detail?id=" + feedback.getCourse().getId();
     }
+
+    @PostMapping("/course/review/delete")
+    public String deleteCourseReview(@RequestParam("feedbackId") Integer feedbackId,
+            RedirectAttributes redirectAttributes) {
+        User user = getSessionUser();
+        if (user == null) {
+            return "redirect:/";
+        }
+        
+        Feedback feedback = feedbackService.findById(feedbackId).orElse(null);
+        if (feedback == null) {
+            redirectAttributes.addFlashAttribute("reviewErrorMessage", "Đánh giá không tồn tại!");
+            return "redirect:/courses";
+        }
+        
+        try {
+            feedbackService.deleteReview(feedbackId, user);
+            redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Xóa đánh giá thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("reviewErrorMessage", e.getMessage());
+        }
+        
+        return "redirect:/course/detail?id=" + feedback.getCourse().getId();
+    }
 }
