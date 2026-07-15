@@ -354,8 +354,7 @@
                             </div>
 
                             <form id="reviewForm" th:if="${enrolledCourseIds != null && enrolledCourseIds.contains(course.id) && (hasReviewed == null || !hasReviewed) && canReview}"
-                                class="border rounded-3 p-4 mb-4 bg-white shadow-sm" th:action="@{/course/review/add}"
-                                method="post">
+                                class="border rounded-3 p-4 mb-4 bg-white shadow-sm" onsubmit="submitAddReview(event)">
                                 <input type="hidden" name="courseId" th:value="${course.id}">
                                 <div
                                     class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
@@ -462,13 +461,13 @@
                             </div>
 
                             <!-- Reviews List -->
-                            <div class="d-flex flex-column gap-3">
-                                <div class="alert alert-info py-3 text-center border-0 rounded-3"
+                            <div id="reviews-list-container" class="d-flex flex-column gap-3">
+                                <div id="no-reviews-alert" class="alert alert-info py-3 text-center border-0 rounded-3"
                                     th:if="${course.feedbacks == null || course.feedbacks.isEmpty()}">
                                     Chưa có đánh giá nào cho khóa học này.
                                 </div>
                                 <!-- Review Item -->
-                                <div class="feedback-item border rounded-3 p-4 bg-white shadow-sm" th:each="fb, fbStat : ${course.feedbacks}" th:classappend="${fbStat.index >= 5} ? 'd-none' : ''">
+                                <div th:id="'feedback-item-' + ${fb.id}" class="feedback-item border rounded-3 p-4 bg-white shadow-sm" th:each="fb, fbStat : ${course.feedbacks}" th:classappend="${fbStat.index >= 5} ? 'd-none' : ''">
                                     <div class="d-flex justify-content-between align-items-start mb-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="avatar-ring-wrapper d-flex align-items-center justify-content-center rounded-circle p-0.5"
@@ -482,7 +481,7 @@
                                                 <span class="fw-semibold text-dark fs-7"
                                                     th:text="${fb.user.lastName + ' ' + fb.user.firstName}">Nguyễn Văn
                                                     An</span>
-                                                <div class="text-warning d-flex gap-1 mt-1">
+                                                <div class="feedback-stars text-warning d-flex gap-1 mt-1" th:data-rating="${fb.rating}">
                                                     <i th:each="i : ${#numbers.sequence(1, 5)}" data-lucide="star"
                                                         class="star-icon"
                                                         th:classappend="${i <= fb.rating} ? 'filled text-warning' : 'text-muted'"
@@ -502,21 +501,15 @@
                                             <button th:if="${currentUser != null && currentUser.id == fb.user.id}"
                                                 class="btn btn-link btn-sm text-danger p-0 me-2 text-decoration-none fs-8 fw-semibold btn-delete-review"
                                                 th:data-feedback-id="${fb.id}"
-                                                onclick="if(confirm('Bạn có chắc chắn muốn xóa đánh giá này không?')) { document.getElementById('delete-feedback-form-' + this.getAttribute('data-feedback-id')).submit(); }">
+                                                th:onclick="'deleteReview(this, ' + ${fb.id} + ')'">
                                                 <i class="fa-regular fa-trash-can me-1"></i>Xóa
                                             </button>
-                                            <form th:if="${currentUser != null && currentUser.id == fb.user.id}"
-                                                th:id="'delete-feedback-form-' + ${fb.id}"
-                                                th:action="@{/course/review/delete}"
-                                                method="post" style="display: none;">
-                                                <input type="hidden" name="feedbackId" th:value="${fb.id}">
-                                            </form>
                                             <span class="text-muted fs-8"
                                                 th:text="${fb.createdAt != null} ? ${#temporals.format(fb.createdAt, 'dd/MM/yyyy')} : 'Gần đây'">2
                                                 ngày trước</span>
                                         </div>
                                     </div>
-                                    <p class="text-muted fs-7 mb-0 text-justify" th:text="${fb.comment}">
+                                    <p class="feedback-comment text-muted fs-7 mb-0 text-justify" th:text="${fb.comment}">
                                         "Khóa học rất hay và dễ hiểu..."
                                     </p>
                                 </div>
@@ -676,7 +669,7 @@
     <div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-3 border-0 shadow-lg bg-white">
-                <form th:action="@{/course/review/edit}" method="post">
+                <form id="editReviewForm" onsubmit="submitEditReview(event)">
                     <input type="hidden" name="feedbackId" id="editFeedbackId">
                     <div class="modal-header border-bottom border-light">
                         <h5 class="modal-title fw-bold text-dark font-heading d-flex align-items-center gap-2" id="editReviewModalLabel">
@@ -944,6 +937,296 @@
                 }
             });
         }
+
+        // JS Fetch API functions for review delete, edit and add (no reload)
+        async function deleteReview(btn, feedbackId) {
+            btn.disabled = true;
+            try {
+                const params = new URLSearchParams();
+                params.append('feedbackId', feedbackId);
+
+                const response = await fetch('/course/review/delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: params
+                });
+
+                if (!response.ok) {
+                    let errMsg = 'Có lỗi xảy ra khi xóa đánh giá.';
+                    try {
+                        const errData = await response.json();
+                        errMsg = errData.message || errMsg;
+                    } catch (e) {}
+                    throw new Error(errMsg);
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    // Xóa thẻ tương ứng trong DOM
+                    const card = document.getElementById('feedback-item-' + feedbackId);
+                    if (card) {
+                        card.remove();
+                    }
+                    showToast(data.message || 'Xóa đánh giá thành công!', 'success');
+
+                    // Kiểm tra nếu danh sách đánh giá trống thì hiển thị alert
+                    const container = document.getElementById('reviews-list-container');
+                    const remainingItems = container.querySelectorAll('.feedback-item');
+                    if (remainingItems.length === 0) {
+                        const noReviewsAlert = document.createElement('div');
+                        noReviewsAlert.className = 'alert alert-info py-3 text-center border-0 rounded-3';
+                        noReviewsAlert.id = 'no-reviews-alert';
+                        noReviewsAlert.textContent = 'Chưa có đánh giá nào cho khóa học này.';
+                        container.prepend(noReviewsAlert);
+                    }
+                } else {
+                    showToast(data.message || 'Không thể xóa đánh giá.', 'warning');
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Lỗi khi xóa đánh giá:', error);
+                showToast(error.message, 'warning');
+                btn.disabled = false;
+            }
+        }
+
+        async function submitEditReview(event) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
+
+            const feedbackId = form.querySelector('#editFeedbackId').value;
+            const ratingInput = form.querySelector('input[name="rating"]:checked');
+            const comment = form.querySelector('#edit-review-comment').value;
+
+            if (!ratingInput) {
+                showToast('Vui lòng chọn số sao đánh giá!', 'warning');
+                if (submitBtn) submitBtn.disabled = false;
+                return;
+            }
+
+            const rating = ratingInput.value;
+
+            try {
+                const params = new URLSearchParams();
+                params.append('feedbackId', feedbackId);
+                params.append('rating', rating);
+                params.append('comment', comment);
+
+                const response = await fetch('/course/review/edit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: params
+                });
+
+                if (!response.ok) {
+                    let errMsg = 'Có lỗi xảy ra khi cập nhật đánh giá.';
+                    try {
+                        const errData = await response.json();
+                        errMsg = errData.message || errMsg;
+                    } catch (e) {}
+                    throw new Error(errMsg);
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    // Cập nhật thông tin thẻ trong DOM
+                    const card = document.getElementById('feedback-item-' + feedbackId);
+                    if (card) {
+                        // Cập nhật comment
+                        const commentP = card.querySelector('.feedback-comment');
+                        if (commentP) {
+                            commentP.textContent = comment;
+                        }
+
+                        // Cập nhật số sao
+                        const starsDiv = card.querySelector('.feedback-stars');
+                        if (starsDiv) {
+                            starsDiv.setAttribute('data-rating', rating);
+                            starsDiv.innerHTML = '';
+                            for (let i = 1; i <= 5; i++) {
+                                const isFilled = i <= rating;
+                                const icon = document.createElement('i');
+                                icon.setAttribute('data-lucide', 'star');
+                                icon.className = 'star-icon ' + (isFilled ? 'filled text-warning' : 'text-muted');
+                                icon.style.cssText = isFilled ? 'width:14px; height:14px; fill:currentColor;' : 'width:14px; height:14px;';
+                                starsDiv.appendChild(icon);
+                            }
+                            if (typeof lucide !== 'undefined') {
+                                lucide.createIcons();
+                            }
+                        }
+
+                        // Cập nhật các attribute cho nút "Sửa"
+                        const editBtn = card.querySelector('.btn-edit-review');
+                        if (editBtn) {
+                            editBtn.setAttribute('data-feedback-comment', comment);
+                            editBtn.setAttribute('data-feedback-rating', rating);
+                        }
+                    }
+
+                    // Ẩn modal
+                    const modalElement = document.getElementById('editReviewModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+
+                    showToast(data.message || 'Cập nhật đánh giá thành công!', 'success');
+                } else {
+                    showToast(data.message || 'Không thể cập nhật đánh giá.', 'warning');
+                }
+            } catch (error) {
+                console.error('Lỗi khi cập nhật đánh giá:', error);
+                showToast(error.message, 'warning');
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        }
+
+        async function submitAddReview(event) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
+
+            const courseId = form.querySelector('input[name="courseId"]').value;
+            const ratingInput = form.querySelector('input[name="rating"]:checked');
+            const comment = form.querySelector('#course-review-comment').value;
+
+            if (!ratingInput) {
+                showToast('Vui lòng chọn số sao đánh giá!', 'warning');
+                if (submitBtn) submitBtn.disabled = false;
+                return;
+            }
+
+            const rating = ratingInput.value;
+
+            try {
+                const params = new URLSearchParams();
+                params.append('courseId', courseId);
+                params.append('rating', rating);
+                params.append('comment', comment);
+
+                const response = await fetch('/course/review/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: params
+                });
+
+                if (!response.ok) {
+                    let errMsg = 'Có lỗi xảy ra khi gửi đánh giá.';
+                    try {
+                        const errData = await response.json();
+                        errMsg = errData.message || errMsg;
+                    } catch (e) {}
+                    throw new Error(errMsg);
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast(data.message || 'Gửi đánh giá thành công!', 'success');
+                    
+                    // Xóa alert "Chưa có đánh giá nào" nếu tồn tại
+                    const noReviewsAlert = document.getElementById('no-reviews-alert');
+                    if (noReviewsAlert) {
+                        noReviewsAlert.remove();
+                    }
+
+                    // Ẩn/Xóa form đánh giá vì user đã đánh giá xong
+                    form.remove();
+
+                    // Thêm card đánh giá mới lên đầu reviews-list-container
+                    const container = document.getElementById('reviews-list-container');
+                    const fb = data.feedback;
+                    
+                    let starsHtml = '';
+                    for (let i = 1; i <= 5; i++) {
+                        const isFilled = i <= fb.rating;
+                        starsHtml += `
+                            <i data-lucide="star" class="star-icon ${isFilled ? 'filled text-warning' : 'text-muted'}" 
+                               style="${isFilled ? 'width:14px; height:14px; fill:currentColor;' : 'width:14px; height:14px;'}"></i>
+                        `;
+                    }
+
+                    const avatarUrl = fb.user.avatarUrl ? fb.user.avatarUrl : '/images/student2.png';
+
+                    const reviewHtml = `
+                        <div id="feedback-item-${fb.id}" class="feedback-item border rounded-3 p-4 bg-white shadow-sm">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-ring-wrapper d-flex align-items-center justify-content-center rounded-circle p-0.5"
+                                         style="border: 2px solid #e2e8f0; width: 44px; height: 44px;">
+                                        <img src="${avatarUrl}"
+                                             alt="Learner Avatar" class="rounded-circle"
+                                             style="width: 100%; height: 100%; object-fit: cover;"
+                                             onerror="this.onerror=null; this.src='/images/student2.png';">
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-semibold text-dark fs-7">${fb.user.lastName} ${fb.user.firstName}</span>
+                                        <div class="feedback-stars text-warning d-flex gap-1 mt-1" data-rating="${fb.rating}">
+                                            ${starsHtml}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button class="btn btn-link btn-sm text-primary p-0 me-2 text-decoration-none fs-8 fw-semibold btn-edit-review"
+                                            data-feedback-id="${fb.id}"
+                                            data-feedback-comment="${fb.comment}"
+                                            data-feedback-rating="${fb.rating}"
+                                            data-bs-toggle="modal" data-bs-target="#editReviewModal">
+                                        <i class="fa-regular fa-pen-to-square me-1"></i>Sửa
+                                    </button>
+                                    <button class="btn btn-link btn-sm text-danger p-0 me-2 text-decoration-none fs-8 fw-semibold btn-delete-review"
+                                            data-feedback-id="${fb.id}"
+                                            onclick="deleteReview(this, ${fb.id})">
+                                        <i class="fa-regular fa-trash-can me-1"></i>Xóa
+                                    </button>
+                                    <span class="text-muted fs-8">Vừa xong</span>
+                                </div>
+                            </div>
+                            <p class="feedback-comment text-muted fs-7 mb-0 text-justify">${fb.comment}</p>
+                        </div>
+                    `;
+                    
+                    container.insertAdjacentHTML('afterbegin', reviewHtml);
+                    
+                    // Render lại icons
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                } else {
+                    showToast(data.message || 'Không thể gửi đánh giá.', 'warning');
+                }
+            } catch (error) {
+                console.error('Lỗi khi gửi đánh giá:', error);
+                showToast(error.message, 'warning');
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        }
+
+        // Hiển thị Toast thông báo khi tải trang nếu có lưu trong sessionStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const pendingToast = sessionStorage.getItem('pendingToast');
+            if (pendingToast) {
+                try {
+                    const data = JSON.parse(pendingToast);
+                    showToast(data.message, data.type);
+                } catch (e) {}
+                sessionStorage.removeItem('pendingToast');
+            }
+        });
     </script>
 </body>
 

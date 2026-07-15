@@ -29,6 +29,9 @@ public class FeedbackService {
     public boolean hasUserReviewedCourse(Integer userId, Integer courseId) {
         return repository.existsByUserIdAndCourseId(userId, courseId);
     }
+    public Optional<Feedback> findByUserIdAndCourseId(Integer userId, Integer courseId) {
+        return repository.findByUserIdAndCourseId(userId, courseId);
+    }
 
     public void updateReview(Integer feedbackId, Integer rating, String comment, User user) {
         Feedback feedback = repository.findById(feedbackId)
