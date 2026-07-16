@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.entity.Course;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -153,6 +155,79 @@ public class EmailService {
                     </body>
                     </html>
                     """.replace("[COURSE_TITLE]", course.getTitle());
+
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+        } catch (jakarta.mail.MessagingException e) {
+            throw new RuntimeException("Gửi mail thất bại", e);
+        }
+    }
+
+    @Async("mailExecutor")
+    public void sendGrantAccessCoursesEmail(String toEmail, List<Course> courses) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(toEmail);
+            helper.setSubject("Thông báo: Bạn đã được cấp quyền tham gia các khóa học mới");
+
+            StringBuilder coursesListHtml = new StringBuilder();
+            for (Course course : courses) {
+                coursesListHtml.append(String.format("""
+                    <div class="course-box" style="background: #f8fafc; border-left: 4px solid #4f46e5; padding: 15px 20px; border-radius: 0 8px 8px 0; margin: 15px 0;">
+                        <h3 class="course-title" style="font-size: 16px; font-weight: 700; color: #1e293b; margin: 0 0 5px 0;">%s</h3>
+                        <p class="course-desc" style="font-size: 13px; color: #64748b; margin: 0;">Khóa học hiện đã mở, bạn có thể truy cập toàn bộ tài liệu học tập ngay lập tức.</p>
+                    </div>
+                """, course.getTitle()));
+            }
+
+            String htmlContent = """
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <style>
+                            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f6f9fc; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+                            .wrapper { width: 100%; table-layout: fixed; background-color: #f6f9fc; padding: 40px 0; }
+                            .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eef2f5; }
+                            .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 35px 40px; text-align: center; }
+                            .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+                            .content { padding: 40px; color: #334155; line-height: 1.6; }
+                            .greeting { font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 16px; }
+                            .btn-wrapper { text-align: center; margin: 35px 0 20px 0; }
+                            .btn { display: inline-block; background-color: #4f46e5; color: #ffffff !important; text-decoration: none; padding: 12px 30px; font-weight: 600; font-size: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.15); transition: background-color 0.2s; }
+                            .footer { background-color: #f8fafc; padding: 25px 40px; text-align: center; border-top: 1px solid #eef2f5; font-size: 13px; color: #94a3b8; }
+                            .footer a { color: #4f46e5; text-decoration: none; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="wrapper">
+                            <div class="container">
+                                <div class="header">
+                                    <h1>HỌC TẬP KHÔNG GIỚI HẠN</h1>
+                                </div>
+                                <div class="content">
+                                    <div class="greeting">Xin chào bạn học viên thân mến,</div>
+                                    <p>Chúng tôi rất vui mừng được thông báo rằng bạn đã được ban quản trị cấp quyền truy cập chính thức vào các khóa học mới dưới đây trên nền tảng của chúng tôi:</p>
+                    
+                                    [COURSES_LIST]
+                    
+                                    <p>Hãy bắt đầu hành trình chinh phục kiến thức mới ngay hôm nay bằng cách đăng nhập vào hệ thống học tập của chúng tôi.</p>
+                    
+                                    <div class="btn-wrapper">
+                                        <a href="http://localhost:8080/login" class="btn">Vào Học Ngay</a>
+                                    </div>
+                                </div>
+                                <div class="footer">
+                                    <p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ <a href="mailto:support@elearning.com">Bộ phận Hỗ trợ</a> để được trợ giúp.</p>
+                                    <p>&copy; 2026 E-learning Platform. All rights reserved.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                    """.replace("[COURSES_LIST]", coursesListHtml.toString());
 
             helper.setText(htmlContent, true);
             mailSender.send(message);

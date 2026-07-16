@@ -1,5 +1,6 @@
 package vn.edu.fpt.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -24,38 +25,29 @@ import vn.edu.fpt.service.CartService;
 import vn.edu.fpt.service.CartItemService;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.service.FeedbackService;
+import vn.edu.fpt.util.SecurityUtils;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Controller
+@RequiredArgsConstructor
 public class CourseController {
 
-    @Autowired
-    private CourseService courseService;
-
-    @Autowired
-    private FeedbackService feedbackService;
-
-    @Autowired
-    private CategoryService categoryService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private EnrollmentService enrollmentService;
-
-    @Autowired
-    private CartService cartService;
-
-    @Autowired
-    private CartItemService cartItemService;
+    private final CourseService courseService;
+    private final FeedbackService feedbackService;
+    private final CategoryService categoryService;
+    private final UserService userService;
+    private final EnrollmentService enrollmentService;
+    private final CartService cartService;
+    private final CartItemService cartItemService;
 
     private User getSessionUser() {
-        return vn.edu.fpt.util.SecurityUtils.getCurrentUser();
+        return SecurityUtils.getCurrentUser();
     }
 
     @GetMapping("/courses")
@@ -73,15 +65,9 @@ public class CourseController {
         List<CategoryDto> categoryDtos = categoryService.getActiveParentCategories();
 
         model.addAttribute("parentCategories", categoryDtos);
-
         User user = getSessionUser();
-
-        java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
+        Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
         model.addAttribute("enrolledCourseIds", enrolledCourseIds);
-
-
-
-        // Đưa dữ liệu trang hiện tại và các thuộc tính phân trang vào Model để render ra UI
         model.addAttribute("courses", coursePage.getContent());
         model.addAttribute("search", search);
         model.addAttribute("categoryId", categoryId);
@@ -113,15 +99,12 @@ public class CourseController {
     public String showCourseDetail(@RequestParam("id") Integer id, Model model) {
         CourseDto courseDto = courseService.getCourseDetail(id);
         model.addAttribute("course", courseDto);
-
         User user = getSessionUser();
         if (user != null) {
             java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
             model.addAttribute("enrolledCourseIds", enrolledCourseIds);
-
             boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), id);
             model.addAttribute("hasReviewed", hasReviewed);
-
             boolean canReview = courseService.canUserReviewCourse(user, id);
             model.addAttribute("canReview", canReview);
         }
@@ -129,51 +112,95 @@ public class CourseController {
     }
 
     @PostMapping("/course/review/add")
-    public String addCourseReview(@RequestParam("courseId") Integer courseId,
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> addCourseReview(@RequestParam("courseId") Integer courseId,
             @RequestParam("rating") Integer rating,
-            @RequestParam(value = "comment", required = false, defaultValue = "") String comment,
-            jakarta.servlet.http.HttpServletRequest request,
-            RedirectAttributes redirectAttributes) {
+            @RequestParam(value = "comment", required = false, defaultValue = "") String comment) {
+        Map<String, Object> response = new HashMap<>();
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/";
+            response.put("success", false);
+            response.put("message", "Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.");
+            return ResponseEntity.status(401).body(response);
         }
-        
-        String referer = request.getHeader("Referer");
-        String redirectUrl = (referer != null && referer.contains("/course/")) ? "redirect:" + referer : "redirect:/course/detail?id=" + courseId;
-
-        String errorMessage = courseService.addCourseReview(user, courseId, rating, comment);
-        if (errorMessage != null) {
-            redirectAttributes.addFlashAttribute("reviewErrorMessage", errorMessage);
-        } else {
-            redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
+        try {
+            Feedback feedback = courseService.addCourseReview(user, courseId, rating, comment);
+            
+            Map<String, Object> fbData = new HashMap<>();
+            fbData.put("id", feedback.getId());
+            fbData.put("rating", feedback.getRating());
+            fbData.put("comment", feedback.getComment());
+            fbData.put("createdAt", feedback.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("id", user.getId());
+            userData.put("firstName", user.getFirstName());
+            userData.put("lastName", user.getLastName());
+            userData.put("avatarUrl", user.getFullAvatarUrl());
+            fbData.put("user", userData);
+            
+            response.put("success", true);
+            response.put("message", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
+            response.put("feedback", fbData);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
-        return redirectUrl;
     }
 
     @PostMapping("/course/review/edit")
-    public String editCourseReview(@RequestParam("feedbackId") Integer feedbackId,
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> editCourseReview(@RequestParam("feedbackId") Integer feedbackId,
             @RequestParam("rating") Integer rating,
-            @RequestParam(value = "comment", required = false, defaultValue = "") String comment,
-            RedirectAttributes redirectAttributes) {
+            @RequestParam(value = "comment", required = false, defaultValue = "") String comment) {
+        Map<String, Object> response = new HashMap<>();
         User user = getSessionUser();
         if (user == null) {
-            return "redirect:/";
+            response.put("success", false);
+            response.put("message", "Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.");
+            return ResponseEntity.status(401).body(response);
         }
-        
-        Feedback feedback = feedbackService.findById(feedbackId).orElse(null);
-        if (feedback == null) {
-            redirectAttributes.addFlashAttribute("reviewErrorMessage", "Đánh giá không tồn tại!");
-            return "redirect:/courses";
-        }
-        
         try {
             feedbackService.updateReview(feedbackId, rating, comment, user);
-            redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Cập nhật đánh giá thành công!");
+            response.put("success", true);
+            response.put("message", "Cập nhật đánh giá thành công!");
+            return ResponseEntity.ok(response);
+        } catch (ResourceNotFoundException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(404).body(response);
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("reviewErrorMessage", e.getMessage());
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
-        
-        return "redirect:/course/detail?id=" + feedback.getCourse().getId();
+    }
+
+    @PostMapping("/course/review/delete")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteCourseReview(@RequestParam("feedbackId") Integer feedbackId) {
+        Map<String, Object> response = new HashMap<>();
+        User user = getSessionUser();
+        if (user == null) {
+            response.put("success", false);
+            response.put("message", "Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.");
+            return ResponseEntity.status(401).body(response);
+        }
+        try {
+            feedbackService.deleteReview(feedbackId, user);
+            response.put("success", true);
+            response.put("message", "Xóa đánh giá thành công!");
+            return ResponseEntity.ok(response);
+        } catch (ResourceNotFoundException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(404).body(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 }
