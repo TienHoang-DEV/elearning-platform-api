@@ -67,12 +67,11 @@
                 <div class="tab-pane fade show active" id="account-pane" role="tabpanel" aria-labelledby="account-tab">
                     
                     <!-- Single unified form for updating personal info and avatar via Spring Boot -->
-                    <form th:action="@{/student/profile/update}" method="post" enctype="multipart/form-data">
-                        
-                        <div class="d-flex flex-column gap-4">
+                    <div class="d-flex flex-column gap-4">
+                        <form th:action="@{/student/profile/update}" method="post" enctype="multipart/form-data" style="display: contents;">
                             
                             <!-- Personal Information Section -->
-                            <section class="border-card rounded-4 p-4 p-md-5">
+                            <section class="border-card rounded-4 p-4 p-md-5 order-1">
                                 <h2 class="h4 fw-bold mb-1">Thông tin cá nhân</h2>
                                 <p class="text-muted mb-4 fs-7">Cập nhật thông tin cá nhân và cách người khác nhìn thấy bạn.</p>
                                 
@@ -111,7 +110,7 @@
                             </section>
 
                             <!-- Profile Picture Section -->
-                            <section class="border-card rounded-4 p-4 p-md-5">
+                            <section class="border-card rounded-4 p-4 p-md-5 order-3">
                                 <h2 class="h4 fw-bold mb-4">Ảnh hồ sơ</h2>
                                 <div class="d-flex flex-column flex-sm-row align-items-center gap-4 mb-4">
                                     
@@ -150,7 +149,7 @@
                             </section>
 
                             <!-- Interface Section -->
-                            <section class="border-card rounded-4 p-4 p-md-5 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+                            <section class="border-card rounded-4 p-4 p-md-5 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4 order-4">
                                 <div style="max-width: 480px;">
                                     <h2 class="h4 fw-bold mb-1">Giao diện</h2>
                                     <p class="text-muted fs-7 mb-0">Tùy chỉnh giao diện của Coursera thông qua các tùy chọn thiết kế giao diện.</p>
@@ -164,7 +163,7 @@
                             </section>
 
                             <!-- Delete Account Section -->
-                            <section class="border-card rounded-4 p-4 p-md-5">
+                            <section class="border-card rounded-4 p-4 p-md-5 order-5">
                                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-4 mb-4">
                                     <div class="flex-grow-1">
                                         <h2 class="h4 fw-bold text-danger mb-2">Xóa tài khoản</h2>
@@ -187,11 +186,10 @@
                                 </div>
                             </section>
 
-                        </div>
-                    </form>
+                        </form>
 
-                    <!-- Change Password Section (Only for users with password) -->
-                    <div class="mt-4" th:if="${currentUser.hasPassword}">
+                        <!-- Change Password Section (Only for users with password) -->
+                        <div class="order-2" th:if="${currentUser.hasPassword}">
                         <section class="border-card rounded-4 p-4 p-md-5">
                             <h2 class="h4 fw-bold mb-4">Thay đổi mật khẩu</h2>
                             <form th:action="@{/student/profile/change-password}" method="post">
@@ -216,6 +214,7 @@
                                 </div>
                             </form>
                         </section>
+                    </div>
                     </div>
 
                 </div>
