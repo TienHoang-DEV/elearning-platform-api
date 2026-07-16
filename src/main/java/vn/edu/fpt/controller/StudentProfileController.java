@@ -83,9 +83,10 @@ public class StudentProfileController {
 
     @PostMapping("/student/profile/change-password")
     public String changePassword(
-            @RequestParam("oldPassword") String oldPassword,
+            @RequestParam(value = "oldPassword", required = false) String oldPassword,
             @RequestParam("newPassword") String newPassword,
             @RequestParam("confirmPassword") String confirmPassword,
+            HttpServletRequest request,
             RedirectAttributes redirectAttributes) {
 
         User user = getSessionUser();
@@ -94,10 +95,16 @@ public class StudentProfileController {
         }
         
         try {
-            studentProfileService.changePassword(user, oldPassword, newPassword, confirmPassword);
+            User updatedUser = studentProfileService.changePassword(user, oldPassword, newPassword, confirmPassword);
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.setAttribute("user", updatedUser);
+            }
             redirectAttributes.addFlashAttribute("success", "Cập nhật mật khẩu thành công!");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi hệ thống.");
         }
 
         return "redirect:/student/profile";
