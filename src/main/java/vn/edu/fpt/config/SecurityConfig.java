@@ -88,7 +88,8 @@ public class SecurityConfig {
                                 "/home",
                                 "/",
                                 "/courses",
-                                "/course/detail"
+                                "/course/detail",
+                                "/instructor/*/profile"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/instructor/**").hasRole("INSTRUCTOR")
