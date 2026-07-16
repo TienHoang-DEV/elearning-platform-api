@@ -18,6 +18,7 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findByUser(User user);
+    List<Order> findByUserAndStatusIn(User user, List<vn.edu.fpt.enums.OrderStatus> statuses);
 
 
 }

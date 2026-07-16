@@ -49,14 +49,22 @@
                 </ol>
             </nav>
 
-            <h1 class="page-title fw-bold font-heading mb-4 fs-3">Lịch Sử Mua Hàng</h1>
+            <form th:action="@{/student/purchase-history}" method="get" class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="page-title fw-bold font-heading mb-0 fs-3">Lịch Sử Mua Hàng</h1>
+                <select id="statusFilter" name="status" class="form-select w-auto rounded-3 border-secondary-subtle" onchange="this.form.submit()">
+                    <option value="ALL" th:selected="${status == null || status == 'ALL'}">Tất cả</option>
+                    <option value="SUCCESS" th:selected="${status == 'SUCCESS'}">Thành công</option>
+                    <option value="PENDING" th:selected="${status == 'PENDING'}">Chờ duyệt</option>
+                    <option value="EXPIRED" th:selected="${status == 'EXPIRED'}">Hết hạn</option>
+                </select>
+            </form>
 
             <!-- Orders Container -->
             <div class="d-flex flex-column gap-4" th:if="${orders != null && !orders.isEmpty()}">
 
                 <!-- Order Card dynamic -->
                 <div class="card border border-light-subtle rounded-3 bg-white shadow-sm overflow-hidden order-card"
-                    th:each="order, orderStat : ${orders}">
+                    th:each="order, orderStat : ${orders}" th:data-status="${#strings.toUpperCase(order.status)}">
                     <!-- Order Header -->
                     <div class="card-header bg-light bg-opacity-50 border-bottom border-light-subtle p-3">
                         <div class="row align-items-center g-3">
@@ -84,15 +92,18 @@
                                 class="col-md-6 col-12 text-md-end d-flex align-items-center justify-content-between justify-content-md-end gap-3 flex-wrap">
                                 <span
                                     class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill fs-8 fw-semibold d-inline-flex align-items-center gap-1"
-                                    th:if="${order.status == 'paid' || order.status == 'success'}">
+                                    th:if="${#strings.toUpperCase(order.status) == 'PAID' || #strings.toUpperCase(order.status) == 'COMPLETED' || #strings.toUpperCase(order.status) == 'SUCCESS'}">
                                     <i data-lucide="check-circle-2" style="width:14px; height:14px;"></i> Thành công
                                 </span>
                                 <span
                                     class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1.5 rounded-pill fs-8 fw-semibold d-inline-flex align-items-center gap-1"
-                                    th:if="${order.status != 'paid' && order.status != 'success'}">
-                                    <i data-lucide="clock" style="width:14px; height:14px;"></i> <span
-                                        th:text="${order.status == 'pending' ? 'Chờ duyệt' : order.status}">Đang xử
-                                        lý</span>
+                                    th:if="${#strings.toUpperCase(order.status) == 'PENDING'}">
+                                    <i data-lucide="clock" style="width:14px; height:14px;"></i> Chờ duyệt
+                                </span>
+                                <span
+                                    class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1.5 rounded-pill fs-8 fw-semibold d-inline-flex align-items-center gap-1"
+                                    th:if="${#strings.toUpperCase(order.status) == 'EXPIRED' || #strings.toUpperCase(order.status) == 'CANCELLED' || #strings.toUpperCase(order.status) == 'FAILED'}">
+                                    <i data-lucide="x-circle" style="width:14px; height:14px;"></i> Hết hạn
                                 </span>
                                 <div class="text-md-end">
                                     <span

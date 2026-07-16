@@ -18,8 +18,8 @@ public class HistoryOrderService {
     private final OrderService orderService;
     private final DtoMapper dtoMapper;
 
-    public StudentPurchaseHistoryDto getPurchaseHistoryData(User user) {
-        List<OrderDto> orderDtos = orderService.getPurchaseHistory(user);
+    public StudentPurchaseHistoryDto getPurchaseHistoryData(User user, String status) {
+        List<OrderDto> orderDtos = orderService.getPurchaseHistory(user, status);
         return StudentPurchaseHistoryDto.builder()
                 .currentUser(dtoMapper.toUserDto(user))
                 .orders(orderDtos)
