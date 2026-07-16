@@ -75,9 +75,18 @@ public class AdminController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<UserDto> requestPage = userService.searchAndFilterManagers(keyword, status, pageable);
 
+        int startPage = 0;
+        int endPage = 0;
+        if (requestPage.getTotalPages() > 0) {
+            startPage = (requestPage.getNumber() / vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK) * vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK;
+            endPage = Math.min(startPage + vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK - 1, requestPage.getTotalPages() - 1);
+        }
+
         model.addAttribute("requestPage", requestPage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
 
         return "admin/manager/manager-list";
     }

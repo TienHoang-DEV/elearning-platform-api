@@ -48,12 +48,21 @@ public class ManagerCourseController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<CourseDto> coursePage = managerCourseService.searchAndFilter(keyword, status, categoryId, pageable);
 
+        int startPage = 0;
+        int endPage = 0;
+        if (coursePage.getTotalPages() > 0) {
+            startPage = (coursePage.getNumber() / vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK) * vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK;
+            endPage = Math.min(startPage + vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK - 1, coursePage.getTotalPages() - 1);
+        }
+
         model.addAttribute("coursePage", coursePage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("categories", categoryService.findAll());
         model.addAttribute("statuses", CourseStatus.values());
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
 
         return "manager/approval-course/course-list";
     }

@@ -26,6 +26,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import vn.edu.fpt.dto.revenue_manager.InstructorRevenueForManagerDTO;
 import vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO;
+import vn.edu.fpt.entity.User;
+import java.math.BigDecimal;
 
 @Controller
 @RequestMapping("/manager")
@@ -71,8 +73,12 @@ public class ManagerDashboardController {
         Page<InstructorRevenueForManagerDTO> instructorRevenues =
                 managerDashboardService.getInstructorsRevenue(keyword, page);
 
-        int startPage = (instructorRevenues.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
-        int endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, instructorRevenues.getTotalPages() - 1);
+        int startPage = 0;
+        int endPage = 0;
+        if (instructorRevenues.getTotalPages() > 0) {
+            startPage = (instructorRevenues.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
+            endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, instructorRevenues.getTotalPages() - 1);
+        }
 
         model.addAttribute("instructorRevenues", instructorRevenues);
         model.addAttribute("keyword", keyword);
@@ -84,9 +90,14 @@ public class ManagerDashboardController {
 
     @GetMapping("/revenue/instructor/details/{id}")
     public String instructorRevenueDetails(@PathVariable Integer id, Model model) {
+        User instructor = managerDashboardService.getInstructorById(id);
         List<InstructorCourseRevenueDTO> courseDetails =
                 managerDashboardService.getInstructorCourseRevenueDetails(id);
+
+        model.addAttribute("instructorName", instructor.getFirstName() + " " + instructor.getLastName());
+        model.addAttribute("instructorEmail", instructor.getEmail());
         model.addAttribute("courseDetails", courseDetails);
+
         return "manager/revenue/instructor-revenue-detail";
     }
 }

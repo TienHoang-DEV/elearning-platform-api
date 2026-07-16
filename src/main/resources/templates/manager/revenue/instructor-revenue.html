@@ -80,9 +80,9 @@
                                 0 đ
                             </td>
                             <td class="text-center">
-                                <button class="btn btn-outline btn-sm btn-view-details" title="Xem chi tiết">
+                                <a th:href="@{/manager/revenue/instructor/details/{id}(id=${rev.instructorId})}" class="btn btn-outline btn-sm btn-view-details" title="Xem chi tiết">
                                     <i class="ph ph-eye"></i> Chi tiết
-                                </button>
+                                </a>
                             </td>
                         </tr>
                         <tr th:if="${instructorRevenues == null or instructorRevenues.isEmpty()}">
@@ -126,55 +126,6 @@
             </div>
         </div>
 
-        <!-- Container chứa Modal Xem chi tiết (sẽ load dynamic qua AJAX) -->
-        <div id="detailsModalContainer"></div>
     </div>
-
-    <th:block layout:fragment="page-js">
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Fetch modal và mở popup
-                document.querySelectorAll('.btn-view-details').forEach(btn => {
-                    btn.addEventListener('click', e => {
-                        e.preventDefault();
-                        const instructorId = btn.closest('tr').dataset.instructorId;
-                        const instructorName = btn.closest('tr').querySelector('.fw-semibold').textContent;
-                        
-                        let container = document.getElementById('detailsModalContainer');
-                        if (!container) {
-                            container = document.createElement('div');
-                            container.id = 'detailsModalContainer';
-                            document.body.appendChild(container);
-                        }
-                        
-                        fetch(`/manager/revenue/instructor/details/${instructorId}`)
-                            .then(r => r.text())
-                            .then(html => {
-                                container.innerHTML = html;
-                                document.getElementById('instructorNameHeader').textContent = instructorName;
-                                document.getElementById('instructorRevenueDetailModal').classList.add('active');
-                            })
-                            .catch(e => console.error('Lỗi khi tải chi tiết doanh thu giảng viên:', e));
-                    });
-                });
-
-                // Đóng modal khi click outside
-                document.addEventListener('click', function(e) {
-                    const modal = document.getElementById('instructorRevenueDetailModal');
-                    if (modal && e.target === modal) {
-                        modal.classList.remove('active');
-                    }
-                });
-
-                // Đóng modal khi nhấn ESC
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        const modal = document.getElementById('instructorRevenueDetailModal');
-                        if (modal) modal.classList.remove('active');
-                    }
-                });
-            });
-        </script>
-    </th:block>
 </body>
 </html>

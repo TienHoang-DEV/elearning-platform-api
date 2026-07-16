@@ -85,7 +85,7 @@
                 </span>
 
                 <!-- Danh sách số trang -->
-                <a th:each="i : ${#numbers.sequence(0, requestPage.totalPages - 1)}"
+                <a th:each="i : ${#numbers.sequence(startPage, endPage)}"
                     th:href="@{/manager/instructor/list(keyword=${keyword}, status=${status}, page=${i}, size=${requestPage.size})}"
                     th:class="${requestPage.number == i ? 'page-circle-btn active' : 'page-circle-btn'}"
                     th:text="${i + 1}">1</a>

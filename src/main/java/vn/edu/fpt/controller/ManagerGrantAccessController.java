@@ -39,8 +39,12 @@ public class ManagerGrantAccessController {
     public String managerGrantAccess(Model model, @RequestParam(value = "keyword", required = false) String keyword, @RequestParam(value = "page", required = false, defaultValue = "0") Integer page) {
 
         Page<LearnerInfomationGrantAccessDTO> learners = userService.findAllLearnerByFilter(keyword, page);
-        Integer startPage = (learners.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
-        Integer endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, learners.getTotalPages() - 1);
+        Integer startPage = 0;
+        Integer endPage = 0;
+        if (learners.getTotalPages() > 0) {
+            startPage = (learners.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
+            endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, learners.getTotalPages() - 1);
+        }
 
         List<CourseGrantDTO> courses = courseService.findAllCourseGrant();
 

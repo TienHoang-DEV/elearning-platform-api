@@ -16,6 +16,8 @@ import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.PaymentRepository;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.entity.User;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -179,5 +181,10 @@ public class ManagerDashboardService {
 
     public List<InstructorCourseRevenueDTO> getInstructorCourseRevenueDetails(Integer instructorId) {
         return courseRepository.getCourseRevenueStatsByInstructor(instructorId);
+    }
+
+    public User getInstructorById(Integer id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên với ID: " + id));
     }
 }
