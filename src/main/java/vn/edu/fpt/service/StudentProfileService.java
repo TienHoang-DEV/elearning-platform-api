@@ -85,19 +85,11 @@ public class StudentProfileService {
         return userRepository.save(user);
     }
 
-    public void changePassword(User user, String oldPassword, String newPassword, String confirmPassword) {
+    public User changePassword(User user, String oldPassword, String newPassword, String confirmPassword) {
         user = userRepository.findById(user.getId()).orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin tài khoản."));
 
-        if (user.getPasswordHash() == null) {
-            throw new IllegalArgumentException("Tài khoản của bạn không sử dụng mật khẩu.");
-        }
-
-        if (oldPassword == null || oldPassword.isEmpty() || newPassword == null || newPassword.isEmpty() || confirmPassword == null || confirmPassword.isEmpty()) {
-            throw new IllegalArgumentException("Vui lòng nhập đầy đủ thông tin mật khẩu.");
-        }
-
-        if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
-            throw new IllegalArgumentException("Mật khẩu hiện tại không chính xác.");
+        if (newPassword == null || newPassword.isEmpty() || confirmPassword == null || confirmPassword.isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng nhập đầy đủ thông tin mật khẩu mới.");
         }
 
         if (!newPassword.equals(confirmPassword)) {
@@ -108,7 +100,17 @@ public class StudentProfileService {
             throw new IllegalArgumentException("Mật khẩu mới phải có ít nhất 6 ký tự.");
         }
 
+        if (user.getPasswordHash() != null && !user.getPasswordHash().isEmpty()) {
+            // User already has a password, verify old password
+            if (oldPassword == null || oldPassword.isEmpty()) {
+                throw new IllegalArgumentException("Vui lòng nhập mật khẩu hiện tại.");
+            }
+            if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
+                throw new IllegalArgumentException("Mật khẩu hiện tại không chính xác.");
+            }
+        }
+
         user.setPasswordHash(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 }
