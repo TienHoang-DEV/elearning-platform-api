@@ -55,7 +55,7 @@ public class QuizController {
         model.addAttribute("totalQuestions", totalQuestions);
         model.addAttribute("quizAttemptsMap", quizAttemptsMap);
         model.addAttribute("retake", retake);
-        return "quiz/lesson-quiz";
+        return "quiz/lesson-quiz :: quizContent";
     }
 
     @Transactional

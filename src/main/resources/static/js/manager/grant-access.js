@@ -77,12 +77,19 @@ if (form && button) {
         e.preventDefault();
         const courseIdInputs = document.querySelectorAll('#hiddenCourseInputsContainer input[name="courseId"]');
         const reason = document.getElementById('modalReasonSelect').value;
+        const note = document.getElementById('modalNote') ? document.getElementById('modalNote').value.trim() : "";
         if (courseIdInputs.length === 0) {
             showToast("Vui lòng chọn ít nhất một khóa học!", "warning");
             return;
         }
         if (!reason) {
             showToast("Vui lòng chọn lý do cấp quyền!", "warning");
+            return;
+        }
+        if (reason === 'OTHER' && !note) {
+            showToast("Vui lòng nhập ghi chú khi chọn lý do khác!", "warning");
+            const noteTextarea = document.getElementById('modalNote');
+            if (noteTextarea) noteTextarea.focus();
             return;
         }
         button.disabled = true;
@@ -276,8 +283,32 @@ function initializeSelector() {
     }
 }
 
+function initializeReasonValidation() {
+    const reasonSelect = document.getElementById('modalReasonSelect');
+    const noteTextarea = document.getElementById('modalNote');
+    const noteLabel = noteTextarea ? noteTextarea.previousElementSibling : null;
+    
+    if (reasonSelect && noteTextarea && noteLabel) {
+        reasonSelect.addEventListener('change', function() {
+            if (reasonSelect.value === 'OTHER') {
+                noteLabel.innerHTML = 'Ghi chú <span class="required-star" style="color: #ef4444;">*</span>';
+                noteTextarea.setAttribute('required', 'required');
+                noteTextarea.placeholder = "Vui lòng nhập lý do chi tiết ở đây (bắt buộc)...";
+            } else {
+                noteLabel.innerHTML = 'Ghi chú (Không bắt buộc)';
+                noteTextarea.removeAttribute('required');
+                noteTextarea.placeholder = "Học viên liên hệ hỗ trợ do...";
+            }
+        });
+    }
+}
+
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeSelector);
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeSelector();
+        initializeReasonValidation();
+    });
 } else {
     initializeSelector();
+    initializeReasonValidation();
 }
