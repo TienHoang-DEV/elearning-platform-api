@@ -15,6 +15,7 @@ import vn.edu.fpt.repository.OrderRepository;
 import vn.edu.fpt.repository.PaymentRepository;
 import vn.edu.fpt.service.lesson.LessonProgressService;
 import vn.edu.fpt.service.lesson.LessonService;
+import vn.edu.fpt.service.payment.PayOsService;
 import vn.edu.fpt.util.SecurityUtils;
 
 import java.math.BigDecimal;
@@ -37,6 +38,7 @@ public class EnrollmentService {
     private final EmailService emailService;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
+    private final PayOsService payOsService;
 
     public Set<Integer> getEnrolledCourseIds(User user) {
         Set<Integer> enrolledCourseIds = new HashSet<>();
@@ -72,7 +74,8 @@ public class EnrollmentService {
     }
 
     public Enrollment findEnrollmentByCourseIdAndUserId(Integer courseId, Integer userId) {
-        Enrollment enrollment = repository.findByCourseIdAndUserId(courseId, userId).orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
+        Enrollment enrollment = repository.findByCourseIdAndUserId(courseId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
         return enrollment;
     }
 
@@ -81,7 +84,8 @@ public class EnrollmentService {
         if (totalNumberOfLesson == 0) {
             return;
         }
-        Integer totalNumberOfLessonCompleted = lessonProgressService.findNumberOfLessonCompletedByEnrollment(enrollment);
+        Integer totalNumberOfLessonCompleted = lessonProgressService
+                .findNumberOfLessonCompletedByEnrollment(enrollment);
         BigDecimal percent = BigDecimal.valueOf((double) totalNumberOfLessonCompleted / totalNumberOfLesson * 100);
         if (percent.compareTo(BigDecimal.valueOf(100)) < 0) {
             enrollment.setProgressPercent(percent);
@@ -93,7 +97,6 @@ public class EnrollmentService {
         }
         repository.save(enrollment);
     }
-
 
     public void grantAccessCourse(Integer userId, Integer courseId, String reason, String note, Boolean sendEmail) {
         if (userId == null) {
@@ -113,8 +116,10 @@ public class EnrollmentService {
         if (sendEmail == null) {
             sendEmail = false;
         }
-        if (repository.existsByUserAndCourse(User.builder().id(userId).build(), Course.builder().id(courseId).build())) {
-            throw new RuntimeException("Người dùng với id = " + userId + " đã tham gia khóa học với id = " + courseId + " trước đó");
+        if (repository.existsByUserAndCourse(User.builder().id(userId).build(),
+                Course.builder().id(courseId).build())) {
+            throw new RuntimeException(
+                    "Người dùng với id = " + userId + " đã tham gia khóa học với id = " + courseId + " trước đó");
         }
         if (EnrollmentGrantReason.PAYMENT_RECOVERY.name().equals(reason)) {
             User user = User.builder().id(userId).build();
@@ -125,24 +130,37 @@ public class EnrollmentService {
                     if (order.getStatus() != OrderStatus.COMPLETED && order.getStatus() != OrderStatus.PAID) {
                         for (OrderItem item : order.getItems()) {
                             if (item.getCourse() != null && item.getCourse().getId().equals(courseId)) {
-                                foundMissedOrder = true;
-                                order.setStatus(OrderStatus.COMPLETED);
-                                orderRepository.save(order);
+                                if (order.getPayment() != null) {
+                                    String status = payOsService.getPaymentStatusByOrderCode(order.getPayment().getGatewayOrderCode());
+                                    OrderStatus orderStatus;
+                                    try {
+                                        orderStatus = OrderStatus.valueOf(status);
+                                    } catch (IllegalArgumentException e) {
+                                        throw new RuntimeException("Không tồn tại trạng thái thanh toán được đồng bộ từ PayOs");
+                                    }
+                                    if (OrderStatus.PAID.equals(orderStatus)) {
+                                        foundMissedOrder = true;
+                                        order.setStatus(OrderStatus.COMPLETED);
+                                        orderRepository.save(order);
 
-                                Payment payment = order.getPayment();
-                                if (payment != null) {
-                                    payment.setStatus(PaymentStatus.PAID);
-                                    payment.setPaidAt(LocalDateTime.now());
-                                    paymentRepository.save(payment);
+                                        Payment payment = order.getPayment();
+                                        payment.setStatus(PaymentStatus.PAID);
+                                        payment.setPaidAt(LocalDateTime.now());
+                                        paymentRepository.save(payment);
+                                        break;
+                                    }
                                 }
-                                break;
                             }
                         }
+                    }
+                    if (foundMissedOrder) {
+                        break;
                     }
                 }
             }
             if (!foundMissedOrder) {
-                throw new RuntimeException("Học viên chưa từng tạo đơn hàng lỗi hoặc chờ thanh toán cho khóa học này. Không thể chọn lý do khôi phục sau thanh toán.");
+                throw new RuntimeException(
+                        "Học viên chưa từng tạo đơn hàng lỗi hoặc chờ thanh toán cho khóa học này, hoặc đơn hàng chưa được thanh toán thành công trên PayOS.");
             }
         }
 
@@ -153,20 +171,26 @@ public class EnrollmentService {
                 .build();
         repository.save(enrollment);
 
+        Course courseObj = courseService.findById(courseId);
+        String courseTitle = courseObj != null ? courseObj.getTitle() : "Khóa học #" + courseId;
+        String finalNote = (note == null || note.trim().isEmpty()) ? "NONE" : note.trim();
         SystemLog systemLog = SystemLog.builder()
                 .action(LogAction.MANUAL_ENROLLMENT_GRANTED)
                 .user(SecurityUtils.getCurrentUser())
                 .targetType(Enrollment.class.getName())
                 .targetId(enrollment.getId().toString())
-                .meta("Lý do: " + reason + " Ghi chú " + note)
+                .meta("Cấp quyền khóa học: " + courseTitle + " (ID: " + courseId + ") - Lý do: " + reason
+                        + " - Ghi chú: " + finalNote)
                 .build();
         systemLogService.save(systemLog);
         if (sendEmail) {
-            emailService.sendGrantAccessCourseEmail(userService.findById(userId).getEmail(), courseService.findById(courseId));
+            emailService.sendGrantAccessCourseEmail(userService.findById(userId).getEmail(),
+                    courseService.findById(courseId));
         }
     }
 
-    public String grantAccessCourses(Integer userId, List<Integer> courseIds, String reason, String note, Boolean sendEmail) {
+    public String grantAccessCourses(Integer userId, List<Integer> courseIds, String reason, String note,
+                                     Boolean sendEmail) {
         if (userId == null) {
             throw new RuntimeException("Không có id người dùng");
         }
