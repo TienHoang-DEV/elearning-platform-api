@@ -16,6 +16,7 @@ import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.service.UserService;
+import vn.edu.fpt.util.AppConstants;
 
 import java.util.List;
 
@@ -47,8 +48,8 @@ public class ManagerInstructorController {
         int startPage = 0;
         int endPage = 0;
         if (requestPage.getTotalPages() > 0) {
-            startPage = (requestPage.getNumber() / vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK) * vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK;
-            endPage = Math.min(startPage + vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK - 1, requestPage.getTotalPages() - 1);
+            startPage = (requestPage.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK;
+            endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, requestPage.getTotalPages() - 1);
         }
 
         model.addAttribute("requestPage", requestPage);

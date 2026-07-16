@@ -27,6 +27,11 @@
             <span th:text="${successMessage}">Cập nhật thành công.</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert">
+            <i class="ph ph-x-circle fs-5"></i>
+            <span th:text="${errorMessage}">Đã xảy ra lỗi.</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
 
         <!-- ══════════ COURSE DETAIL CARD ══════════ -->
         <div class="course-detail-container">
@@ -231,5 +236,20 @@
             </div>
         </div>
     </div>
+
+    <th:block layout:fragment="page-js">
+        <script>
+            // Ngăn chặn nhấp đúp khi gửi yêu cầu duyệt hoặc từ chối
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Đang xử lý...';
+                    }
+                });
+            });
+        </script>
+    </th:block>
 </body>
 </html>

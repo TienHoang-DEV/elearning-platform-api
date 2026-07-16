@@ -41,6 +41,9 @@ public class ManagerCourseService {
     public void updateCourseStatus(Integer id, CourseStatus status, String rejectionReason) {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        if (course.getStatus() != CourseStatus.PENDING) {
+            throw new IllegalStateException("Khóa học này đã được phê duyệt hoặc từ chối bởi một quản lý khác trước đó.");
+        }
         course.setStatus(status);
         if (status == CourseStatus.REJECTED) {
             course.setRejectionReason(rejectionReason);
