@@ -1,6 +1,7 @@
 package vn.edu.fpt.dto.user;
 
 import lombok.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,4 +13,5 @@ public class StudentProfileDashboardDto {
     private int enrollmentsCount;
     private long certificatesCount;
     private int studyHours;
+    private List<StudentLessonNoteDto> lessonNotes;
 }

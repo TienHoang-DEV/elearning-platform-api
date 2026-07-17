@@ -208,6 +208,25 @@ function initializeVideo() {
         .then(response => response.text())
         .then(text => {
             videoTag.src = text;
+
+            // Auto seek if query parameter 't' (seconds) exists in the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const tParam = urlParams.get('t');
+            if (tParam) {
+                const secs = parseInt(tParam);
+                if (!isNaN(secs)) {
+                    videoTag.addEventListener('loadedmetadata', () => {
+                        videoTag.currentTime = secs;
+                        videoTag.play();
+                    }, { once: true });
+                    
+                    // If metadata is already loaded
+                    if (videoTag.readyState >= 1) {
+                        videoTag.currentTime = secs;
+                        videoTag.play();
+                    }
+                }
+            }
         })
         .catch(error => {
             console.log(error);
