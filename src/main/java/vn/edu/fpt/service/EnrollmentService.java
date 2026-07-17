@@ -142,7 +142,6 @@ public class EnrollmentService {
                                         foundMissedOrder = true;
                                         order.setStatus(OrderStatus.COMPLETED);
                                         orderRepository.save(order);
-
                                         Payment payment = order.getPayment();
                                         payment.setStatus(PaymentStatus.PAID);
                                         payment.setPaidAt(LocalDateTime.now());
