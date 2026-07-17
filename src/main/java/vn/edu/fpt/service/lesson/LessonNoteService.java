@@ -34,7 +34,11 @@ public class LessonNoteService {
     public LessonNote save(Integer userId, Integer lessonId, Integer noteId, Integer videoTimeSeconds, String noteContent) {
         LessonNote note;
         if (noteId != null) {
-            note = lessonNoteRepository.findById(noteId).orElse(new LessonNote());
+            note = lessonNoteRepository.findById(noteId)
+                    .orElseThrow(() -> new vn.edu.fpt.exception.ResourceNotFoundException("Không tìm thấy ghi chú"));
+            if (note.getUser() != null && !note.getUser().getId().equals(userId)) {
+                throw new IllegalArgumentException("Bạn không có quyền sửa ghi chú này!");
+            }
         } else {
             note = new LessonNote();
         }
