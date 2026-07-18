@@ -57,6 +57,7 @@ public class InstructorCourseController {
                                     @RequestParam(name = "pageRejected", defaultValue = "0") int pageReject,
                                     @RequestParam(name = "pageHidden", defaultValue = "0") int pageHidden,
                                     @RequestParam(name = "pagePending", defaultValue = "0") int pagePending,
+                                    @RequestParam(name = "tab", defaultValue = "all") String activeTab,
                                     Model model){
         User  user = SecurityUtils.getCurrentUser();
         Sort sort = Sort.by("updateAt").descending();
@@ -89,6 +90,7 @@ public class InstructorCourseController {
         model.addAttribute("pageDraft", pageDraf);
         model.addAttribute("pageRejected", pageReject);
         model.addAttribute("pageHidden", pageHidden);
+        model.addAttribute("activeTab", activeTab);
         return "instructor_course/courses_v2";
     }
 
@@ -205,6 +207,29 @@ public class InstructorCourseController {
         return "instructor_course/editcourse";
     }
 
+    @GetMapping("/{id}/reviews")
+    public String viewCourseReviews(@PathVariable("id") Integer courseId, Model model) {
+        User user = SecurityUtils.getCurrentUser();
+        Course course = courseService.getInstructorOwnedCourse(courseId, user);
+        // Instructor course list: truyen reviews cua dung course sang trang xem danh gia.
+        model.addAttribute("course", course);
+        model.addAttribute("reviews", courseService.getInstructorCourseReviews(courseId, user));
+        return "instructor_course/course_reviews";
+    }
+
+    @GetMapping("/{id}/rejection-reason")
+    public String viewRejectionReason(@PathVariable("id") Integer courseId, Model model) {
+        User user = SecurityUtils.getCurrentUser();
+        Course course = courseService.getInstructorOwnedCourse(courseId, user);
+        // Instructor course list: truyen ly do reject de instructor xem chi tiet.
+        model.addAttribute("course", course);
+        model.addAttribute("rejectionReason",
+                course.getRejectionReason() != null && !course.getRejectionReason().isBlank()
+                        ? course.getRejectionReason()
+                        : "Manager chua nhap ly do tu choi.");
+        return "instructor_course/rejection_reason";
+    }
+
     @PostMapping("/{id}/submit-review")
     public String submitReview(@PathVariable("id") Integer courseId,
                                @RequestParam(name = "acceptPolicy", defaultValue = "false") boolean acceptPolicy,
@@ -291,12 +316,24 @@ public class InstructorCourseController {
         return "redirect:/instructorcourse/courses?tab=" + tab;
     }
 
+    @PostMapping("/{id}/hide")
+    public String hideCourse(@PathVariable("id") Integer courseId,
+                             RedirectAttributes redirectAttributes) {
+        User user = SecurityUtils.getCurrentUser();
+        // Instructor course list: xu ly nut An khoa hoc o tab Dang ban.
+        courseService.hidePublishedCourse(courseId, user);
+        redirectAttributes.addFlashAttribute("success", "Da an khoa hoc khoi danh sach dang ban.");
+        return "redirect:/instructorcourse/courses?tab=all";
+    }
 
-
-
-
-
-
-
+    @PostMapping("/{id}/publish")
+    public String publishHiddenCourse(@PathVariable("id") Integer courseId,
+                                      RedirectAttributes redirectAttributes) {
+        User user = SecurityUtils.getCurrentUser();
+        // Instructor course list: xu ly nut Hien lai khoa hoc o tab An.
+        courseService.publishHiddenCourse(courseId, user);
+        redirectAttributes.addFlashAttribute("success", "Da hien lai khoa hoc.");
+        return "redirect:/instructorcourse/courses?tab=hidden";
+    }
 
 }

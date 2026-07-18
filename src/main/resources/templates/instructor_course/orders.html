@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Learning Hub - Đơn Hàng Instructor</title>
+    <link rel="stylesheet" th:href="@{/css/course_manage.css}"/>
+</head>
+<body>
+
+<div th:replace="~{instructor_course/sidebar :: sidebar(activePage='orders')}"></div>
+
+<main class="main-content">
+    <div class="page-header">
+        <div>
+            <h1>Danh Sách Đơn Hàng</h1>
+            <p class="page-subtitle">Toàn bộ đơn hàng có khóa học thuộc instructor hiện tại</p>
+        </div>
+        <a th:href="@{/instructor/dashboard}" class="btn btn-outline">Quay lại dashboard</a>
+    </div>
+
+    <div class="card instructor-orders-card">
+        <div class="card-title">Tất cả đơn hàng</div>
+
+        <div class="instructor-orders-table-wrap">
+            <table class="instructor-orders-table">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Học Viên</th>
+                    <th>Khoá Học</th>
+                    <th>Ngày Giờ Thanh Toán</th>
+                    <th>Giá Gốc Khoá Học</th>
+                    <th>Số Tiền Được Giảm</th>
+                    <th>Số Tiền Trả Thực</th>
+                    <th>Số Tiền Nhận Được</th>
+                    <th>Trạng Thái Đơn Hàng</th>
+                    <th>Thao Tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="o, stat : ${orders}">
+                    <td th:text="${stat.count}">1</td>
+                    <td>
+                        <div th:text="${o.studentDisplayName}">Nguyễn Văn A</div>
+                        <small th:text="${o.studentEmail}">student@email.com</small>
+                    </td>
+                    <td th:text="${o.courseName}">Java Core</td>
+                    <td th:text="${o.purchaseDate != null ? #temporals.format(o.purchaseDate, 'dd/MM/yyyy HH:mm') : ''}">
+                        01/07/2026 10:00
+                    </td>
+                    <td th:text="${#numbers.formatDecimal(o.originalPrice ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">399.000đ</td>
+                    <td th:text="${#numbers.formatDecimal(o.discount ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">100.000đ</td>
+                    <td class="amount-cell" th:text="${#numbers.formatDecimal(o.finalPrice ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">299.000đ</td>
+                    <td class="amount-cell" th:text="${#numbers.formatDecimal(o.instructorRevenue ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">299.000đ</td>
+                    <td><span class="order-status-badge" th:text="${o.paymentStatusText}">PAID</span></td>
+                    <td>
+                        <a class="btn btn-sm btn-outline" th:href="@{/instructor/orders/{id}(id=${o.orderId})}">Xem Chi Tiết</a>
+                    </td>
+                </tr>
+                <tr th:if="${orders == null or #lists.isEmpty(orders)}">
+                    <td colspan="10" class="table-empty">Chưa có đơn hàng nào</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

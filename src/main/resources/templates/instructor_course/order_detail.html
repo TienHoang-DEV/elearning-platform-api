@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Learning Hub - Order Details</title>
+    <link rel="stylesheet" th:href="@{/css/course_manage.css}"/>
+</head>
+<body>
+
+<div th:replace="~{instructor_course/sidebar :: sidebar(activePage='orders')}"></div>
+
+<main class="main-content">
+    <div class="page-header">
+        <div>
+            <h1>Chi Tiết Đơn Hàng</h1>
+            <p class="page-subtitle">Thông Tin Khoá Học Đã Mua Trong Đơn Hàng</p>
+        </div>
+        <a th:href="@{/instructor/orders}" class="btn btn-outline">Back to Orders</a>
+    </div>
+
+    <div class="card" th:if="${order != null}">
+        <div class="card-title">Thông Tin Học Viên Và Thanh Toán</div>
+        <div class="profile-info-grid">
+            <div class="profile-info-item">
+                <span>Học Viên</span>
+                <strong th:text="${order.studentDisplayName}">Nguyen Van A</strong>
+            </div>
+            <div class="profile-info-item">
+                <span>Email</span>
+                <strong th:text="${order.studentEmail}">student@email.com</strong>
+            </div>
+            <div class="profile-info-item">
+                <span>Ngày Mua</span>
+                <strong th:text="${order.purchaseDate != null ? #temporals.format(order.purchaseDate, 'dd/MM/yyyy HH:mm') : ''}">
+                    01/07/2026 10:00
+                </strong>
+            </div>
+            <div class="profile-info-item">
+                <span>Trạng Thái Thanh Toán</span>
+                <strong th:text="${order.paymentStatusText}">Paid</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructor order detail: hien day du cac thuoc tinh Course dang co trong Entity/DTO, kem anh course. -->
+    <section class="order-course-detail-list" th:if="${orderItems != null and not #lists.isEmpty(orderItems)}">
+        <article class="card order-course-detail-card" th:each="o, stat : ${orderItems}">
+            <div class="order-course-image">
+                <img th:if="${o.courseThumbnailUrl != null}"
+                     th:src="${courseThumbnailBaseUrl + o.courseThumbnailUrl}"
+                     alt="Course thumbnail"/>
+                <div th:unless="${o.courseThumbnailUrl != null}" class="course-card-thumb-placeholder">🎓</div>
+            </div>
+
+            <div class="order-course-info">
+                <div class="order-course-topline">
+                    <span th:text="'Course #' + ${stat.count}">Course #1</span>
+                    <span class="order-status-badge" th:text="${o.courseStatus != null ? o.courseStatus.label : 'Unknown'}">Published</span>
+                </div>
+                <h2 th:text="${o.courseName}">Java Core</h2>
+                <div class="order-course-meta">
+                    <span th:text="${o.courseCategoryName ?: 'No category'}">Programming</span>
+                    <span th:text="${o.courseLevel ?: 'No level'}">BEGINNER</span>
+                </div>
+                <div class="order-course-description"
+                     th:utext="${o.courseDescription ?: 'No description.'}">
+                    Course description
+                </div>
+
+                <div class="order-course-money-grid">
+                    <div>
+                        <span>Giá Gốc</span>
+                        <strong th:text="${#numbers.formatDecimal(o.originalPrice ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">399.000đ</strong>
+                    </div>
+                    <div>
+                        <span>Giảm Giá</span>
+                        <strong th:text="${#numbers.formatDecimal(o.discount ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">100.000đ</strong>
+                    </div>
+                    <div>
+                        <span>Giá Thanh Toán</span>
+                        <strong th:text="${#numbers.formatDecimal(o.finalPrice ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">299.000đ</strong>
+                    </div>
+                    <div>
+                        <span>Doanh Thu Của Giảng Viên</span>
+                        <strong th:text="${#numbers.formatDecimal(o.instructorRevenue ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">299.000đ</strong>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <div class="card table-empty" th:if="${orderItems == null or #lists.isEmpty(orderItems)}">
+        Không tìm thấy thông tin khóa học trong đơn hàng này.
+    </div>
+</main>
+
+</body>
+</html>

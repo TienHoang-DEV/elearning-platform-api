@@ -5,16 +5,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.dto.revenueInstructor.CoursePerformanceDto;
 import vn.edu.fpt.dto.revenueInstructor.DashboardInstructorDto;
+import vn.edu.fpt.dto.revenueInstructor.RecentOrderDto;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.EnrollmentRepository;
 import vn.edu.fpt.repository.OrderItemRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Timestamp;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+
 import java.util.List;
 
 @Service
@@ -68,7 +72,22 @@ public class DashboardInstructorService {
 
         List<Object[]> raw = orderItemRepository.revenueTrend(instructorId, current[0], current[1]);
         List<String> labels = raw.stream()
-                .map(r -> ((java.sql.Date) r[0]).toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM")))
+                .map(r -> {
+                    Object dateObj = r[0];
+                    LocalDate localDate;
+                    if (dateObj instanceof LocalDate) {
+                        localDate = (LocalDate) dateObj;
+                    } else if (dateObj instanceof Date) {
+                        localDate = ((Date) dateObj).toLocalDate();
+                    } else if (dateObj instanceof Timestamp) {
+                        localDate = ((Timestamp) dateObj).toLocalDateTime().toLocalDate();
+                    } else if (dateObj instanceof LocalDateTime) {
+                        localDate = ((LocalDateTime) dateObj).toLocalDate();
+                    } else {
+                        throw new IllegalArgumentException("Unsupported date type: " + dateObj.getClass());
+                    }
+                    return localDate.format(DateTimeFormatter.ofPattern("dd/MM"));
+                })
                 .toList();
         List<BigDecimal> values = raw.stream()
                 .map(r -> (BigDecimal) r[1]).toList();
@@ -77,6 +96,14 @@ public class DashboardInstructorService {
         dto.setChartPoints(buildChartPoints(values));
 
         return dto;
+    }
+
+    public List<RecentOrderDto> getInstructorOrders(Integer instructorId) {
+        return orderItemRepository.findInstructorOrders(instructorId);
+    }
+
+    public List<RecentOrderDto> getInstructorOrderDetails(Integer instructorId, Integer orderId) {
+        return orderItemRepository.findInstructorOrderDetails(instructorId, orderId);
     }
 
     private long orDefaultLong(Long value) {

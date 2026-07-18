@@ -3,6 +3,7 @@ package vn.edu.fpt.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -19,7 +20,7 @@ import vn.edu.fpt.dto.course.CourseListDto;
 import vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO;
 
 @Repository
-public interface CourseRepository extends JpaRepository<Course, Integer>, CourseRepositoryCustom {
+public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpecificationExecutor<Course>, CourseRepositoryCustom {
 
     //Luu khoá học
     Course save(Course course);

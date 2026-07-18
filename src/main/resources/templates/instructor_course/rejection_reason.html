@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Lý do từ chối khóa học</title>
+    <link rel="stylesheet" th:href="@{/css/course_manage.css}"/>
+</head>
+<body>
+
+<div th:replace="~{instructor_course/sidebar :: sidebar(activePage='courses')}"></div>
+
+<main class="main-content">
+    <div class="page-header">
+        <div>
+            <h1>Lý do từ chối khóa học</h1>
+            <p class="page-subtitle" th:text="${course.title}">Tên khóa học</p>
+        </div>
+        <a th:href="@{/instructorcourse/courses(tab='rejected')}" class="btn btn-outline">Quay lại danh sách</a>
+    </div>
+
+    <div class="card rejection-reason-detail">
+        <div class="card-title">Phản hồi từ Manager</div>
+
+        <!-- Backend đã kiểm quyền và truyền rejectionReason sang đây để instructor xem lý do reject. -->
+        <div class="rejection-reason-box" th:text="${rejectionReason}">
+            Nội dung lý do từ chối
+        </div>
+
+        <div class="rejection-reason-actions">
+            <a th:href="@{/instructorcourse/{id}/edit(id=${course.id})}" class="btn btn-primary">Chỉnh sửa lại</a>
+            <a th:href="@{/instructorcourse/{id}/submit-review(id=${course.id})}" class="btn btn-outline">Gửi lại request</a>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
