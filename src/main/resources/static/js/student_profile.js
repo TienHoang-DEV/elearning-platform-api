@@ -94,4 +94,55 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // 5. Delete Lesson Note
+    const deleteNoteButtons = document.querySelectorAll('.delete-note-btn');
+    deleteNoteButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const noteId = btn.getAttribute('data-note-id');
+            fetch(`/api/lesson-note/remove?noteId=${noteId}`, {
+                method: 'GET'
+            })
+            .then(response => {
+                if (response.ok) {
+                    const noteCard = document.getElementById(`note-card-${noteId}`);
+                    if (noteCard) {
+                        // Fade out transition
+                        noteCard.style.transition = 'all 0.3s ease';
+                        noteCard.style.opacity = '0';
+                        noteCard.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            const courseCard = noteCard.closest('.course-notes-card');
+                            noteCard.remove();
+                            
+                            // Update note count badge or remove course card if empty
+                            if (courseCard) {
+                                const remainingNotes = courseCard.querySelectorAll('.note-item');
+                                const badge = courseCard.querySelector('.badge');
+                                if (remainingNotes.length === 0) {
+                                    courseCard.style.transition = 'all 0.3s ease';
+                                    courseCard.style.opacity = '0';
+                                    setTimeout(() => {
+                                        courseCard.remove();
+                                        // Check if all course cards are removed
+                                        const allCourseCards = document.querySelectorAll('.course-notes-card');
+                                        if (allCourseCards.length === 0) {
+                                            location.reload(); // Reload to show fallback empty state
+                                        }
+                                    }, 300);
+                                } else if (badge) {
+                                    badge.textContent = `${remainingNotes.length} ghi chú`;
+                                }
+                            }
+                        }, 300);
+                    }
+                } else {
+                    console.error('Xóa ghi chú thất bại.');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting note:', error);
+            });
+        });
+    });
 });

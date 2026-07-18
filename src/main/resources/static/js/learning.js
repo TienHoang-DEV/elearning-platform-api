@@ -1,5 +1,3 @@
-// Course Player JS
-
 document.addEventListener("DOMContentLoaded", () => {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
@@ -12,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeSidebarToggle();
     initializeNotes();
     initializeReviews();
+    initializeQuizAjax();
 });
 
 // 1. Tab Panels Switching
@@ -35,7 +34,103 @@ function initializeTabs() {
 
             btn.classList.add("active");
             document.getElementById(targetPanelId).classList.remove("d-none");
+
+            if (btn.id === 'tab-quiz-btn') {
+                loadQuizContent();
+            }
         });
+    });
+}
+
+// Quiz AJAX Loader and Interceptor
+function loadQuizContent(url) {
+    const container = document.getElementById("quiz-content-container");
+    if (!container) return;
+
+    const lessonId = container.dataset.lessonId;
+    const fetchUrl = url || `/quiz/lesson/${lessonId}`;
+
+    container.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted fs-7">Đang tải câu hỏi ôn tập...</p>
+        </div>
+    `;
+
+    fetch(fetchUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Không thể tải bài tập ôn tập.");
+            }
+            return response.text();
+        })
+        .then(html => {
+            container.innerHTML = html;
+        })
+        .catch(error => {
+            container.innerHTML = `
+                <div class="alert alert-danger rounded-3" role="alert">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i> ${error.message}
+                </div>
+            `;
+        });
+}
+
+function initializeQuizAjax() {
+    const container = document.getElementById("quiz-content-container");
+    if (!container) return;
+
+    // Handle form submit (submitting quiz) inside container
+    container.addEventListener("submit", (event) => {
+        if (event.target.tagName === "FORM") {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            container.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted fs-7">Đang nộp bài...</p>
+                </div>
+            `;
+
+            fetch(form.action, {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Nộp bài thất bại. Vui lòng thử lại.");
+                }
+                return response.text();
+            })
+            .then(html => {
+                container.innerHTML = html;
+            })
+            .catch(error => {
+                container.innerHTML = `
+                    <div class="alert alert-danger rounded-3" role="alert">
+                        <i class="fa-solid fa-circle-exclamation me-2"></i> ${error.message}
+                    </div>
+                `;
+            });
+        }
+    });
+
+    // Handle clicks on Retake button / links
+    container.addEventListener("click", (event) => {
+        const link = event.target.closest("a");
+        if (link) {
+            const href = link.getAttribute("href");
+            if (href && (link.classList.contains("quiz-submit-button") || href.includes("/quiz/lesson/"))) {
+                event.preventDefault();
+                loadQuizContent(href);
+            }
+        }
     });
 }
 
@@ -113,6 +208,25 @@ function initializeVideo() {
         .then(response => response.text())
         .then(text => {
             videoTag.src = text;
+
+            // Auto seek if query parameter 't' (seconds) exists in the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const tParam = urlParams.get('t');
+            if (tParam) {
+                const secs = parseInt(tParam);
+                if (!isNaN(secs)) {
+                    videoTag.addEventListener('loadedmetadata', () => {
+                        videoTag.currentTime = secs;
+                        videoTag.play();
+                    }, { once: true });
+                    
+                    // If metadata is already loaded
+                    if (videoTag.readyState >= 1) {
+                        videoTag.currentTime = secs;
+                        videoTag.play();
+                    }
+                }
+            }
         })
         .catch(error => {
             console.log(error);
@@ -503,6 +617,48 @@ function initializeReviews() {
             if (modalEl) {
                 const reviewModal = new bootstrap.Modal(modalEl);
                 reviewModal.show();
+            }
+        });
+    }
+
+    // Handle AJAX review form submission
+    const reviewForm = document.getElementById("ajaxReviewForm");
+    if (reviewForm) {
+        reviewForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const submitBtn = reviewForm.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData(reviewForm);
+                const response = await fetch(reviewForm.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                const reviewModalEl = document.getElementById('courseReviewModal');
+                const reviewModal = bootstrap.Modal.getInstance(reviewModalEl);
+                if (reviewModal) {
+                    reviewModal.hide();
+                }
+
+                if (response.ok && result.success) {
+                    showStatusModal(true, result.message || "Gửi đánh giá thành công!");
+                } else {
+                    showStatusModal(false, result.message || "Gửi đánh giá thất bại.");
+                }
+            } catch (err) {
+                console.error(err);
+                const reviewModalEl = document.getElementById('courseReviewModal');
+                const reviewModal = bootstrap.Modal.getInstance(reviewModalEl);
+                if (reviewModal) {
+                    reviewModal.hide();
+                }
+                showStatusModal(false, "Không thể kết nối đến máy chủ.");
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
             }
         });
     }

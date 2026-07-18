@@ -8,6 +8,10 @@ import vn.edu.fpt.entity.User;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.OrderRepository;
 
+import vn.edu.fpt.enums.OrderStatus;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,12 +32,34 @@ public class OrderService {
     public void deleteById(Integer id) { repository.deleteById(id); }
     public boolean existsById(Integer id) { return repository.existsById(id); }
 
-    public List<OrderDto> getPurchaseHistory(User user) {
+    public List<OrderDto> getPurchaseHistory(User user, String status) {
         if (user == null) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
-        List<Order> orders = repository.findByUser(user);
-        List<OrderDto> orderDtos = new java.util.ArrayList<>();
+        
+        List<Order> orders;
+        if (status == null || status.equalsIgnoreCase("ALL")) {
+            orders = repository.findByUser(user);
+        } else {
+            List<OrderStatus> statusList = new ArrayList<>();
+            if (status.equalsIgnoreCase("SUCCESS")) {
+                statusList.add(OrderStatus.PAID);
+                statusList.add(OrderStatus.COMPLETED);
+            } else if (status.equalsIgnoreCase("EXPIRED")) {
+                statusList.add(OrderStatus.EXPIRED);
+                statusList.add(OrderStatus.CANCELLED);
+            } else if (status.equalsIgnoreCase("PENDING")) {
+                statusList.add(OrderStatus.PENDING);
+            }
+            
+            if (statusList.isEmpty()) {
+                orders = repository.findByUser(user);
+            } else {
+                orders = repository.findByUserAndStatusIn(user, statusList);
+            }
+        }
+        
+        List<OrderDto> orderDtos = new ArrayList<>();
         for (Order order : orders) {
             orderDtos.add(dtoMapper.toOrderDto(order));
         }

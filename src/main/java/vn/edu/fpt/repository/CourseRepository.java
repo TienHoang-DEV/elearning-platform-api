@@ -174,6 +174,14 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpe
     List<CourseGrantDTO> findAllCourseGrantDTO();
 
     @Query("""
+        select new vn.edu.fpt.dto.course.CourseGrantDTO(c.id, c.title) from Course c 
+        where c.id not in (
+            select e.course.id from Enrollment e where e.user.id = :userId
+        )
+""")
+    List<CourseGrantDTO> findAvailableCoursesForUser(@Param("userId") Integer userId);
+
+    @Query("""
         SELECT new vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO(
             c.id, c.title, c.price,
             COALESCE(SUM(CASE WHEN o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED THEN 1 ELSE 0 END), 0),

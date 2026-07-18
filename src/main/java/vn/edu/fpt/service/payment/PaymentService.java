@@ -143,6 +143,22 @@ public class PaymentService {
     public Payment getPaymentStatus(Integer paymentId) {
         Payment payment = repository.findById(paymentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin thanh toán"));
+
+        User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser == null) {
+            throw new BadRequestException("Vui lòng đăng nhập để kiểm tra trạng thái thanh toán!");
+        }
+
+        if (payment.getOrder() != null && payment.getOrder().getUser() != null) {
+            boolean isOwner = payment.getOrder().getUser().getId().equals(currentUser.getId());
+            boolean isStaff = currentUser.getRoles().stream().anyMatch(r -> 
+                r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_MANAGER")
+            );
+            if (!isOwner && !isStaff) {
+                throw new BadRequestException("Bạn không có quyền truy cập thông tin thanh toán này!");
+            }
+        }
+
         if (payment.getStatus() == PaymentStatus.PENDING) {
             syncStatusFromPayOs(payment);
         }
@@ -214,6 +230,9 @@ public class PaymentService {
     }
 
     public Page<TransactionListDTO> getTransactionByFilter(String statuss, LocalDateTime fromDate, LocalDateTime toDate, String keyword, int page) {
+        if (keyword != null) {
+            keyword = keyword.trim();
+        }
         PaymentStatus status = null;
         if (statuss != null && !statuss.isBlank()) {
             status = PaymentStatus.valueOf(statuss);

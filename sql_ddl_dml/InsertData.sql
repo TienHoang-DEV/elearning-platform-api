@@ -72,42 +72,42 @@ VALUES
  'ACTIVE'),
 
 -- LEARNER
-(N'Đỗ', N'Minh', 'learner1@elearning.com', '0904000001',
- NULL,
+(N'Đỗ', N'Minh', 'instructor3@elearning.com', '0903000003',
+ N'Giảng viên ReactJS & Front-End.',
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
  'images (3).jpg',
  NULL,
  'ACTIVE'),
 
-(N'Bùi', N'Ngọc', 'learner2@elearning.com', '0904000002',
- NULL,
+(N'Bùi', N'Ngọc', 'instructor4@elearning.com', '0903000004',
+ N'Chuyên gia CSS và UI/UX.',
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
  'images (4).jpg',
  NULL,
  'ACTIVE'),
 
-(N'Nguyễn', N'Tuấn', 'learner3@elearning.com', '0904000003',
- NULL,
+(N'Nguyễn', N'Tuấn', 'instructor5@elearning.com', '0903000005',
+ N'Giảng viên Node.js & Backend.',
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
  'images (17).jpg',
  NULL,
  'ACTIVE'),
 
-(N'Lê', N'Hương', 'learner4@elearning.com', '0904000004',
- NULL,
+(N'Lê', N'Hương', 'instructor6@elearning.com', '0903000006',
+ N'Giảng viên Python & Data Science.',
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
  'images (16).jpg',
  NULL,
  'ACTIVE'),
 
-(N'Phạm', N'Vy', 'learner5@elearning.com', '0904000005',
- NULL,
+(N'Phạm', N'Vy', 'instructor7@elearning.com', '0903000007',
+ N'Giảng viên Java & Spring Boot.',
  '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy',
  'images (15).jpg',
  NULL,
  'ACTIVE'),
 
-(N'Nguyễn', N'Thảo', 'learner6@elearning.com', '0904000006', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (14).jpg', NULL, 'ACTIVE'),
+(N'Nguyễn', N'Thảo', 'instructor8@elearning.com', '0903000008', N'Giảng viên iOS Swift & SwiftUI.', '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (14).jpg', NULL, 'ACTIVE'),
 (N'Trần', N'Linh', 'learner7@elearning.com', '0904000007', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (13).jpg', NULL, 'ACTIVE'),
 (N'Lê', N'Kha', 'learner8@elearning.com', '0904000008', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (12).jpg', NULL, 'ACTIVE'),
 (N'Phạm', N'Phong', 'learner9@elearning.com', '0904000009', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (11).jpg', NULL, 'ACTIVE'),
@@ -129,7 +129,7 @@ VALUES
 (N'Diệp', N'Trúc', 'learner25@elearning.com', '0904000025', NULL, '$2a$12$BBHjuDWH7w0RXg9ejOmJ1uds8/7ZLaDM0zpX/9INmkUqawEwaaXUy', 'images (11).jpg', NULL, 'ACTIVE');
 
  -- =========================
--- USER ROLES SAMPLE DATA
+-- USER ROLES SAMPLE DATAở 
 -- =========================
 
 INSERT INTO user_roles (user_id, role_id)
@@ -145,14 +145,14 @@ VALUES
 -- Instructor
 (5, 3),
 (6, 3),
+(7, 3),
+(8, 3),
+(9, 3),
+(10, 3),
+(11, 3),
+(12, 3),
 
 -- Learner
-(7, 4),
-(8, 4),
-(9, 4),
-(10, 4),
-(11, 4),
-(12, 4),
 (13, 4),
 (14, 4),
 (15, 4),
@@ -301,8 +301,9 @@ VALUES
     GETDATE()
 ),
 
+-- Instructor 3
 (
-    6,
+    7,
     11,
     N'Xây Dựng Giao Diện Với SwiftUI',
     N'Thiết kế giao diện hiện đại trên iOS bằng SwiftUI.',
@@ -315,7 +316,7 @@ VALUES
 ),
 
 (
-    6,
+    7,
     9,
     N'Spring Boot REST API',
     N'Xây dựng hệ thống Backend với Spring Boot, JPA và Security.',
@@ -329,7 +330,7 @@ VALUES
 
 -- HTML (ID = 4)
 (
-    5,
+    7,
     4,
     N'HTML5 & CSS3 Cơ Bản Cho Người Mới',
     N'Khóa học nền tảng thiết kế giao diện web với HTML5 và CSS3.',
@@ -340,8 +341,10 @@ VALUES
     3,
     GETDATE()
 ),
+
+-- Instructor 4
 (
-    6,
+    8,
     4,
     N'Thiết Kế Web Landing Page Với HTML5',
     N'Lập trình và hoàn thiện giao diện landing page chuyên nghiệp.',
@@ -355,7 +358,7 @@ VALUES
 
 -- CSS (ID = 5)
 (
-    5,
+    8,
     5,
     N'Tailwind CSS Từ Zero Đến Hero',
     N'Sử dụng Tailwind CSS để thiết kế nhanh các giao diện hiện đại.',
@@ -367,7 +370,7 @@ VALUES
     GETDATE()
 ),
 (
-    6,
+    8,
     5,
     N'Responsive Web Design Với Flexbox & Grid',
     N'Làm chủ bố cục Responsive với CSS Flexbox và CSS Grid.',
@@ -379,9 +382,9 @@ VALUES
     GETDATE()
 ),
 
--- React (ID = 6)
+-- Instructor 5 (React ID = 6)
 (
-    5,
+    9,
     6,
     N'React Native - Lập Trình Di Động Thực Chiến',
     N'Xây dựng ứng dụng di động đa nền tảng Android/iOS bằng React Native.',
@@ -393,7 +396,7 @@ VALUES
     GETDATE()
 ),
 (
-    6,
+    9,
     6,
     N'Next.js 14 - Tối Ưu Hóa Ứng Dụng React',
     N'Xây dựng ứng dụng Server-side Rendering với Next.js 14 mới nhất.',
@@ -407,7 +410,7 @@ VALUES
 
 -- Node.js (ID = 7)
 (
-    5,
+    9,
     7,
     N'Node.js RESTful API & NestJS nâng cao',
     N'Thiết kế kiến trúc hệ thống chuyên nghiệp với NestJS và Node.js.',
@@ -418,8 +421,10 @@ VALUES
     3,
     GETDATE()
 ),
+
+-- Instructor 6
 (
-    6,
+    10,
     7,
     N'Lập Trình Backend Thực Chiến Với Node.js & MongoDB',
     N'Kết nối Express, Node.js với cơ sở dữ liệu MongoDB NoSQL.',
@@ -433,7 +438,7 @@ VALUES
 
 -- Python (ID = 8)
 (
-    5,
+    10,
     8,
     N'Phân Tích Dữ Liệu Với Python, Pandas & NumPy',
     N'Sử dụng thư viện Pandas và NumPy để xử lý và phân tích số liệu.',
@@ -445,7 +450,7 @@ VALUES
     GETDATE()
 ),
 (
-    6,
+    10,
     8,
     N'Django & Python - Xây Dựng Website Tin Tức',
     N'Tạo dự án Website tin tức hoàn thiện bằng Python & Django Framework.',
@@ -457,9 +462,9 @@ VALUES
     GETDATE()
 ),
 
--- Java (ID = 9)
+-- Instructor 7 (Java ID = 9)
 (
-    5,
+    11,
     9,
     N'Lập Trình Hướng Đối Tượng Java Core Cơ Bản',
     N'Học 4 tính chất OOP cơ bản trong Java: Kế thừa, Đa hình, Đóng gói, Trừu tượng.',
@@ -471,7 +476,7 @@ VALUES
     GETDATE()
 ),
 (
-    6,
+    11,
     9,
     N'Microservices Với Spring Boot & Spring Cloud',
     N'Xây dựng hệ thống phân tán chịu tải cao bằng Microservices.',
@@ -485,7 +490,7 @@ VALUES
 
 -- Swift (ID = 10)
 (
-    5,
+    11,
     10,
     N'iOS Development Swift & Xcode Thực Hành',
     N'Tự làm ứng dụng iOS đầu tiên sử dụng Storyboard, AutoLayout và Xcode.',
@@ -496,8 +501,10 @@ VALUES
     3,
     GETDATE()
 ),
+
+-- Instructor 8
 (
-    6,
+    12,
     10,
     N'Cấu Trúc Dữ Liệu & Giải Thuật Bằng Swift',
     N'Cải thiện tư duy thuật toán khi thiết kế logic trên iOS.',
@@ -511,7 +518,7 @@ VALUES
 
 -- SwiftUI (ID = 11)
 (
-    5,
+    12,
     11,
     N'SwiftUI Animation - Chuyển Động Đẹp Mắt',
     N'Tạo các chuyển cảnh, chuyển động mượt mà bằng SwiftUI Animation.',
@@ -523,7 +530,7 @@ VALUES
     GETDATE()
 ),
 (
-    6,
+    12,
     11,
     N'Xây Dựng Clone App iOS Với SwiftUI & Firebase',
     N'Clone ứng dụng mạng xã hội nổi tiếng sử dụng SwiftUI và Realtime Database.',
@@ -532,6 +539,18 @@ VALUES
     'INTERMEDIATE',
     'PUBLISHED',
     4,
+    GETDATE()
+),
+(
+    5,
+    6,
+    N'ReactJS Thực Chiến Nâng Cao 25',
+    N'Học ReactJS chuyên sâu với các bài giảng thực tế từ TrungQuanDev.',
+    N'ReactJS Thực Chiến.png',
+    150000,
+    'ADVANCED',
+    'PUBLISHED',
+    3,
     GETDATE()
 );
 
@@ -691,6 +710,12 @@ INSERT INTO course_sections (course_id, title, position) VALUES
 (24, N'Chương 2: Đăng nhập & Đăng ký', 2),
 (24, N'Chương 3: Realtime Database & Storage', 3);
 
+-- Course 25: ReactJS Thực Chiến Nâng Cao 25
+INSERT INTO course_sections (course_id, title, position) VALUES
+(25, N'Chương 1: Khởi đầu dự án 25', 1),
+(25, N'Chương 2: Thiết kế giao diện & Hooks 25', 2),
+(25, N'Chương 3: Tối ưu hóa ứng dụng 25', 3);
+
 -- =========================
 -- LESSONS SAMPLE DATA
 -- Mỗi section có 3 bài học
@@ -718,7 +743,7 @@ SELECT
         WHEN 3 THEN N' - Bài 3: Tổng kết & Ứng dụng'
     END,
     CASE n.num
-        WHEN 1 THEN 'Recording 2026-05-28 212131.mp4'
+        WHEN 1 THEN N'Recording 2026-05-28 212131.mp4'
         WHEN 2 THEN N'Lập trình C - 03. Cách xuất dữ liệu ra màn hình lập trình C - Hàm printf - Tự học lập trình C.mp4'
         WHEN 3 THEN N'Lập trình C - 04. Cách nhập dữ liệu từ bàn phím trong lập trình C - Tự học lập trình C.mp4'
     END,
@@ -735,7 +760,116 @@ CROSS JOIN (
     SELECT 1 AS num UNION ALL
     SELECT 2 AS num UNION ALL
     SELECT 3 AS num
-) n;
+) n
+WHERE cs.course_id NOT IN (2, 3, 4, 25);
+
+
+-- Chèn lesson tùy chỉnh cho course id = 2, chia đều vào 3 section
+DECLARE @secId1 INT = (SELECT id FROM course_sections WHERE course_id = 2 AND position = 1);
+DECLARE @secId2 INT = (SELECT id FROM course_sections WHERE course_id = 2 AND position = 2);
+DECLARE @secId3 INT = (SELECT id FROM course_sections WHERE course_id = 2 AND position = 3);
+
+-- Section 1: React Fundamentals
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@secId1, N'1. Cài đặt môi trường cho dự án (NVM, Node, Git, Yarn...vv) - ReactJS + Material UI - TrungQuanDev (1)', N'1. Cài đặt môi trường cho dự án (NVM, Node, Git, Yarn...vv) - ReactJS + Material UI - TrungQuanDev (1).mp4', 600, 1, 1, 'APPROVED'),
+(@secId1, N'2. Vite, Create React App và NextJS - Lựa chọn cái nào- - ReactJS + Material UI - TrungQuanDev', N'2. Vite, Create React App và NextJS - Lựa chọn cái nào- - ReactJS + Material UI - TrungQuanDev.mp4', 720, 2, 1, 'APPROVED'),
+(@secId1, N'3. Vite - Hiểu toàn bộ Code Base ban đầu - Push lên GitHub - ReactJS + Material UI - TrungQuanDev', N'3. Vite - Hiểu toàn bộ Code Base ban đầu - Push lên GitHub - ReactJS + Material UI - TrungQuanDev.mp4', 840, 3, 1, 'APPROVED');
+
+-- Section 2: React Hooks
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@secId2, N'4. JSX là gì- Hiểu Tường Tận về JSX cho các bạn - ReactJS + Material UI - TrungQuanDev', N'4. JSX là gì- Hiểu Tường Tận về JSX cho các bạn - ReactJS + Material UI - TrungQuanDev.mp4', 900, 1, 1, 'APPROVED'),
+(@secId2, N'1.1 Cách đọc đúng của Vite -vit- (video ngắn bổ sung) - ReactJS + Material UI - TrungQuanDev', N'1.1 Cách đọc đúng của Vite -vit- (video ngắn bổ sung) - ReactJS + Material UI - TrungQuanDev.mp4', 300, 2, 1, 'APPROVED'),
+(@secId2, N'5. Semantic Versioning là gì- Lưu ý Quan Trọng về bộ Code Base của dự án - ReactJS + Material UI', N'5. Semantic Versioning là gì- Lưu ý Quan Trọng về bộ Code Base của dự án - ReactJS + Material UI.mp4', 960, 3, 1, 'APPROVED');
+
+-- Section 3: Redux Toolkit
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@secId3, N'8. Cài đặt và sử dụng Material UI (Emotion, Fonts, Icons…vv) - ReactJS + Material UI - TrungQuanDev', N'8. Cài đặt và sử dụng Material UI (Emotion, Fonts, Icons…vv) - ReactJS + Material UI - TrungQuanDev.mp4', 1020, 1, 1, 'APPROVED'),
+(@secId3, N'7. Material UI, TailwindCSS, Bootstrap - Chọn cái nào- - ReactJS + Material UI - TrungQuanDev', N'7. Material UI, TailwindCSS, Bootstrap - Chọn cái nào- - ReactJS + Material UI - TrungQuanDev.mp4', 1080, 2, 1, 'APPROVED'),
+(@secId3, N'9. Tổng kết chương và xây dựng giao diện thực chiến - ReactJS + Material UI - TrungQuanDev', N'9. Tổng kết chương và xây dựng giao diện thực chiến - ReactJS + Material UI - TrungQuanDev.mp4', 1200, 3, 1, 'APPROVED');
+
+
+-- Chèn lesson tùy chỉnh cho course id = 3, chia đều vào 3 section
+DECLARE @course3SecId1 INT = (SELECT id FROM course_sections WHERE course_id = 3 AND position = 1);
+DECLARE @course3SecId2 INT = (SELECT id FROM course_sections WHERE course_id = 3 AND position = 2);
+DECLARE @course3SecId3 INT = (SELECT id FROM course_sections WHERE course_id = 3 AND position = 3);
+
+-- Section 1: CSS Cơ Bản
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course3SecId1, N'1. Cài đặt môi trường cho dự án (NVM, Node, Git, Yarn...vv) - ReactJS + Material UI - TrungQuanDev (1)', N'1. Cài đặt môi trường cho dự án (NVM, Node, Git, Yarn...vv) - ReactJS + Material UI - TrungQuanDev (1).mp4', 600, 1, 1, 'APPROVED'),
+(@course3SecId1, N'3. Tạo Local Development Server đơn giản để Code dễ dàng - HTML CSS Master A-Z - TrungQuanDev', N'3. Tạo Local Development Server đơn giản để Code dễ dàng - HTML CSS Master A-Z - TrungQuanDev.mp4', 720, 2, 1, 'APPROVED'),
+(@course3SecId1, N'9. HTML Links - Thẻ liên kết là gì và ứng dụng như thế nào- - HTML CSS Master A-Z - TrungQuanDev', N'9. HTML Links - Thẻ liên kết là gì và ứng dụng như thế nào- - HTML CSS Master A-Z - TrungQuanDev.mp4', 840, 3, 1, 'APPROVED');
+
+-- Section 2: Flexbox và Grid
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course3SecId2, N'6. HTML Styles - Làm đẹp giao diện trang web như thế nào- - HTML CSS Master A-Z - TrungQuanDev', N'6. HTML Styles - Làm đẹp giao diện trang web như thế nào- - HTML CSS Master A-Z - TrungQuanDev.mp4', 900, 1, 1, 'APPROVED'),
+(@course3SecId2, N'5. HTML Paragraphs - Đoạn văn bản - HTML CSS Master A-Z - TrungQuanDev', N'5. HTML Paragraphs - Đoạn văn bản - HTML CSS Master A-Z - TrungQuanDev.mp4', 800, 2, 1, 'APPROVED'),
+(@course3SecId2, N'1. HTML là gì- Cấu trúc cơ bản của một trang Web- - HTML CSS Master A-Z - TrungQuanDev', N'1. HTML là gì- Cấu trúc cơ bản của một trang Web- - HTML CSS Master A-Z - TrungQuanDev.mp4', 960, 3, 1, 'APPROVED');
+
+-- Section 3: Responsive Design
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course3SecId3, N'7. Formatting Elements - Những thẻ định dạng văn bản đặc biệt - HTML CSS Master A-Z - TrungQuanDev', N'7. Formatting Elements - Những thẻ định dạng văn bản đặc biệt - HTML CSS Master A-Z - TrungQuanDev.mp4', 1020, 1, 1, 'APPROVED'),
+(@course3SecId3, N'4. JSX là gì- Hiểu Tường Tận về JSX cho các bạn - ReactJS + Material UI - TrungQuanDev', N'4. JSX là gì- Hiểu Tường Tận về JSX cho các bạn - ReactJS + Material UI - TrungQuanDev.mp4', 1080, 2, 1, 'APPROVED'),
+(@course3SecId3, N'10. Tổng kết chương và thực hành tạo trang Landing Page cơ bản - HTML CSS Master A-Z - TrungQuanDev', N'10. Tổng kết chương và thực hành tạo trang Landing Page cơ bản - HTML CSS Master A-Z - TrungQuanDev.mp4', 1200, 3, 1, 'APPROVED');
+
+
+-- Chèn lesson tùy chỉnh cho course id = 4, chia đều vào 3 section
+DECLARE @course4SecId1 INT = (SELECT id FROM course_sections WHERE course_id = 4 AND position = 1);
+DECLARE @course4SecId2 INT = (SELECT id FROM course_sections WHERE course_id = 4 AND position = 2);
+DECLARE @course4SecId3 INT = (SELECT id FROM course_sections WHERE course_id = 4 AND position = 3);
+
+-- Section 1: Node.js Cơ Bản
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course4SecId1, N'Khám phá cách xây dựng REST API cực kỳ hiệu quả sử dụng NodeJS', N'Khám phá cách xây dựng REST API cực kỳ hiệu quả sử dụng NodeJS.mp4', 600, 1, 1, 'APPROVED'),
+(@course4SecId1, N'Hướng Dẫn Cấu Hình Visual Studio Code Cho API NodeJS MongoDB TypeScript', N'Hướng Dẫn Cấu Hình Visual Studio Code Cho API NodeJS MongoDB TypeScript.mp4', 720, 2, 1, 'APPROVED'),
+(@course4SecId1, N'Giới thiệu về TypeScipt - Xây dựng REST API với NodeJS, TypeScript và MongoDB - Khóa học MERN Stack', N'Giới thiệu về TypeScipt - Xây dựng REST API với NodeJS, TypeScript và MongoDB - Khóa học MERN Stack.mp4', 840, 3, 1, 'APPROVED');
+
+-- Section 2: Express Framework
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course4SecId2, N'5 Bước Cài Đặt REST API NodeJS, MongoDB & TypeScript CHO NGƯỜI MỚI', N'5 Bước Cài Đặt REST API NodeJS, MongoDB & TypeScript CHO NGƯỜI MỚI.mp4', 900, 1, 1, 'APPROVED'),
+(@course4SecId2, N'Khóa học Xây Dựng REST API NodeJS, TypeScript & MongoDB - Khóa Học MERN Stack TEDU', N'Khóa học Xây Dựng REST API NodeJS, TypeScript & MongoDB - Khóa Học MERN Stack TEDU.mp4', 800, 2, 1, 'APPROVED'),
+(@course4SecId2, N'Giới thiệu MongoDB - Học REST API với NodeJS, TypeScript và MongoDB từ A-Z - Khóa học TEDU', N'Giới thiệu MongoDB - Học REST API với NodeJS, TypeScript và MongoDB từ A-Z - Khóa học TEDU.mp4', 960, 3, 1, 'APPROVED');
+
+-- Section 3: REST API Thực Chiến
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course4SecId3, N'Giới thiệu về NodeJS - Xây dựng REST API cho Mobile & Web (TEDU)', N'Giới thiệu về NodeJS - Xây dựng REST API cho Mobile & Web (TEDU).mp4', 1020, 1, 1, 'APPROVED'),
+(@course4SecId3, N'Khởi tạo REST API với NodeJS, MongoDB & TypeScript - Học MERN Stack TEDU', N'Khởi tạo REST API với NodeJS, MongoDB & TypeScript - Học MERN Stack TEDU.mp4', 1080, 2, 1, 'APPROVED'),
+(@course4SecId3, N'Phân Tích ER Theo Tư Duy NoSQL - REST API NodeJS & MongoDB - TEDU', N'Phân Tích ER Theo Tư Duy NoSQL - REST API NodeJS & MongoDB - TEDU.mp4', 1200, 3, 1, 'APPROVED');
+
+
+-- Chèn lesson tùy chỉnh cho course id = 25, chia đều vào 3 section
+DECLARE @course25SecId1 INT = (SELECT id FROM course_sections WHERE course_id = 25 AND position = 1);
+DECLARE @course25SecId2 INT = (SELECT id FROM course_sections WHERE course_id = 25 AND position = 2);
+DECLARE @course25SecId3 INT = (SELECT id FROM course_sections WHERE course_id = 25 AND position = 3);
+
+-- Section 1: Khởi đầu dự án 25
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course25SecId1, N'1. Cài đặt môi trường cho dự án (NVM, Node, Git, Yarn...vv) - ReactJS + Material UI - TrungQuanDev (1)', N'1. Cài đặt môi trường cho dự án (NVM, Node, Git, Yarn...vv) - ReactJS + Material UI - TrungQuanDev (1).mp4', 600, 1, 1, 'APPROVED'),
+(@course25SecId1, N'2. Vite, Create React App và NextJS - Lựa chọn cái nào- - ReactJS + Material UI - TrungQuanDev', N'2. Vite, Create React App và NextJS - Lựa chọn cái nào- - ReactJS + Material UI - TrungQuanDev.mp4', 720, 2, 1, 'APPROVED'),
+(@course25SecId1, N'3. Vite - Hiểu toàn bộ Code Base ban đầu - Push lên GitHub - ReactJS + Material UI - TrungQuanDev', N'3. Vite - Hiểu toàn bộ Code Base ban đầu - Push lên GitHub - ReactJS + Material UI - TrungQuanDev.mp4', 840, 3, 1, 'APPROVED');
+
+-- Section 2: Thiết kế giao diện & Hooks 25
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course25SecId2, N'4. JSX là gì- Hiểu Tường Tận về JSX cho các bạn - ReactJS + Material UI - TrungQuanDev', N'4. JSX là gì- Hiểu Tường Tận về JSX cho các bạn - ReactJS + Material UI - TrungQuanDev.mp4', 900, 1, 1, 'APPROVED'),
+(@course25SecId2, N'1.1 Cách đọc đúng của Vite -vit- (video ngắn bổ sung) - ReactJS + Material UI - TrungQuanDev', N'1.1 Cách đọc đúng của Vite -vit- (video ngắn bổ sung) - ReactJS + Material UI - TrungQuanDev.mp4', 300, 2, 1, 'APPROVED'),
+(@course25SecId2, N'5. Semantic Versioning là gì- Lưu ý Quan Trọng về bộ Code Base của dự án - ReactJS + Material UI', N'5. Semantic Versioning là gì- Lưu ý Quan Trọng về bộ Code Base của dự án - ReactJS + Material UI.mp4', 960, 3, 1, 'APPROVED');
+
+-- Section 3: Tối ưu hóa ứng dụng 25
+INSERT INTO lessons (section_id, title, video_url, duration_seconds, position, is_published, moderation_status)
+VALUES
+(@course25SecId3, N'8. Cài đặt và sử dụng Material UI (Emotion, Fonts, Icons…vv) - ReactJS + Material UI - TrungQuanDev', N'8. Cài đặt và sử dụng Material UI (Emotion, Fonts, Icons…vv) - ReactJS + Material UI - TrungQuanDev.mp4', 1020, 1, 1, 'APPROVED'),
+(@course25SecId3, N'7. Material UI, TailwindCSS, Bootstrap - Chọn cái nào- - ReactJS + Material UI - TrungQuanDev', N'7. Material UI, TailwindCSS, Bootstrap - Chọn cái nào- - ReactJS + Material UI - TrungQuanDev.mp4', 1080, 2, 1, 'APPROVED'),
+(@course25SecId3, N'10. Tổng kết chương và thực hành tạo trang Landing Page cơ bản - HTML CSS Master A-Z - TrungQuanDev', N'10. Tổng kết chương và thực hành tạo trang Landing Page cơ bản - HTML CSS Master A-Z - TrungQuanDev.mp4', 1200, 3, 1, 'APPROVED');
 
 
 -- =========================
@@ -743,9 +877,10 @@ CROSS JOIN (
 -- 1 quiz cho mỗi lesson
 -- =========================
 
+DECLARE @maxLessonId INT = (SELECT MAX(id) FROM lessons);
 DECLARE @lessonId INT = 1;
 
-WHILE @lessonId <= 216
+WHILE @lessonId <= @maxLessonId
 BEGIN
 
     INSERT INTO quizzes (
@@ -767,7 +902,7 @@ END
 -- ==========================================
 DECLARE @lessonId2 INT = 1;
 
-WHILE @lessonId2 <= 216
+WHILE @lessonId2 <= @maxLessonId
 BEGIN
 
     INSERT INTO quizzes (
@@ -1352,11 +1487,11 @@ VALUES
 (11, 2, 100.00, GETDATE()),
 
 -- Course 3
-(7, 3, 20.00, GETDATE()),
-(8, 3, 10.00, GETDATE()),
+(7, 3, 30.00, GETDATE()),
+(8, 3, 35.00, GETDATE()),
 (9, 3, 45.00, GETDATE()),
-(10, 3, 5.00, GETDATE()),
-(11, 3, 15.00, GETDATE()),
+(10, 3, 40.00, GETDATE()),
+(11, 3, 30.00, GETDATE()),
 
 -- Course 4
 (7, 4, 90.00, GETDATE()),
@@ -1373,11 +1508,11 @@ VALUES
 (11, 5, 30.00, GETDATE()),
 
 -- Course 6
-(7, 6, 12.00, GETDATE()),
-(8, 6, 8.00, GETDATE()),
-(9, 6, 15.00, GETDATE()),
-(10, 6, 20.00, GETDATE()),
-(11, 6, 5.00, GETDATE()),
+(7, 6, 32.00, GETDATE()),
+(8, 6, 30.00, GETDATE()),
+(9, 6, 35.00, GETDATE()),
+(10, 6, 40.00, GETDATE()),
+(11, 6, 30.00, GETDATE()),
 
 -- Course 7
 (7, 7, 95.00, GETDATE()),
@@ -1401,11 +1536,11 @@ VALUES
 (11, 9, 50.00, GETDATE()),
 
 -- Course 10
-(7, 10, 25.00, GETDATE()),
-(8, 10, 15.00, GETDATE()),
+(7, 10, 35.00, GETDATE()),
+(8, 10, 30.00, GETDATE()),
 (9, 10, 30.00, GETDATE()),
 (10, 10, 40.00, GETDATE()),
-(11, 10, 20.00, GETDATE()),
+(11, 10, 30.00, GETDATE()),
 
 -- Course 11
 (7, 11, 100.00, GETDATE()),
@@ -1422,11 +1557,11 @@ VALUES
 (11, 12, 80.00, GETDATE()),
 
 -- Course 13
-(7, 13, 10.00, GETDATE()),
-(8, 13, 15.00, GETDATE()),
-(9, 13, 20.00, GETDATE()),
-(10, 13, 5.00, GETDATE()),
-(11, 13, 12.00, GETDATE()),
+(7, 13, 30.00, GETDATE()),
+(8, 13, 35.00, GETDATE()),
+(9, 13, 40.00, GETDATE()),
+(10, 13, 30.00, GETDATE()),
+(11, 13, 32.00, GETDATE()),
 
 -- Course 14
 (7, 14, 90.00, GETDATE()),
@@ -1444,10 +1579,10 @@ VALUES
 
 -- Course 16
 (7, 16, 30.00, GETDATE()),
-(8, 16, 25.00, GETDATE()),
+(8, 16, 35.00, GETDATE()),
 (9, 16, 40.00, GETDATE()),
 (10, 16, 35.00, GETDATE()),
-(11, 16, 20.00, GETDATE()),
+(11, 16, 30.00, GETDATE()),
 
 -- Course 17
 (7, 17, 100.00, GETDATE()),
@@ -1464,10 +1599,10 @@ VALUES
 (11, 18, 45.00, GETDATE()),
 
 -- Course 19
-(7, 19, 15.00, GETDATE()),
-(8, 19, 20.00, GETDATE()),
-(9, 19, 10.00, GETDATE()),
-(10, 19, 25.00, GETDATE()),
+(7, 19, 35.00, GETDATE()),
+(8, 19, 30.00, GETDATE()),
+(9, 19, 30.00, GETDATE()),
+(10, 19, 35.00, GETDATE()),
 (11, 19, 30.00, GETDATE()),
 
 -- Course 20
@@ -1499,11 +1634,11 @@ VALUES
 (11, 23, 100.00, GETDATE()),
 
 -- Course 24
-(7, 24, 20.00, GETDATE()),
-(8, 24, 25.00, GETDATE()),
-(9, 24, 15.00, GETDATE()),
+(7, 24, 30.00, GETDATE()),
+(8, 24, 35.00, GETDATE()),
+(9, 24, 30.00, GETDATE()),
 (10, 24, 30.00, GETDATE()),
-(11, 24, 10.00, GETDATE());
+(11, 24, 30.00, GETDATE());
 
 
 -- =========================================================================
@@ -1714,8 +1849,8 @@ INSERT INTO payments (
 VALUES
 
 -- Thanh toán thành công
-(1, 'PAYOS', 'PAYOS_100001', 1000,
- 'https://pay.payos.vn/100001',
+(1, 'PAYOS', '1784283497', 1000,
+ 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
  'https://qr.payos.vn/100001',
  'PAID',
  1,
@@ -1723,8 +1858,8 @@ VALUES
  GETDATE(),
  DATEADD(HOUR, 2, GETDATE())),
 
-(2, 'PAYOS', 'PAYOS_100002', 2000,
- 'https://pay.payos.vn/100002',
+(2, 'PAYOS', '1784283494', 2000,
+ 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
  'https://qr.payos.vn/100002',
  'PAID',
  1,
@@ -1732,8 +1867,8 @@ VALUES
  GETDATE(),
  DATEADD(HOUR, 2, GETDATE())),
 
-(3, 'PAYOS', 'PAYOS_100003', 5000,
- 'https://pay.payos.vn/100003',
+(3, 'PAYOS', '1784283491', 5000,
+ 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
  'https://qr.payos.vn/100003',
  'PAID',
  1,
@@ -1742,8 +1877,8 @@ VALUES
  DATEADD(HOUR, 2, GETDATE())),
 
 -- Đang chờ thanh toán
-(4, 'PAYOS', 'PAYOS_100004', 10000,
- 'https://pay.payos.vn/100004',
+(4, 'PAYOS', '1784283488', 10000,
+ 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
  'https://qr.payos.vn/100004',
  'PENDING',
  0,
@@ -1751,8 +1886,8 @@ VALUES
  NULL,
  DATEADD(HOUR, 2, GETDATE())),
 
-(5, 'PAYOS', 'PAYOS_100005', 2000,
- 'https://pay.payos.vn/100005',
+(5, 'PAYOS', '1784283473', 2000,
+ 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
  'https://qr.payos.vn/100005',
  'PENDING',
  0,
@@ -1761,8 +1896,8 @@ VALUES
  DATEADD(HOUR, 2, GETDATE())),
 
 -- Hết hạn
-(6, 'PAYOS', 'PAYOS_100006', 1000,
- 'https://pay.payos.vn/100006',
+(6, 'PAYOS', '1784283469', 1000,
+ 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
  'https://qr.payos.vn/100006',
  'EXPIRED',
  0,
@@ -1771,8 +1906,8 @@ VALUES
  DATEADD(HOUR, -1, GETDATE())),
 
 -- Thanh toán thất bại
-(7, 'PAYOS', 'PAYOS_100007', 1000,
- 'https://pay.payos.vn/100007',
+(7, 'PAYOS', '1784283456', 1000,
+ 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
  'https://qr.payos.vn/100007',
  'FAILED',
  1,
@@ -1781,8 +1916,8 @@ VALUES
  DATEADD(HOUR, 2, GETDATE())),
 
 -- Bị hủy
-(8, 'PAYOS', 'PAYOS_100008', 190000,
- 'https://pay.payos.vn/100008',
+(8, 'PAYOS', '1784283583', 190000,
+ 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
  'https://qr.payos.vn/100008',
  'CANCELLED',
  0,
@@ -1791,8 +1926,8 @@ VALUES
  DATEADD(HOUR, 2, GETDATE())),
 
 -- Thành công
-(9, 'PAYOS', 'PAYOS_100009', 350000,
- 'https://pay.payos.vn/100009',
+(9, 'PAYOS', '1784283594', 350000,
+ 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
  'https://qr.payos.vn/100009',
  'PAID',
  1,
@@ -1800,8 +1935,8 @@ VALUES
  GETDATE(),
  DATEADD(HOUR, 2, GETDATE())),
 
-(10, 'PAYOS', 'PAYOS_100010', 250000,
- 'https://pay.payos.vn/100010',
+(10, 'PAYOS', '1784283601', 250000,
+ 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
  'https://qr.payos.vn/100010',
  'PAID',
  1,
@@ -1825,3 +1960,81 @@ VALUES
 (8, 9, 190000.00, N'HTML5 & CSS3 Cơ Bản Cho Người Mới', GETDATE()),
 (9, 10, 350000.00, N'Thiết Kế Web Landing Page Với HTML5', GETDATE()),
 (10, 11, 250000.00, N'Tailwind CSS Từ Zero Đến Hero', GETDATE());
+
+
+-- =========================================================================
+-- GENERATE LESSON PROGRESS DATA BASED ON ENROLLMENT PROGRESS PERCENTAGE
+-- =========================================================================
+-- Tự động sinh dữ liệu trong bảng lesson_progress để khớp với progress_percent ở bảng enrollments.
+-- Ví dụ: Nếu một khóa học có 9 bài học và tiến độ học viên là 50%, học viên đó sẽ hoàn thành 4 hoặc 5 bài học.
+
+DECLARE @ProgEnrollmentId INT, @ProgCourseId INT, @ProgProgressPercent DECIMAL(5,2);
+DECLARE @ProgTotalLessons INT, @ProgCompletedLessons INT;
+DECLARE @ProgLessonId INT, @ProgCounter INT;
+
+DECLARE enrollment_cursor CURSOR FOR
+SELECT id, course_id, progress_percent
+FROM enrollments;
+
+OPEN enrollment_cursor;
+FETCH NEXT FROM enrollment_cursor INTO @ProgEnrollmentId, @ProgCourseId, @ProgProgressPercent;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- Lấy tổng số bài học của khóa học này
+    SELECT @ProgTotalLessons = COUNT(l.id)
+    FROM lessons l
+    JOIN course_sections cs ON l.section_id = cs.id
+    WHERE cs.course_id = @ProgCourseId;
+
+    IF @ProgTotalLessons > 0
+    BEGIN
+        -- Tính số bài học cần hoàn thành tương ứng với progress_percent
+        SET @ProgCompletedLessons = ROUND((@ProgProgressPercent / 100.0) * @ProgTotalLessons, 0);
+
+        -- Dùng cursor phụ để duyệt qua từng bài học của khóa học theo thứ tự position/id
+        DECLARE lesson_cursor CURSOR FOR
+        SELECT l.id
+        FROM lessons l
+        JOIN course_sections cs ON l.section_id = cs.id
+        WHERE cs.course_id = @ProgCourseId
+        ORDER BY cs.position, l.position, l.id;
+
+        OPEN lesson_cursor;
+        SET @ProgCounter = 1;
+        FETCH NEXT FROM lesson_cursor INTO @ProgLessonId;
+
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            DECLARE @ProgIsCompleted BIT = 0;
+            IF @ProgCounter <= @ProgCompletedLessons
+            BEGIN
+                SET @ProgIsCompleted = 1;
+            END
+
+            -- Chèn dữ liệu vào bảng lesson_progress nếu chưa tồn tại
+            IF NOT EXISTS (SELECT 1 FROM lesson_progress WHERE enrollment_id = @ProgEnrollmentId AND lesson_id = @ProgLessonId)
+            BEGIN
+                INSERT INTO lesson_progress (enrollment_id, lesson_id, is_completed, last_accessed, updated_at)
+                VALUES (@ProgEnrollmentId, @ProgLessonId, @ProgIsCompleted, GETDATE(), GETDATE());
+            END
+            ELSE
+            BEGIN
+                UPDATE lesson_progress
+                SET is_completed = @ProgIsCompleted, updated_at = GETDATE()
+                WHERE enrollment_id = @ProgEnrollmentId AND lesson_id = @ProgLessonId;
+            END
+
+            SET @ProgCounter = @ProgCounter + 1;
+            FETCH NEXT FROM lesson_cursor INTO @ProgLessonId;
+        END
+
+        CLOSE lesson_cursor;
+        DEALLOCATE lesson_cursor;
+    END
+
+    FETCH NEXT FROM enrollment_cursor INTO @ProgEnrollmentId, @ProgCourseId, @ProgProgressPercent;
+END
+
+CLOSE enrollment_cursor;
+DEALLOCATE enrollment_cursor;

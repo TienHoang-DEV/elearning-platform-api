@@ -28,12 +28,14 @@ public interface DtoMapper {
 
     @Mapping(target = "avatarUrl", expression = "java(user.getFullAvatarUrl())")
     @Mapping(target = "courseCount", expression = "java(user.getCourses() != null ? user.getCourses().size() : 0)")
+    @Mapping(target = "hasPassword", expression = "java(user.getPasswordHash() != null && !user.getPasswordHash().isEmpty())")
     UserDto toUserDto(User user);
 
     @Named("toSimpleUserDto")
     @Mapping(target = "avatarUrl", expression = "java(user.getFullAvatarUrl())")
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "courseCount", expression = "java(user.getCourses() != null ? user.getCourses().size() : 0)")
+    @Mapping(target = "hasPassword", expression = "java(user.getPasswordHash() != null && !user.getPasswordHash().isEmpty())")
     UserDto toSimpleUserDto(User user);
 
     @Mapping(target = "averageRating", expression = "java(course.getAverageRating())")
@@ -113,4 +115,6 @@ public interface DtoMapper {
     @Mapping(source = "customAvatarUrl", target = "avatarUrl")
     @Mapping(source = "lastName", target = "lastName")
     LearnerInfomationGrantAccessDTO toLearnerInfomationGrantAccessDto(User user);
+
+    Quiz toQuiz(QuizDTO quizDTO);
 }

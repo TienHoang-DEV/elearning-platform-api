@@ -7,6 +7,11 @@
 <!-- Fragment Header dùng chung cho toàn bộ dự án -->
 <header th:fragment="header" class="site-header" id="site-header">
     <script>
+        // Break out of iframes if a full layout page is loaded inside one
+        if (window.top !== window.self) {
+            window.top.location.href = window.self.location.href;
+        }
+        
         // Apply dark theme immediately if stored in localStorage to prevent flashing
         (function() {
             const theme = localStorage.getItem('theme');

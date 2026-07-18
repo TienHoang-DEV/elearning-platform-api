@@ -9,4 +9,6 @@ public interface LessonNoteRepository extends JpaRepository<LessonNote, Integer>
     List<LessonNote> findByUser_IdAndLesson_IdOrderByCreatedAtDesc(Integer userId, Integer lessonId);
 
     LessonNote findByUser_IdAndId(Integer userId, Integer id);
+
+    List<LessonNote> findByUser_IdOrderByCreatedAtDesc(Integer userId);
 }
