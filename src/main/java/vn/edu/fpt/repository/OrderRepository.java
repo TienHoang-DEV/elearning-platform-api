@@ -9,6 +9,7 @@ import vn.edu.fpt.dto.revenueInstructor.CourseRevenueDto;
 import vn.edu.fpt.dto.revenueInstructor.RecentOrderDto;
 import vn.edu.fpt.entity.Order;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.OrderStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,7 +19,7 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findByUser(User user);
-
+    List<Order> findByUserAndStatusIn(User user, List<OrderStatus> statuses);
 
 }
 

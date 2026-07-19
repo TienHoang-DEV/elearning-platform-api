@@ -18,6 +18,7 @@ import vn.edu.fpt.enums.LogAction;
 import vn.edu.fpt.repository.SystemLogRepository;
 
 import vn.edu.fpt.util.AppConstants;
+import vn.payos.model.v2.paymentRequests.PaymentLinkStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -259,5 +260,10 @@ public class PayOsService {
         } catch (Exception e) {
             log.error("Lỗi khi ghi system log cho giao dịch ID {}: {}", payment.getId(), e.getMessage());
         }
+    }
+
+    public String getPaymentStatusByOrderCode(String orderCode) {
+        PaymentLinkStatus status = payOS.paymentRequests().get(orderCode).getStatus();
+        return status.name();
     }
 }

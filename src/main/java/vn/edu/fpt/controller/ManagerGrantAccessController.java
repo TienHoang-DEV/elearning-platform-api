@@ -36,15 +36,13 @@ public class ManagerGrantAccessController {
     private final EmailService emailService;
 
     @GetMapping("/manager/grant-access")
-    public String managerGrantAccess(Model model, @RequestParam(value = "keyword", required = false) String keyword, @RequestParam(value = "page", required = false, defaultValue = "0") Integer page) {
+    public String managerGrantAccess(Model model, @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", required = false, defaultValue = "0") Integer page) {
 
         Page<LearnerInfomationGrantAccessDTO> learners = userService.findAllLearnerByFilter(keyword, page);
-        Integer startPage = 0;
-        Integer endPage = 0;
-        if (learners.getTotalPages() > 0) {
-            startPage = (learners.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
-            endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, learners.getTotalPages() - 1);
-        }
+        Integer startPage = (learners.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK)
+                * AppConstants.NUMBER_PAGE_PER_BLOCK;
+        Integer endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, learners.getTotalPages() - 1);
 
         List<CourseGrantDTO> courses = courseService.findAllCourseGrant();
 
@@ -65,7 +63,10 @@ public class ManagerGrantAccessController {
 
     @PostMapping("/manager/grant-access")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> grantAccessLearnerToCourse(@RequestParam("userId") Integer userId, @RequestParam("courseId") List<Integer> courseIds, @RequestParam("reason") String reason, @RequestParam(value = "note", required = false) String note, @RequestParam(value = "sendEmail", required = false) Boolean sendEmail) {
+    public ResponseEntity<Map<String, Object>> grantAccessLearnerToCourse(@RequestParam("userId") Integer userId,
+            @RequestParam("courseId") List<Integer> courseIds, @RequestParam("reason") String reason,
+            @RequestParam(value = "note", required = false) String note,
+            @RequestParam(value = "sendEmail", required = false) Boolean sendEmail) {
         Map<String, Object> map = new HashMap<>();
         try {
             String message = enrollmentService.grantAccessCourses(userId, courseIds, reason, note, sendEmail);
