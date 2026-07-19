@@ -5,15 +5,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import vn.edu.fpt.dto.user.StudentLessonNoteDto;
 import vn.edu.fpt.dto.user.StudentProfileDashboardDto;
-import vn.edu.fpt.entity.Enrollment;
-import vn.edu.fpt.entity.User;
+import vn.edu.fpt.entity.*;
 import vn.edu.fpt.mapper.DtoMapper;
+import vn.edu.fpt.repository.LessonNoteRepository;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 
 import java.util.Optional;
+import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
 
 @Service
 @Transactional
@@ -24,6 +29,7 @@ public class StudentProfileService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AzureBlobService azureBlobService;
+    private final LessonNoteRepository lessonNoteRepository;
 
     public StudentProfileDashboardDto getDashboardData(User user) {
         int enrollmentsCount = user.getEnrollments().size();
@@ -43,12 +49,55 @@ public class StudentProfileService {
             totalHours = 2;
         }
 
+        // Fetch lesson notes
+        List<LessonNote> notesList = lessonNoteRepository.findByUser_IdOrderByCreatedAtDesc(user.getId());
+        Map<Integer, StudentLessonNoteDto> courseNotesMap = new LinkedHashMap<>();
+        for (LessonNote note : notesList) {
+            Lesson lesson = note.getLesson();
+            if (lesson == null) continue;
+            CourseSection cs = lesson.getCourseSection();
+            if (cs == null) continue;
+            Course course = cs.getCourse();
+            if (course == null) continue;
+
+            StudentLessonNoteDto courseDto = courseNotesMap.computeIfAbsent(course.getId(), cid -> StudentLessonNoteDto.builder()
+                    .courseId(course.getId())
+                    .courseTitle(course.getTitle())
+                    .notes(new ArrayList<>())
+                    .build());
+
+            courseDto.getNotes().add(StudentLessonNoteDto.NoteDetailDto.builder()
+                    .id(note.getId())
+                    .lessonId(lesson.getId())
+                    .sectionId(cs.getId())
+                    .lessonTitle(lesson.getTitle())
+                    .videoTimeSeconds(note.getVideoTimeSeconds())
+                    .formattedTime(formatTime(note.getVideoTimeSeconds()))
+                    .noteContent(note.getNoteContent())
+                    .createdAt(note.getCreatedAt())
+                    .build());
+        }
+
+        List<StudentLessonNoteDto> groupedNotes = new ArrayList<>(courseNotesMap.values());
+
         return StudentProfileDashboardDto.builder()
                 .currentUser(dtoMapper.toUserDto(user))
                 .enrollmentsCount(enrollmentsCount)
                 .certificatesCount(certificatesCount)
                 .studyHours(totalHours)
+                .lessonNotes(groupedNotes)
                 .build();
+    }
+
+    private String formatTime(Integer videoTimeSeconds) {
+        if (videoTimeSeconds == null) return "00:00";
+        int h = videoTimeSeconds / 3600;
+        int m = (videoTimeSeconds % 3600) / 60;
+        int s = videoTimeSeconds % 60;
+        if (h > 0) {
+            return String.format("%02d:%02d:%02d", h, m, s);
+        }
+        return String.format("%02d:%02d", m, s);
     }
 
     public User updateProfile(User user, String firstName, String lastName, String email, String phone, 

@@ -42,6 +42,7 @@ public class StudentProfileController {
         model.addAttribute("enrollmentsCount", dashboardData.getEnrollmentsCount());
         model.addAttribute("certificatesCount", dashboardData.getCertificatesCount());
         model.addAttribute("studyHours", dashboardData.getStudyHours());
+        model.addAttribute("lessonNotes", dashboardData.getLessonNotes());
         
         return "student_profile/student_profile";
     }

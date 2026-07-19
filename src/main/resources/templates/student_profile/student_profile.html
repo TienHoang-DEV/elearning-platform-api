@@ -244,10 +244,58 @@
                 <div class="tab-pane fade" id="notes-pane" role="tabpanel" aria-labelledby="notes-tab">
                     <section class="border-card rounded-4 p-4 p-md-5">
                         <h2 class="h4 fw-bold mb-3">Ghi chú &amp; Điểm nổi bật</h2>
-                        <p class="text-muted fs-7">Quản lý và xem lại các ghi chú, nội dung nổi bật bạn đã đánh dấu trong quá trình học.</p>
-                        <div class="text-center py-5 text-muted">
+                        <p class="text-muted fs-7 mb-4">Quản lý và xem lại các ghi chú, nội dung nổi bật bạn đã đánh dấu trong quá trình học.</p>
+                        
+                        <!-- Fallback empty state -->
+                        <div th:if="${lessonNotes == null or lessonNotes.isEmpty()}" class="text-center py-5 text-muted">
                             <i data-lucide="book-open" class="mb-3" style="width: 48px; height: 48px; color: #a5b4cc;"></i>
                             <p class="mb-0">Bạn chưa có ghi chú nào nổi bật. Hãy ghi chú trong bài học!</p>
+                        </div>
+
+                        <!-- Notes list grouped by course -->
+                        <div th:if="${lessonNotes != null and !lessonNotes.isEmpty()}" class="d-flex flex-column gap-4">
+                            <div th:each="courseNote : ${lessonNotes}" class="course-notes-card border border-light-subtle rounded-4 p-4 bg-white shadow-sm">
+                                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-light-subtle">
+                                    <h3 class="h6 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                                        <i data-lucide="folder-open" class="text-primary" style="width: 20px; height: 20px;"></i>
+                                        <span th:text="${courseNote.courseTitle}">Tên khóa học</span>
+                                    </h3>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1.5 rounded-pill fs-8 fw-semibold" 
+                                          th:text="${courseNote.notes.size() + ' ghi chú'}">
+                                        0 ghi chú
+                                    </span>
+                                </div>
+
+                                <div class="d-flex flex-column gap-3">
+                                    <div th:each="noteDetail : ${courseNote.notes}" 
+                                         th:id="'note-card-' + ${noteDetail.id}"
+                                         class="note-item p-3 border border-secondary-subtle rounded-3 bg-light bg-opacity-50 position-relative transition">
+                                        
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                <span class="fw-bold text-dark fs-7" th:text="${noteDetail.lessonTitle}">Tên bài học</span>
+                                                <a th:href="@{/course/{courseId}/section/{sectionId}/lesson/{lessonId}(courseId=${courseNote.courseId}, sectionId=${noteDetail.sectionId}, lessonId=${noteDetail.lessonId}, t=${noteDetail.videoTimeSeconds})}"
+                                                   target="_blank"
+                                                   class="btn btn-sm btn-outline-primary rounded-pill py-1 px-2.5 fs-8 d-inline-flex align-items-center gap-1">
+                                                    <i data-lucide="play" style="width: 12px; height: 12px;"></i>
+                                                    <span th:text="${noteDetail.formattedTime}">00:00</span>
+                                                </a>
+                                            </div>
+                                            <button class="btn btn-link text-danger p-1 border-0 bg-transparent hover-scale delete-note-btn" 
+                                                    th:data-note-id="${noteDetail.id}">
+                                                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <p class="text-dark fs-6 mb-2 whitespace-pre-wrap" th:text="${noteDetail.noteContent}">Nội dung ghi chú</p>
+                                        
+                                        <div class="text-muted fs-8">
+                                            <span>Đã lưu ngày: </span>
+                                            <span th:text="${#temporals.format(noteDetail.createdAt, 'dd/MM/yyyy HH:mm')}">17/07/2026 17:00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 </div>
