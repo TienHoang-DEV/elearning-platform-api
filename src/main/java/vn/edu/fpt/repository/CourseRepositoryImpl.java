@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class CourseRepositoryCustomImpl implements CourseRepositoryCustom {
+public class CourseRepositoryImpl implements CourseRepositoryCustom {
 
     @PersistenceContext
     private EntityManager entityManager;

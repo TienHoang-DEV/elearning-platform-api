@@ -19,6 +19,7 @@ public class CourseListDto {
     private String level;
     private String instructorFirstName;
     private String instructorLastName;
+    private Integer instructorId;
     private Integer categoryId;
     private String categoryName;
     private Double averageRating;
@@ -30,6 +31,7 @@ public class CourseListDto {
     // course.instructor.lastName / firstName
     public UserDto getInstructor() {
         return UserDto.builder()
+                .id(instructorId)
                 .firstName(instructorFirstName)
                 .lastName(instructorLastName)
                 .build();
