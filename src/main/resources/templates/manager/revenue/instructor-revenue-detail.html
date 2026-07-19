@@ -19,7 +19,7 @@
                     &bull; Email: <span class="fw-semibold text-secondary" th:text="${instructorEmail}">email@fpt.edu.vn</span>
                 </p>
             </div>
-            <a th:href="@{/manager/revenue/instructor}" class="btn btn-outline">
+            <a th:href="@{/manager/revenue/instructor(month=${month}, year=${year})}" class="btn btn-outline">
                 <i class="ph ph-arrow-left"></i> Quay lại
             </a>
         </div>

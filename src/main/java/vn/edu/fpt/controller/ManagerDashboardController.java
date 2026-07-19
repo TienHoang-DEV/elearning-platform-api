@@ -68,10 +68,23 @@ public class ManagerDashboardController {
     @GetMapping("/revenue/instructor")
     public String instructorRevenueList(
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year,
             @RequestParam(defaultValue = "0") int page,
             Model model) {
+        
+        if (month == null) {
+            month = LocalDate.now().getMonthValue();
+        }
+        if (year == null) {
+            year = LocalDate.now().getYear();
+        }
+
+        Integer queryMonth = month == 0 ? null : month;
+        Integer queryYear = year == 0 ? null : year;
+
         Page<InstructorRevenueForManagerDTO> instructorRevenues =
-                managerDashboardService.getInstructorsRevenue(keyword, page);
+                managerDashboardService.getInstructorsRevenue(keyword, queryMonth, queryYear, page);
 
         int startPage = 0;
         int endPage = 0;
@@ -82,6 +95,8 @@ public class ManagerDashboardController {
 
         model.addAttribute("instructorRevenues", instructorRevenues);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("month", month);
+        model.addAttribute("year", year);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
 
@@ -89,14 +104,24 @@ public class ManagerDashboardController {
     }
 
     @GetMapping("/revenue/instructor/details/{id}")
-    public String instructorRevenueDetails(@PathVariable Integer id, Model model) {
+    public String instructorRevenueDetails(
+            @PathVariable Integer id, 
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year,
+            Model model) {
+        
+        Integer queryMonth = (month != null && month == 0) ? null : month;
+        Integer queryYear = (year != null && year == 0) ? null : year;
+
         User instructor = managerDashboardService.getInstructorById(id);
         List<InstructorCourseRevenueDTO> courseDetails =
-                managerDashboardService.getInstructorCourseRevenueDetails(id);
+                managerDashboardService.getInstructorCourseRevenueDetails(id, queryMonth, queryYear);
 
         model.addAttribute("instructorName", instructor.getFirstName() + " " + instructor.getLastName());
         model.addAttribute("instructorEmail", instructor.getEmail());
         model.addAttribute("courseDetails", courseDetails);
+        model.addAttribute("month", month);
+        model.addAttribute("year", year);
 
         return "manager/revenue/instructor-revenue-detail";
     }
