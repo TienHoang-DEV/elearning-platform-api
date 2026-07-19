@@ -28,7 +28,7 @@
                         <span th:text="${#strings.substring(instructor.fullName, 0, 1)}">T</span>
                     </div>
                     <img th:if="${instructor.avatarUrl != null and instructor.avatarUrl != ''}" 
-                         th:src="${instructor.avatarUrl}" alt="Avatar" class="instructor-avatar-large" onerror="this.style.display='none'; this.previousElementSibling.style.display='flex';">
+                         th:src="${instructor.avatarUrl}" alt="Avatar" class="instructor-avatar-large" onerror="this.onerror=null; this.src='/images/avatar.png';">
                 </div>
                 <div class="col-md-7 text-center text-md-start">
                     <div class="badge-instructor">
@@ -132,10 +132,10 @@
                             
                             <!-- Left: Thumbnail -->
                             <a th:href="@{/course/detail(id=${course.id})}" class="course-thumbnail-link" style="width: 200px; flex-shrink: 0;">
-                                <img th:if="${course.thumbnailUrl != null and course.thumbnailUrl != ''}" 
-                                     th:src="${course.thumbnailUrl}" alt="Thumbnail" class="w-100 object-fit-cover rounded" style="height: 120px;"
+                                <img th:if="${course.thumbnailPath != null and course.thumbnailPath != ''}" 
+                                     th:src="${course.thumbnailPath}" alt="Thumbnail" class="w-100 object-fit-cover rounded" style="height: 120px;"
                                      onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
-                                <div th:if="${course.thumbnailUrl == null or course.thumbnailUrl == ''}" class="w-100 bg-primary d-flex align-items-center justify-content-center text-white rounded" style="height: 120px; font-size: 2rem;">
+                                <div th:if="${course.thumbnailPath == null or course.thumbnailPath == ''}" class="w-100 bg-primary d-flex align-items-center justify-content-center text-white rounded" style="height: 120px; font-size: 2rem;">
                                     <i class="fa-regular fa-circle-play"></i>
                                 </div>
                             </a>

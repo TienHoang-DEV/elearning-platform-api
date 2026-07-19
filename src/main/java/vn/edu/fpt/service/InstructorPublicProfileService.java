@@ -35,10 +35,9 @@ public class InstructorPublicProfileService {
         long totalStudents = 0;
         double totalRatingSum = 0;
         
-        // Handle thumbnail logic
+        // Sum up total students
         for (CourseListDto dto : courseDtos) {
             totalStudents += dto.getEnrollmentsCount();
-            dto.setThumbnailUrl(resolveThumbnailPath(dto.getThumbnailUrl()));
         }
 
         // 2. Fetch all ratings for instructor to calculate distribution (1 query)

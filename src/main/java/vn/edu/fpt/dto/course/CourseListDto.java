@@ -19,7 +19,6 @@ public class CourseListDto {
     private String level;
     private String instructorFirstName;
     private String instructorLastName;
-    private Integer instructorId;
     private Integer categoryId;
     private String categoryName;
     private Double averageRating;
@@ -27,16 +26,17 @@ public class CourseListDto {
     private Long totalLessonsCount;
     private Long enrollmentsCount;
 
-    // Helper method to keep compatibility with Thymeleaf template referring to course.instructor.lastName / firstName
+    // Helper method to keep compatibility with Thymeleaf template referring to
+    // course.instructor.lastName / firstName
     public UserDto getInstructor() {
         return UserDto.builder()
-                .id(instructorId)
                 .firstName(instructorFirstName)
                 .lastName(instructorLastName)
                 .build();
     }
 
-    // Helper method to keep compatibility with Thymeleaf template referring to course.category.id
+    // Helper method to keep compatibility with Thymeleaf template referring to
+    // course.category.id
     public CategoryDto getCategory() {
         if (categoryId == null) {
             return null;
@@ -47,22 +47,26 @@ public class CourseListDto {
                 .build();
     }
 
-    // Helper method to keep compatibility with Thymeleaf template referring to course.getTotalLessonsCount()
+    // Helper method to keep compatibility with Thymeleaf template referring to
+    // course.getTotalLessonsCount()
     public int getTotalLessonsCount() {
         return totalLessonsCount != null ? totalLessonsCount.intValue() : 0;
     }
 
-    // Helper method to keep compatibility with Thymeleaf template referring to course.averageRating
+    // Helper method to keep compatibility with Thymeleaf template referring to
+    // course.averageRating
     public double getAverageRating() {
         return averageRating != null ? Math.round(averageRating * 10.0) / 10.0 : 0.0;
     }
 
-    // Helper method to keep compatibility with Thymeleaf template referring to course.ratingCount
+    // Helper method to keep compatibility with Thymeleaf template referring to
+    // course.ratingCount
     public int getRatingCount() {
         return ratingCount != null ? ratingCount.intValue() : 0;
     }
 
-    // Helper method to keep compatibility with Thymeleaf template referring to course.enrollmentsCount
+    // Helper method to keep compatibility with Thymeleaf template referring to
+    // course.enrollmentsCount
     public int getEnrollmentsCount() {
         return enrollmentsCount != null ? enrollmentsCount.intValue() : 0;
     }
@@ -76,8 +80,8 @@ public class CourseListDto {
             return thumbnailUrl;
         }
 
-        return  AppConstants.AZURE_STORAGE_BASE_URL + "/" +
-               AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" +
-               thumbnailUrl;
+        return AppConstants.AZURE_STORAGE_BASE_URL + "/" +
+                AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" +
+                thumbnailUrl;
     }
 }
