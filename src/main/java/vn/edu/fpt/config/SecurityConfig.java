@@ -63,7 +63,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             DaoAuthenticationProvider authenticationProvider,
-            CustomOAuth2UserService oAuth2UserService) throws Exception {
+            CustomOAuth2UserService oAuth2UserService,
+            CustomUserDetailsService userDetailsService) throws Exception {
 
         http.csrf(csrf -> csrf.disable())
                 .headers(headers -> headers
@@ -107,6 +108,14 @@ public class SecurityConfig {
                         .failureUrl("/login?error")
                         .permitAll()
                 )
+
+                .rememberMe(remember -> remember
+                .rememberMeParameter("remember-me")
+                .userDetailsService(userDetailsService)
+                .key("learninghub-remember-me-secret-key")
+                .tokenValiditySeconds(7 * 24 * 60 * 60)
+                .useSecureCookie(false)
+        )
 
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login")

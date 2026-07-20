@@ -312,3 +312,42 @@ body {
 @media (max-width: 900px) {
     .auth-image { display: none; }
 }
+
+/* NÚT QUAY VỀ TRANG CHỦ */
+.btn-home-back {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 30px;
+    color: #FFFFFF;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.btn-home-back i {
+    font-size: 0.85rem;
+    transition: transform 0.2s ease;
+}
+
+.btn-home-back:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #FFFFFF;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.btn-home-back:hover i {
+    transform: translateX(-4px); /* Hiệu ứng mũi tên dịch trái nhẹ khi di chuột */
+}

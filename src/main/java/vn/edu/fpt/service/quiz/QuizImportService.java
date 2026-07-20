@@ -220,7 +220,6 @@ public class QuizImportService {
 
     private void validateRows(List<QuizImportRowDto> rows) {
 
-        Set<String> duplicated = new HashSet<>();
 
         for (QuizImportRowDto dto : rows) {
 
@@ -288,62 +287,10 @@ public class QuizImportService {
 
             }
 
-            if (
+            long totalAnswer = dto.getAnswers().stream().filter(s -> s != null && !s.isBlank()).count();
 
-                    !duplicated.add(
-
-                            dto.getQuestion()
-
-                    )
-
-            ) {
-
-                throw new RuntimeException(
-
-                        "Row "
-
-                                + dto.getRow()
-
-                                + " duplicated question"
-
-                );
-
-            }
-
-            long totalAnswer =
-
-                    dto.getAnswers()
-
-                            .stream()
-
-                            .filter(
-
-                                    s ->
-
-                                            s != null &&
-
-                                                    !s.isBlank()
-
-                            )
-
-                            .count();
-
-            if (
-
-                    totalAnswer < 2
-
-            ) {
-
-                throw new RuntimeException(
-
-                        "Row "
-
-                                + dto.getRow()
-
-                                + " must contain at least two answers"
-
-                );
-
+            if (totalAnswer < 2) {
+                throw new RuntimeException("Row " + dto.getRow() + " must contain at least two answers");
             }
 
             Set<Integer> correctAnswers =
@@ -482,5 +429,4 @@ public class QuizImportService {
         return (int) cell.getNumericCellValue();
 
     }
-
 }

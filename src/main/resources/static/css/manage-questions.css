@@ -210,13 +210,15 @@ body.bg-quiz-dashboard {
 
 .btn-primary-solid {
     background: var(--navy-brand);
-    color: #fff;
+    color: #ffffff !important; /* Ép cứng chữ màu trắng */
     border: none;
     transition: all 0.2s ease;
 }
 
 .btn-primary-solid:hover {
-    background: #1447bc;
+    background: #1447bc; /* Nền xanh dương đậm đầm hơn */
+    color: #ffffff !important; /* GIỮ NGUYÊN chữ trắng sáng, không bị Bootstrap làm xám chữ */
+    box-shadow: 0 4px 14px rgba(20, 71, 188, 0.3); /* Tăng nhẹ bóng đổ màu xanh cho hiệu ứng Premium */
 }
 
 .shadow-blue {
@@ -591,4 +593,42 @@ body.bg-quiz-dashboard {
     border-color: #16a34a;
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+}
+
+/* --- KIỂU DÁNG CHO ĐƯỜNG LINK HƯỚNG DẪN TRÊN HEADER --- */
+.btn-trigger-guide {
+    transition: color 0.2s ease, opacity 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-trigger-guide:hover {
+    color: #1447bc !important; /* Màu Navy đậm khi hover */
+    text-decoration: underline !important;
+}
+
+/* --- ĐỊNH DẠNG LAYOUT MODAL TEXT HƯỚNG DẪN CHUYÊN SÂU --- */
+.layout-guide-body {
+    line-height: 1.6;
+}
+
+/* Vòng tròn số thứ tự nhỏ đầu dòng hướng dẫn */
+.step-num-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: var(--navy-brand);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+/* Sửa lỗi hiển thị phông đen mờ (backdrop) đè lên nhau khi mở liên tiếp 2 modal */
+body.modal-open {
+    overflow: hidden !important;
 }
