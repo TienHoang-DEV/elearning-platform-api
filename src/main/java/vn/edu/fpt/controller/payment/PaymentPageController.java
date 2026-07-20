@@ -6,52 +6,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import vn.edu.fpt.entity.Order;
-import vn.edu.fpt.entity.OrderItem;
-import vn.edu.fpt.entity.Payment;
-import vn.edu.fpt.entity.User;
-import vn.edu.fpt.repository.PaymentRepository;
-import vn.edu.fpt.util.AppConstants;
-import vn.edu.fpt.util.SecurityUtils;
+import vn.edu.fpt.service.payment.PaymentService;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 public class PaymentPageController {
 
-    private final PaymentRepository paymentRepository;
+    private final PaymentService paymentService;
 
     @GetMapping("/payment")
     public String paymentPage(@RequestParam(value = "id", required = false) Integer paymentId, Model model) {
         log.info("Loading payment page with paymentId: {}", paymentId);
-        User currentUser = SecurityUtils.getCurrentUser();
-        model.addAttribute("currentUser", currentUser);
-
-        if (paymentId != null) {
-            Payment payment = paymentRepository.findById(paymentId).orElse(null);
-            if (payment != null) {
-                model.addAttribute("payment", payment);
-                
-                Order order = payment.getOrder();
-                model.addAttribute("order", order);
-
-                if (order != null && order.getItems() != null) {
-                    Map<User, List<OrderItem>> itemsByInstructor = order.getItems().stream()
-                            .collect(Collectors.groupingBy(item -> item.getCourse().getInstructor()));
-                    model.addAttribute("itemsByInstructor", itemsByInstructor);
-                }
-                model.addAttribute("qrCode", (payment.getQrCodeUrl() != null) ? AppConstants.QR_CODE_BASE_URL + payment.getQrCodeUrl() : null);
-                model.addAttribute("payOsAccountNumber", payment.getAccountNumber());
-                model.addAttribute("payOsDescription", payment.getDescription());
-                model.addAttribute("payOsBankName", payment.getBankName());
-                model.addAttribute("payOsAccountHolder", payment.getAccountHolder());
-            }
-        }
-
+        Map<String, Object> paymentData = paymentService.getPaymentPageData(paymentId);
+        model.addAttribute("paymentData", paymentData);
         return "payment/payment";
     }
 }
