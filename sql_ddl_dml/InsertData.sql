@@ -1961,6 +1961,65 @@ VALUES
 (9, 10, 350000.00, N'Thiết Kế Web Landing Page Với HTML5', GETDATE()),
 (10, 11, 250000.00, N'Tailwind CSS Từ Zero Đến Hero', GETDATE());
 
+-- =========================
+-- TỰ ĐỘNG ĐỒNG BỘ ENROLLMENTS & ORDERS CHO FEEDBACKS
+-- (Tự động thêm khóa học vào trạng thái 'Đã Mua' nếu user đó có để lại Feedback)
+-- =========================
+
+-- 1. Insert missing orders and order_items
+DECLARE @user_id INT, @course_id INT, @price DECIMAL(18,2), @title NVARCHAR(255), @order_id INT;
+DECLARE cur CURSOR FOR 
+SELECT f.user_id, f.course_id, c.price, c.title 
+FROM feedbacks f 
+JOIN courses c ON f.course_id = c.id 
+LEFT JOIN (
+    SELECT o.user_id, oi.course_id 
+    FROM orders o 
+    JOIN order_items oi ON o.id = oi.order_id 
+    WHERE o.status = 'PAID'
+) o_existing ON f.user_id = o_existing.user_id AND f.course_id = o_existing.course_id 
+WHERE o_existing.course_id IS NULL;
+
+OPEN cur; 
+FETCH NEXT FROM cur INTO @user_id, @course_id, @price, @title; 
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+    INSERT INTO orders (user_id, total_amount, status, payment_method, created_at, updated_at) 
+    VALUES (@user_id, @price, 'PAID', 'SYSTEM', GETDATE(), GETDATE()); 
+    
+    SET @order_id = SCOPE_IDENTITY(); 
+    
+    INSERT INTO order_items (order_id, course_id, price_snapshot, course_title_snapshot, created_at, updated_at) 
+    VALUES (@order_id, @course_id, @price, @title, GETDATE(), GETDATE()); 
+    
+    FETCH NEXT FROM cur INTO @user_id, @course_id, @price, @title; 
+END; 
+CLOSE cur; 
+DEALLOCATE cur;
+
+-- 2. Insert missing enrollments and ensure progress > 30%
+INSERT INTO enrollments (user_id, course_id, progress_percent, created_at, updated_at) 
+SELECT DISTINCT f.user_id, f.course_id, 35.00, GETDATE(), GETDATE() 
+FROM feedbacks f 
+LEFT JOIN enrollments e ON f.user_id = e.user_id AND f.course_id = e.course_id 
+WHERE e.id IS NULL;
+
+UPDATE e 
+SET progress_percent = CASE WHEN e.progress_percent < 35 THEN 35 ELSE e.progress_percent END 
+FROM enrollments e 
+JOIN feedbacks f ON e.user_id = f.user_id AND e.course_id = f.course_id;
+
+-- 3. Insert missing enrollments for any PAID orders
+INSERT INTO enrollments (user_id, course_id, progress_percent, created_at, updated_at) 
+SELECT o.user_id, oi.course_id, 0.00, GETDATE(), GETDATE() 
+FROM orders o 
+JOIN order_items oi ON o.id = oi.order_id 
+WHERE o.status IN ('PAID', 'COMPLETED') 
+AND NOT EXISTS (
+    SELECT 1 FROM enrollments e 
+    WHERE e.user_id = o.user_id AND e.course_id = oi.course_id
+);
+
 
 -- =========================================================================
 -- GENERATE LESSON PROGRESS DATA BASED ON ENROLLMENT PROGRESS PERCENTAGE

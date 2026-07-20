@@ -300,9 +300,10 @@
                                                 th:text="'(' + ${course.ratingCount} + ' đánh giá)'">(2 đánh giá)</span>
                                         </div>
 
-                                        <span class="instructor-name fw-bold fs-8 text-primary d-block mb-3"
+                                        <a th:href="@{/instructor/{id}/profile(id=${course.instructor.id})}" 
+                                            class="instructor-name fw-bold fs-8 text-primary d-block mb-3 text-decoration-none text-primary"
                                             th:text="${course.instructor.lastName + ' ' + course.instructor.firstName}">NGUYỄN
-                                            CÔNG THÁI SƠN</span>
+                                            CÔNG THÁI SƠN</a>
                                     </div>
 
                                     <div

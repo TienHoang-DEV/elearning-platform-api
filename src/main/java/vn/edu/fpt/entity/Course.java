@@ -211,35 +211,7 @@ public class Course extends BaseEntity {
         if (thumbnailUrl.startsWith("http://") || thumbnailUrl.startsWith("https://")) {
             return thumbnailUrl;
         }
-        
-        // Trích xuất tên tệp tin nếu thumbnailUrl là một đường dẫn
-        String fileName = thumbnailUrl;
-        if (thumbnailUrl.contains("/")) {
-            fileName = thumbnailUrl.substring(thumbnailUrl.lastIndexOf("/") + 1);
-        }
 
-        // Ánh xạ các hình ảnh mẫu trong database seed về ảnh local để hiển thị đẹp mắt
-        if (fileName.equals("2aOboQZWp6Ov5iGTAZLOlCgmiOhOKsGgeQU1cI0O.jpg") || 
-            fileName.equals("dsa-28tech.jpg") || 
-            fileName.equals("spring-boot.jpg")) {
-            return "/images/tech_course.png";
-        }
-
-        // Check if it is a known local image in static/images
-        if (fileName.equals("acoustic_course.png") || 
-            fileName.equals("course_thumbnail.png") ||
-            fileName.equals("cuisine_course.png") ||
-            fileName.equals("dome_hero.png") ||
-            fileName.equals("eric_clapton_fan.png") ||
-            fileName.equals("guitar_bolero_classical.png") ||
-            fileName.equals("guitar_expert.png") ||
-            fileName.equals("guitar_les_paul.png") ||
-            fileName.equals("guitar_natural_acoustic.png") ||
-            fileName.equals("guitar_stratocaster_sunburst.png") ||
-            fileName.equals("guitar_sunburst_acoustic.png") ||
-            fileName.equals("tech_course.png")) {
-            return "/images/" + fileName;
-        }
 
         if (thumbnailUrl.startsWith(vn.edu.fpt.util.AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/")) {
             return vn.edu.fpt.util.AppConstants.AZURE_STORAGE_BASE_URL + "/" + thumbnailUrl;
