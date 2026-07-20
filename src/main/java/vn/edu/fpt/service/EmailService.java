@@ -34,13 +34,13 @@ public class EmailService {
     public void sendCourseApprovedEmail(String email, String instructorName, String courseTitle) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
-        message.setSubject("Your course has been approved");
+        message.setSubject("Khóa học của bạn đã được phê duyệt");
         message.setText(String.format(
-                "Hello %s,\n\n" +
-                        "Congratulations!\n\n" +
-                        "Your course \"%s\" has been approved by our review team and is now published on the platform.\n\n" +
-                        "Students can now enroll in your course.\n\n" +
-                        "Best regards,\n" +
+                "Xin chào %s,\n\n" +
+                        "Chúc mừng bạn!\n\n" +
+                        "Khóa học \"%s\" của bạn đã được ban quản trị phê duyệt và hiện đã được phát hành trên hệ thống.\n\n" +
+                        "Học viên hiện đã có thể đăng ký khóa học của bạn.\n\n" +
+                        "Trân trọng,\n" +
                         "E-learning Team",
                 instructorName, courseTitle
         ));
@@ -51,16 +51,16 @@ public class EmailService {
     public void sendCourseRejectedEmail(String email, String instructorName, String courseTitle, String reason) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
-        message.setSubject("Course Review Result");
+        message.setSubject("Kết quả xét duyệt khóa học");
         message.setText(String.format(
-                "Hello %s,\n\n" +
-                        "Unfortunately, your course \"%s\" was not approved.\n\n" +
-                        "Reason:\n" +
+                "Xin chào %s,\n\n" +
+                        "Rất tiếc, khóa học \"%s\" của bạn chưa được phê duyệt.\n\n" +
+                        "Lý do từ chối:\n" +
                         "%s\n\n" +
-                        "Please update the course and submit it again.\n\n" +
-                        "Best regards,\n" +
+                        "Vui lòng cập nhật nội dung khóa học theo góp ý trên và gửi lại yêu cầu phê duyệt.\n\n" +
+                        "Trân trọng,\n" +
                         "E-learning Team",
-                instructorName, courseTitle, reason != null ? reason : "No reason provided."
+                instructorName, courseTitle, reason != null ? reason : "Không có lý do cụ thể."
         ));
         mailSender.send(message);
     }
@@ -234,5 +234,24 @@ public class EmailService {
         } catch (jakarta.mail.MessagingException e) {
             throw new RuntimeException("Gửi mail thất bại", e);
         }
+    }
+
+    @Async("mailExecutor")
+    public void sendInstructorCreatedEmail(String toEmail, String password, String name) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Chào mừng bạn trở thành Giảng viên trên E-learning Platform");
+        message.setText(String.format(
+                "Xin chào %s,\n\n" +
+                "Tài khoản giảng viên của bạn đã được khởi tạo thành công bởi Ban quản trị.\n\n" +
+                "Thông tin đăng nhập:\n" +
+                "Email: %s\n" +
+                "Mật khẩu tạm thời: %s\n\n" +
+                "Vui lòng đăng nhập và đổi mật khẩu để bảo mật tài khoản.\n\n" +
+                "Trân trọng,\n" +
+                "E-learning Team",
+                name, toEmail, password
+        ));
+        mailSender.send(message);
     }
 }

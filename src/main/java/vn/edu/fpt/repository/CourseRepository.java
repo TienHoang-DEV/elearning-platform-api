@@ -145,7 +145,8 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
     @Query("SELECT c FROM Course c " +
             "LEFT JOIN FETCH c.instructor i " +
             "LEFT JOIN FETCH c.category cat " +
-            "WHERE (:status IS NULL OR c.status = :status) " +
+            "WHERE c.status != vn.edu.fpt.enums.CourseStatus.DRAFT " +
+            "AND (:status IS NULL OR c.status = :status) " +
             "AND (:categoryId IS NULL OR cat.id = :categoryId) " +
             "AND (:keyword IS NULL OR :keyword = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Course> searchAndFilter(
@@ -195,6 +196,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
         LEFT JOIN OrderItem oi ON oi.course.id = c.id
         LEFT JOIN oi.order o
         WHERE c.instructor.id = :instructorId
+        AND c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED
         GROUP BY c.id, c.title, c.price
         ORDER BY COALESCE(SUM(CASE WHEN (o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED) 
                                        AND (:month IS NULL OR MONTH(o.createdAt) = :month)

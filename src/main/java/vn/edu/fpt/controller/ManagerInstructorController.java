@@ -25,9 +25,11 @@ import java.util.List;
 public class ManagerInstructorController {
 
     private final UserService userService;
+    private final vn.edu.fpt.service.AuthService authService;
 
-    public ManagerInstructorController(UserService userService) {
+    public ManagerInstructorController(UserService userService, vn.edu.fpt.service.AuthService authService) {
         this.userService = userService;
+        this.authService = authService;
     }
 
     /**
@@ -91,5 +93,27 @@ public class ManagerInstructorController {
         redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái tài khoản giảng viên thành công.");
 
         return "redirect:/manager/instructor/detail/" + id;
+    }
+
+    /**
+     * POST /manager/instructor/create
+     * Tạo tài khoản giảng viên mới và gửi email.
+     */
+    @PostMapping("/create")
+    public String createInstructor(
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName,
+            @RequestParam("email") String email,
+            @RequestParam("phone") String phone,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            authService.createInstructorAccount(firstName, lastName, email, phone);
+            redirectAttributes.addFlashAttribute("successMessage", "Thêm giảng viên thành công! Thông tin đăng nhập đã được gửi vào email của giảng viên.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+
+        return "redirect:/manager/instructor/list";
     }
 }

@@ -41,43 +41,54 @@ public class ManagerCourseService {
     public void updateCourseStatus(Integer id, CourseStatus status, String rejectionReason) {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+        
         if (course.getStatus() != CourseStatus.PENDING) {
             throw new IllegalStateException("Khóa học này đã được phê duyệt hoặc từ chối bởi một quản lý khác trước đó.");
         }
+
+        updateCourseState(course, status, rejectionReason);
+        repository.save(course);
+
+        logCourseStatusChange(course, status, rejectionReason);
+        sendCourseStatusNotification(course, status, rejectionReason);
+    }
+
+    private void updateCourseState(Course course, CourseStatus status, String rejectionReason) {
         course.setStatus(status);
         if (status == CourseStatus.REJECTED) {
             course.setRejectionReason(rejectionReason);
         } else if (status == CourseStatus.PUBLISHED) {
             course.setRejectionReason(null); // Xóa lý do từ chối nếu khóa học được phê duyệt
         }
-        repository.save(course);
+    }
 
-        // Ghi log hoạt động vào SystemLog
+    private void logCourseStatusChange(Course course, CourseStatus status, String rejectionReason) {
         vn.edu.fpt.entity.User currentUser = SecurityUtils.getCurrentUser();
-        if (currentUser != null) {
-            LogAction action = (status == CourseStatus.PUBLISHED) ? LogAction.APPROVE_COURSE : 
-                               (status == CourseStatus.REJECTED) ? LogAction.REJECT_COURSE : null;
-            if (action != null) {
-                String meta = "Tên khóa học: " + course.getTitle();
-                if (status == CourseStatus.REJECTED && rejectionReason != null) {
-                    meta += " | Lý do từ chối: " + rejectionReason;
-                }
-                systemLogService.log(currentUser, action, "COURSE", String.valueOf(id), meta);
-            }
-        }
+        if (currentUser == null) return;
 
-        // Gửi email thông báo cho giảng viên
+        LogAction action = (status == CourseStatus.PUBLISHED) ? LogAction.APPROVE_COURSE : 
+                           (status == CourseStatus.REJECTED) ? LogAction.REJECT_COURSE : null;
+                           
+        if (action != null) {
+            String meta = "Tên khóa học: " + course.getTitle();
+            if (status == CourseStatus.REJECTED && rejectionReason != null) {
+                meta += " | Lý do từ chối: " + rejectionReason;
+            }
+            systemLogService.log(currentUser, action, "COURSE", String.valueOf(course.getId()), meta);
+        }
+    }
+
+    private void sendCourseStatusNotification(Course course, CourseStatus status, String rejectionReason) {
+        if (course.getInstructor() == null || course.getInstructor().getEmail() == null) return;
+
         try {
+            String fullName = (course.getInstructor().getLastName() + " " + course.getInstructor().getFirstName()).trim();
+            String email = course.getInstructor().getEmail();
+
             if (status == CourseStatus.PUBLISHED) {
-                if (course.getInstructor() != null && course.getInstructor().getEmail() != null) {
-                    String fullName = (course.getInstructor().getLastName() + " " + course.getInstructor().getFirstName()).trim();
-                    emailService.sendCourseApprovedEmail(course.getInstructor().getEmail(), fullName, course.getTitle());
-                }
+                emailService.sendCourseApprovedEmail(email, fullName, course.getTitle());
             } else if (status == CourseStatus.REJECTED) {
-                if (course.getInstructor() != null && course.getInstructor().getEmail() != null) {
-                    String fullName = (course.getInstructor().getLastName() + " " + course.getInstructor().getFirstName()).trim();
-                    emailService.sendCourseRejectedEmail(course.getInstructor().getEmail(), fullName, course.getTitle(), rejectionReason);
-                }
+                emailService.sendCourseRejectedEmail(email, fullName, course.getTitle(), rejectionReason);
             }
         } catch (Exception e) {
             System.err.println("Failed to send course approval/rejection email: " + e.getMessage());

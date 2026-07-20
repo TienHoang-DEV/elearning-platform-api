@@ -95,7 +95,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 		FROM User u
 		JOIN u.userRoles ur
 		JOIN ur.role r
-		LEFT JOIN Course c ON c.instructor.id = u.id
+		LEFT JOIN Course c ON c.instructor.id = u.id AND c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED
 		LEFT JOIN OrderItem oi ON oi.course.id = c.id
 		LEFT JOIN oi.order o
 		WHERE LOWER(r.name) = 'instructor'
