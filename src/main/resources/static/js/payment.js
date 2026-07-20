@@ -1,12 +1,12 @@
-// ============================================================
-// INITIALIZATION
-// ============================================================
+
+let paymentId = null;
+let expiredAtStr = null;
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Validate payment ID
-    if (!paymentId) {
-        alert('Không tìm thấy thông tin thanh toán. Vui lòng quay lại giỏ hàng.');
-        window.location.href = '/cart';
-        return;
+    const qrBox = document.querySelector('.qr-box');
+    if (qrBox) {
+        paymentId = qrBox.dataset.paymentId;
+        expiredAtStr = qrBox.dataset.expiredAt;
     }
 
     setupEventListeners();
@@ -18,9 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     checkPaymentStatus();
 });
 
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
+
 function setupEventListeners() {
     // Copy button event delegation
     document.addEventListener('click', function(e) {
@@ -42,9 +40,7 @@ function setupEventListeners() {
     }
 }
 
-// ============================================================
-// COUNTDOWN TIMER
-// ============================================================
+
 function startCountdown(expirationDate) {
     const timerElement = document.getElementById('expireTimer');
     
@@ -69,18 +65,14 @@ function startCountdown(expirationDate) {
     }, 1000);
 }
 
-// ============================================================
-// COPY TO CLIPBOARD
-// ============================================================
+
 function copyToClipboard(text, label) {
     navigator.clipboard.writeText(text).then(() => {
         showCopyToast('Đã sao chép ' + label + '!');
     });
 }
 
-// ============================================================
-// PAYMENT STATUS CHECKING
-// ============================================================
+
 function checkPaymentStatus() {
     if (!paymentId) return;
 
@@ -105,12 +97,10 @@ function checkPaymentStatus() {
         } catch (error) {
             // Silent fail - allow user to manually cancel if needed
         }
-    }, 3000); // Check every 3 seconds
+    }, 3000);
 }
 
-// ============================================================
-// CANCEL TRANSACTION
-// ============================================================
+
 async function proceedCancelTransaction() {
     if (!paymentId) return;
 
@@ -152,9 +142,7 @@ async function proceedCancelTransaction() {
     }
 }
 
-// ============================================================
-// TOAST NOTIFICATIONS (Bootstrap Toast API)
-// ============================================================
+
 function showCopyToast(message) {
     const toastEl = document.getElementById('toastCopy');
     toastEl.querySelector('.toast-body').textContent = '✔ ' + message;
