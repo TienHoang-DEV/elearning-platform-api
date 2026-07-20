@@ -6,10 +6,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import vn.edu.fpt.entity.Role;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.util.AppConstants;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,9 +28,9 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority>
     getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = new java.util.ArrayList<>();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         if (user.getRoles() != null) {
-            for (vn.edu.fpt.entity.Role role : user.getRoles()) {
+            for (Role role : user.getRoles()) {
                 authorities.add(new SimpleGrantedAuthority(
                         "ROLE_" + role.getName().name().toUpperCase()
                 ));
@@ -48,10 +50,6 @@ public class CustomUserDetails implements UserDetails {
         return user.getEmail();
     }
 
-    /**
-     * Getter để truy cập User entity từ SecurityContext
-     * @return User entity
-     */
     public User getUser() {
         return user;
     }

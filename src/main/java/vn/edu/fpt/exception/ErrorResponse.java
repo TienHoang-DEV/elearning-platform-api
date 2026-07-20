@@ -2,9 +2,6 @@ package vn.edu.fpt.exception;
 
 import java.time.Instant;
 
-/**
- * Simple error response DTO returned by the GlobalExceptionHandler.
- */
 public class ErrorResponse {
 
     private String timestamp;

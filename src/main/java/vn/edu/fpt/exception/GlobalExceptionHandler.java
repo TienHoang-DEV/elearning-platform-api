@@ -24,8 +24,7 @@ public class GlobalExceptionHandler {
         return (accept != null && accept.contains("application/json")) || request.getRequestURI().startsWith("/api/");
     }
 
-    private ModelAndView buildErrorView(String viewName, HttpStatus status, String error, String message,
-                                        HttpServletRequest request, Exception ex) {
+    private ModelAndView buildErrorView(String viewName, HttpStatus status, String error, String message, HttpServletRequest request, Exception ex) {
         ModelAndView mav = new ModelAndView(viewName);
         mav.addObject("status", status.value());
         mav.addObject("error", error);
@@ -34,7 +33,7 @@ public class GlobalExceptionHandler {
         mav.addObject("timestamp", LocalDateTime.now());
 
         if (ex != null) {
-            log.error("An error occurred at {}: ", request.getRequestURI(), ex);
+            log.error("Lỗi tại {}: ", request.getRequestURI(), ex);
         }
         return mav;
     }
@@ -71,7 +70,7 @@ public class GlobalExceptionHandler {
     public Object handleBadRequest(BadRequestException ex, HttpServletRequest request) {
         if (isApiRequest(request)) {
             ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Bad Request", ex.getMessage(), request.getRequestURI());
-            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
         }
         return buildErrorView("error/400", HttpStatus.BAD_REQUEST, "Yêu cầu không hợp lệ", ex.getMessage(), request, ex);
     }
