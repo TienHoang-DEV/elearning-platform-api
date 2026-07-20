@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function setupEventListeners() {
-    // Copy button event delegation
     document.addEventListener('click', function(e) {
         if (e.target.dataset.action === 'copy') {
             const targetId = e.target.dataset.target;
@@ -33,7 +32,6 @@ function setupEventListeners() {
         }
     });
     
-    // Proceed cancel button
     const proceedCancelBtn = document.getElementById('proceedCancelBtn');
     if (proceedCancelBtn) {
         proceedCancelBtn.addEventListener('click', proceedCancelTransaction);
