@@ -25,7 +25,7 @@
             <i data-lucide="arrow-left"></i>
         </a>
         <div class="editor-brand d-flex align-items-center gap-2">
-            <i class="fa-solid fa-layer-group brand-color fs-4"></i>
+            <img th:src="@{/images/logo.png}" alt="LearningHub Logo" style="height: 38px; width: auto; object-fit: contain;">
             <span class="logo-text fw-bold font-heading brand-color fs-4">LearningHub</span>
             <span class="badge bg-brand-light brand-color font-heading fs-8 ms-2">QUIZ BUILDER</span>
         </div>
@@ -432,6 +432,9 @@
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- MODAL 1: IMPORT EXCEL (ĐÃ THÊM NÚT HƯỚNG DẪN) -->
+<!-- ========================================== -->
 <div class="modal fade" id="importExcelModal" tabindex="-1" aria-labelledby="importExcelModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
@@ -445,7 +448,12 @@
                         </div>
                         <div>
                             <h5 class="modal-title font-heading fw-bold fs-5 text-dark" id="importExcelModalLabel">Nhập câu hỏi từ bảng tính</h5>
-                            <p class="text-muted fs-8 m-0">Để sử dựng tính năng 1 cách hiệu quả nhất.Vui lòng tải lên bảng tính excel theo đúng cấu trúc tệp mẫu</p>
+                            <p class="text-muted fs-8 m-0">
+                                Để sử dụng tính năng 1 cách hiệu quả nhất, vui lòng tải lên bảng tính excel theo đúng cấu trúc tệp mẫu.
+                                <a href="javascript:void(0)" class="fw-bold brand-color text-decoration-none ms-1 btn-trigger-guide" data-bs-toggle="modal" data-bs-target="#quizImportGuideModal">
+                                    Hướng dẫn sử dụng
+                                </a>
+                            </p>
                         </div>
                     </div>
                     <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -503,6 +511,57 @@
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL 2: TEXT HƯỚNG DẪN SỬ DỤNG CHI TIẾT  -->
+<!-- ========================================== -->
+<div class="modal fade" id="quizImportGuideModal" tabindex="-1" aria-labelledby="quizImportGuideModalLabel" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="modal-header border-0 bg-primary text-white py-3 px-4">
+                <h5 class="modal-title font-heading fw-bold fs-6 d-flex align-items-center gap-2" id="quizImportGuideModalLabel">
+                    <!-- Đổi class brand-color thành text-white để icon có màu trắng tinh tế trên nền xanh dương -->
+                    <i class="fa-solid fa-book-open text-white"></i> Hướng dẫn chuẩn bị file Excel
+                </h5>
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-toggle="modal" data-bs-target="#importExcelModal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4 bg-white layout-guide-body">
+                <div class="guide-scroll-container">
+                    <div class="mb-3.5">
+                        <h6 class="fw-bold text-dark font-heading fs-7 mb-1.5"><span class="step-num-icon">1</span> Tải tệp mẫu quy chuẩn</h6>
+                        <p class="fs-8 text-muted m-0 ps-4">Bấm vào góc trái bên dưới của khung nạp dữ liệu để tải file `.xlsx` chuẩn. Hệ thống sẽ từ chối các file tự tạo sai cột.</p>
+                    </div>
+
+                    <div class="mb-3.5">
+                        <h6 class="fw-bold text-dark font-heading fs-7 mb-1.5"><span class="step-num-icon">2</span> Quy tắc điền cột thông tin</h6>
+                        <ul class="fs-8 text-muted list-unstyled ps-4 m-0 d-flex flex-column gap-1.5">
+                            <li><strong class="text-dark">• Cột Câu hỏi & Điểm:</strong> Điền tiêu đề và số điểm cụ thể (Hệ thống tự nhận nếu bỏ trống là 1 điểm).</li>
+                            <li><strong class="text-dark">• Cột Loại câu hỏi:</strong> Ghi chính xác `SINGLE` (Một đáp án) hoặc `MULTIPLE` (Nhiều đáp án).</li>
+                            <li><strong class="text-dark">• Cột Đáp án:</strong> Cung cấp tối thiểu từ 2 đến tối đa 6 phương án lựa chọn.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3.5">
+                        <h6 class="fw-bold text-dark font-heading fs-7 mb-1.5"><span class="step-num-icon">3</span> Đánh dấu đáp án đúng</h6>
+                        <p class="fs-8 text-muted m-0 ps-4">Tại cột đáp án chính xác, điền ký hiệu số thứ tự tương ứng hoặc đánh dấu `TRUE`/`1` theo đúng thiết kế của tệp hàng mẫu để hệ thống chấm điểm tự động.</p>
+                    </div>
+
+                    <div class="p-3 rounded-3 bg-brand-light border border-primary-subtle d-flex gap-2">
+                        <i class="fa-solid fa-circle-info brand-color mt-0.5 fs-7"></i>
+                        <span class="fs-8 text-muted lh-sm"><strong>Lưu ý quan trọng:</strong> Hệ thống sẽ tự động quét và kiểm tra tính hợp lệ của toàn bộ file trước khi lưu. Nếu phát hiện dòng lỗi, quá trình Import của dòng đó sẽ bị hủy để bảo vệ dữ liệu.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 bg-light-subtle p-3 d-flex justify-content-end">
+                <button type="button" class="btn btn-primary-solid rounded-pill px-4 py-2 fs-7 fw-semibold shadow-blue" data-bs-toggle="modal" data-bs-target="#importExcelModal">
+                    Quay lại Import
+                </button>
+            </div>
         </div>
     </div>
 </div>

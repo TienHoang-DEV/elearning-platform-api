@@ -159,7 +159,6 @@ function initializeRemoveButtons() {
     });
 }
 
-// 4. Logic thanh toán (Checkout) - Redirect to Payment Page
 function initializeCheckoutButton() {
     const checkoutBtn = document.getElementById("btn-checkout");
     if (checkoutBtn) {

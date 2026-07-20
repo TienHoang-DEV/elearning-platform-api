@@ -20,15 +20,23 @@ import java.util.List;
 public class Se2034Swp391G4Application {
 
     public static void main(String[] args) {
-        // Load .env early so values are available as system properties and env for Spring
-        Dotenv dotenv = Dotenv.configure().filename(".env").ignoreIfMissing().load();
-        for (DotenvEntry entry : dotenv.entries()) {
-            // set as system property so Spring's ${...} can resolve it
-            System.setProperty(entry.getKey(), entry.getValue());
+        System.out.println("Working directory: " + System.getProperty("user.dir"));
+
+        Dotenv dotenv = Dotenv.configure()
+                .filename(".env")
+                .load();
+
+        dotenv.entries().forEach(entry ->
+                System.setProperty(entry.getKey(), entry.getValue())
+        );
+
+        if (System.getProperty("MAIL_HOST") == null) {
+            throw new IllegalStateException(
+                    "Không đọc được MAIL_HOST từ file .env"
+            );
         }
 
         SpringApplication.run(Se2034Swp391G4Application.class, args);
-
     }
 
 }

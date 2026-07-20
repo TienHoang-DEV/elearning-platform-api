@@ -157,7 +157,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
 
     Course findCourseById(Integer id);
 
-    @Query("SELECT new vn.edu.fpt.dto.course.CourseListDto(c.id, c.title, c.thumbnailUrl, c.price, c.level, i.firstName, i.lastName, cat.id, cat.name, " +
+    @Query("SELECT new vn.edu.fpt.dto.course.CourseListDto(c.id, c.title, c.thumbnailUrl, c.price, c.level, i.firstName, i.lastName, i.id, cat.id, cat.name, " +
             "COALESCE((SELECT AVG(f.rating) FROM Feedback f WHERE f.course.id = c.id), 0.0), " +
             "(SELECT COUNT(f.id) FROM Feedback f WHERE f.course.id = c.id), " +
             "(SELECT COUNT(l.id) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id), " +
@@ -206,6 +206,19 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
             @Param("instructorId") Integer instructorId,
             @Param("month") Integer month,
             @Param("year") Integer year);
+    List<InstructorCourseRevenueDTO> getCourseRevenueStatsByInstructor(@Param("instructorId") Integer instructorId);
+
+    @Query("SELECT new vn.edu.fpt.dto.course.CourseListDto(c.id, c.title, c.thumbnailUrl, c.price, c.level, i.firstName, i.lastName, i.id, cat.id, cat.name, " +
+           "COALESCE((SELECT AVG(f.rating) FROM Feedback f WHERE f.course.id = c.id), 0.0), " +
+           "(SELECT COUNT(f.id) FROM Feedback f WHERE f.course.id = c.id), " +
+           "(SELECT COUNT(l.id) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id), " +
+           "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id)) " +
+           "FROM Course c JOIN c.instructor i JOIN c.category cat " +
+           "WHERE c.instructor.id = :instructorId AND c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED")
+    List<CourseListDto> getInstructorCoursesWithStats(@Param("instructorId") Integer instructorId);
+
+    @Query("SELECT f.rating FROM Feedback f WHERE f.course.instructor.id = :instructorId AND f.course.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED AND f.rating IS NOT NULL")
+    List<Integer> findAllFeedbackRatingsForInstructor(@Param("instructorId") Integer instructorId);
 }
 
 

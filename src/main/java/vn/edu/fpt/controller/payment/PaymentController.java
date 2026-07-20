@@ -23,7 +23,6 @@ public class PaymentController {
     public ResponseEntity<?> checkout() {
         log.info("Nhận yêu cầu checkout từ giỏ hàng.");
         Payment payment = paymentService.checkout();
-
         Map<String, Object> response = new HashMap<>();
         response.put("id", payment.getId());
         response.put("orderId", payment.getOrder().getId());
@@ -33,7 +32,6 @@ public class PaymentController {
         response.put("paymentUrl", payment.getPaymentUrl());
         response.put("qrCodeUrl", payment.getQrCodeUrl());
         response.put("expiredAt", payment.getExpiredAt());
-
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -41,7 +39,6 @@ public class PaymentController {
     public ResponseEntity<?> getPaymentStatus(@PathVariable Integer paymentId) {
         log.info("Nhận yêu cầu kiểm tra trạng thái cho Payment ID: {}", paymentId);
         Payment payment = paymentService.getPaymentStatus(paymentId);
-
         Map<String, Object> response = new HashMap<>();
         response.put("id", payment.getId());
         response.put("status", payment.getStatus());
@@ -49,7 +46,6 @@ public class PaymentController {
         response.put("orderId", payment.getOrder().getId());
         response.put("paidAt", payment.getPaidAt());
         response.put("expiredAt", payment.getExpiredAt());
-
         return ResponseEntity.ok(response);
     }
 
@@ -57,7 +53,9 @@ public class PaymentController {
     public ResponseEntity<?> cancelPayment(@PathVariable Integer paymentId) {
         log.info("Nhận yêu cầu hủy thanh toán thủ công cho Payment ID: {}", paymentId);
         paymentService.cancelPaymentManually(paymentId);
-        
-        return ResponseEntity.ok(Map.of("success", true, "message", "Hủy giao dịch thành công."));
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Hủy giao dịch thành công.");
+        return ResponseEntity.ok(response);
     }
 }

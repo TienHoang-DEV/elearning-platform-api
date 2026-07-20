@@ -9,8 +9,10 @@ import vn.edu.fpt.dto.cart.CartItemDto;
 import vn.edu.fpt.dto.cart.OrderDto;
 import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.dto.course.CourseDto;
+import vn.edu.fpt.dto.course.CourseListDto;
 import vn.edu.fpt.dto.course.FeedbackDto;
 import vn.edu.fpt.dto.course.OrderItemDto;
+import vn.edu.fpt.dto.instructor.InstructorPublicProfileDto;
 import vn.edu.fpt.dto.lesson.LessonNoteSiderbarDTO;
 import vn.edu.fpt.dto.quizdto.QuizAnswerDTO;
 import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
@@ -125,4 +127,19 @@ public interface DtoMapper {
     LearnerInfomationGrantAccessDTO toLearnerInfomationGrantAccessDto(User user);
 
     Quiz toQuiz(QuizDTO quizDTO);
+
+    @Mapping(target = "fullName", expression = "java(instructor.getLastName() + \" \" + instructor.getFirstName())")
+    @Mapping(target = "avatarUrl", expression = "java(instructor.getFullAvatarUrl())")
+    InstructorPublicProfileDto toInstructorPublicProfileDto(
+            User instructor,
+            double averageRating,
+            int totalReviews,
+            int totalStudents,
+            int totalCourses,
+            int percent5Stars,
+            int percent4Stars,
+            int percent3Stars,
+            int percent2Stars,
+            int percent1Stars,
+            List<CourseListDto> courses);
 }

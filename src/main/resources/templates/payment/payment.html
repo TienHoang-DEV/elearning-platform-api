@@ -204,11 +204,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- PayOS Checkout Script -->
-<script th:inline="javascript">
-    // Global variables for payment processing
-    const paymentId = /*[[${payment != null ? payment.id : null}]]*/ null;
-    const expiredAtStr = (/*[[${payment != null ? payment.expiredAt : null}]]*/ '') || '';
-</script>
+
 
 <script th:src="@{/js/payment.js}"></script>
 <script>lucide.createIcons();</script>
