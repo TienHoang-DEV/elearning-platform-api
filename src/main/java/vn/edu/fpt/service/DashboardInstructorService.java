@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.dto.revenueInstructor.CoursePerformanceDto;
 import vn.edu.fpt.dto.revenueInstructor.DashboardInstructorDto;
+import vn.edu.fpt.dto.revenueInstructor.RecentOrderDto;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.EnrollmentRepository;
 import vn.edu.fpt.repository.OrderItemRepository;
@@ -15,9 +16,13 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -69,31 +74,20 @@ public class DashboardInstructorService {
         dto.setRecentOrders(orderItemRepository.recentOrder(instructorId, PageRequest.of(0, 5)));
 
         List<Object[]> raw = orderItemRepository.revenueTrend(instructorId, current[0], current[1]);
-        List<String> labels = raw.stream()
-                .map(r -> {
-                    Object dateObj = r[0];
-                    LocalDate localDate;
-                    if (dateObj instanceof LocalDate) {
-                        localDate = (LocalDate) dateObj;
-                    } else if (dateObj instanceof Date) {
-                        localDate = ((Date) dateObj).toLocalDate();
-                    } else if (dateObj instanceof Timestamp) {
-                        localDate = ((Timestamp) dateObj).toLocalDateTime().toLocalDate();
-                    } else if (dateObj instanceof LocalDateTime) {
-                        localDate = ((LocalDateTime) dateObj).toLocalDate();
-                    } else {
-                        throw new IllegalArgumentException("Unsupported date type: " + dateObj.getClass());
-                    }
-                    return localDate.format(DateTimeFormatter.ofPattern("dd/MM"));
-                })
-                .toList();
-        List<BigDecimal> values = raw.stream()
-                .map(r -> (BigDecimal) r[1]).toList();
-        dto.setRevenueTrendLabels(labels);
-        dto.setRevenueTrendValues(values);
-        dto.setChartPoints(buildChartPoints(values));
+        TrendSeries trendSeries = buildRevenueTrendSeries(period, current, raw);
+        dto.setRevenueTrendLabels(trendSeries.labels());
+        dto.setRevenueTrendValues(trendSeries.values());
+        dto.setChartPoints(buildChartPoints(trendSeries.values()));
 
         return dto;
+    }
+
+    public List<RecentOrderDto> getInstructorOrders(Integer instructorId) {
+        return orderItemRepository.findInstructorOrders(instructorId);
+    }
+
+    public List<RecentOrderDto> getInstructorOrderDetails(Integer instructorId, Integer orderId) {
+        return orderItemRepository.findInstructorOrderDetails(instructorId, orderId);
     }
 
     private long orDefaultLong(Long value) {
@@ -102,6 +96,89 @@ public class DashboardInstructorService {
 
     private BigDecimal orDefault(BigDecimal value) {
         return value != null ? value : BigDecimal.ZERO;
+    }
+
+    private TrendSeries buildRevenueTrendSeries(String period, LocalDateTime[] current, List<Object[]> raw) {
+        Map<LocalDate, BigDecimal> revenueByDate = new LinkedHashMap<>();
+        for (Object[] row : raw) {
+            LocalDate date = toLocalDate(row[0]);
+            BigDecimal revenue = row[1] instanceof BigDecimal value ? value : BigDecimal.ZERO;
+            revenueByDate.merge(date, revenue, BigDecimal::add);
+        }
+
+        if ("MONTH".equals(period) || "CUSTOM".equals(period)) {
+            return buildDailySeries(current, revenueByDate);
+        }
+        if ("YEAR".equals(period)) {
+            return buildMonthlySeries(current[0].getYear(), revenueByDate);
+        }
+        return buildRawSeries(revenueByDate);
+    }
+
+    private TrendSeries buildDailySeries(LocalDateTime[] current, Map<LocalDate, BigDecimal> revenueByDate) {
+        List<String> labels = new ArrayList<>();
+        List<BigDecimal> values = new ArrayList<>();
+        LocalDate start = current[0].toLocalDate();
+        LocalDate end = current[1].toLocalDate();
+
+        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+            labels.add(date.format(DateTimeFormatter.ofPattern("dd/MM")));
+            values.add(revenueByDate.getOrDefault(date, BigDecimal.ZERO));
+        }
+        return new TrendSeries(labels, values);
+    }
+
+    private TrendSeries buildMonthlySeries(int year, Map<LocalDate, BigDecimal> revenueByDate) {
+        Map<YearMonth, BigDecimal> revenueByMonth = new LinkedHashMap<>();
+        revenueByDate.forEach((date, revenue) ->
+                revenueByMonth.merge(YearMonth.from(date), revenue, BigDecimal::add)
+        );
+
+        List<String> labels = new ArrayList<>();
+        List<BigDecimal> values = new ArrayList<>();
+        for (int month = 1; month <= 12; month++) {
+            YearMonth yearMonth = YearMonth.of(year, month);
+            labels.add("T" + month);
+            values.add(revenueByMonth.getOrDefault(yearMonth, BigDecimal.ZERO));
+        }
+        return new TrendSeries(labels, values);
+    }
+
+    private TrendSeries buildRawSeries(Map<LocalDate, BigDecimal> revenueByDate) {
+        if (revenueByDate.isEmpty()) {
+            return new TrendSeries(List.of(), List.of());
+        }
+        List<String> labels = new ArrayList<>();
+        List<BigDecimal> values = new ArrayList<>();
+        revenueByDate.forEach((date, revenue) -> {
+            labels.add(date.format(DateTimeFormatter.ofPattern("dd/MM")));
+            values.add(revenue);
+        });
+
+        // Instructor dashboard chart: neu chi co 1 ngay co doanh thu thi them 2 moc 0 de SVG polyline nhin thay duoc bien dong.
+        if (values.size() == 1) {
+            labels.add(0, "");
+            values.add(0, BigDecimal.ZERO);
+            labels.add("");
+            values.add(BigDecimal.ZERO);
+        }
+        return new TrendSeries(labels, values);
+    }
+
+    private LocalDate toLocalDate(Object dateObj) {
+        if (dateObj instanceof LocalDate localDate) {
+            return localDate;
+        }
+        if (dateObj instanceof Date date) {
+            return date.toLocalDate();
+        }
+        if (dateObj instanceof Timestamp timestamp) {
+            return timestamp.toLocalDateTime().toLocalDate();
+        }
+        if (dateObj instanceof LocalDateTime localDateTime) {
+            return localDateTime.toLocalDate();
+        }
+        throw new IllegalArgumentException("Unsupported date type: " + dateObj.getClass());
     }
 
     private String buildChartPoints(List<BigDecimal> values) {
@@ -122,10 +199,12 @@ public class DashboardInstructorService {
         return sb.toString();
     }
 
+    private record TrendSeries(List<String> labels, List<BigDecimal> values) {
+    }
+
     private LocalDateTime[] resolveDateRange(String period, Integer year, Integer month) {
         LocalDate now = LocalDate.now();
         return switch (period) {
-            // BUG cũ: end date là 31/12 (hết năm) thay vì hết THÁNG -> đã sửa lại
             case "MONTH" -> new LocalDateTime[]{
                     now.withDayOfMonth(1).atStartOfDay(),
                     now.withDayOfMonth(now.lengthOfMonth()).atTime(23, 59, 59)

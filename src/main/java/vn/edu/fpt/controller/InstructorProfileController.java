@@ -1,79 +1,71 @@
 package vn.edu.fpt.controller;
 
-
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import vn.edu.fpt.dto.user.InstructorProfileViewDto;
 import vn.edu.fpt.dto.user.ProfileDto;
-import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.UserValidationException;
-import vn.edu.fpt.service.CategoryService;
-import vn.edu.fpt.service.UserService;
-import vn.edu.fpt.service.cloud.AzureBlobService;
-import vn.edu.fpt.util.AppConstants;
-import vn.edu.fpt.util.SecurityUtils;
-
-
+import vn.edu.fpt.service.InstructorProfileService;
 
 @RequestMapping("/instructor")
 @Controller
 public class InstructorProfileController {
 
-    private final UserService userService;
-    private final CategoryService categoryService;
-    private AzureBlobService azureBlobService;
+    private final InstructorProfileService instructorProfileService;
 
-    private static final Logger log =
-            LoggerFactory.getLogger(InstructorProfileController.class);
-    public InstructorProfileController(UserService userService, CategoryService categoryService, AzureBlobService azureBlobService) {
-        this.userService = userService;
-        this.categoryService = categoryService;
-        this.azureBlobService = azureBlobService;
+    public InstructorProfileController(InstructorProfileService instructorProfileService) {
+        this.instructorProfileService = instructorProfileService;
     }
 
     @GetMapping("/sidebar")
-    public String Sidebar(Model model) {
-        User user = SecurityUtils.getCurrentUser();
-        ProfileDto profileDto = new ProfileDto();
-        profileDto.setFirstname(user.getFirstName());
-        profileDto.setLastname(user.getLastName());
-        profileDto.setBio(user.getBio());
-        profileDto.setAvatar_url(AppConstants.AZURE_STORAGE_BASE_URL+ "/" + AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS + "/"  + user.getAvatarUrl());
-       log.info("User" + user.getAvatarUrl());
-        log.info("User" + AppConstants.AZURE_STORAGE_BASE_URL+ "/" + AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS + "/"  + user.getAvatarUrl());
-        profileDto.setEmail(user.getEmail());
-        profileDto.setPhone(user.getPhone());
-        model.addAttribute("instructor", profileDto);
+    public String viewProfile(Model model) {
+        addProfileAttributes(model, instructorProfileService.getCurrentInstructorProfile(false));
         return "instructor_course/profile";
     }
 
+    @GetMapping("/profile/edit")
+    public String editProfile(Model model) {
+        addProfileAttributes(model, instructorProfileService.getCurrentInstructorProfile(true));
+        return "instructor_course/profile";
+    }
 
     @PostMapping("/profiles")
     public String updateProfile(
-            @Valid
-            @ModelAttribute("instructor") ProfileDto profileDto,
+            @Valid @ModelAttribute("instructor") ProfileDto profileDto,
             BindingResult result,
+            Model model,
             RedirectAttributes redirectAttributes
     ) {
         if (result.hasErrors()) {
+            addProfileAttributes(model, instructorProfileService.getCurrentInstructorProfileForInvalidForm(profileDto));
+            model.addAttribute("error", "Vui long kiem tra lai thong tin chua hop le.");
             return "instructor_course/profile";
         }
-        try {
 
-            User tmp = SecurityUtils.getCurrentUser();
-            userService.updateProfileInstuctor(tmp, profileDto);
-            redirectAttributes.addFlashAttribute("success", "Thay đổi thành công!!!");
+        try {
+            instructorProfileService.updateCurrentInstructorProfile(profileDto);
+            redirectAttributes.addFlashAttribute("success", "Thay doi thanh cong!");
             return "redirect:/instructor/sidebar";
         } catch (UserValidationException e) {
             result.rejectValue(e.getField(), "error", e.getMessage());
+            addProfileAttributes(model, instructorProfileService.getCurrentInstructorProfileForInvalidForm(profileDto));
+            model.addAttribute("error", e.getMessage());
             return "instructor_course/profile";
         }
-
     }
 
+    private void addProfileAttributes(Model model, InstructorProfileViewDto profileView) {
+        model.addAttribute("instructor", profileView.getInstructor());
+        model.addAttribute("averageRating", profileView.getAverageRating());
+        model.addAttribute("ratingStars", profileView.getRatingStars());
+        model.addAttribute("ratingCount", profileView.getRatingCount());
+        model.addAttribute("editMode", profileView.isEditMode());
+    }
 }

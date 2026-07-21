@@ -1,9 +1,14 @@
 package vn.edu.fpt.service;
 
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,35 +60,72 @@ public class CourseService {
     private final FeedbackService feedbackService;
     private final LessonNoteService lessonNoteService;
 
-    // Page course của mỗi instructor
+
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
 
         return repository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
     }
 
-    //Xoá khoá học
+
     public void deleteCourseById(Integer courseId){
         Course tmp = repository.findCourseById(courseId);
         if(tmp == null) return;
         repository.deleteCourseById(courseId);
     }
 
+
+    public Course getInstructorOwnedCourse(Integer courseId, User user) {
+        Course course = repository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id = " + courseId));
+        if (user == null || course.getInstructor() == null || !course.getInstructor().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Bạn không có quyền thao tác với khóa học này");
+        }
+        return course;
+    }
+
+
+    public void hidePublishedCourse(Integer courseId, User user) {
+        Course course = getInstructorOwnedCourse(courseId, user);
+        if (course.getStatus() != CourseStatus.PUBLISHED) {
+            throw new CourseValidationException("status", "Chỉ khóa học đang bán mới được ẩn.");
+        }
+        course.setStatus(CourseStatus.HIDDEN);
+        course.setUpdateAt(LocalDateTime.now());
+        repository.save(course);
+    }
+
+
+    public void publishHiddenCourse(Integer courseId, User user) {
+        Course course = getInstructorOwnedCourse(courseId, user);
+        if (course.getStatus() != CourseStatus.HIDDEN) {
+            throw new CourseValidationException("status", "Chỉ khóa học đã ẩn mới được hiện lại.");
+        }
+        course.setStatus(CourseStatus.PUBLISHED);
+        course.setUpdateAt(LocalDateTime.now());
+        repository.save(course);
+    }
+
+    public List<Feedback> getInstructorCourseReviews(Integer courseId, User user) {
+        getInstructorOwnedCourse(courseId, user);
+        return feedbackRepository.findByCourseIdOrderByCreatedAtDesc(courseId);
+    }
+
     public Course save(User user, CourseCreateDto courseCreateDto) {
         Course course;
         boolean isUpdate = courseCreateDto.getId() != null;
+        String normalizedTitle = courseCreateDto.getTitle() != null ? courseCreateDto.getTitle().trim() : "";
 
         if (isUpdate) {
             course = repository.findById(courseCreateDto.getId())
                     .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-            if (!course.getTitle().equals(courseCreateDto.getTitle()) &&
-                repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
+            if (repository.existsDuplicateTitleForInstructor(user.getId(), normalizedTitle, course.getId())) {
                 throw new CourseValidationException(
                         "title",
                         "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
             }
         } else {
             course = new Course();
-            if (repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
+            if (repository.existsDuplicateTitleForInstructor(user.getId(), normalizedTitle, null)) {
                 throw new CourseValidationException(
                         "title",
                         "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
@@ -93,7 +135,7 @@ public class CourseService {
             course.setInstructor(user);
         }
 
-        if (courseCreateDto.getTitle().length() < 3) {
+        if (normalizedTitle.length() < 3) {
             throw new CourseValidationException(
                     "title",
                     "Tiêu đề khóa học phải có ít nhất 3 ký tự.");
@@ -106,6 +148,8 @@ public class CourseService {
                     "Mô tả khóa học phải có tối thiểu 50 ký tự.");
         }
 
+        validateCoursePrice(courseCreateDto.getPrice());
+
         String thumbnailUrl = course.getThumbnailUrl();
         if (courseCreateDto.getThumbnailFile() != null && !courseCreateDto.getThumbnailFile().isEmpty()) {
             thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS);
@@ -114,7 +158,7 @@ public class CourseService {
         Category category = categoryRepository.findById(courseCreateDto.getCategoryId())
                 .orElseThrow(() -> new CourseValidationException("categoryId", "Category không tồn tại"));
 
-        course.setTitle(courseCreateDto.getTitle());
+        course.setTitle(normalizedTitle);
         course.setDescription(courseCreateDto.getDescription());
         course.setCategory(category);
         course.setPrice(courseCreateDto.getPrice());
@@ -122,6 +166,25 @@ public class CourseService {
         course.setLevel(courseCreateDto.getLevel());
         course.setUpdateAt(LocalDateTime.now());
         return repository.save(course);
+    }
+
+    private void validateCoursePrice(BigDecimal price) {
+        if (price == null) {
+            throw new CourseValidationException("price", "Vui lòng nhập giá khóa học.");
+        }
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new CourseValidationException("price", "Giá khóa học không được âm.");
+        }
+        if (price.compareTo(BigDecimal.ZERO) == 0) {
+            return;
+        }
+
+        if (price.compareTo(BigDecimal.valueOf(2000)) <= 0) {
+            throw new CourseValidationException("price", "Giá khóa học phải lớn hơn 2.000 VNĐ hoặc bằng 0 nếu miễn phí.");
+        }
+        if (price.remainder(BigDecimal.valueOf(1000)).compareTo(BigDecimal.ZERO) != 0) {
+            throw new CourseValidationException("price", "Giá khóa học phải chia hết cho 1.000 VNĐ.");
+        }
     }
 
 
@@ -230,17 +293,17 @@ public class CourseService {
         List<CourseDto> allCourses = getCoursesBySearch(search);
         List<CourseDto> filteredCourses = new java.util.ArrayList<>();
 
-        // 1. Duyệt qua từng khóa học để lọc (Dùng vòng lặp for thay thế Stream)
+
         for (CourseDto course : allCourses) {
 
             // Lọc theo danh mục
             if (categoryId != null) {
                 if (course.getCategory() == null || !course.getCategory().getId().equals(categoryId)) {
-                    continue; // Bỏ qua khóa học này, chuyển sang khóa học tiếp theo
+                    continue;
                 }
             }
 
-            // Lọc theo số sao đánh giá (từ X sao trở lên)
+
             if (ratings != null && !ratings.isEmpty()) {
                 boolean matchRating = false;
                 double avgRating = course.getAverageRating();
@@ -251,7 +314,7 @@ public class CourseService {
                     }
                 }
                 if (!matchRating) {
-                    continue; // Bỏ qua khóa học này vì không khớp đánh giá sao
+                    continue;
                 }
             }
 
@@ -270,36 +333,31 @@ public class CourseService {
                                 break;
                             }
                         } catch (NumberFormatException e) {
-                            // Bỏ qua lỗi định dạng chuỗi
+
                         }
                     }
                 }
                 if (!matchPrice) {
-                    continue; // Bỏ qua khóa học này vì không khớp khoảng giá
+                    continue;
                 }
             }
 
-            // Nếu vượt qua tất cả các bộ lọc ở trên, thêm khóa học vào danh sách kết quả
             filteredCourses.add(course);
         }
 
-        // 2. Sắp xếp danh sách kết quả (Dùng list.sort truyền thống)
+
         filteredCourses.sort((c1, c2) -> {
             if ("rating".equals(sort)) {
-                // Đánh giá cao nhất xếp trước
                 return Double.compare(c2.getAverageRating(), c1.getAverageRating());
             } else if ("price-asc".equals(sort)) {
-                // Giá rẻ nhất xếp trước
                 double p1 = c1.getPrice() != null ? c1.getPrice().doubleValue() : 0.0;
                 double p2 = c2.getPrice() != null ? c2.getPrice().doubleValue() : 0.0;
                 return Double.compare(p1, p2);
             } else if ("price-desc".equals(sort)) {
-                // Giá đắt nhất xếp trước
                 double p1 = c1.getPrice() != null ? c1.getPrice().doubleValue() : 0.0;
                 double p2 = c2.getPrice() != null ? c2.getPrice().doubleValue() : 0.0;
                 return Double.compare(p2, p1);
             } else {
-                // "newest" hoặc mặc định: Khóa học mới nhất xếp trước (theo ID giảm dần)
                 int id1 = c1.getId() != null ? c1.getId() : 0;
                 int id2 = c2.getId() != null ? c2.getId() : 0;
                 return Integer.compare(id2, id1);
@@ -324,7 +382,147 @@ public class CourseService {
             String sort,
             int page,
             int size) {
-        return repository.getPagedCoursesSummary(search, categoryId, ratings, prices, sort, page, size);
+        int currentPage = Math.max(page, 1);
+        Specification<Course> specification = buildCourseListSpecification(search, categoryId, ratings, prices, sort);
+        Page<Course> coursePage = repository.findAll(specification, PageRequest.of(currentPage - 1, size));
+
+        if (coursePage.isEmpty() && currentPage > 1 && coursePage.getTotalPages() > 0) {
+            coursePage = repository.findAll(specification, PageRequest.of(coursePage.getTotalPages() - 1, size));
+        }
+
+        return coursePage.map(this::toCourseListDto);
+    }
+
+    private CourseListDto toCourseListDto(Course course) {
+        return CourseListDto.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .thumbnailUrl(course.getThumbnailUrl())
+                .price(course.getPrice())
+                .level(course.getLevel())
+                .instructorFirstName(course.getInstructor() != null ? course.getInstructor().getFirstName() : null)
+                .instructorLastName(course.getInstructor() != null ? course.getInstructor().getLastName() : null)
+                .categoryId(course.getCategory() != null ? course.getCategory().getId() : null)
+                .categoryName(course.getCategory() != null ? course.getCategory().getName() : null)
+                .averageRating(course.getAverageRating())
+                .ratingCount((long) course.getRatingCount())
+                .totalLessonsCount((long) course.getTotalLessonsCount())
+                .enrollmentsCount((long) course.getEnrollmentsCount())
+                .build();
+    }
+
+    private Specification<Course> buildCourseListSpecification(
+            String search,
+            Integer categoryId,
+            List<Double> ratings,
+            List<String> prices,
+            String sort) {
+        return fetchCourseListSummary()
+                .and(courseListFilter(search, categoryId, ratings, prices, sort));
+    }
+
+    private Specification<Course> fetchCourseListSummary() {
+        return (root, query, cb) -> {
+            if (!isCountQuery(query.getResultType())) {
+                root.fetch("instructor");
+                root.fetch("category");
+            }
+            return cb.conjunction();
+        };
+    }
+
+    private Specification<Course> courseListFilter(
+            String search,
+            Integer categoryId,
+            List<Double> ratings,
+            List<String> prices,
+            String sort) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.<CourseStatus>get("status"), CourseStatus.PUBLISHED));
+
+            if (search != null && !search.trim().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.<String>get("title")), "%" + search.trim().toLowerCase() + "%"));
+            }
+
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.get("category").<Integer>get("id"), categoryId));
+            }
+
+            Double minRating = resolveMinRating(ratings);
+            if (minRating != null) {
+                predicates.add(cb.ge(averageRatingSubquery(root, query, cb), minRating));
+            }
+
+            Predicate pricePredicate = buildPricePredicate(root, cb, prices);
+            if (pricePredicate != null) {
+                predicates.add(pricePredicate);
+            }
+
+            if (!isCountQuery(query.getResultType())) {
+                query.orderBy(switch (sort == null ? "" : sort) {
+                    case "price-asc" -> cb.asc(root.<BigDecimal>get("price"));
+                    case "price-desc" -> cb.desc(root.<BigDecimal>get("price"));
+                    case "rating" -> cb.desc(averageRatingSubquery(root, query, cb));
+                    default -> cb.desc(root.<Integer>get("id"));
+                });
+            }
+
+            return cb.and(predicates.toArray(Predicate[]::new));
+        };
+    }
+
+    private Double resolveMinRating(List<Double> ratings) {
+        if (ratings == null || ratings.isEmpty()) {
+            return null;
+        }
+        return ratings.stream()
+                .filter(Objects::nonNull)
+                .min(Double::compareTo)
+                .orElse(null);
+    }
+
+    private Predicate buildPricePredicate(
+            Root<Course> root,
+            jakarta.persistence.criteria.CriteriaBuilder cb,
+            List<String> prices) {
+        if (prices == null || prices.isEmpty()) {
+            return null;
+        }
+
+        List<Predicate> ranges = new ArrayList<>();
+        for (String price : prices) {
+            if (price == null) {
+                continue;
+            }
+            String[] parts = price.split("-");
+            if (parts.length != 2) {
+                continue;
+            }
+            try {
+                BigDecimal min = BigDecimal.valueOf(Double.parseDouble(parts[0]));
+                BigDecimal max = BigDecimal.valueOf(Double.parseDouble(parts[1]));
+                ranges.add(cb.between(root.<BigDecimal>get("price"), min, max));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        return ranges.isEmpty() ? null : cb.or(ranges.toArray(Predicate[]::new));
+    }
+
+    private Expression<Double> averageRatingSubquery(
+            Root<Course> root,
+            jakarta.persistence.criteria.CriteriaQuery<?> query,
+            jakarta.persistence.criteria.CriteriaBuilder cb) {
+        Subquery<Double> subquery = query.subquery(Double.class);
+        Root<Feedback> feedbackRoot = subquery.from(Feedback.class);
+        subquery.select(cb.coalesce(cb.avg(feedbackRoot.<Integer>get("rating")), 0.0));
+        subquery.where(cb.equal(feedbackRoot.get("course").<Integer>get("id"), root.<Integer>get("id")));
+        return subquery;
+    }
+
+    private boolean isCountQuery(Class<?> resultType) {
+        return Long.class.equals(resultType) || long.class.equals(resultType);
     }
 
     public List<Course> findAll() {

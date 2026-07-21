@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
+import vn.edu.fpt.exception.CourseSectionValidation;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
@@ -77,7 +78,12 @@ public class CourseSectionService {
 
         public void updateCourseSection(Integer sectionId, CourseSectionDto courseSectionDto){
            CourseSection courseSection = repository.findById(sectionId).orElseThrow();
-           courseSection.setTitle(courseSectionDto.getTitle());
+           String normalizedTitle = courseSectionDto.getTitle() != null ? courseSectionDto.getTitle().trim() : "";
+           // Section validation: khong cho trung ten section trong cung course khi edit.
+           if (repository.existsDuplicateTitleInCourse(courseSection.getCourse().getId(), normalizedTitle, sectionId)) {
+               throw new CourseSectionValidation("Tên chương này đã tồn tại trong khóa học.", "title");
+           }
+           courseSection.setTitle(normalizedTitle);
            courseSection.setUpdatedAt(LocalDateTime.now());
            repository.save(courseSection);
         }
@@ -120,9 +126,15 @@ public class CourseSectionService {
             throw new CourseValidationException("courseRequets","Khoá học này không tồn tại");
         }
 
+        String normalizedTitle = courseSectionDto.getTitle() != null ? courseSectionDto.getTitle().trim() : "";
+        // Section validation: khong cho trung ten section trong cung course khi tao moi.
+        if (repository.existsDuplicateTitleInCourse(course.getId(), normalizedTitle, null)) {
+            throw new CourseSectionValidation("Tên chương này đã tồn tại trong khóa học.", "title");
+        }
+
         Integer po = repository.FindMaxPositionByCourseId(course.getId());
         CourseSection courseSection = new CourseSection();
-        courseSection.setTitle(courseSectionDto.getTitle());
+        courseSection.setTitle(normalizedTitle);
         courseSection.setPosition(po + 1);
         courseSection.setCourse(course);
         courseSection.setCreatedAt(LocalDateTime.now());
