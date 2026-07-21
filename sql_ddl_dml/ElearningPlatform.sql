@@ -301,6 +301,9 @@ CREATE TABLE courses (
                          rejection_reason NVARCHAR(1000) NULL,
     -- Lý do từ chối khóa học (nếu status = rejected)
 
+                         version INT NOT NULL DEFAULT 0,
+    -- Số phiên bản dùng cho Optimistic Locking (JPA @Version), tự tăng mỗi lần cập nhật
+
                          created_at DATETIME DEFAULT GETDATE(),
     -- Thời gian tạo khóa học
 

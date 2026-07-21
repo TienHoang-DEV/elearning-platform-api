@@ -76,7 +76,7 @@
                 </span>
 
                 <!-- Page numbers -->
-                <a th:each="i : ${#numbers.sequence(0, coursePage.totalPages - 1)}"
+                <a th:each="i : ${#numbers.sequence(startPage, endPage)}"
                     th:href="@{/manager/course/list(keyword=${keyword}, status=${status}, categoryId=${categoryId}, page=${i}, size=${coursePage.size})}"
                     th:class="${coursePage.number == i ? 'page-circle-btn active' : 'page-circle-btn'}"
                     th:text="${i + 1}">1</a>

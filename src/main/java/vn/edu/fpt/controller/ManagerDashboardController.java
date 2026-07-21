@@ -26,6 +26,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import vn.edu.fpt.dto.revenue_manager.InstructorRevenueForManagerDTO;
 import vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO;
+import vn.edu.fpt.entity.User;
+import java.math.BigDecimal;
 
 @Controller
 @RequestMapping("/manager")
@@ -38,7 +40,6 @@ public class ManagerDashboardController {
     public String dashboard(Model model) {
         ManagerDashboardDTO data = managerDashboardService.getDashboardData();
 
-        // Thêm các thuộc tính vào model
         model.addAttribute("totalInstructors", data.getTotalInstructors());
         model.addAttribute("totalLearners", data.getTotalLearners());
         model.addAttribute("pendingCourses", data.getPendingCourses());
@@ -67,27 +68,61 @@ public class ManagerDashboardController {
     @GetMapping("/revenue/instructor")
     public String instructorRevenueList(
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year,
             @RequestParam(defaultValue = "0") int page,
             Model model) {
-        Page<InstructorRevenueForManagerDTO> instructorRevenues =
-                managerDashboardService.getInstructorsRevenue(keyword, page);
+        
+        if (month == null) {
+            month = LocalDate.now().getMonthValue();
+        }
+        if (year == null) {
+            year = LocalDate.now().getYear();
+        }
 
-        int startPage = (instructorRevenues.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
-        int endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, instructorRevenues.getTotalPages() - 1);
+        Integer queryMonth = month == 0 ? null : month;
+        Integer queryYear = year == 0 ? null : year;
+
+        Page<InstructorRevenueForManagerDTO> instructorRevenues =
+                managerDashboardService.getInstructorsRevenue(keyword, queryMonth, queryYear, page);
+
+        int startPage = 0;
+        int endPage = 0;
+        if (instructorRevenues.getTotalPages() > 0) {
+            startPage = (instructorRevenues.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
+            endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, instructorRevenues.getTotalPages() - 1);
+        }
 
         model.addAttribute("instructorRevenues", instructorRevenues);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("month", month);
+        model.addAttribute("year", year);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
 
         return "manager/revenue/instructor-revenue";
     }
 
-    @GetMapping("/revenue/instructor/{id}/details")
-    public String instructorRevenueDetails(@PathVariable Integer id, Model model) {
+    @GetMapping("/revenue/instructor/details/{id}")
+    public String instructorRevenueDetails(
+            @PathVariable Integer id, 
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year,
+            Model model) {
+        
+        Integer queryMonth = (month != null && month == 0) ? null : month;
+        Integer queryYear = (year != null && year == 0) ? null : year;
+
+        User instructor = managerDashboardService.getInstructorById(id);
         List<InstructorCourseRevenueDTO> courseDetails =
-                managerDashboardService.getInstructorCourseRevenueDetails(id);
+                managerDashboardService.getInstructorCourseRevenueDetails(id, queryMonth, queryYear);
+
+        model.addAttribute("instructorName", instructor.getFirstName() + " " + instructor.getLastName());
+        model.addAttribute("instructorEmail", instructor.getEmail());
         model.addAttribute("courseDetails", courseDetails);
-        return "manager/revenue/instructor-revenue-detail :: courseDetailsTable";
+        model.addAttribute("month", month);
+        model.addAttribute("year", year);
+
+        return "manager/revenue/instructor-revenue-detail";
     }
 }

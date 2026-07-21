@@ -16,6 +16,8 @@ import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.PaymentRepository;
 import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.entity.User;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -172,12 +174,17 @@ public class ManagerDashboardService {
         return ((monthlyRevenue.subtract(revenueLastMonth)).divide(revenueLastMonth, 2, RoundingMode.HALF_UP)).multiply(BigDecimal.valueOf(100)).doubleValue();
     }
 
-    public Page<InstructorRevenueForManagerDTO> getInstructorsRevenue(String keyword, int page) {
+    public Page<InstructorRevenueForManagerDTO> getInstructorsRevenue(String keyword, Integer month, Integer year, int page) {
         Pageable pageable = PageRequest.of(page, 10);
-        return userRepository.getInstructorsRevenueStats(keyword, pageable);
+        return userRepository.getInstructorsRevenueStats(keyword, month, year, pageable);
     }
 
-    public List<InstructorCourseRevenueDTO> getInstructorCourseRevenueDetails(Integer instructorId) {
-        return courseRepository.getCourseRevenueStatsByInstructor(instructorId);
+    public List<InstructorCourseRevenueDTO> getInstructorCourseRevenueDetails(Integer instructorId, Integer month, Integer year) {
+        return courseRepository.getCourseRevenueStatsByInstructor(instructorId, month, year);
+    }
+
+    public User getInstructorById(Integer id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên với ID: " + id));
     }
 }
