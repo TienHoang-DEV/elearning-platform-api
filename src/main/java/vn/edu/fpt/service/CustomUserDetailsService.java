@@ -25,23 +25,12 @@ public class CustomUserDetailsService
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
-        System.out.println("=== LOAD USER CALLED: " + email);
-
         User user = userRepository
                 .findByEmail(email)
                 .orElseThrow(() -> {
                     System.out.println("=== USER NOT FOUND: " + email);
                     return new UsernameNotFoundException("User not found");
                 });
-
-        System.out.println("=== USER FOUND: " + user.getEmail());
-        System.out.println("=== PASSWORD HASH: " + user.getPasswordHash());
-        System.out.println("=== ROLE: " + user.getRoles().toString());
-
-        // Thêm dòng này để test
-//        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-//        System.out.println("=== TEST MATCH: " +
-//                encoder.matches("Linh123@", user.getPasswordHash()));
 
         return new CustomUserDetails(user);
     }
