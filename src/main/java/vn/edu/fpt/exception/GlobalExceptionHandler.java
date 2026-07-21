@@ -84,6 +84,59 @@ public class GlobalExceptionHandler {
         return buildErrorView("error/404", HttpStatus.NOT_FOUND, "Không tìm thấy trang", "Không tìm thấy trang yêu cầu hoặc trang đã bị xóa.", request, ex);
     }
 
+    /**
+     * Bắt lỗi Race Condition (Optimistic Locking):
+     * Xảy ra khi 2 Manager cùng duyệt/từ chối một khóa học đồng thời.
+     * Hibernate phát hiện version đã thay đổi → ném exception này.
+     * Redirect về trang trước với thông báo lỗi thân thiện thay vì hiện trang 500.
+     */
+    @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
+    public Object handleOptimisticLockingFailure(
+            org.springframework.orm.ObjectOptimisticLockingFailureException ex,
+            HttpServletRequest request) {
+
+        log.warn("Optimistic locking conflict at [{}]: {}", request.getRequestURI(), ex.getMessage());
+
+        if (isApiRequest(request)) {
+            ErrorResponse body = new ErrorResponse(HttpStatus.CONFLICT.value(), "Conflict",
+                    "Dữ liệu vừa được cập nhật bởi người dùng khác. Vui lòng thử lại.", request.getRequestURI());
+            return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+        }
+
+        // Web request: redirect về trang trước với flash message
+        String referer = request.getHeader("Referer");
+        org.springframework.web.servlet.view.RedirectView redirectView =
+                new org.springframework.web.servlet.view.RedirectView(
+                        referer != null && !referer.isBlank() ? referer : "/");
+        // Dùng ModelAndView để gắn flash attribute không khả thi trực tiếp ở đây,
+        // nên forward về trang detail với param lỗi
+        ModelAndView mav = new ModelAndView("redirect:" + (referer != null && !referer.isBlank() ? referer : "/"));
+        return mav;
+    }
+
+    /**
+     * Bắt lỗi vi phạm nghiệp vụ (Business Rule Violation):
+     * Ví dụ: Manager cố duyệt khóa học đã được xử lý trước đó (status != PENDING).
+     * Redirect về trang trước với thông báo lỗi thay vì hiện trang 500.
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public Object handleIllegalState(
+            IllegalStateException ex,
+            HttpServletRequest request) {
+
+        log.warn("Illegal state at [{}]: {}", request.getRequestURI(), ex.getMessage());
+
+        if (isApiRequest(request)) {
+            ErrorResponse body = new ErrorResponse(HttpStatus.CONFLICT.value(), "Conflict",
+                    ex.getMessage(), request.getRequestURI());
+            return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+        }
+
+        // Web request: redirect về trang trước
+        String referer = request.getHeader("Referer");
+        return new ModelAndView("redirect:" + (referer != null && !referer.isBlank() ? referer : "/"));
+    }
+
     @ExceptionHandler(Exception.class)
     public Object handleOther(Exception ex, HttpServletRequest request) {
         if (isApiRequest(request)) {

@@ -116,7 +116,11 @@ public class UserService {
      */
     public Page<UserDto> searchAndFilterInstructors(String keyword, UserStatus status, Pageable pageable) {
         Page<User> instructorPage = repository.searchAndFilterInstructors(keyword, status, pageable);
-        return instructorPage.map(dtoMapper::toUserDto);
+        return instructorPage.map(user -> {
+            UserDto dto = dtoMapper.toUserDto(user);
+            dto.setCourseCount((int) user.getCourses().stream().filter(c -> c.getStatus() == vn.edu.fpt.enums.CourseStatus.PUBLISHED).count());
+            return dto;
+        });
     }
 
     /**
@@ -125,7 +129,9 @@ public class UserService {
     public UserDto getInstructorDetail(Integer id) {
         User instructor = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên với ID: " + id));
-        return dtoMapper.toUserDto(instructor);
+        UserDto dto = dtoMapper.toUserDto(instructor);
+        dto.setCourseCount((int) instructor.getCourses().stream().filter(c -> c.getStatus() == vn.edu.fpt.enums.CourseStatus.PUBLISHED).count());
+        return dto;
     }
 
     /**
@@ -134,7 +140,7 @@ public class UserService {
     public List<Course> getInstructorCourses(Integer instructorId) {
         User instructor = repository.findById(instructorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên với ID: " + instructorId));
-        return courseRepository.findByInstructor(instructor);
+        return courseRepository.findByInstructorAndStatus(instructor, vn.edu.fpt.enums.CourseStatus.PUBLISHED);
     }
 
     /**

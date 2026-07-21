@@ -153,8 +153,10 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpe
 
     @Query("SELECT c FROM Course c " +
             "LEFT JOIN FETCH c.instructor i " +
-            "WHERE (:status IS NULL OR c.status = :status) " +
-            "AND (:categoryId IS NULL OR c.category.id = :categoryId) " +
+            "LEFT JOIN FETCH c.category cat " +
+            "WHERE c.status != vn.edu.fpt.enums.CourseStatus.DRAFT " +
+            "AND (:status IS NULL OR c.status = :status) " +
+            "AND (:categoryId IS NULL OR cat.id = :categoryId) " +
             "AND (:keyword IS NULL OR :keyword = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Course> searchAndFilter(
             @Param("keyword") String keyword,
@@ -192,16 +194,27 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpe
     @Query("""
         SELECT new vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO(
             c.id, c.title, c.price,
-            COALESCE(SUM(CASE WHEN o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED THEN 1 ELSE 0 END), 0),
-            COALESCE(SUM(CASE WHEN o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED THEN oi.priceSnapshot ELSE 0 END), 0)
+            COALESCE(SUM(CASE WHEN (o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED) 
+                                   AND (:month IS NULL OR MONTH(o.createdAt) = :month)
+                                   AND (:year IS NULL OR YEAR(o.createdAt) = :year) THEN 1 ELSE 0 END), 0),
+            COALESCE(SUM(CASE WHEN (o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED) 
+                                   AND (:month IS NULL OR MONTH(o.createdAt) = :month)
+                                   AND (:year IS NULL OR YEAR(o.createdAt) = :year) THEN oi.priceSnapshot ELSE 0 END), 0)
         )
         FROM Course c
         LEFT JOIN OrderItem oi ON oi.course.id = c.id
         LEFT JOIN oi.order o
         WHERE c.instructor.id = :instructorId
+        AND c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED
         GROUP BY c.id, c.title, c.price
-        ORDER BY COALESCE(SUM(CASE WHEN o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED THEN oi.priceSnapshot ELSE 0 END), 0) DESC
+        ORDER BY COALESCE(SUM(CASE WHEN (o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED) 
+                                       AND (:month IS NULL OR MONTH(o.createdAt) = :month)
+                                       AND (:year IS NULL OR YEAR(o.createdAt) = :year) THEN oi.priceSnapshot ELSE 0 END), 0) DESC
     """)
+    List<InstructorCourseRevenueDTO> getCourseRevenueStatsByInstructor(
+            @Param("instructorId") Integer instructorId,
+            @Param("month") Integer month,
+            @Param("year") Integer year);
     List<InstructorCourseRevenueDTO> getCourseRevenueStatsByInstructor(@Param("instructorId") Integer instructorId);
 
     @Query("SELECT new vn.edu.fpt.dto.course.CourseListDto(c.id, c.title, c.thumbnailUrl, c.price, c.level, i.firstName, i.lastName, i.id, cat.id, cat.name, " +
