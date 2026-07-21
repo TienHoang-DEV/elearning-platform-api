@@ -184,15 +184,7 @@
                                         </a>
                                     </div>
                                 </div>
-
-                                <div class="lesson-document-meta d-flex flex-wrap align-items-center gap-2 mb-3">
-                                    <span class="badge rounded-pill bg-primary-subtle text-primary fw-semibold px-3 py-2"
-                                          th:text="${material != null and material.fileType != null ? material.fileType.toUpperCase() : 'FILE'}">PDF</span>
-                                    <span class="text-muted fs-8"
-                                          th:text="${material != null and material.fileName != null ? material.fileName : 'Chưa có tên tài liệu'}">Tên
-                                            tài liệu</span>
-                                </div>
-
+                                
                                 <div class="lesson-document-stats mb-3" th:if="${material != null}">
                                     <div class="lesson-document-stat">
                                         <span class="lesson-document-stat-label">Tên file</span>
