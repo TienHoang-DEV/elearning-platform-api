@@ -66,9 +66,9 @@ public class CourseService {
     }
 
 
-    public void deleteCourseById(Integer courseId){
-        Course tmp = repository.findCourseById(courseId);
-        if(tmp == null) return;
+    public void deleteCourseById(Integer courseId, User user){
+        // Delete course ownership: chi instructor chinh chu moi duoc xoa khoa hoc cua minh.
+        getInstructorOwnedCourse(courseId, user);
         repository.deleteCourseById(courseId);
     }
 
@@ -123,6 +123,7 @@ public class CourseService {
                         "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
             }
         } else {
+            validateInstructorProfileReadyForCreateCourse(user);
             course = new Course();
             if (repository.existsDuplicateTitleForInstructor(user.getId(), normalizedTitle, null)) {
                 throw new CourseValidationException(
@@ -165,6 +166,29 @@ public class CourseService {
         course.setLevel(courseCreateDto.getLevel());
         course.setUpdateAt(LocalDateTime.now());
         return repository.save(course);
+    }
+
+    public void validateInstructorProfileReadyForCreateCourse(User user) {
+        List<String> missingFields = getMissingInstructorProfileFields(user);
+        if (!missingFields.isEmpty()) {
+            // Create course guard: rule nghiep vu dat trong service de ca GET create va POST save deu dung chung.
+            throw new CourseValidationException(
+                    "profile",
+                    "Vui lòng cập nhật đầy đủ hồ sơ giảng viên trước khi tạo khóa học: "
+                            + String.join(", ", missingFields) + "."
+            );
+        }
+    }
+
+    private List<String> getMissingInstructorProfileFields(User user) {
+        List<String> missingFields = new ArrayList<>();
+        if (user == null || !hasText(user.getFirstName())) missingFields.add("Tên");
+        if (user == null || !hasText(user.getLastName())) missingFields.add("Họ");
+        if (user == null || !hasText(user.getEmail())) missingFields.add("Email");
+        if (user == null || !hasText(user.getPhone())) missingFields.add("Số điện thoại");
+        if (user == null || !hasText(user.getBio())) missingFields.add("Mô tả bản thân");
+        if (user == null || !hasText(user.getAvatarUrl())) missingFields.add("Ảnh đại diện");
+        return missingFields;
     }
 
     private void validateCoursePrice(BigDecimal price) {
@@ -643,6 +667,9 @@ public class CourseService {
 
         long sectionCount = repository.countSectionsByCourseId(courseId);
         long lessonCount = repository.countLessonsByCourseId(courseId);
+        long videoLessonCount = repository.countLessonsHavingVideoByCourseId(courseId);
+        long materialCount = repository.countMaterialsByCourseId(courseId);
+        long quizCount = repository.countQuizzesByCourseId(courseId);
 
         addCheck(dto.getContentChecks(), dto.getMissingMessages(),
                 "Tiêu đề khóa học: 10-120 ký tự",
@@ -669,12 +696,16 @@ public class CourseService {
                 sectionCount > 0 && repository.countSectionsWithoutLessons(courseId) == 0,
                 "Mỗi section cần có ít nhất 1 bài học");
         addCheck(dto.getContentChecks(), dto.getMissingMessages(),
-                "Có ít nhất 1 video hoặc tài liệu học tập",
-                lessonCount > 0 && repository.countLessonsHavingVideoOrMaterial(courseId) > 0,
-                "Thiếu video hoặc tài liệu học tập");
+                "Có ít nhất 1 video bài học",
+                videoLessonCount > 0,
+                "Thiếu video bài học");
+        addCheck(dto.getContentChecks(), dto.getMissingMessages(),
+                "Có ít nhất 1 tài liệu học tập",
+                materialCount > 0,
+                "Thiếu tài liệu học tập");
         addCheck(dto.getContentChecks(), dto.getMissingMessages(),
                 "Có ít nhất 1 quiz / bài tập cuối khóa",
-                repository.countQuizzesByCourseId(courseId) > 0,
+                quizCount > 0,
                 "Thiếu quiz / bài tập cuối khóa");
 
         addCheck(dto.getBusinessChecks(), dto.getMissingMessages(),

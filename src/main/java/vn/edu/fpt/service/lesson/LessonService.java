@@ -1,6 +1,7 @@
 package vn.edu.fpt.service.lesson;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -280,7 +281,7 @@ public class LessonService {
     }
 
 
-    public void deleteLesson(Integer lessonId) {
+    public void deleteLesson(Integer lessonId, User user) {
         if (lessonId == null || lessonId <= 0) {
             throw new RuntimeException("ID bài giảng không hợp lệ");
         }
@@ -290,6 +291,12 @@ public class LessonService {
             throw new ResourceNotFoundException("Bài giảng không tìm thấy với id: " + lessonId);
         }
 
+
+        Course course = lesson.getCourseSection() != null ? lesson.getCourseSection().getCourse() : null;
+        // Delete lesson ownership: chi instructor so huu course moi duoc xoa lesson trong course do.
+        if (user == null || course == null || course.getInstructor() == null || !course.getInstructor().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Bạn không có quyền xóa bài giảng này.");
+        }
 
         if (lesson.getVideoUrl() != null && !lesson.getVideoUrl().isEmpty()) {
             try {

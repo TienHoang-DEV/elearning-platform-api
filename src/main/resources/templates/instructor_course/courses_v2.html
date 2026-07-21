@@ -18,6 +18,14 @@
         <a th:href="@{/instructorcourse/create}" class="btn btn-primary">+ Tạo Khóa Học Mới</a>
     </div>
 
+    <div class="app-toast toast-error" th:if="${error != null}">
+        <!-- Create course guard: hien thong bao tai list course khi profile instructor chua day du. -->
+        <span th:text="${error}">Có lỗi xảy ra</span>
+    </div>
+    <div class="app-toast toast-success" th:if="${success != null}">
+        <span th:text="${success}">Thành công</span>
+    </div>
+
     <div class="card">
         <div class="tab-bar" data-tab-group="courses">
             <a class="tab-btn"
@@ -121,15 +129,8 @@
                     <div class="course-card-actions">
                         <div class="course-card-action-top">
                             <span class="course-card-status status-pending">Chờ duyệt</span>
-                            <details class="dropdown">
-                                <summary class="btn btn-sm btn-outline course-more-btn" aria-label="Thao tác khác">⋯</summary>
-                                <div class="dropdown-menu">
-                                    <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}">Xem chi tiết</a>
-                                    <a th:href="@{/instructorcourse/{id}/reviews(id=${course.id})}">Xem đánh giá</a>
-                                </div>
-                            </details>
                         </div>
-                        <a th:href="@{/instructorcourse/{id}/submit-review(id=${course.id})}" class="btn btn-sm btn-outline">Xem yêu cầu duyệt</a>
+                        <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem chi tiết</a>
                     </div>
                 </div>
             </div>
@@ -248,15 +249,8 @@
                     <div class="course-card-actions">
                         <div class="course-card-action-top">
                             <span class="course-card-status status-resubmit">Duyệt lại</span>
-                            <details class="dropdown">
-                                <summary class="btn btn-sm btn-outline course-more-btn" aria-label="Thao tác khác">⋯</summary>
-                                <div class="dropdown-menu">
-                                    <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}">Xem chi tiết</a>
-                                    <a th:href="@{/instructorcourse/{id}/reviews(id=${course.id})}">Xem đánh giá</a>
-                                </div>
-                            </details>
                         </div>
-                        <a th:href="@{/instructorcourse/{id}/submit-review(id=${course.id})}" class="btn btn-sm btn-outline">Xem yêu cầu duyệt</a>
+                        <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem Chi Tiết</a>
                     </div>
                 </div>
             </div>

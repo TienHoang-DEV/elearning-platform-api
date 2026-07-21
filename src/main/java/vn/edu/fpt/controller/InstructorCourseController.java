@@ -105,7 +105,15 @@ public class InstructorCourseController {
 
 
     @GetMapping("/create")
-    public String getCreatePage(Model model){
+    public String getCreatePage(Model model, RedirectAttributes redirectAttributes){
+        User currentUser = SecurityUtils.getCurrentUser();
+        try {
+            courseService.validateInstructorProfileReadyForCreateCourse(currentUser);
+        } catch (CourseValidationException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/instructorcourse/courses";
+        }
+
         List<CourseLevel> levels = Arrays.asList(CourseLevel.values());
         List<CategoryDto> categoryParentList = categoryService.findByParentIsNullAndStatus("ACTIVE".trim());
         List<CategoryDto> categoryChildList = categoryService.findByParentIsNotNulAndStatus("ACTIVE".trim());
@@ -142,6 +150,8 @@ public class InstructorCourseController {
             @RequestParam(name = "trangthai") String status,
             RedirectAttributes attributes) {
 
+        User u = SecurityUtils.getCurrentUser();
+
         if (bindingResult.hasErrors()) {
             loadFormModel(model);
             model.addAttribute("activeStep", "info");
@@ -150,7 +160,6 @@ public class InstructorCourseController {
         }
 
         try {
-            User u = SecurityUtils.getCurrentUser();
             Course saved = courseService.save(u, courseDto);
             Integer id = saved.getId();
             boolean isUpdate = courseDto.getId() != null;
@@ -166,6 +175,10 @@ public class InstructorCourseController {
             return "redirect:/instructorcourse/create";
 
         } catch (CourseValidationException e) {
+            if ("profile".equals(e.getField())) {
+                attributes.addFlashAttribute("error", e.getMessage());
+                return "redirect:/instructorcourse/courses";
+            }
 
             bindingResult.rejectValue(
                     e.getField(),
@@ -358,8 +371,13 @@ public class InstructorCourseController {
     public String deleteCourse(@PathVariable("id") Integer courseId,
                                @RequestParam(name = "tab", required = false, defaultValue = "all") String tab,
                                RedirectAttributes redirectAttributes){
-        courseService.deleteCourseById(courseId);
-        redirectAttributes.addFlashAttribute("success", "Xoá khoá học thành công");
+        User user = SecurityUtils.getCurrentUser();
+        try {
+            courseService.deleteCourseById(courseId, user);
+            redirectAttributes.addFlashAttribute("success", "Xoá khoá học thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xoá khoá học: " + e.getMessage());
+        }
         return "redirect:/instructorcourse/courses?tab=" + tab;
     }
 

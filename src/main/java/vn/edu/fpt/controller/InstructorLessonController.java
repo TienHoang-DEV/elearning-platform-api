@@ -90,9 +90,7 @@
                     (long) (quizPage.getNumber() + 1) * quizPage.getSize(),
                     quizPage.getTotalElements()
             );
-            model.addAttribute("endItem", endItem); // Gửi giá trị an toàn sang HTML
-            // ------------------------------------------
-            //model.addAttribute("lesson", lesson);
+            model.addAttribute("endItem", endItem);
             model.addAttribute("quiz", new QuizDTO());
             model.addAttribute("quizPage", quizPage);                      // Đối tượng Page để render thanh chuyển trang
             model.addAttribute("quizzes", quizPage.getContent());           // Danh sách Quiz của trang hiện tại
@@ -179,7 +177,6 @@
                 redirectAttributes.addFlashAttribute("success", "Cập nhật bài giảng thành công!");
             } catch (RuntimeException e) {
                 redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
-                // FIX: trước đây rơi xuống return cuối, bỏ qua source.
             }
 
             return redirectAfterCurriculumAction(source, courseId);
@@ -193,11 +190,11 @@
                 RedirectAttributes redirectAttributes) {
 
             try {
-                lessonService.deleteLesson(lessonId);
+                User user = SecurityUtils.getCurrentUser();
+                lessonService.deleteLesson(lessonId, user);
                 redirectAttributes.addFlashAttribute("success", "Xóa bài giảng thành công!");
             } catch (RuntimeException e) {
                 redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
-                // FIX: trước đây rơi xuống return cuối, bỏ qua source.
             }
 
             return redirectAfterCurriculumAction(source, courseId);
