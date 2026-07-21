@@ -195,8 +195,8 @@ public class LessonMaterialService {
         if (course == null || course.getStatus() == null) {
             return "Không xác định được trạng thái khóa học.";
         }
-        if (course.getStatus() == CourseStatus.PENDING) {
-            return "Khóa học đang chờ duyệt, không được xóa tài liệu để tránh thay đổi nội dung duyệt.";
+        if (course.getStatus() == CourseStatus.PENDING || course.getStatus() == CourseStatus.RESUBMIT) {
+            return "Khóa học đang chờ duyệt hoặc duyệt lại, không được xóa tài liệu để tránh thay đổi nội dung duyệt.";
         }
         if (course.getStatus() == CourseStatus.PUBLISHED) {
             return "Khóa học đã xuất bản, học viên có thể đang sử dụng tài liệu.";

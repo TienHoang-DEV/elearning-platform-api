@@ -2235,6 +2235,7 @@ tbody tr:last-child td { border-bottom: none; }
 .status-pending{background:#f59f00;}
 .status-draft{background:#868e96;}
 .status-rejected{background:#e03131;}
+.status-resubmit{background:#7950f2;}
 .status-hidden{background:#495057;}
 
 .course-card-body{
