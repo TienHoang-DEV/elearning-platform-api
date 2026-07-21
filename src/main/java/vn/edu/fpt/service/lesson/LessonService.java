@@ -100,14 +100,17 @@ public class LessonService {
             throw new RuntimeException("Dữ liệu bài học không tồn tại");
         }
 
-        if(repository.existsByTitleAndCourseSection_Id(lessonDto.getTitle(), sectiondId)){
+        String normalizedTitle = lessonDto.getTitle() != null ? lessonDto.getTitle().trim() : "";
+
+        // Lesson validation: khong cho trung ten lesson trong cung section khi tao moi.
+        if(repository.existsDuplicateTitleInSection(sectiondId, normalizedTitle, null)){
             throw new RuntimeException("Tiêu đề bài này đã được thiết lập");
         }
 
-        if(lessonDto.getTitle() == null || lessonDto.getTitle().isEmpty()){
+        if(normalizedTitle.isEmpty()){
             throw new RuntimeException("Tiêu đề bài học được để trống");
         }
-        if(lessonDto.getTitle().length() > 255){
+        if(normalizedTitle.length() > 255){
             throw new RuntimeException("Tiêu đề bài học đã dài quá mức cho phép");
         }
 
@@ -123,7 +126,7 @@ public class LessonService {
 
         String video_url = azureBlobService.saveFile(file, AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS);
         Lesson l = new Lesson();
-        l.setTitle(lessonDto.getTitle());
+        l.setTitle(normalizedTitle);
         l.setVideoUrl(video_url);
         l.setPosition(po + 1);
         l.setDurationSeconds(lessonDto.getDurationSeconds());
@@ -225,16 +228,18 @@ public class LessonService {
                 .orElseThrow(() -> new ResourceNotFoundException("Bài giảng không tìm thấy với id: " + lessonId));
 
         // Validate title
-        if (lessonDto.getTitle() == null || lessonDto.getTitle().trim().isEmpty()) {
+        String normalizedTitle = lessonDto.getTitle() != null ? lessonDto.getTitle().trim() : "";
+        if (normalizedTitle.isEmpty()) {
             throw new RuntimeException("Tiêu đề bài học không được để trống");
         }
-        if (lessonDto.getTitle().length() > 255) {
+        if (normalizedTitle.length() > 255) {
             throw new RuntimeException("Tiêu đề bài học quá dài");
         }
 
-        boolean titleExists = repository.existsByTitleAndCourseSection_IdAndIdNot(
-                lessonDto.getTitle(),
+        // Lesson validation: khong cho trung ten lesson trong cung section khi edit.
+        boolean titleExists = repository.existsDuplicateTitleInSection(
                 lesson.getCourseSection().getId(),
+                normalizedTitle,
                 lessonId
         );
         if (titleExists) {
@@ -242,7 +247,7 @@ public class LessonService {
         }
 
 
-        lesson.setTitle(lessonDto.getTitle().trim());
+        lesson.setTitle(normalizedTitle);
 
         lesson.setIsFreePreview(lessonDto.getIsFreePreview() != null ? lessonDto.getIsFreePreview() : false);
 

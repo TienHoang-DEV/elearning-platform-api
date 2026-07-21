@@ -31,6 +31,18 @@ public interface CourseSectionRepository extends JpaRepository<CourseSection, In
 
     List<CourseSection> findByCourseId(Integer courseId);
 
+    // Section validation: khong cho trung ten section trong cung mot course.
+    @Query("""
+            select case when count(s) > 0 then true else false end
+            from CourseSection s
+            where s.course.id = :courseId
+              and lower(trim(s.title)) = lower(trim(:title))
+              and (:excludeSectionId is null or s.id <> :excludeSectionId)
+            """)
+    boolean existsDuplicateTitleInCourse(@Param("courseId") Integer courseId,
+                                         @Param("title") String title,
+                                         @Param("excludeSectionId") Integer excludeSectionId);
+
     @Query("""
             select c from CourseSection c LEFT JOIN FETCH c.lessons l where c.course.id = :courseId Order by c.position
             """)

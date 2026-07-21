@@ -22,4 +22,8 @@ public class LessonMaterialDto {
     private Integer lessonId;
     private String  lessonTitle;
     private String  sectionTitle;
+    private String  courseStatus;
+    private String  courseStatusLabel;
+    private boolean deleteAllowed;
+    private String  deleteReason;
 }

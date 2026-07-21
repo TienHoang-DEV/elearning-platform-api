@@ -95,8 +95,8 @@
                     <label>Trình Độ Khóa Học</label>
                     <select th:field="*{level}" class="form-control">
                         <option value="">Chọn trình độ</option>
-                        <option th:each="l : ${courselevels}" th:value="${l}"
-                                th:text="${l == 'BEGINNER' ? 'Người mới bắt đầu' : (l == 'INTERMEDIATE' ? 'Trung cấp' : 'Nâng cao')}"></option>
+                        <option th:each="l : ${courselevels}" th:value="${l.name()}"
+                                th:text="${l.name() == 'BEGINNER' ? 'Người mới bắt đầu' : (l.name() == 'INTERMEDIATE' ? 'Trung cấp' : 'Nâng cao')}"></option>
                     </select>
                 </div>
                 <div class="form-group">
