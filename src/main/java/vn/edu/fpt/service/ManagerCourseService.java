@@ -17,20 +17,20 @@ import vn.edu.fpt.util.SecurityUtils;
 @Transactional
 public class ManagerCourseService {
 
-    private final CourseRepository repository;
+    private final CourseRepository courseRepository;
     private final DtoMapper dtoMapper;
     private final EmailService emailService;
     private final SystemLogService systemLogService;
 
-    public ManagerCourseService(CourseRepository repository, DtoMapper dtoMapper, EmailService emailService, SystemLogService systemLogService) {
-        this.repository = repository;
+    public ManagerCourseService(CourseRepository courseRepository, DtoMapper dtoMapper, EmailService emailService, SystemLogService systemLogService) {
+        this.courseRepository = courseRepository;
         this.dtoMapper = dtoMapper;
         this.emailService = emailService;
         this.systemLogService = systemLogService;
     }
 
     public Page<CourseDto> searchAndFilter(String keyword, CourseStatus status, Integer categoryId, Pageable pageable) {
-        return repository.searchAndFilter(keyword, status, categoryId, pageable)
+        return courseRepository.searchAndFilter(keyword, status, categoryId, pageable)
                 .map(dtoMapper::toSimpleCourseDto);
     }
 
@@ -39,7 +39,7 @@ public class ManagerCourseService {
     }
 
     public void updateCourseStatus(Integer id, CourseStatus status, String rejectionReason) {
-        Course course = repository.findById(id)
+        Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
         
         if (course.getStatus() != CourseStatus.PENDING) {
@@ -47,7 +47,7 @@ public class ManagerCourseService {
         }
 
         updateCourseState(course, status, rejectionReason);
-        repository.save(course);
+        courseRepository.save(course);
 
         logCourseStatusChange(course, status, rejectionReason);
         sendCourseStatusNotification(course, status, rejectionReason);
