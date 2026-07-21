@@ -42,13 +42,13 @@
             <div class="detail-info-row">
                 <div class="detail-meta">
                     <span th:if="${course.status != null}" 
-                          th:class="${'badge py-2 px-3 fs-6 badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : (course.status.name() == 'PENDING' ? 'warning' : 'danger'))}"
+                          th:class="${'badge py-2 px-3 fs-6 badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : (course.status.name() == 'PENDING' ? 'warning' : (course.status.name() == 'RESUBMIT' ? 'info' : 'danger')))}"
                           th:text="${course.statusLabel}">Trạng thái</span>
                     <span class="detail-price" th:text="${course.price != null ? #numbers.formatDecimal(course.price, 0, 'POINT', 0, 'COMMA') + ' đ' : 'Miễn phí'}">$49.99</span>
                 </div>
 
                 <!-- Action buttons form -->
-                <div class="detail-actions" th:if="${course.status != null and course.status.name() == 'PENDING'}">
+                <div class="detail-actions" th:if="${course.status != null and (course.status.name() == 'PENDING' or course.status.name() == 'RESUBMIT')}">
                     <!-- Phê duyệt (Approve) -->
                     <button type="button" class="btn btn-approve d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#approveModal">
                         <i class="ph ph-check-circle fs-5"></i> Phê duyệt

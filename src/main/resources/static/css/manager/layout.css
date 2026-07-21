@@ -297,6 +297,8 @@ body {
 .badge-success { background: #d4edda; color: #155724; }
 .badge-danger { background: #f8d7da; color: #721c24; }
 .badge-secondary { background: #e2e3e5; color: #383d41; }
+.badge-info { background: #ebe4ff; color: #5f3dc4; border: 1px solid #d0bfff; }
+.badge-resubmit { background: #ebe4ff; color: #5f3dc4; border: 1px solid #d0bfff; }
 
 /* ── Responsive Layout ── */
 @media (max-width: 768px) {

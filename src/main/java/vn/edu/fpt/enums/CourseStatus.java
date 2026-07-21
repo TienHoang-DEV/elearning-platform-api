@@ -5,6 +5,7 @@ public enum CourseStatus {
     PENDING("Đang chờ duyệt"),
     PUBLISHED("Đã duyệt"),
     REJECTED("Từ chối"),
+    RESUBMIT("Duyệt lại"),
     HIDDEN("Ẩn");
 
     private final String label;

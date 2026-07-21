@@ -42,7 +42,7 @@ public class ManagerCourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
         
-        if (course.getStatus() != CourseStatus.PENDING) {
+        if (course.getStatus() != CourseStatus.PENDING && course.getStatus() != CourseStatus.RESUBMIT) {
             throw new IllegalStateException("Khóa học này đã được phê duyệt hoặc từ chối bởi một quản lý khác trước đó.");
         }
 
