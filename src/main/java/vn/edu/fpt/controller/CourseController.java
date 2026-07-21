@@ -101,7 +101,7 @@ public class CourseController {
         model.addAttribute("course", courseDto);
         User user = getSessionUser();
         if (user != null) {
-            java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
+            Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
             model.addAttribute("enrolledCourseIds", enrolledCourseIds);
             boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), id);
             model.addAttribute("hasReviewed", hasReviewed);
