@@ -37,13 +37,9 @@ public class ListLessonCourseController {
     @GetMapping("/course/{courseId}")
     public String listSection(@PathVariable Integer courseId) {
         User user = SecurityUtils.getCurrentUser();
-
         Course course = courseService.findByCourseIdAndUserId(courseId, user.getId());
-
         Integer lessonIdFinalCompleted = lessonService.findLessonIdFinalCompletedByCourseIdAndUserId(course.getId(), user.getId());
-
         Integer sectionId = lessonService.findSectionIdByLessonId(lessonIdFinalCompleted);
-
         return String.format("redirect:/course/%d/section/%d/lesson/%d", courseId, sectionId, lessonIdFinalCompleted);
     }
 
@@ -58,18 +54,7 @@ public class ListLessonCourseController {
     @GetMapping("/lesson/{lessonId}")
     @ResponseBody
     public String lessonView(@PathVariable("lessonId") Integer lessonId) {
-        User user = SecurityUtils.getCurrentUser();
-        if (user == null) {
-            return null;
-        }
-        Lesson lesson = lessonService.findById(lessonId).orElse(null);
-        if (lesson == null) {
-            return null;
-        }
-        if (!lessonService.hasAccessToLesson(user, lesson)) {
-            return null;
-        }
-        return lessonService.findLessonUrl(lesson);
+        return lessonService.findLessonUrl(lessonId);
     }
 
     @GetMapping("/lesson-completed/{lessonId}")

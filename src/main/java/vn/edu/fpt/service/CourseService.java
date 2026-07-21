@@ -37,6 +37,7 @@ import vn.edu.fpt.service.lesson.LessonService;
 import vn.edu.fpt.util.AppConstants;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import java.math.BigDecimal;
@@ -1052,6 +1053,37 @@ public class CourseService {
                 .build();
 
         return feedbackRepository.save(feedback);
+    }
+
+    public Map<String, Object> addCourseReviewAndBuildData(User user, Integer courseId, Integer rating, String comment) {
+        Feedback feedback = addCourseReview(user, courseId, rating, comment);
+
+        Map<String, Object> fbData = new HashMap<>();
+        fbData.put("id", feedback.getId());
+        fbData.put("rating", feedback.getRating());
+        fbData.put("comment", feedback.getComment());
+        fbData.put("createdAt", feedback.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("id", user.getId());
+        userData.put("firstName", user.getFirstName());
+        userData.put("lastName", user.getLastName());
+        userData.put("avatarUrl", user.getFullAvatarUrl());
+        fbData.put("user", userData);
+
+        return fbData;
+    }
+
+    public void editCourseReview(Integer feedbackId, Integer rating, String comment, User user) {
+        feedbackService.updateReview(feedbackId, rating, comment, user);
+    }
+
+    public void deleteCourseReview(Integer feedbackId, User user) {
+        feedbackService.deleteReview(feedbackId, user);
+    }
+
+    public boolean hasUserReviewedCourse(Integer userId, Integer courseId) {
+        return feedbackService.hasUserReviewedCourse(userId, courseId);
     }
 
     public List<CourseGrantDTO> findAllCourseGrant() {

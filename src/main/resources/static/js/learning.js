@@ -121,12 +121,48 @@ function initializeQuizAjax() {
         }
     });
 
-    // Handle clicks on Retake button / links
+    // Handle clicks on Retake button / Quiz option links / Sidebar Toggle
     container.addEventListener("click", (event) => {
+        // Toggle Sidebar
+        const toggleBtn = event.target.closest("#toggleQuizSidebarBtn, .quiz-toggle-btn");
+        if (toggleBtn) {
+            const layout = toggleBtn.closest(".quiz-container-layout");
+            if (layout) {
+                layout.classList.toggle("is-collapsed");
+                const isCollapsed = layout.classList.contains("is-collapsed");
+                toggleBtn.setAttribute("title", isCollapsed ? "Mở rộng danh sách" : "Thu gọn danh sách");
+            }
+            return;
+        }
+
+        // Toggle older attempt history
+        const toggleAttemptsBtn = event.target.closest(".btn-toggle-attempts");
+        if (toggleAttemptsBtn) {
+            const list = toggleAttemptsBtn.closest(".quiz-attempt-list");
+            if (list) {
+                const olderItems = list.querySelectorAll(".older-attempt");
+                const isExpanded = toggleAttemptsBtn.classList.contains("expanded");
+                const count = toggleAttemptsBtn.getAttribute("data-count");
+
+                olderItems.forEach(item => {
+                    item.style.display = isExpanded ? "none" : "flex";
+                });
+
+                if (isExpanded) {
+                    toggleAttemptsBtn.classList.remove("expanded");
+                    toggleAttemptsBtn.innerHTML = `Xem thêm ${parseInt(count) - 1} lần làm bài trước &#10095;`;
+                } else {
+                    toggleAttemptsBtn.classList.add("expanded");
+                    toggleAttemptsBtn.innerHTML = `Thu gọn lịch sử &#10094;`;
+                }
+            }
+            return;
+        }
+
         const link = event.target.closest("a");
         if (link) {
             const href = link.getAttribute("href");
-            if (href && (link.classList.contains("quiz-submit-button") || href.includes("/quiz/lesson/"))) {
+            if (href && (link.classList.contains("quiz-submit-button") || link.classList.contains("quiz-option-link") || href.includes("/quiz/lesson/"))) {
                 event.preventDefault();
                 loadQuizContent(href);
             }
@@ -263,6 +299,28 @@ function initializeMaterial() {
                 if (openLink) openLink.classList.add('disabled');
                 if (downloadLink) downloadLink.classList.add('disabled');
             });
+    });
+
+    document.addEventListener("click", (event) => {
+        const matNavItem = event.target.closest(".mat-nav-item");
+        if (matNavItem) {
+            const documentPanel = matNavItem.closest("#panel-document");
+            if (!documentPanel) return;
+
+            const targetId = matNavItem.getAttribute("data-mat-target");
+            if (!targetId) return;
+
+            documentPanel.querySelectorAll(".mat-nav-item").forEach(nav => nav.classList.remove("active"));
+            matNavItem.classList.add("active");
+
+            documentPanel.querySelectorAll(".mat-detail-card").forEach(card => {
+                if (card.id === targetId) {
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
     });
 }
 

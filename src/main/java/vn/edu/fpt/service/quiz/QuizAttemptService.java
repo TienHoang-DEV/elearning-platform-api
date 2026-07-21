@@ -4,24 +4,76 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
-import vn.edu.fpt.entity.QuizAttempt;
+import vn.edu.fpt.entity.*;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.QuizAttemptRepository;
+import vn.edu.fpt.repository.QuizRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @Transactional
 public class QuizAttemptService {
     private final QuizAttemptRepository repository;
+    private final QuizRepository quizRepository;
     private final DtoMapper dtoMapper;
 
-    public QuizAttemptService(QuizAttemptRepository quizAttemptRepository, DtoMapper dtoMapper)
+    public QuizAttemptService(QuizAttemptRepository quizAttemptRepository, QuizRepository quizRepository, DtoMapper dtoMapper)
     {
         this.repository = quizAttemptRepository;
+        this.quizRepository = quizRepository;
         this.dtoMapper = dtoMapper;
+    }
+
+    public QuizAttempt submitQuiz(Integer quizId, User user, Map<String, String[]> parameterMap) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new ResourceNotFoundException("Không thấy Quiz"));
+
+        int totalPoints = 0;
+        int userPoints = 0;
+
+        for (QuizQuestion question : quiz.getQuestions()) {
+            int qPoints = question.getPoints() != null ? question.getPoints() : 1;
+            totalPoints += qPoints;
+
+            List<Integer> correctAnswers = new ArrayList<>();
+            for (QuizAnswer answer : question.getAnswers()) {
+                if (Boolean.TRUE.equals(answer.getCorrect())) {
+                    correctAnswers.add(answer.getId());
+                }
+            }
+            Collections.sort(correctAnswers);
+
+            String[] paramValues = parameterMap.get("quiz-" + quizId + "-question-" + question.getId());
+            List<Integer> userSelected = new ArrayList<>();
+            if (paramValues != null) {
+                for (String val : paramValues) {
+                    userSelected.add(Integer.parseInt(val));
+                }
+            }
+            Collections.sort(userSelected);
+
+            boolean isCorrect = userSelected.equals(correctAnswers);
+            if (isCorrect) {
+                userPoints += qPoints;
+            }
+        }
+
+        double scorePercentage = totalPoints > 0 ? ((double) userPoints * 100.0 / totalPoints) : 0.0;
+        boolean passed = scorePercentage >= quiz.getPassScorePercent();
+
+        QuizAttempt attempt = QuizAttempt.builder()
+                .user(user)
+                .quiz(quiz)
+                .score(BigDecimal.valueOf(scorePercentage))
+                .passed(passed)
+                .startedAt(LocalDateTime.now().minusMinutes(5))
+                .submittedAt(LocalDateTime.now())
+                .build();
+
+        return repository.save(attempt);
     }
 
     public List<QuizAttempt> findAll() {

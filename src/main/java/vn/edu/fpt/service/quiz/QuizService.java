@@ -6,14 +6,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
 import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.Quiz;
+import vn.edu.fpt.entity.QuizAttempt;
+import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.QuizStatus;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.LessonRepository;
+import vn.edu.fpt.repository.QuizAttemptRepository;
 import vn.edu.fpt.repository.QuizQuestionRepository;
 import vn.edu.fpt.repository.QuizRepository;
 
@@ -27,12 +31,34 @@ public class QuizService {
     private final DtoMapper dtoMapper;
     private final LessonRepository lessonRepository;
     private final QuizQuestionRepository quizQuestionRepository;
+    private final QuizAttemptRepository quizAttemptRepository;
 
-    public QuizService(QuizRepository quizRepository, DtoMapper dtoMapper, LessonRepository lessonRepository, QuizQuestionRepository quizQuestionRepository) {
+    public QuizService(QuizRepository quizRepository, DtoMapper dtoMapper, LessonRepository lessonRepository, QuizQuestionRepository quizQuestionRepository, QuizAttemptRepository quizAttemptRepository) {
         this.repository = quizRepository;
         this.dtoMapper = dtoMapper;
         this.lessonRepository = lessonRepository;
         this.quizQuestionRepository = quizQuestionRepository;
+        this.quizAttemptRepository = quizAttemptRepository;
+    }
+
+    public void populateLessonQuizModel(Integer lessonId, User user, boolean retake, Integer activeQuizId, Model model) {
+        Lesson lesson = lessonRepository.findByIdWithQuizzes(lessonId)
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson with id " + lessonId + " not found"));
+        List<QuizDTO> quizzes = dtoMapper.toQuizDtos(lesson.getQuizzes());
+        int totalQuestions = totalQuestion(quizzes);
+        Map<Integer, List<QuizAttempt>> quizAttemptsMap = new HashMap<>();
+        for (QuizDTO q : quizzes) {
+            List<QuizAttempt> attempts = quizAttemptRepository.findByUserIdAndQuizIdOrderBySubmittedAtDesc(user.getId(), q.getId());
+            quizAttemptsMap.put(q.getId(), attempts);
+        }
+        model.addAttribute("lessonId", lesson.getId());
+        model.addAttribute("lessonTitle", lesson.getTitle());
+        model.addAttribute("quizzes", quizzes);
+        model.addAttribute("quizCount", quizzes.size());
+        model.addAttribute("totalQuestions", totalQuestions);
+        model.addAttribute("quizAttemptsMap", quizAttemptsMap);
+        model.addAttribute("retake", retake);
+        model.addAttribute("activeQuizId", activeQuizId != null ? activeQuizId : (quizzes.isEmpty() ? null : quizzes.get(0).getId()));
     }
 
     public List<Quiz> findAll() {

@@ -72,9 +72,7 @@ public class AzureBlobService {
     }
 
     public BlobClient getBlobClient(String containerName, String blobName) {
-        return blobServiceClient
-                .getBlobContainerClient(containerName)
-                .getBlobClient(blobName);
+        return blobServiceClient.getBlobContainerClient(containerName).getBlobClient(blobName);
     }
 
     public String getPublicUrl(String containerName, String blobName) {

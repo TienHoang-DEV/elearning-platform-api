@@ -1,10 +1,10 @@
-package vn.edu.fpt.service.payment;
+package vn.edu.fpt.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.service.payment.PaymentSyncService;
 
 @Slf4j
 @Component

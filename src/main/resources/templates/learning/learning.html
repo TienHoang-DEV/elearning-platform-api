@@ -26,6 +26,7 @@
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <!-- Course Player Page Custom Stylesheet -->
     <link rel="stylesheet" th:href="@{/css/learning.css}">
+    <link rel="stylesheet" th:href="@{/css/quiz.css}">
 
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -136,69 +137,83 @@
 
                 <!-- Tab Panel 3: Lesson Document (Hidden by default) -->
                 <div class="tab-panel-item d-none" id="panel-document">
-                    <div th:each="material : ${sidebar.materials}">
-                        <div class="lesson-document-viewer mb-4">
-                            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
-                                <div>
-                                    <h3 class="tab-panel-subtitle fw-bold fs-6 mb-2 font-heading d-flex align-items-center gap-2 text-dark">
-                                        <i data-lucide="file-text" class="text-primary"
-                                           style="width: 20px; height: 20px;"></i> Tài Liệu Bài Học
-                                    </h3>
-                                    <p class="text-muted fs-7 m-0"
-                                       th:text="${material != null ? 'Xem ' + (material.fileName != null ? material.fileName : 'tài liệu') + ' trực tiếp bằng Office Viewer hoặc tải file gốc về máy.' : 'Chưa có tài liệu cho bài học này.'}">
-                                        Xem trực tiếp tài liệu bài học bằng Office Viewer hoặc tải file gốc về máy.
-                                    </p>
-                                </div>
-                                <div class="d-flex flex-wrap align-items-center gap-2">
-                                    <a class="btn btn-outline-primary rounded-3 px-3 py-2 fw-semibold fs-7 d-inline-flex align-items-center gap-2 btn-open-lesson-document"
-                                       href="#" target="_blank" rel="noopener">
-                                        <i data-lucide="external-link" style="width: 16px; height: 16px;"></i>
-                                        <span>Mở tab mới</span>
-                                    </a>
-                                    <a class="btn btn-primary rounded-3 px-3 py-2 fw-semibold fs-7 d-inline-flex align-items-center gap-2 shadow-primary btn-download-lesson-document"
-                                       href="#" th:attr="download=${material != null ? material.fileName : ''}">
-                                        <i data-lucide="download" style="width: 16px; height: 16px;"></i>
-                                        <span>Tải tài liệu</span>
-                                    </a>
-                                </div>
-                            </div>
+                    <div th:if="${sidebar.materials != null and !sidebar.materials.isEmpty()}">
+                        <!-- Horizontal Option Selection Bar at the Top -->
+                        <div class="mat-top-select-bar mb-4 p-3 bg-light bg-opacity-75 rounded-3 border d-flex align-items-center flex-wrap gap-2" th:if="${sidebar.materials.size() > 1}">
+                            <span class="fw-bold fs-7 text-uppercase text-muted me-2 d-flex align-items-center gap-1">
+                                <i data-lucide="layers" style="width: 16px; height: 16px;"></i> Chọn Tài Liệu:
+                            </span>
+                            <button th:each="material, stat : ${sidebar.materials}"
+                                    type="button"
+                                    class="btn btn-sm btn-outline-primary rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2 mat-nav-item"
+                                    th:classappend="${stat.first} ? 'active' : ''"
+                                    th:data-mat-target="${'mat-viewer-' + material.id}">
+                                <span th:text="${'Tài liệu #' + stat.count}">Tài liệu #1</span>
+                                <span class="badge bg-primary-subtle text-primary text-uppercase" th:text="${material.fileType != null ? material.fileType.toUpperCase() : 'FILE'}">PDF</span>
+                                <span class="text-truncate text-muted fs-8" style="max-width: 180px;" th:text="${material.fileName}">Lab4.pdf</span>
+                            </button>
+                        </div>
 
-                            <div class="lesson-document-meta d-flex flex-wrap align-items-center gap-2 mb-3">
-                                    <span class="badge rounded-pill bg-primary-subtle text-primary fw-semibold px-3 py-2"
-                                          th:text="${material != null and material.fileType != null ? material.fileType.toUpperCase() : 'FILE'}">PDF</span>
-                                <span class="text-muted fs-8"
-                                      th:text="${material != null and material.fileName != null ? material.fileName : 'Chưa có tên tài liệu'}">Tên
-                                        tài liệu</span>
-                            </div>
-
-                            <div class="lesson-document-stats mb-3" th:if="${material != null}">
-                                <div class="lesson-document-stat">
-                                    <span class="lesson-document-stat-label">Tên file</span>
-                                    <span class="lesson-document-stat-value"
-                                          th:text="${material.fileName != null ? material.fileName : '—'}">—</span>
+                        <!-- Nội dung xem tài liệu -->
+                        <div>
+                            <div th:each="material, stat : ${sidebar.materials}"
+                                 class="lesson-document-viewer mat-detail-card mb-4"
+                                 th:id="${'mat-viewer-' + material.id}"
+                                 th:style="${stat.first} ? 'display: block;' : 'display: none;'">
+                                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+                                    <div>
+                                        <h3 class="tab-panel-subtitle fw-bold fs-6 mb-2 font-heading d-flex align-items-center gap-2 text-dark">
+                                            <i data-lucide="file-text" class="text-primary"
+                                               style="width: 20px; height: 20px;"></i> Tài Liệu Bài Học
+                                        </h3>
+                                        <p class="text-muted fs-7 m-0"
+                                           th:text="${material != null ? 'Xem ' + (material.fileName != null ? material.fileName : 'tài liệu') + ' trực tiếp bằng Office Viewer hoặc tải file gốc về máy.' : 'Chưa có tài liệu cho bài học này.'}">
+                                            Xem trực tiếp tài liệu bài học bằng Office Viewer hoặc tải file gốc về máy.
+                                        </p>
+                                    </div>
+                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                        <a class="btn btn-outline-primary rounded-3 px-3 py-2 fw-semibold fs-7 d-inline-flex align-items-center gap-2 btn-open-lesson-document"
+                                           href="#" target="_blank" rel="noopener">
+                                            <i data-lucide="external-link" style="width: 16px; height: 16px;"></i>
+                                            <span>Mở tab mới</span>
+                                        </a>
+                                        <a class="btn btn-primary rounded-3 px-3 py-2 fw-semibold fs-7 d-inline-flex align-items-center gap-2 shadow-primary btn-download-lesson-document"
+                                           href="#" th:attr="download=${material != null ? material.fileName : ''}">
+                                            <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                            <span>Tải tài liệu</span>
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="lesson-document-stat">
-                                    <span class="lesson-document-stat-label">Loại file</span>
-                                    <span class="lesson-document-stat-value"
-                                          th:text="${material.fileType != null ? material.fileType : '—'}">—</span>
+                                
+                                <div class="lesson-document-stats mb-3" th:if="${material != null}">
+                                    <div class="lesson-document-stat">
+                                        <span class="lesson-document-stat-label">Tên file</span>
+                                        <span class="lesson-document-stat-value"
+                                              th:text="${material.fileName != null ? material.fileName : '—'}">—</span>
+                                    </div>
+                                    <div class="lesson-document-stat">
+                                        <span class="lesson-document-stat-label">Loại file</span>
+                                        <span class="lesson-document-stat-value"
+                                              th:text="${material.fileType != null ? material.fileType : '—'}">—</span>
+                                    </div>
+                                    <div class="lesson-document-stat">
+                                        <span class="lesson-document-stat-label">Dung lượng</span>
+                                        <span class="lesson-document-stat-value"
+                                              th:text="${material.formattedFileSize != null ? material.formattedFileSize : '—'}">—</span>
+                                    </div>
+                                    <div class="lesson-document-stat">
+                                        <span class="lesson-document-stat-label">Upload lúc</span>
+                                        <span class="lesson-document-stat-value"
+                                              th:text="${material.createdAt != null ? #temporals.format(material.createdAt, 'dd/MM/yyyy') : '—'}">—</span>
+                                    </div>
                                 </div>
-                                <div class="lesson-document-stat">
-                                    <span class="lesson-document-stat-label">Dung lượng</span>
-                                    <span class="lesson-document-stat-value"
-                                          th:text="${material.fileSize != null ? material.fileSize + ' bytes' : '—'}">—</span>
+                                <div class="lesson-document-frame-shell border rounded-3 overflow-hidden bg-light">
+                                    <iframe th:data-material-id="${material.id}" class="lesson-document-frame"
+                                            title="Tài liệu bài học" loading="lazy"
+                                            th:attr="data-document-endpoint=@{/temp/material/lesson/{lessonId}/url(lessonId=${sidebar.lesson.id})}, data-file-name=${material != null ? material.fileName : ''}, data-file-type=${material != null ? material.fileType : ''}, data-file-size=${material != null ? material.fileSize : ''}, data-created-at=${material != null and material.createdAt != null ? material.createdAt : ''}"
+                                            allowfullscreen>
+                                    </iframe>
                                 </div>
-                                <div class="lesson-document-stat">
-                                    <span class="lesson-document-stat-label">Upload lúc</span>
-                                    <span class="lesson-document-stat-value"
-                                          th:text="${material.createdAt != null ? #temporals.format(material.createdAt, 'dd/MM/yyyy') : '—'}">—</span>
-                                </div>
-                            </div>
-                            <div class="lesson-document-frame-shell border rounded-3 overflow-hidden bg-light">
-                                <iframe th:data-material-id="${material.id}" class="lesson-document-frame"
-                                        title="Tài liệu bài học" loading="lazy"
-                                        th:attr="data-document-endpoint=@{/temp/material/lesson/{lessonId}/url(lessonId=${sidebar.lesson.id})}, data-file-name=${material != null ? material.fileName : ''}, data-file-type=${material != null ? material.fileType : ''}, data-file-size=${material != null ? material.fileSize : ''}, data-created-at=${material != null and material.createdAt != null ? material.createdAt : ''}"
-                                        allowfullscreen>
-                                </iframe>
                             </div>
                         </div>
                     </div>
@@ -208,7 +223,6 @@
                             Chưa có tài liệu nào được gắn với bài học này.
                         </div>
                     </div>
-
                 </div>
 
             </div>
