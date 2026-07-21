@@ -19,7 +19,6 @@ public class PaymentScheduledTasks {
             log.debug("[SCHEDULED TASK] Bắt đầu expirePaymentsByTimeout");
             int expiredCount = paymentSyncService.expirePaymentsByTimeout();
             log.debug("[SCHEDULED TASK] Hoàn tất expirePaymentsByTimeout: {} giao dịch đã expire", expiredCount);
-            
         } catch (Exception e) {
             log.error("[SCHEDULED TASK] Lỗi trong expirePaymentsByTimeout: {}", e.getMessage(), e);
         }
@@ -30,9 +29,7 @@ public class PaymentScheduledTasks {
         try {
             log.debug("[SCHEDULED TASK] Bắt đầu syncPendingPaymentsFromPayOs");
             int syncedCount = paymentSyncService.syncPendingPaymentsFromPayOs();
-            
             log.debug("[SCHEDULED TASK] Hoàn tất syncPendingPaymentsFromPayOs: {} giao dịch đã sync", syncedCount);
-            
         } catch (Exception e) {
             log.error("[SCHEDULED TASK] Lỗi trong syncPendingPaymentsFromPayOs: {}", e.getMessage(), e);
         }
@@ -43,9 +40,7 @@ public class PaymentScheduledTasks {
         try {
             log.debug("[SCHEDULED TASK] Bắt đầu retryFailedWebhooks");
             int retriedCount = paymentSyncService.retryFailedWebhooks();
-            
             log.debug("[SCHEDULED TASK] Hoàn tất retryFailedWebhooks: {} giao dịch đã retry", retriedCount);
-            
         } catch (Exception e) {
             log.error("[SCHEDULED TASK] Lỗi trong retryFailedWebhooks: {}", e.getMessage(), e);
         }
