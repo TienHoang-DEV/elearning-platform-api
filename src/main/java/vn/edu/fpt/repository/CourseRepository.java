@@ -188,7 +188,8 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpe
             "COALESCE((SELECT AVG(f.rating) FROM Feedback f WHERE f.course.id = c.id), 0.0), " +
             "(SELECT COUNT(f.id) FROM Feedback f WHERE f.course.id = c.id), " +
             "(SELECT COUNT(l.id) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id), " +
-            "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id)) " +
+            "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id), " +
+            "(SELECT COALESCE(SUM(l.durationSeconds), 0L) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id)) " +
             "FROM Course c JOIN c.instructor i JOIN c.category cat " +
             "WHERE c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED " +
             "AND cat.id IN :categoryIds " +
@@ -239,7 +240,8 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpe
            "COALESCE((SELECT AVG(f.rating) FROM Feedback f WHERE f.course.id = c.id), 0.0), " +
            "(SELECT COUNT(f.id) FROM Feedback f WHERE f.course.id = c.id), " +
            "(SELECT COUNT(l.id) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id), " +
-           "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id)) " +
+           "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id), " +
+           "(SELECT COALESCE(SUM(l.durationSeconds), 0L) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id)) " +
            "FROM Course c JOIN c.instructor i JOIN c.category cat " +
            "WHERE c.instructor.id = :instructorId AND c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED")
     List<CourseListDto> getInstructorCoursesWithStats(@Param("instructorId") Integer instructorId);

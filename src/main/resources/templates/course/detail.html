@@ -544,7 +544,7 @@
                                             <span>Thời lượng:</span>
                                         </div>
                                         <span class="fw-semibold text-dark fs-7"
-                                            th:text="${course.getTotalLessonsCount() * 10} + ' phút'">3 phút</span>
+                                            th:text="${course.getTotalDurationMinutes()} + ' phút'">3 phút</span>
                                     </li>
 
                                     <!-- Lectures Row -->

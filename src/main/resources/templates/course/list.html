@@ -268,7 +268,7 @@
                                         onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
                                     <span
                                         class="position-absolute bottom-0 end-0 bg-dark bg-opacity-75 text-white fs-8 px-2.5 py-1 rounded-pill m-3 fw-medium"
-                                        th:text="${course.getTotalLessonsCount() * 10} + ' phút'">31 phút</span>
+                                        th:text="${course.getDurationMinutes()} + ' phút'">31 phút</span>
                                 </a>
 
                                 <!-- Right: Info -->
@@ -311,7 +311,7 @@
                                         <!-- Meta Attributes -->
                                         <div class="d-flex align-items-center gap-3 text-muted fs-8">
                                             <span class="d-flex align-items-center gap-1"><i data-lucide="clock"
-                                                    class="course-meta-icon"></i> 31 phút</span>
+                                                    class="course-meta-icon"></i> <span th:text="${course.getDurationMinutes()} + ' phút'">31 phút</span></span>
                                             <span class="d-flex align-items-center gap-1"><i data-lucide="zap"
                                                     class="course-meta-icon"></i> <span th:text="${course.level}">Cơ
                                                      bản</span></span>

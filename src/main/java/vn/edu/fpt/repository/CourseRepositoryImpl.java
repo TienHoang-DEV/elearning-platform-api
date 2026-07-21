@@ -122,7 +122,8 @@ public class CourseRepositoryImpl implements CourseRepositoryCustom {
                 "(SELECT COALESCE(AVG(f.rating), 0.0) FROM Feedback f WHERE f.course.id = c.id), " +
                 "(SELECT COUNT(f.id) FROM Feedback f WHERE f.course.id = c.id), " +
                 "(SELECT COUNT(l.id) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id), " +
-                "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id)) " +
+                "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id), " +
+                "(SELECT COALESCE(SUM(l.durationSeconds), 0L) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id)) " +
                 "FROM Course c JOIN c.instructor i JOIN c.category cat WHERE c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED" + 
                 whereClause.toString() + orderClause.toString();
 
