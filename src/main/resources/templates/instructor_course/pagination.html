@@ -14,6 +14,7 @@
                     pagePending=${paramName == 'pagePending' ? pageObj.number - 1 : pagePending},
                     pageDraft=${paramName == 'pageDraft' ? pageObj.number - 1 : pageDraft},
                     pageRejected=${paramName == 'pageRejected' ? pageObj.number - 1 : pageRejected},
+                    pageResubmit=${paramName == 'pageResubmit' ? pageObj.number - 1 : pageResubmit},
                     pageHidden=${paramName == 'pageHidden' ? pageObj.number - 1 : pageHidden},
                     tab=${tabName})}"
        class="btn btn-sm btn-outline">&laquo; Trước</a>
@@ -25,6 +26,7 @@
                         pagePending=${paramName == 'pagePending' ? i : pagePending},
                         pageDraft=${paramName == 'pageDraft' ? i : pageDraft},
                         pageRejected=${paramName == 'pageRejected' ? i : pageRejected},
+                        pageResubmit=${paramName == 'pageResubmit' ? i : pageResubmit},
                         pageHidden=${paramName == 'pageHidden' ? i : pageHidden},
                         tab=${tabName})}"
            th:text="${i + 1}"
@@ -38,6 +40,7 @@
                     pagePending=${paramName == 'pagePending' ? pageObj.number + 1 : pagePending},
                     pageDraft=${paramName == 'pageDraft' ? pageObj.number + 1 : pageDraft},
                     pageRejected=${paramName == 'pageRejected' ? pageObj.number + 1 : pageRejected},
+                    pageResubmit=${paramName == 'pageResubmit' ? pageObj.number + 1 : pageResubmit},
                     pageHidden=${paramName == 'pageHidden' ? pageObj.number + 1 : pageHidden},
                     tab=${tabName})}"
        class="btn btn-sm btn-outline">Sau &raquo;</a>

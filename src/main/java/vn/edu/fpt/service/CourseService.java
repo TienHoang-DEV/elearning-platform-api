@@ -637,7 +637,9 @@ public class CourseService {
         boolean owner = user != null
                 && course.getInstructor() != null
                 && course.getInstructor().getId().equals(user.getId());
-        boolean editableStatus = course.getStatus() == CourseStatus.DRAFT || course.getStatus() == CourseStatus.REJECTED;
+        boolean editableStatus = course.getStatus() == CourseStatus.DRAFT 
+                || course.getStatus() == CourseStatus.REJECTED 
+                || course.getStatus() == CourseStatus.RESUBMIT;
         boolean noPendingRequest = course.getStatus() != CourseStatus.PENDING;
 
         long sectionCount = repository.countSectionsByCourseId(courseId);
@@ -681,9 +683,9 @@ public class CourseService {
                 owner,
                 "Bạn không phải giảng viên sở hữu khóa học này");
         addCheck(dto.getBusinessChecks(), dto.getMissingMessages(),
-                "Khóa học ở trạng thái Draft hoặc Rejected",
+                "Khóa học ở trạng thái Draft, Rejected hoặc Resubmit",
                 editableStatus,
-                "Chỉ khóa học bản nháp hoặc bị từ chối mới được gửi duyệt");
+                "Chỉ khóa học bản nháp, bị từ chối hoặc duyệt lại mới được gửi duyệt");
         addCheck(dto.getBusinessChecks(), dto.getMissingMessages(),
                 "Không tồn tại request đang chờ duyệt",
                 noPendingRequest,
@@ -727,7 +729,11 @@ public class CourseService {
 
         Course course = repository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id " + courseId));
-        course.setStatus(CourseStatus.PENDING);
+        if (course.getStatus() == CourseStatus.REJECTED || course.getStatus() == CourseStatus.RESUBMIT) {
+            course.setStatus(CourseStatus.RESUBMIT);
+        } else {
+            course.setStatus(CourseStatus.PENDING);
+        }
         course.setRejectionReason(null);
         course.setApprovedAt(null);
         course.setApprovedBy(null);
@@ -769,7 +775,7 @@ public class CourseService {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
         if (course.getStatus() == CourseStatus.REJECTED) {
-            course.setStatus(CourseStatus.PENDING);
+            course.setStatus(CourseStatus.RESUBMIT);
             repository.save(course);
         }
     }

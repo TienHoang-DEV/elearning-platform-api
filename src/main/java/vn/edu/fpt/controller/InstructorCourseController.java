@@ -60,6 +60,7 @@ public class InstructorCourseController {
                                     @RequestParam(name = "pageRejected", defaultValue = "0") int pageReject,
                                     @RequestParam(name = "pageHidden", defaultValue = "0") int pageHidden,
                                     @RequestParam(name = "pagePending", defaultValue = "0") int pagePending,
+                                    @RequestParam(name = "pageResubmit", defaultValue = "0") int pageResubmit,
                                     @RequestParam(name = "tab", defaultValue = "all") String activeTab,
                                     Model model){
         User  user = SecurityUtils.getCurrentUser();
@@ -70,6 +71,7 @@ public class InstructorCourseController {
         Page<CourseDto> reject = courseService.findByInstructorAndStatus(user, PageRequest.of(pageReject, size, sort), CourseStatus.REJECTED);
         Page<CourseDto> hidden = courseService.findByInstructorAndStatus(user, PageRequest.of(pageHidden, size, sort), CourseStatus.HIDDEN);
         Page<CourseDto> pending = courseService.findByInstructorAndStatus(user, PageRequest.of(pagePending, size, sort), CourseStatus.PENDING);
+        Page<CourseDto> resubmit = courseService.findByInstructorAndStatus(user, PageRequest.of(pageResubmit, size, sort), CourseStatus.RESUBMIT);
 
         loadFormModel(model);
 
@@ -85,6 +87,9 @@ public class InstructorCourseController {
         model.addAttribute("listrejected", reject.getContent());
         model.addAttribute("rejectedPage", reject);
 
+        model.addAttribute("listresubmit", resubmit.getContent());
+        model.addAttribute("resubmitPage", resubmit);
+
         model.addAttribute("listhidden", hidden.getContent());
         model.addAttribute("hiddenPage", hidden);
 
@@ -92,6 +97,7 @@ public class InstructorCourseController {
         model.addAttribute("pagePending", pagePending);
         model.addAttribute("pageDraft", pageDraf);
         model.addAttribute("pageRejected", pageReject);
+        model.addAttribute("pageResubmit", pageResubmit);
         model.addAttribute("pageHidden", pageHidden);
         model.addAttribute("activeTab", activeTab);
         return "instructor_course/courses_v2";
@@ -273,9 +279,12 @@ public class InstructorCourseController {
                                Model model) {
         User user = SecurityUtils.getCurrentUser();
         try {
+            Course course = courseService.findById(courseId);
+            boolean isResubmit = course.getStatus() == CourseStatus.REJECTED || course.getStatus() == CourseStatus.RESUBMIT;
+
             courseService.submitCourseForApproval(courseId, user, acceptPolicy);
             redirectAttributes.addFlashAttribute("success", "Đã gửi yêu cầu xét duyệt khóa học thành công!");
-            return "redirect:/instructorcourse/courses?tab=pending";
+            return "redirect:/instructorcourse/courses?tab=" + (isResubmit ? "resubmit" : "pending");
         } catch (CourseValidationException e) {
             model.addAttribute("error", e.getMessage());
             loadSubmitReviewModel(courseId, user, model);
