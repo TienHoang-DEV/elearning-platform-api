@@ -82,13 +82,13 @@ function checkPaymentStatus() {
                 showNotification('Thanh toán thành công!', 'Hệ thống đang chuyển bạn đến trang bài học...');
                 setTimeout(() => {
                     window.location.href = '/student/my-learning';
-                }, 2000);
+                }, 3000);
             } else if (data.status === 'CANCELLED' || data.status === 'EXPIRED') {
                 clearInterval(interval);
                 showError('Đơn hàng đã bị hủy hoặc hết hạn.');
                 setTimeout(() => {
                     window.location.href = '/cart';
-                }, 2000);
+                }, 3000);
             }
         } catch (error) {
             // Silent fail - allow user to manually cancel if needed

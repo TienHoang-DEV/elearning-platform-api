@@ -3,6 +3,7 @@ package vn.edu.fpt.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -19,7 +20,7 @@ import vn.edu.fpt.dto.course.CourseListDto;
 import vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO;
 
 @Repository
-public interface CourseRepository extends JpaRepository<Course, Integer>, CourseRepositoryCustom {
+public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpecificationExecutor<Course>, CourseRepositoryCustom {
 
     //Luu khoá học
     Course save(Course course);
@@ -32,6 +33,18 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
 
     //Kiểm tra không title trùng
     boolean existsByInstructorAndTitle(User instructor, String title);
+
+    // Course validation: khong cho instructor tao/edit course trung tieu de, bo qua hoa thuong va khoang trang dau/cuoi.
+    @Query("""
+            select case when count(c) > 0 then true else false end
+            from Course c
+            where c.instructor.id = :instructorId
+              and lower(trim(c.title)) = lower(trim(:title))
+              and (:excludeCourseId is null or c.id <> :excludeCourseId)
+            """)
+    boolean existsDuplicateTitleForInstructor(@Param("instructorId") Integer instructorId,
+                                              @Param("title") String title,
+                                              @Param("excludeCourseId") Integer excludeCourseId);
 
 
     //Phân trang khoá học của mỗi instructor

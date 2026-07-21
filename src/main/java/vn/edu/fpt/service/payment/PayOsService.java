@@ -47,9 +47,9 @@ public class PayOsService {
             CreatePaymentLinkRequest request = CreatePaymentLinkRequest.builder()
                     .orderCode(orderCode)
                     .amount(amountVND)
-                    .description(String.valueOf(orderCode))
                     .returnUrl(returnUrl)
                     .cancelUrl(cancelUrl)
+                    .description(String.valueOf(orderCode))
                     .buyerName(order.getUser().getFirstName() + " " + order.getUser().getLastName())
                     .buyerEmail(order.getUser().getEmail())
                     .buyerPhone(order.getUser().getPhone() != null ? order.getUser().getPhone() : "")
@@ -61,7 +61,7 @@ public class PayOsService {
                 response = payOS.paymentRequests().create(request);
             } catch (PayOSException e) {
                 log.error("{} API error: {}", AppConstants.PAYMENT_GATEWAY, e.getMessage());
-                throw new PaymentCallApiException("Fail to call PayOS Service", e);
+                throw new PaymentCallApiException("Không thể gọi tới hệ thống PayOs", e);
             }
 
             log.info("Tạo liên kết thanh toán thành công: {}", response.toString());

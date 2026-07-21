@@ -29,8 +29,11 @@ import vn.edu.fpt.util.SecurityUtils;
 
 
 import javax.swing.text.Utilities;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/instructorcourse")
@@ -57,6 +60,7 @@ public class InstructorCourseController {
                                     @RequestParam(name = "pageRejected", defaultValue = "0") int pageReject,
                                     @RequestParam(name = "pageHidden", defaultValue = "0") int pageHidden,
                                     @RequestParam(name = "pagePending", defaultValue = "0") int pagePending,
+                                    @RequestParam(name = "tab", defaultValue = "all") String activeTab,
                                     Model model){
         User  user = SecurityUtils.getCurrentUser();
         Sort sort = Sort.by("updateAt").descending();
@@ -89,6 +93,7 @@ public class InstructorCourseController {
         model.addAttribute("pageDraft", pageDraf);
         model.addAttribute("pageRejected", pageReject);
         model.addAttribute("pageHidden", pageHidden);
+        model.addAttribute("activeTab", activeTab);
         return "instructor_course/courses_v2";
     }
 
@@ -205,6 +210,62 @@ public class InstructorCourseController {
         return "instructor_course/editcourse";
     }
 
+    @GetMapping("/{id}/reviews")
+    public String viewCourseReviews(@PathVariable("id") Integer courseId, Model model) {
+        User user = SecurityUtils.getCurrentUser();
+        Course course = courseService.getInstructorOwnedCourse(courseId, user);
+        List<Feedback> reviews = courseService.getInstructorCourseReviews(courseId, user);
+        // Instructor course list: truyen reviews cua dung course sang trang xem danh gia.
+        model.addAttribute("course", course);
+        model.addAttribute("reviews", reviews);
+        addCourseReviewStats(model, reviews);
+        model.addAttribute("userAvatarBaseUrl", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS + "/");
+        return "instructor_course/course_reviews";
+    }
+
+    private void addCourseReviewStats(Model model, List<Feedback> reviews) {
+        int totalRatings = 0;
+        int ratingSum = 0;
+        int[] starCounts = new int[6];
+
+        for (Feedback review : reviews) {
+            Integer rating = review.getRating();
+            if (rating != null && rating >= 1 && rating <= 5) {
+                totalRatings++;
+                ratingSum += rating;
+                starCounts[rating]++;
+            }
+        }
+
+        double averageRating = totalRatings == 0 ? 0.0 : Math.round((ratingSum * 10.0 / totalRatings)) / 10.0;
+        List<Map<String, Object>> ratingBreakdown = new ArrayList<>();
+        for (int star = 5; star >= 1; star--) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("star", star);
+            row.put("count", starCounts[star]);
+            row.put("percent", totalRatings == 0 ? 0 : Math.round(starCounts[star] * 100.0 / totalRatings));
+            ratingBreakdown.add(row);
+        }
+
+        model.addAttribute("averageRating", averageRating);
+        model.addAttribute("ratingStars", (int) Math.round(averageRating));
+        model.addAttribute("ratingCount", totalRatings);
+        model.addAttribute("ratingBreakdown", ratingBreakdown);
+    }
+
+    @GetMapping("/{id}/rejection-reason")
+    public String viewRejectionReason(@PathVariable("id") Integer courseId, Model model) {
+        User user = SecurityUtils.getCurrentUser();
+        Course course = courseService.getInstructorOwnedCourse(courseId, user);
+        // Instructor course list: truyen ly do reject de instructor xem chi tiet.
+        model.addAttribute("course", course);
+        model.addAttribute("rejectionReason",
+                course.getRejectionReason() != null && !course.getRejectionReason().isBlank()
+                        ? course.getRejectionReason()
+                        : "Manager chua nhap ly do tu choi.");
+        return "instructor_course/rejection_reason";
+    }
+
     @PostMapping("/{id}/submit-review")
     public String submitReview(@PathVariable("id") Integer courseId,
                                @RequestParam(name = "acceptPolicy", defaultValue = "false") boolean acceptPolicy,
@@ -251,7 +312,7 @@ public class InstructorCourseController {
 
     @PostMapping("/{id}/edit")
     public String EditCourse(@PathVariable("id") Integer CourseId,
-                             @Valid @ModelAttribute("CourseRequest") CourseCreateDto coursedto,
+                             @Valid @ModelAttribute("courseRequest") CourseCreateDto coursedto,
                              BindingResult bindingResult,
                              RedirectAttributes redirectAttributes,
                              Model model){
@@ -259,7 +320,8 @@ public class InstructorCourseController {
          loadFormModel(model);
          model.addAttribute("activeStep", "info");
          model.addAttribute("error", "Vui lòng kiểm tra lại các thông tin chưa hợp lệ.");
-         return "instructor_course/edit_course";
+          model.addAttribute("CourseRequest", coursedto);
+          return "instructor_course/edit_course";
      }
      try{
          User user = SecurityUtils.getCurrentUser();
@@ -273,10 +335,11 @@ public class InstructorCourseController {
                  "error",
                  e.getMessage());
 
-         loadFormModel(model);
-         model.addAttribute("activeStep", "info");
-         model.addAttribute("error", e.getMessage());
-         return "instructor_course/edit_course";
+          loadFormModel(model);
+          model.addAttribute("activeStep", "info");
+          model.addAttribute("error", e.getMessage());
+          model.addAttribute("CourseRequest", coursedto);
+          return "instructor_course/edit_course";
      }
 
     }
@@ -291,12 +354,22 @@ public class InstructorCourseController {
         return "redirect:/instructorcourse/courses?tab=" + tab;
     }
 
+    @PostMapping("/{id}/hide")
+    public String hideCourse(@PathVariable("id") Integer courseId,
+                             RedirectAttributes redirectAttributes) {
+        User user = SecurityUtils.getCurrentUser();
+        courseService.hidePublishedCourse(courseId, user);
+        redirectAttributes.addFlashAttribute("success", "Da an khoa hoc khoi danh sach dang ban.");
+        return "redirect:/instructorcourse/courses?tab=all";
+    }
 
-
-
-
-
-
-
+    @PostMapping("/{id}/publish")
+    public String publishHiddenCourse(@PathVariable("id") Integer courseId,
+                                      RedirectAttributes redirectAttributes) {
+        User user = SecurityUtils.getCurrentUser();
+        courseService.publishHiddenCourse(courseId, user);
+        redirectAttributes.addFlashAttribute("success", "Da hien lai khoa hoc.");
+        return "redirect:/instructorcourse/courses?tab=hidden";
+    }
 
 }

@@ -527,14 +527,25 @@ function updateCurriculumPreview() {
 }
 
 function openEditSectionModal(dataset) {
-    const source = dataset.source || 'create'
+    const source = dataset.source || 'create';
     const form = document.getElementById("editSectionForm");
+    if (!form) {
+        alert('Khong tim thay form chinh sua chuong!');
+        return;
+    }
 
     form.action =
         `/instructorcourse/${dataset.courseId}/sections/${dataset.sectionId}/edit?source=${source}`;
 
-    document.getElementById("editSectionTitle").value =
-        dataset.sectionTitle;
+    const sourceInput = form.querySelector('input[name="source"]');
+    if (sourceInput) {
+        sourceInput.value = source;
+    }
+
+    const titleInput = form.querySelector('[name="title"]');
+    if (titleInput) {
+        titleInput.value = dataset.sectionTitle || '';
+    }
 
     openModal("modal-edit-section");
 }

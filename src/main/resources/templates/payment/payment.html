@@ -32,13 +32,13 @@
                 <p class="section-title">Tóm tắt đơn hàng</p>
 
                 <!-- Empty state if order has no items -->
-                <div th:if="${order == null or order.items == null or order.items.isEmpty()}" class="text-center py-5">
+                <div th:if="${paymentData.order == null or paymentData.order.items == null or paymentData.order.items.isEmpty()}" class="text-center py-5">
                     <p class="text-muted">Không có thông tin mặt hàng thanh toán.</p>
                 </div>
 
                 <!-- Instructor Block Loop -->
-                <div th:unless="${order == null or order.items == null or order.items.isEmpty()}" 
-                     th:each="entry : ${itemsByInstructor}" class="instructor-block mb-4">
+                <div th:unless="${paymentData.order == null or paymentData.order.items == null or paymentData.order.items.isEmpty()}" 
+                     th:each="entry : ${paymentData.itemsByInstructor}" class="instructor-block mb-4">
                     <div class="instructor-label">
                         <div class="avatar" th:text="${#strings.substring(entry.key.firstName, 0, 1) + #strings.substring(entry.key.lastName, 0, 1)}">GH</div>
                         Giảng viên: <span th:text="${entry.key.firstName + ' ' + entry.key.lastName}">Giang Hoàng</span> &nbsp;·&nbsp; 
@@ -59,14 +59,14 @@
                 </div>
 
                 <!-- Price breakdown -->
-                <div th:if="${order != null}" class="price-breakdown">
+                <div th:if="${paymentData.order != null}" class="price-breakdown">
                     <div class="price-line">
-                        <span class="label">Tạm tính (<span th:text="${order.items.size()}">0</span> khóa học)</span>
-                        <span class="value" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">2,296,000 ₫</span>
+                        <span class="label">Tạm tính (<span th:text="${paymentData.order.items.size()}">0</span> khóa học)</span>
+                        <span class="value" th:text="${#numbers.formatDecimal(paymentData.order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">2,296,000 ₫</span>
                     </div>
                     <div class="price-line total">
                         <span class="label">Tổng thanh toán</span>
-                        <span class="value" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">2,296,000 ₫</span>
+                        <span class="value" th:text="${#numbers.formatDecimal(paymentData.order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">2,296,000 ₫</span>
                     </div>
                 </div>
             </div>
@@ -84,20 +84,20 @@
 
                 <!-- QR code -->
                 <div class="qr-box" 
-                     th:data-qr-url="${payment != null ? payment.qrCodeUrl : ''}" 
-                     th:data-payment-id="${payment != null ? payment.id : ''}" 
-                     th:data-expired-at="${payment != null ? payment.expiredAt : ''}">
+                     th:data-qr-url="${paymentData.payment != null ? paymentData.payment.qrCodeUrl : ''}" 
+                     th:data-payment-id="${paymentData.payment != null ? paymentData.payment.id : ''}" 
+                     th:data-expired-at="${paymentData.payment != null ? paymentData.payment.expiredAt : ''}">
                     <div class="qr-container-wrapper" style="display: flex; justify-content: center; align-items: center; position: relative;">
                         <div id="qrCodeContainer" class="qr-svg-wrap" style="display: flex; justify-content: center; align-items: center;">
-                            <img th:if="${qrCode != null}" th:src="${qrCode}" style="width: 180px; height: 180px; display: block">
-                            <p th:unless="${qrCode != null}" style="color:red; padding:20px;">Lỗi tải mã QR</p>
+                            <img th:if="${paymentData.qrCode != null}" th:src="${paymentData.qrCode}" style="width: 180px; height: 180px; display: block">
+                            <p th:unless="${paymentData.qrCode != null}" style="color:red; padding:20px;">Lỗi tải mã QR</p>
                         </div>
                         <div class="qr-logo-overlay" style="position: absolute; width: 35px; height: 35px;">
                             <img th:src="${paymentGatewayLogo != null ? paymentGatewayLogo : '/images/logo.png'}" 
                                  alt="Payment Gateway Logo" style="width: 100%; height: 100%; object-fit: contain;">
                         </div>
                     </div>
-                    <div class="qr-amount" th:text="${#numbers.formatDecimal(payment.amount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">0 ₫</div>
+                    <div class="qr-amount" th:text="${#numbers.formatDecimal(paymentData.payment.amount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">0 ₫</div>
                     <div class="qr-amount-label">Số tiền cần thanh toán</div>
                     <div class="qr-expire">⏱ Hết hạn sau: <span id="expireTimer" style="font-weight:800">15:00</span></div>
                 </div>
@@ -108,21 +108,21 @@
                 <div class="bank-row">
                     <div class="bank-row-content">
                         <span class="blabel">Ngân hàng</span>
-                        <span class="bvalue" th:text="${payOsBankName}">Chờ tải...</span>
+                        <span class="bvalue" th:text="${paymentData.payOsBankName}">Chờ tải...</span>
                     </div>
                 </div>
 
                 <div class="bank-row">
                     <div class="bank-row-content">
                         <span class="blabel">Chủ tài khoản</span>
-                        <span class="bvalue" th:text="${payOsAccountHolder}">Chờ tải...</span>
+                        <span class="bvalue" th:text="${paymentData.payOsAccountHolder}">Chờ tải...</span>
                     </div>
                 </div>
 
                 <div class="bank-row">
                     <div class="bank-row-content">
                         <span class="blabel">Số tài khoản</span>
-                        <span class="bvalue" id="stk" th:text="${payOsAccountNumber}">Chờ tải...</span>
+                        <span class="bvalue" id="stk" th:text="${paymentData.payOsAccountNumber}">Chờ tải...</span>
                     </div>
                     <button class="copy-btn" data-action="copy" data-target="#stk" data-label="Số tài khoản">Sao chép</button>
                 </div>
@@ -131,7 +131,7 @@
                 <div class="bank-row">
                     <div class="bank-row-content">
                         <span class="blabel">Nội dung chuyển khoản</span>
-                        <span class="bvalue transfer-value" id="transferContent" th:text="${payment.getGatewayOrderCode()}" style="color: var(--blue-primary);">Chờ tải...</span>
+                        <span class="bvalue transfer-value" id="transferContent" th:text="${paymentData.payment.getGatewayOrderCode()}" style="color: var(--blue-primary);">Chờ tải...</span>
                     </div>
                     <button class="copy-btn" data-action="copy" data-target="#transferContent" data-label="Nội dung">Sao chép</button>
                 </div>

@@ -91,6 +91,13 @@
         td{ padding:12px; border-bottom:1px solid #f0f2f5; color:#374151;}
         tr:last-child td{ border-bottom:none; }
         .amount-cell{ font-weight:600; color:#111827;}
+        .orders-table-wrap{ overflow-x:auto; }
+        .orders-table-wrap table{ min-width:1120px; }
+        .order-status-badge{
+            display:inline-flex; align-items:center; justify-content:center;
+            padding:4px 8px; border-radius:999px; background:#eef2ff;
+            color:#3730a3; font-size:12px; font-weight:700;
+        }
     </style>
 </head>
 <body>
@@ -240,28 +247,38 @@
             <h2>Đơn hàng gần đây</h2>
             <a href="#" class="view-all" th:href="@{/instructor/orders}">Xem tất cả →</a>
         </div>
+        <div class="orders-table-wrap">
         <table>
             <thead>
             <tr>
-                <th>Học viên</th>
-                <th>Khóa học</th>
-                <th>Số tiền</th>
-                <th>Ngày đặt</th>
+                <th>STT</th>
+                <th>Học Viên</th>
+                <th>Khoá Học</th>
+                <th>Ngày Giờ Thanh Toán</th>
+                <th>Số Tiền Nhận Được</th>
+                <th>Trạng Thái Đơn Hàng</th>
+                <th>Thao Tác</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="o : ${stats.recentOrders}">
-                <td th:text="${o.firstName + ' ' + o.lastName}">Nguyễn Văn A</td>
+            <tr th:each="o, stat : ${stats.recentOrders}">
+                <td th:text="${stat.count}">1</td>
+                <td>
+                    <div th:text="${o.studentDisplayName}">Nguyễn Văn A</div>
+                    <small style="color:#6b7280;" th:text="${o.studentEmail}">student@email.com</small>
+                </td>
                 <td th:text="${o.courseName}">Java Core</td>
-                <td class="amount-cell"
-                    th:text="${#numbers.formatDecimal(o.amount, 0, 'COMMA', 0, 'POINT')} + 'đ'">299.000đ</td>
-                <td th:text="${#temporals.format(o.date, 'dd/MM')}">01/07</td>
+                <td th:text="${o.purchaseDate != null ? #temporals.format(o.purchaseDate, 'dd/MM/yyyy HH:mm') : ''}">01/07/2026 10:00</td>
+                <td class="amount-cell" th:text="${#numbers.formatDecimal(o.instructorRevenue ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">299.000đ</td>
+                <td><span class="order-status-badge" th:text="${o.paymentStatusText}">PAID</span></td>
+                <td><a class="btn btn-sm btn-outline" th:href="@{/instructor/orders/{id}(id=${o.orderId})}">Xem Chi Tiết</a></td>
             </tr>
             <tr th:if="${stats.recentOrders == null or stats.recentOrders.isEmpty()}">
-                <td colspan="4" style="text-align:center; color:#9ca3af;">Chưa có đơn hàng nào</td>
+                <td colspan="10" style="text-align:center; color:#9ca3af;">Chưa có đơn hàng nào</td>
             </tr>
             </tbody>
         </table>
+        </div>
     </div>
 </main>
 

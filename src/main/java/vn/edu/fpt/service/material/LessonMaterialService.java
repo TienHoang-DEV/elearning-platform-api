@@ -3,13 +3,18 @@ package vn.edu.fpt.service.material;
 import com.azure.storage.blob.BlobClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import vn.edu.fpt.dto.LessonMaterialDto;
+import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.LessonMaterial;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.LessonMaterialRepository;
 import vn.edu.fpt.repository.LessonRepository;
@@ -65,6 +70,7 @@ public class LessonMaterialService {
             String url = azureBlobService.saveFile(f, "materials");
             LessonMaterial lessonMaterial = new LessonMaterial();
             lessonMaterial.setLesson(lesson);
+            lessonMaterial.setCourse(lesson.getCourseSection() != null ? lesson.getCourseSection().getCourse() : null);
             lessonMaterial.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1));
             lessonMaterial.setFileName(fileName);
             lessonMaterial.setFileSize(fileSize);
@@ -101,6 +107,106 @@ public class LessonMaterialService {
         return repository.findFirstByLesson_IdOrderByIdAsc(lessonId);
     }
 
+    public List<LessonMaterialDto> getInstructorMaterialLibrary(User instructor) {
+        // Instructor material library: gom tai lieu theo course/lesson de hien thi sau khi bam Thu vien tai lieu.
+        return repository.findLibraryByInstructorId(instructor.getId())
+                .stream()
+                .map(this::toLibraryDto)
+                .toList();
+    }
+
+    public Page<LessonMaterialDto> getInstructorMaterialLibrary(User instructor,
+                                                                String keyword,
+                                                                Integer courseId,
+                                                                Integer sectionId,
+                                                                Integer lessonId,
+                                                                String fileType,
+                                                                Pageable pageable) {
+        // Instructor material library: paging + search/filter theo file/course/section/lesson/type.
+        return repository.searchLibraryByInstructorId(
+                instructor.getId(),
+                keyword != null ? keyword.trim() : "",
+                courseId,
+                sectionId,
+                lessonId,
+                fileType != null ? fileType.trim() : "",
+                pageable
+        ).map(this::toLibraryDto);
+    }
+
+    public List<Course> getLibraryCourses(User instructor) {
+        return repository.findLibraryCoursesByInstructorId(instructor.getId());
+    }
+
+    public List<CourseSection> getLibrarySections(User instructor, Integer courseId) {
+        return repository.findLibrarySectionsByInstructorId(instructor.getId(), courseId);
+    }
+
+    public List<Lesson> getLibraryLessons(User instructor, Integer courseId, Integer sectionId) {
+        return repository.findLibraryLessonsByInstructorId(instructor.getId(), courseId, sectionId);
+    }
+
+    public List<String> getLibraryFileTypes(User instructor) {
+        return repository.findLibraryFileTypesByInstructorId(instructor.getId());
+    }
+
+    private LessonMaterialDto toLibraryDto(LessonMaterial material) {
+        Lesson lesson = material.getLesson();
+        Course course = lesson != null && lesson.getCourseSection() != null
+                ? lesson.getCourseSection().getCourse()
+                : material.getCourse();
+        CourseStatus status = course != null ? course.getStatus() : null;
+        boolean deleteAllowed = canDeleteMaterial(course);
+
+        return LessonMaterialDto.builder()
+                .id(material.getId())
+                .fileName(material.getFileName())
+                .fileUrl(material.getFileUrl())
+                .fileType(material.getFileType())
+                .fileSize(material.getFileSize())
+                .createdAt(material.getCreatedAt())
+                .courseId(course != null ? course.getId() : null)
+                .courseTitle(course != null ? course.getTitle() : "Chua gan khoa hoc")
+                .courseStatus(status != null ? status.name() : null)
+                .courseStatusLabel(status != null ? status.getLabel() : "Chua co trang thai")
+                .lessonId(lesson != null ? lesson.getId() : null)
+                .lessonTitle(lesson != null ? lesson.getTitle() : "Chua gan bai hoc")
+                .sectionTitle(lesson != null && lesson.getCourseSection() != null ? lesson.getCourseSection().getTitle() : "Chua gan chuong")
+                .deleteAllowed(deleteAllowed)
+                .deleteReason(getDeleteReason(course))
+                .build();
+    }
+
+    private boolean canDeleteMaterial(Course course) {
+        if (course == null || course.getStatus() == null) {
+            return false;
+        }
+        if (course.getStatus() == CourseStatus.DRAFT || course.getStatus() == CourseStatus.REJECTED) {
+            return true;
+        }
+        // Instructor material library: HIDDEN chi duoc xoa khi course khong con enrollment nao.
+        if (course.getStatus() == CourseStatus.HIDDEN) {
+            return enrollmentRepository.countByCourseId(course.getId()) == 0;
+        }
+        return false;
+    }
+
+    private String getDeleteReason(Course course) {
+        if (course == null || course.getStatus() == null) {
+            return "Không xác định được trạng thái khóa học.";
+        }
+        if (course.getStatus() == CourseStatus.PENDING) {
+            return "Khóa học đang chờ duyệt, không được xóa tài liệu để tránh thay đổi nội dung duyệt.";
+        }
+        if (course.getStatus() == CourseStatus.PUBLISHED) {
+            return "Khóa học đã xuất bản, học viên có thể đang sử dụng tài liệu.";
+        }
+        if (course.getStatus() == CourseStatus.HIDDEN && enrollmentRepository.countByCourseId(course.getId()) > 0) {
+            return "Khóa học đã ẩn nhưng vẫn còn học viên có quyền truy cập.";
+        }
+        return "Có thể xóa tài liệu.";
+    }
+
     public ResponseEntity<InputStreamResource> dowloadFile(LessonMaterial lessonMaterial) {
         if (lessonMaterial == null) {
             return ResponseEntity.notFound().build();
@@ -124,7 +230,23 @@ public class LessonMaterialService {
         if (lesson != null) {
             lesson.removeMaterial(material);
         }
+        if (material.getFileUrl() != null && !material.getFileUrl().isBlank()) {
+            azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, material.getFileUrl());
+        }
         repository.delete(material);
+    }
+
+    public void deleteInstructorLibraryMaterial(Integer materialId, User instructor) {
+        LessonMaterial material = repository.findOwnedMaterialForDelete(materialId, instructor.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Tài liệu không tồn tại hoặc không thuộc khóa học của bạn."));
+        Course course = material.getLesson() != null && material.getLesson().getCourseSection() != null
+                ? material.getLesson().getCourseSection().getCourse()
+                : material.getCourse();
+        // Instructor material library: enforce rule xoa theo status o backend, khong chi khoa nut tren UI.
+        if (!canDeleteMaterial(course)) {
+            throw new RuntimeException(getDeleteReason(course));
+        }
+        deleteMaterialById(materialId);
     }
 
     public void updateMaterial(Integer materialId, List<MultipartFile> materialFile, User user) {

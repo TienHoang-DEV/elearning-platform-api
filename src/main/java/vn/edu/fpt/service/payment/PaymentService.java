@@ -28,6 +28,7 @@ import vn.payos.model.v2.paymentRequests.PaymentLink;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -131,10 +132,7 @@ public class PaymentService {
             return savedPayment;
         }
 
-        String returnUrl = "https://learninghubswp391.eastasia.cloudapp.azure.com/payment/success";
-        String cancelUrl = "https://learninghubswp391.eastasia.cloudapp.azure.com/payment/cancel";
-
-        Payment payment = payOsService.createPaymentOrder(order, returnUrl, cancelUrl);
+        Payment payment = payOsService.createPaymentOrder(order, AppConstants.RETURN_URL, AppConstants.CANCEL_URL);
 
         log.info("Khởi tạo thanh toán thành công cho Payment ID: {}", payment.getId());
         return payment;
@@ -249,5 +247,41 @@ public class PaymentService {
         }
         transactionDetailDTO.setCourses(courseDTOS);
         return transactionDetailDTO;
+    }
+
+    public Map<String, Object> getPaymentPageData(Integer paymentId) {
+        Map<String, Object> data = new HashMap<>();
+        User currentUser = SecurityUtils.getCurrentUser();
+        data.put("currentUser", currentUser);
+
+        if (paymentId != null) {
+            Payment payment = repository.findById(paymentId).orElse(null);
+            if (payment != null) {
+                data.put("payment", payment);
+                
+                Order order = payment.getOrder();
+                data.put("order", order);
+
+                if (order != null && order.getItems() != null) {
+                    Map<User, List<OrderItem>> itemsByInstructor = new HashMap<>();
+                    for (OrderItem orderItem : order.getItems()) {
+                        User instructor = orderItem.getCourse().getInstructor();
+                        List<OrderItem> items = itemsByInstructor.get(instructor);
+                        if (items == null) {
+                            items = new ArrayList<>();
+                            itemsByInstructor.put(instructor, items);
+                        }
+                        items.add(orderItem);
+                    }
+                    data.put("itemsByInstructor", itemsByInstructor);
+                }
+                data.put("qrCode", (payment.getQrCodeUrl() != null) ? AppConstants.QR_CODE_BASE_URL + payment.getQrCodeUrl() : null);
+                data.put("payOsAccountNumber", payment.getAccountNumber());
+                data.put("payOsDescription", payment.getDescription());
+                data.put("payOsBankName", payment.getBankName());
+                data.put("payOsAccountHolder", payment.getAccountHolder());
+            }
+        }
+        return data;
     }
 }
