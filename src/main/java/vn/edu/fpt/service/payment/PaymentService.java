@@ -139,24 +139,20 @@ public class PaymentService {
     }
 
     public Payment getPaymentStatus(Integer paymentId) {
-        Payment payment = repository.findById(paymentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin thanh toán"));
-
+        Payment payment = repository.findById(paymentId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin thanh toán"));
         User currentUser = SecurityUtils.getCurrentUser();
         if (currentUser == null) {
             throw new BadRequestException("Vui lòng đăng nhập để kiểm tra trạng thái thanh toán!");
         }
-
         if (payment.getOrder() != null && payment.getOrder().getUser() != null) {
             boolean isOwner = payment.getOrder().getUser().getId().equals(currentUser.getId());
-            boolean isStaff = currentUser.getRoles().stream().anyMatch(r -> 
-                r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_MANAGER")
+            boolean isStaff = currentUser.getRoles().stream().anyMatch((r) ->{
+                return r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_MANAGER");}
             );
             if (!isOwner && !isStaff) {
                 throw new BadRequestException("Bạn không có quyền truy cập thông tin thanh toán này!");
             }
         }
-
         if (payment.getStatus() == PaymentStatus.PENDING) {
             syncStatusFromPayOs(payment);
         }
@@ -168,11 +164,8 @@ public class PaymentService {
         try {
             long orderCode = Long.parseLong(payment.getGatewayOrderCode());
             PaymentLink info = payOS.paymentRequests().get(orderCode);
-
             log.info("Kiểm tra trực tiếp trạng thái trên PayOS cho mã đơn hàng {}: {}", orderCode, info.getStatus());
-
             String payOsStatus = (info.getStatus() != null) ? info.getStatus().toString() : "";
-
             if ("PAID".equalsIgnoreCase(payOsStatus)) {
                 payOsService.completePayment(payment);
             } else if ("CANCELLED".equalsIgnoreCase(payOsStatus)) {
@@ -180,18 +173,15 @@ public class PaymentService {
             } else if ("EXPIRED".equalsIgnoreCase(payOsStatus)) {
                 payOsService.expirePayment(payment);
             }
-
         } catch (Exception e) {
             log.warn("Không thể truy vấn trạng thái từ PayOS cho Payment ID: {}, Lỗi: {}", payment.getId(), e.getMessage());
         }
     }
 
     public void cancelPaymentManually(Integer paymentId) {
-        Payment payment = repository.findById(paymentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin thanh toán."));
+        Payment payment = repository.findById(paymentId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin thanh toán."));
         User currentUser = SecurityUtils.getCurrentUser();
         User orderOwner = payment.getOrder().getUser();
-
         if (currentUser == null || !orderOwner.getId().equals(currentUser.getId())) {
             throw new BadRequestException("Không có quyền thực hiện hành động này.");
         }
@@ -258,10 +248,8 @@ public class PaymentService {
             Payment payment = repository.findById(paymentId).orElse(null);
             if (payment != null) {
                 data.put("payment", payment);
-                
                 Order order = payment.getOrder();
                 data.put("order", order);
-
                 if (order != null && order.getItems() != null) {
                     Map<User, List<OrderItem>> itemsByInstructor = new HashMap<>();
                     for (OrderItem orderItem : order.getItems()) {
@@ -275,7 +263,7 @@ public class PaymentService {
                     }
                     data.put("itemsByInstructor", itemsByInstructor);
                 }
-                data.put("qrCode", (payment.getQrCodeUrl() != null) ? AppConstants.QR_CODE_BASE_URL + payment.getQrCodeUrl() : null);
+                data.put("qrCode",AppConstants.QR_CODE_BASE_URL + payment.getQrCodeUrl());
                 data.put("payOsAccountNumber", payment.getAccountNumber());
                 data.put("payOsDescription", payment.getDescription());
                 data.put("payOsBankName", payment.getBankName());

@@ -28,14 +28,11 @@ public class PaymentSyncService {
     public int expirePaymentsByTimeout() {
         try {
             log.info("Bắt đầu kiểm tra các giao dịch thanh toán đã hết hạn...");
-            
             List<Payment> expiredPayments = paymentRepository.findExpiredPendingPayments();
-            
             if (expiredPayments.isEmpty()) {
                 log.debug("Không có giao dịch nào hết hạn cần xử lý");
                 return 0;
             }
-
             int count = 0;
             for (Payment payment : expiredPayments) {
                 try {
@@ -45,10 +42,8 @@ public class PaymentSyncService {
                     log.error("Lỗi khi đánh dấu giao dịch ID {} là EXPIRED: {}", payment.getId(), e.getMessage());
                 }
             }
-
             log.info("Hoàn tất: {} giao dịch đã được đánh dấu là EXPIRED", count);
             return count;
-            
         } catch (Exception e) {
             log.error("Lỗi nghiêm trọng trong expirePaymentsByTimeout: {}", e.getMessage(), e);
             return 0;
@@ -59,16 +54,12 @@ public class PaymentSyncService {
     public int syncPendingPaymentsFromPayOs() {
         try {
             log.info("Bắt đầu đồng bộ hóa trạng thái PENDING từ PayOS...");
-            
             List<Payment> pendingPayments = paymentRepository.findPendingPaymentsForSync();
-            
             if (pendingPayments.isEmpty()) {
                 log.debug("Không có giao dịch PENDING nào cần đồng bộ");
                 return 0;
             }
-
             log.debug("Tìm thấy {} giao dịch PENDING cần đồng bộ từ PayOS", pendingPayments.size());
-
             int count = 0;
             for (Payment payment : pendingPayments) {
                 try {
@@ -80,10 +71,8 @@ public class PaymentSyncService {
                     log.warn("Lỗi khi đồng bộ giao dịch ID {} từ PayOS: {}", payment.getId(), e.getMessage());
                 }
             }
-
             log.info("Hoàn tất: {} giao dịch đã được cập nhật từ PayOS", count);
             return count;
-            
         } catch (Exception e) {
             log.error("Lỗi nghiêm trọng trong syncPendingPaymentsFromPayOs: {}", e.getMessage(), e);
             return 0;
@@ -95,17 +84,13 @@ public class PaymentSyncService {
         try {
             long orderCode = Long.parseLong(payment.getGatewayOrderCode());
             PaymentLink paymentInfo = payOS.paymentRequests().get(orderCode);
-            
             if (paymentInfo == null || paymentInfo.getStatus() == null) {
                 log.warn("PayOS trả về null cho order code: {}", orderCode);
                 return false;
             }
-
             String payOsStatus = paymentInfo.getStatus().toString();
             log.debug("Trạng thái từ PayOS cho Payment ID {}: {}", payment.getId(), payOsStatus);
-
             boolean statusChanged = false;
-            
             if ("PAID".equalsIgnoreCase(payOsStatus) && payment.getStatus() != PaymentStatus.PAID) {
                 payOsService.completePayment(payment);
                 statusChanged = true;
@@ -119,12 +104,9 @@ public class PaymentSyncService {
                 payOsService.failPayment(payment);
                 statusChanged = true;
             }
-
             payment.setLastSyncedAt(LocalDateTime.now());
             paymentRepository.save(payment);
-
             return statusChanged;
-            
         } catch (NumberFormatException e) {
             log.error("Gateway order code không hợp lệ cho Payment ID {}: {}", payment.getId(), e.getMessage());
             return false;
@@ -138,16 +120,12 @@ public class PaymentSyncService {
     public int retryFailedWebhooks() {
         try {
             log.info("Bắt đầu retry webhook bị fail...");
-            
             List<Payment> failedPayments = paymentRepository.findPaymentsForWebhookRetry(AppConstants.PAYMENT_WEBHOOK_RETRY_ATTEMPTS);
-            
             if (failedPayments.isEmpty()) {
                 log.debug("Không có giao dịch nào cần retry webhook");
                 return 0;
             }
-
             log.debug("Tìm thấy {} giao dịch cần retry webhook", failedPayments.size());
-
             int count = 0;
             for (Payment payment : failedPayments) {
                 try {
@@ -159,13 +137,12 @@ public class PaymentSyncService {
                     log.warn("Lỗi khi retry webhook cho Payment ID {}: {}", payment.getId(), e.getMessage());
                 }
             }
-
             log.info("Hoàn tất: {} giao dịch đã retry webhook", count);
             return count;
-            
         } catch (Exception e) {
             log.error("Lỗi nghiêm trọng trong retryFailedWebhooks: {}", e.getMessage(), e);
             return 0;
         }
     }
+
 }
