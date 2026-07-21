@@ -94,8 +94,7 @@ CREATE TABLE users (
                        google_id VARCHAR(255) NULL,
     -- Google ID nếu user authenticate via OAuth Google
 
-                       status VARCHAR(20) NOT NULL
-                           CHECK (status IN ('ACTIVE', 'BANNED')),
+                       status VARCHAR(20) NOT NULL,
     -- Trạng thái: active (hoạt động), banned (cấm)
 
                        favorite_setup_completed BIT NOT NULL DEFAULT 0,
@@ -232,8 +231,7 @@ CREATE TABLE categories (
                             parent_id INT NULL,
     -- ID danh mục cha (cho phép phân cấp danh mục: Lập trình -> Web Development -> Frontend)
 
-                            status VARCHAR(20)
-                                CHECK (status IN ('ACTIVE', 'INACTIVE')),
+                            status VARCHAR(20),
     -- Trạng thái: active (hiển thị), inactive (ẩn)
 
                             created_at DATETIME DEFAULT GETDATE(),
@@ -284,12 +282,10 @@ CREATE TABLE courses (
                          price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
     -- Giá khóa học (0 = miễn phí)
 
-                         level VARCHAR(20)
-                             CHECK (level IN ('BEGINNER', 'INTERMEDIATE', 'ADVANCED')),
+                         level VARCHAR(20),
     -- Mức độ: beginner (cơ bản), intermediate (trung cấp), advanced (nâng cao)
 
-                         status VARCHAR(20)
-                             CHECK (status IN ('DRAFT', 'PENDING', 'PUBLISHED', 'REJECTED', 'HIDDEN')),
+                         status VARCHAR(20),
     -- Trạng thái: draft (nháp), pending (chờ duyệt), published (đã xuất bản), rejected (từ chối), hidden (ẩn)
 
                          approved_by INT NULL,
@@ -300,6 +296,9 @@ CREATE TABLE courses (
 
                          rejection_reason NVARCHAR(1000) NULL,
     -- Lý do từ chối khóa học (nếu status = rejected)
+
+                         version INT NOT NULL DEFAULT 0,
+    -- Số phiên bản dùng cho Optimistic Locking (JPA @Version), tự tăng mỗi lần cập nhật
 
                          created_at DATETIME DEFAULT GETDATE(),
     -- Thời gian tạo khóa học
@@ -366,8 +365,7 @@ CREATE TABLE lessons (
                          is_published BIT DEFAULT 0,
     -- Cờ đánh dấu bài học đã xuất bản cho học viên hay chưa
 
-                         moderation_status VARCHAR(20) DEFAULT 'PENDING'
-                             CHECK (moderation_status IN ('PENDING', 'AUTO_FLAGGED', 'CLEAN', 'APPROVED', 'REJECTED')),
+                         moderation_status VARCHAR(20) DEFAULT 'PENDING',
     -- Trạng thái kiểm duyệt video bởi Azure AI:
     -- pending (chờ), auto_flagged (AI phát hiện vấn đề), clean (không vấn đề),
     -- approved (manager phê duyệt), rejected (manager từ chối)
@@ -467,8 +465,7 @@ CREATE TABLE quizzes (
     pass_score_percent INT NOT NULL
         CHECK(pass_score_percent BETWEEN 0 AND 100),
 
-    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT'
-        CHECK(status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED')),
+    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
 
     time_limit_minutes INT NULL,
 
@@ -500,8 +497,7 @@ CREATE TABLE quiz_questions (
                                 question_text NVARCHAR(MAX) NOT NULL,
     -- Nội dung câu hỏi
 
-                                question_type VARCHAR(20)
-                                    CHECK (question_type IN ('SINGLE', 'MULTIPLE')),
+                                question_type VARCHAR(20),
     -- Loại câu hỏi: single (1 đáp án đúng), multiple (nhiều đáp án đúng)
 
                                 points INT DEFAULT 1,
@@ -650,8 +646,7 @@ CREATE TABLE orders (
                         total_amount DECIMAL(10,2) NOT NULL CHECK (total_amount >= 0),
     -- Tổng tiền của đơn hàng
 
-                        status VARCHAR(20)
-                            CHECK (status IN ('PENDING', 'PAID', 'COMPLETED', 'CANCELLED', 'EXPIRED')),
+                        status VARCHAR(20),
     -- Trạng thái đơn hàng:
     -- pending (chờ thanh toán), paid (đã thanh toán), completed (hoàn tất),
     -- cancelled (hủy), expired (hết hạn thanh toán)
@@ -725,16 +720,7 @@ CREATE TABLE payments (
                           qr_code_url VARCHAR(1000) NULL,
     -- Link QR động
 
-                          status VARCHAR(20) NOT NULL DEFAULT 'PENDING'
-                              CHECK (
-                                  status IN (
-                                             'PENDING',
-                                             'PAID',
-                                             'FAILED',
-                                             'EXPIRED',
-                                             'CANCELLED'
-                                      )
-                                  ),
+                          status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
     -- Trạng thái giao dịch
 
                           error_code VARCHAR(50) NULL,
@@ -828,7 +814,7 @@ CREATE TABLE feedbacks (
     course_id INT NOT NULL,
     rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
     comment NVARCHAR(MAX) NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'VISIBLE' CHECK (status IN ('VISIBLE', 'HIDDEN')),
+    status VARCHAR(20) NOT NULL DEFAULT 'VISIBLE',
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
     CONSTRAINT FK_feedbacks_user FOREIGN KEY (user_id) REFERENCES users(id),

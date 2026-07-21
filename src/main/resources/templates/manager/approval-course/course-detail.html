@@ -27,6 +27,11 @@
             <span th:text="${successMessage}">Cập nhật thành công.</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert">
+            <i class="ph ph-x-circle fs-5"></i>
+            <span th:text="${errorMessage}">Đã xảy ra lỗi.</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
 
         <!-- ══════════ COURSE DETAIL CARD ══════════ -->
         <div class="course-detail-container">
@@ -37,13 +42,13 @@
             <div class="detail-info-row">
                 <div class="detail-meta">
                     <span th:if="${course.status != null}" 
-                          th:class="${'badge py-2 px-3 fs-6 badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : (course.status.name() == 'PENDING' ? 'warning' : 'danger'))}"
+                          th:class="${'badge py-2 px-3 fs-6 badge-' + (course.status.name() == 'PUBLISHED' ? 'success' : (course.status.name() == 'PENDING' ? 'warning' : (course.status.name() == 'RESUBMIT' ? 'info' : 'danger')))}"
                           th:text="${course.statusLabel}">Trạng thái</span>
                     <span class="detail-price" th:text="${course.price != null ? #numbers.formatDecimal(course.price, 0, 'POINT', 0, 'COMMA') + ' đ' : 'Miễn phí'}">$49.99</span>
                 </div>
 
                 <!-- Action buttons form -->
-                <div class="detail-actions" th:if="${course.status != null and course.status.name() == 'PENDING'}">
+                <div class="detail-actions" th:if="${course.status != null and (course.status.name() == 'PENDING' or course.status.name() == 'RESUBMIT')}">
                     <!-- Phê duyệt (Approve) -->
                     <button type="button" class="btn btn-approve d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#approveModal">
                         <i class="ph ph-check-circle fs-5"></i> Phê duyệt
@@ -57,7 +62,7 @@
             </div>
 
             <!-- Title & Instructor -->
-            <h2 class="detail-title" th:text="${course.title}">Các Mẫu React Nâng Cao</h2>
+            <h2 class="detail-title text-break" th:text="${course.title}">Các Mẫu React Nâng Cao</h2>
             <div class="detail-instructor">
                 <span>Bởi </span>
                 <strong th:text="${course.instructor != null ? (course.instructor.lastName + ' ' + course.instructor.firstName) : 'Không rõ'}">Michael Chang</strong>
@@ -68,7 +73,7 @@
                 <i class="ph ph-text-align-left"></i>
                 <span>Mô tả</span>
             </div>
-            <div class="detail-desc-content" th:utext="${course.description != null ? course.description : 'Không có mô tả cho khóa học này.'}">
+            <div class="detail-desc-content text-break" th:utext="${course.description != null ? course.description : 'Không có mô tả cho khóa học này.'}">
                 Học các mẫu thiết kế nâng cao để xây dựng các ứng dụng React có khả năng mở rộng.
             </div>
 
@@ -91,7 +96,7 @@
                                 aria-expanded="true" 
                                 th:aria-controls="'collapse-' + ${secStat.index}">
                             <div class="d-flex justify-content-between align-items-center w-100 pe-3">
-                                <span class="fw-bold text-dark" th:text="${section.title}">Chương 1: Giới thiệu</span>
+                                <span class="fw-bold text-dark text-break" th:text="${section.title}">Chương 1: Giới thiệu</span>
                                 <span class="badge badge-secondary" th:text="${section.lessons != null ? section.lessons.size() + ' bài học' : '0 bài học'}">3 bài học</span>
                             </div>
                         </button>
@@ -107,7 +112,7 @@
                                         <div class="lesson-info-block flex-grow-1">
                                             <div class="lesson-title-container d-flex align-items-center flex-wrap gap-2">
                                                 <i class="ph ph-play-circle text-primary fs-5"></i>
-                                                <span th:text="${lesson.title}" class="fw-semibold text-dark">Bài 1: Cài đặt môi trường</span>
+                                                <span th:text="${lesson.title}" class="fw-semibold text-dark text-break">Bài 1: Cài đặt môi trường</span>
                                                 <span class="lesson-duration text-muted fs-xs ms-2" th:if="${lesson.durationSeconds != null}" 
                                                       th:text="${(lesson.durationSeconds / 60) + ' phút'}">5 phút</span>
                                             </div>
@@ -231,5 +236,20 @@
             </div>
         </div>
     </div>
+
+    <th:block layout:fragment="page-js">
+        <script>
+            // Ngăn chặn nhấp đúp khi gửi yêu cầu duyệt hoặc từ chối
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Đang xử lý...';
+                    }
+                });
+            });
+        </script>
+    </th:block>
 </body>
 </html>

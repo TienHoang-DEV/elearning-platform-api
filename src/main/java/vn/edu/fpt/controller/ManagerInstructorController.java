@@ -16,6 +16,7 @@ import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.service.UserService;
+import vn.edu.fpt.util.AppConstants;
 
 import java.util.List;
 
@@ -24,9 +25,11 @@ import java.util.List;
 public class ManagerInstructorController {
 
     private final UserService userService;
+    private final vn.edu.fpt.service.AuthService authService;
 
-    public ManagerInstructorController(UserService userService) {
+    public ManagerInstructorController(UserService userService, vn.edu.fpt.service.AuthService authService) {
         this.userService = userService;
+        this.authService = authService;
     }
 
     /**
@@ -44,10 +47,19 @@ public class ManagerInstructorController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<UserDto> requestPage = userService.searchAndFilterInstructors(keyword, status, pageable);
 
+        int startPage = 0;
+        int endPage = 0;
+        if (requestPage.getTotalPages() > 0) {
+            startPage = (requestPage.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK;
+            endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, requestPage.getTotalPages() - 1);
+        }
+
         model.addAttribute("requestPage", requestPage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
         model.addAttribute("statuses", UserStatus.values());
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
 
         return "manager/approval-instructor/instructor-list";
     }
@@ -81,5 +93,27 @@ public class ManagerInstructorController {
         redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái tài khoản giảng viên thành công.");
 
         return "redirect:/manager/instructor/detail/" + id;
+    }
+
+    /**
+     * POST /manager/instructor/create
+     * Tạo tài khoản giảng viên mới và gửi email.
+     */
+    @PostMapping("/create")
+    public String createInstructor(
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName,
+            @RequestParam("email") String email,
+            @RequestParam("phone") String phone,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            authService.createInstructorAccount(firstName, lastName, email, phone);
+            redirectAttributes.addFlashAttribute("successMessage", "Thêm giảng viên thành công! Thông tin đăng nhập đã được gửi vào email của giảng viên.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+
+        return "redirect:/manager/instructor/list";
     }
 }
