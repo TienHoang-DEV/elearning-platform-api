@@ -48,12 +48,12 @@
       <div class="form-grid" style="margin-top:16px;">
         <div class="form-group">
           <label>Trình Độ Khóa Học</label>
-          <select name="level" class="form-control"
+          <select th:field="*{level}" class="form-control"
                   th:classappend="${#fields.hasErrors('level')} ? ' is-invalid' : ''">
             <option value="">Chọn Trình Độ</option>
             <option th:each="l : ${courselevels}"
-                    th:value="${l}"
-                    th:selected="${l == courseRequest.level}"
+                    th:value="${l.name()}"
+                    th:selected="${courseRequest.level != null and l.name() == courseRequest.level}"
                     th:text="${{
                                     BEGINNER:'Người mới bắt đầu',
                                     INTERMEDIATE:'Trung cấp',
@@ -94,13 +94,16 @@
       <!-- Giá khóa học -->
       <div class="form-group" style="margin-top:16px;">
         <label>Giá Khóa Học</label>
-        <input type="number"
+        <input type="text"
                class="form-control"
                th:field="*{price}"
                th:classappend="${#fields.hasErrors('price')} ? ' is-invalid' : ''"
                placeholder="Nhập giá khóa học (VNĐ)"
-               min="0"/>
-        <div class="form-hint">Nhập 0 nếu khóa học miễn phí</div>
+               inputmode="numeric"
+               pattern="[0-9]*"
+               autocomplete="off"
+               data-price-input/>
+        <div class="form-hint">Nhập 0 nếu khóa học miễn phí; giá thu phí phải lớn hơn 2.000 VNĐ và chia hết cho 1.000</div>
         <p class="text-danger"
            th:if="${#fields.hasErrors('price')}"
            th:errors="*{price}"></p>
@@ -165,6 +168,19 @@
       if (form && editor) {
         form.addEventListener('submit', function () {
           document.getElementById('descHidden').value = editor.innerHTML;
+        });
+      }
+
+      // Course price input: chan nhap chu va ky tu dac biet ngay o frontend.
+      const priceInput = document.querySelector('[data-price-input]');
+      if (priceInput) {
+        priceInput.addEventListener('beforeinput', function (event) {
+          if (event.data && !/^\d+$/.test(event.data)) {
+            event.preventDefault();
+          }
+        });
+        priceInput.addEventListener('input', function () {
+          this.value = this.value.replace(/\D/g, '');
         });
       }
 

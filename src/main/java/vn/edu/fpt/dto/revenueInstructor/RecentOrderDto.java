@@ -78,6 +78,13 @@ public class RecentOrderDto {
     }
 
     public BigDecimal getInstructorRevenue() {
+        // Instructor order revenue: chi don hang da thanh toan thanh cong moi tinh tien cho giang vien.
+        // Pending/Cancelled/Expired/Failed chi hien trong lich su don hang, doanh thu phai bang 0.
+        boolean paidByPayment = paymentStatus == PaymentStatus.PAID;
+        boolean paidByOrder = paymentStatus == null && (orderStatus == OrderStatus.PAID || orderStatus == OrderStatus.COMPLETED);
+        if (!paidByPayment && !paidByOrder) {
+            return BigDecimal.ZERO;
+        }
         return finalPrice == null ? BigDecimal.ZERO : finalPrice;
     }
 

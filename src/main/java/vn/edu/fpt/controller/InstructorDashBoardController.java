@@ -45,7 +45,6 @@ public class InstructorDashBoardController {
     @GetMapping("/orders")
     public String orders(Model model) {
         User currentUser = SecurityUtils.getCurrentUser();
-        // Instructor orders: list full khi bam "Xem tat ca" tu dashboard.
         model.addAttribute("instructor", toProfileDto(currentUser));
         model.addAttribute("orders", service.getInstructorOrders(currentUser.getId()));
         model.addAttribute("courseThumbnailBaseUrl", courseThumbnailBaseUrl());
@@ -56,7 +55,6 @@ public class InstructorDashBoardController {
     public String orderDetails(@PathVariable Integer orderId, Model model) {
         User currentUser = SecurityUtils.getCurrentUser();
         List<RecentOrderDto> orderItems = service.getInstructorOrderDetails(currentUser.getId(), orderId);
-        // Instructor orders: neu order khong co course cua instructor nay thi van render empty, khong lo thong tin order cua nguoi khac.
         model.addAttribute("instructor", toProfileDto(currentUser));
         model.addAttribute("orderId", orderId);
         model.addAttribute("orderItems", orderItems);

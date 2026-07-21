@@ -20,7 +20,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     @Query("""
           select COALESCE(sum(oi.priceSnapshot), 0) from OrderItem oi
           where oi.course.instructor.id = :instructorId
-          and oi.order.status = 'COMPLETED'
+          and oi.order.status in (vn.edu.fpt.enums.OrderStatus.PAID, vn.edu.fpt.enums.OrderStatus.COMPLETED)
           and oi.order.createdAt between :fromDate and :toDate
           """)
     BigDecimal sumTotalRevenueByInstructor(@Param("instructorId") Integer instructorId,
@@ -30,7 +30,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     @Query("""
           select count(distinct oi.order.id) from OrderItem oi
           where oi.course.instructor.id = :instructorId
-          and oi.order.status = 'COMPLETED'
+          and oi.order.status in (vn.edu.fpt.enums.OrderStatus.PAID, vn.edu.fpt.enums.OrderStatus.COMPLETED)
           and oi.order.createdAt between :fromDate and :toDate
           """)
     Long countOrder(@Param("instructorId") Integer instructorId,
@@ -41,7 +41,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
          select new vn.edu.fpt.dto.revenueInstructor.CourseRevenueDto(oi.course.title, SUM(oi.priceSnapshot))
          from OrderItem oi
          where oi.course.instructor.id = :instructorId
-         and oi.order.status = 'COMPLETED'
+         and oi.order.status in (vn.edu.fpt.enums.OrderStatus.PAID, vn.edu.fpt.enums.OrderStatus.COMPLETED)
          and oi.order.createdAt between :fromDate and :toDate
          group by oi.course.title order by sum(oi.priceSnapshot) desc
          """)
@@ -54,7 +54,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
           select new vn.edu.fpt.dto.revenueInstructor.CoursePerformanceDto(oi.course.title, count(oi))
           from OrderItem oi
           where oi.course.instructor.id = :instructorId
-          and oi.order.status = 'COMPLETED'
+          and oi.order.status in (vn.edu.fpt.enums.OrderStatus.PAID, vn.edu.fpt.enums.OrderStatus.COMPLETED)
           and oi.order.createdAt between :fromDate and :toDate
           group by oi.course.title order by count(oi) desc
           """)
@@ -151,7 +151,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
             "          from order_items oi \n" +
             "          join orders o on oi.order_id = o.id\n" +
             "          join courses c on c.id = oi.course_id\n" +
-            "          where c.instructor_id = :instructorId and o.status = 'COMPLETED' and o.created_at between :fromDate and :toDate\n" +
+            // Instructor dashboard chart: PAID/COMPLETED moi tinh doanh thu, CANCELLED/EXPIRED khong vao chart.
+            "          where c.instructor_id = :instructorId and o.status in ('PAID', 'COMPLETED') and o.created_at between :fromDate and :toDate\n" +
             "          group by convert(DATE, o.created_at) order by d", nativeQuery = true)
     List<Object[]> revenueTrend(@Param("instructorId") Integer instructorId,
                                 @Param("fromDate") LocalDateTime fromDate,

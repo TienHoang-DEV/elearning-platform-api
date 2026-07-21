@@ -9,50 +9,31 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import vn.edu.fpt.dto.user.InstructorProfileViewDto;
 import vn.edu.fpt.dto.user.ProfileDto;
-import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.UserValidationException;
-import vn.edu.fpt.service.UserService;
-import vn.edu.fpt.util.AppConstants;
-import vn.edu.fpt.util.SecurityUtils;
+import vn.edu.fpt.service.InstructorProfileService;
 
 @RequestMapping("/instructor")
 @Controller
 public class InstructorProfileController {
 
-    private final UserService userService;
+    private final InstructorProfileService instructorProfileService;
 
-    public InstructorProfileController(UserService userService) {
-        this.userService = userService;
+    public InstructorProfileController(InstructorProfileService instructorProfileService) {
+        this.instructorProfileService = instructorProfileService;
     }
 
     @GetMapping("/sidebar")
     public String viewProfile(Model model) {
-        // Profile view: man Thong tin cua toi mac dinh chi hien thi thong tin, khong hien form edit.
-        model.addAttribute("instructor", buildProfileDto(SecurityUtils.getCurrentUser()));
-        model.addAttribute("editMode", false);
+        addProfileAttributes(model, instructorProfileService.getCurrentInstructorProfile(false));
         return "instructor_course/profile";
     }
 
     @GetMapping("/profile/edit")
     public String editProfile(Model model) {
-        // Profile edit: bam nut Chinh sua moi vao man form edit rieng, khong dung popup.
-        model.addAttribute("instructor", buildProfileDto(SecurityUtils.getCurrentUser()));
-        model.addAttribute("editMode", true);
+        addProfileAttributes(model, instructorProfileService.getCurrentInstructorProfile(true));
         return "instructor_course/profile";
-    }
-
-    private ProfileDto buildProfileDto(User user) {
-        ProfileDto profileDto = new ProfileDto();
-        profileDto.setFirstname(user.getFirstName());
-        profileDto.setLastname(user.getLastName());
-        profileDto.setBio(user.getBio());
-        if (user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()) {
-            profileDto.setAvatar_url(AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS + "/" + user.getAvatarUrl());
-        }
-        profileDto.setEmail(user.getEmail());
-        profileDto.setPhone(user.getPhone());
-        return profileDto;
     }
 
     @PostMapping("/profiles")
@@ -63,23 +44,28 @@ public class InstructorProfileController {
             RedirectAttributes redirectAttributes
     ) {
         if (result.hasErrors()) {
-            // Profile edit: neu validate loi thi giu du lieu da nhap va chi bao loi tai field do.
-            profileDto.setAvatar_url(buildProfileDto(SecurityUtils.getCurrentUser()).getAvatar_url());
-            model.addAttribute("editMode", true);
-            model.addAttribute("error", "Vui lòng kiểm tra lại thông tin chưa hợp lệ.");
+            addProfileAttributes(model, instructorProfileService.getCurrentInstructorProfileForInvalidForm(profileDto));
+            model.addAttribute("error", "Vui long kiem tra lai thong tin chua hop le.");
             return "instructor_course/profile";
         }
 
         try {
-            userService.updateProfileInstuctor(SecurityUtils.getCurrentUser(), profileDto);
-            redirectAttributes.addFlashAttribute("success", "Thay đổi thành công!");
+            instructorProfileService.updateCurrentInstructorProfile(profileDto);
+            redirectAttributes.addFlashAttribute("success", "Thay doi thanh cong!");
             return "redirect:/instructor/sidebar";
         } catch (UserValidationException e) {
             result.rejectValue(e.getField(), "error", e.getMessage());
-            profileDto.setAvatar_url(buildProfileDto(SecurityUtils.getCurrentUser()).getAvatar_url());
-            model.addAttribute("editMode", true);
+            addProfileAttributes(model, instructorProfileService.getCurrentInstructorProfileForInvalidForm(profileDto));
             model.addAttribute("error", e.getMessage());
             return "instructor_course/profile";
         }
+    }
+
+    private void addProfileAttributes(Model model, InstructorProfileViewDto profileView) {
+        model.addAttribute("instructor", profileView.getInstructor());
+        model.addAttribute("averageRating", profileView.getAverageRating());
+        model.addAttribute("ratingStars", profileView.getRatingStars());
+        model.addAttribute("ratingCount", profileView.getRatingCount());
+        model.addAttribute("editMode", profileView.isEditMode());
     }
 }

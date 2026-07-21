@@ -17,6 +17,18 @@ import java.util.Optional;
 public interface LessonRepository extends JpaRepository<Lesson, Integer> {
         boolean existsByTitleAndCourseSection_Id(String title, Integer sectionId);
 
+        // Lesson validation: khong cho trung ten lesson trong cung mot section.
+        @Query("""
+                        select case when count(l) > 0 then true else false end
+                        from Lesson l
+                        where l.courseSection.id = :sectionId
+                          and lower(trim(l.title)) = lower(trim(:title))
+                          and (:excludeLessonId is null or l.id <> :excludeLessonId)
+                        """)
+        boolean existsDuplicateTitleInSection(@Param("sectionId") Integer sectionId,
+                                              @Param("title") String title,
+                                              @Param("excludeLessonId") Integer excludeLessonId);
+
         Optional<Lesson> findFirstByCourseSection_IdOrderByPositionAscIdAsc(Integer sectionId);
 
         @Query("SELECT l FROM Lesson l LEFT JOIN FETCH l.materials WHERE l.id = :id")

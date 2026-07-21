@@ -19,6 +19,8 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Integer>
 
     boolean existsByUserAndCourse(User user, Course course);
 
+    long countByCourseId(Integer courseId);
+
 
     @Query("""
                 select e from Enrollment e where e.course.id = :courseId and e.user.id = :userId

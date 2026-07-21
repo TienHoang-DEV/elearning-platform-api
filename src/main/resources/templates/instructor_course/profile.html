@@ -25,47 +25,83 @@
     <div th:if="${success}" class="success-msg" th:text="${success}">Thay đổi thành công!</div>
     <div th:if="${error}" class="profile-alert profile-alert-error" th:text="${error}">Có lỗi xảy ra</div>
 
-    <!-- Profile view: trang Thông tin của tôi mặc định chỉ xem dữ liệu, không mở form/popup chỉnh sửa. -->
-    <section th:if="${!editMode}" class="profile-view-layout">
-        <div class="card profile-view-card">
-            <div class="profile-view-header">
-                <div class="profile-view-avatar">
+    <!-- Profile view: man xem ho so rieng, khong hien form edit/popup. -->
+    <section th:if="${!editMode}" class="profile-showcase">
+        <div class="profile-hero-card">
+            <div class="profile-hero-cover"></div>
+            <div class="profile-hero-content">
+                <div class="profile-hero-avatar">
                     <img th:if="${instructor?.avatar_url != null}" th:src="${instructor.avatar_url}" alt="Ảnh đại diện"/>
                     <span th:if="${instructor?.avatar_url == null}"
                           th:text="${instructor?.lastname != null and !#strings.isEmpty(instructor.lastname) ? #strings.substring(instructor.lastname,0,1) : 'T'}">T</span>
                 </div>
-                <div class="profile-view-main">
+                <div class="profile-hero-main">
+                    <div class="profile-role-badge">Instructor</div>
                     <h2 th:text="${(instructor?.firstname ?: '') + ' ' + (instructor?.lastname ?: '')}">Tên giảng viên</h2>
                     <p th:text="${instructor?.email ?: 'Chưa có email'}">email@example.com</p>
-                </div>
-            </div>
-
-            <div class="profile-info-grid">
-                <div class="profile-info-item">
-                    <span>Họ và tên đệm</span>
-                    <strong th:text="${instructor?.firstname ?: 'Chưa cập nhật'}">Nguyễn Văn</strong>
-                </div>
-                <div class="profile-info-item">
-                    <span>Tên</span>
-                    <strong th:text="${instructor?.lastname ?: 'Chưa cập nhật'}">An</strong>
-                </div>
-                <div class="profile-info-item">
-                    <span>Email đăng ký</span>
-                    <strong th:text="${instructor?.email ?: 'Chưa cập nhật'}">email@example.com</strong>
-                </div>
-                <div class="profile-info-item">
-                    <span>Số điện thoại</span>
-                    <strong th:text="${instructor?.phone ?: 'Chưa cập nhật'}">0123456789</strong>
+                    <div class="profile-hero-tags">
+                        <span>LearningHub Creator</span>
+                        <span th:text="${instructor?.phone ?: 'Chưa cập nhật số điện thoại'}">0123456789</span>
+                    </div>
+                    <!-- Instructor profile rating: thay bang du lieu feedback cua cac khoa hoc thuoc instructor. -->
+                    <div class="profile-rating-panel">
+                        <div class="profile-rating-score">
+                            <strong th:text="${averageRating}">4.8</strong>
+                            <span>/ 5</span>
+                        </div>
+                        <div class="profile-rating-main">
+                            <div class="profile-rating-stars" aria-label="Instructor rating">
+                                <span th:each="star : ${#numbers.sequence(1, 5)}"
+                                      th:classappend="${star <= ratingStars} ? ' active' : ''">&#9733;</span>
+                            </div>
+                            <p>
+                                <span th:text="${ratingCount}">128</span>
+                                lượt đánh giá từ học viên
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="card profile-bio-card">
-            <div class="card-title">Giới Thiệu Bản Thân</div>
-            <div class="profile-bio-content"
-                 th:utext="${instructor?.bio ?: 'Chưa cập nhật giới thiệu bản thân.'}">
-                Chưa cập nhật giới thiệu bản thân.
+        <div class="profile-showcase-grid">
+            <div class="card profile-bio-card profile-feature-card">
+                <div class="profile-section-heading">
+                    <span class="profile-section-icon">
+                        <svg viewBox="0 0 24 24"><path d="M4 19.5V5a2 2 0 0 1 2-2h11v18H6a2 2 0 0 1-2-1.5Zm4-11h6M8 12h6M8 15h4"/></svg>
+                    </span>
+                    <div>
+                        <div class="card-title">Giới Thiệu Bản Thân</div>
+                        <p>Phần mô tả mà học viên sẽ nhìn thấy khi tìm hiểu về giảng viên.</p>
+                    </div>
+                </div>
+                <div class="profile-bio-content profile-bio-rich"
+                     th:utext="${instructor?.bio ?: 'Chưa cập nhật giới thiệu bản thân.'}">
+                    Chưa cập nhật giới thiệu bản thân.
+                </div>
             </div>
+
+            <aside class="card profile-contact-card">
+                <div class="card-title">Thông Tin Liên Hệ</div>
+                <div class="profile-contact-list">
+                    <div class="profile-contact-item">
+                        <span>Email</span>
+                        <strong th:text="${instructor?.email ?: 'Chưa cập nhật'}">email@example.com</strong>
+                    </div>
+                    <div class="profile-contact-item">
+                        <span>Số điện thoại</span>
+                        <strong th:text="${instructor?.phone ?: 'Chưa cập nhật'}">0123456789</strong>
+                    </div>
+                    <div class="profile-contact-item">
+                        <span>Họ và tên đệm</span>
+                        <strong th:text="${instructor?.firstname ?: 'Chưa cập nhật'}">Nguyễn Văn</strong>
+                    </div>
+                    <div class="profile-contact-item">
+                        <span>Tên</span>
+                        <strong th:text="${instructor?.lastname ?: 'Chưa cập nhật'}">An</strong>
+                    </div>
+                </div>
+            </aside>
         </div>
     </section>
 

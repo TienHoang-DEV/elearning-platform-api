@@ -34,6 +34,18 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpe
     //Kiểm tra không title trùng
     boolean existsByInstructorAndTitle(User instructor, String title);
 
+    // Course validation: khong cho instructor tao/edit course trung tieu de, bo qua hoa thuong va khoang trang dau/cuoi.
+    @Query("""
+            select case when count(c) > 0 then true else false end
+            from Course c
+            where c.instructor.id = :instructorId
+              and lower(trim(c.title)) = lower(trim(:title))
+              and (:excludeCourseId is null or c.id <> :excludeCourseId)
+            """)
+    boolean existsDuplicateTitleForInstructor(@Param("instructorId") Integer instructorId,
+                                              @Param("title") String title,
+                                              @Param("excludeCourseId") Integer excludeCourseId);
+
 
     //Phân trang khoá học của mỗi instructor
     Page<Course> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus);

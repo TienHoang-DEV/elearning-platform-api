@@ -30,9 +30,6 @@
                     <th>Học Viên</th>
                     <th>Khoá Học</th>
                     <th>Ngày Giờ Thanh Toán</th>
-                    <th>Giá Gốc Khoá Học</th>
-                    <th>Số Tiền Được Giảm</th>
-                    <th>Số Tiền Trả Thực</th>
                     <th>Số Tiền Nhận Được</th>
                     <th>Trạng Thái Đơn Hàng</th>
                     <th>Thao Tác</th>
@@ -49,9 +46,6 @@
                     <td th:text="${o.purchaseDate != null ? #temporals.format(o.purchaseDate, 'dd/MM/yyyy HH:mm') : ''}">
                         01/07/2026 10:00
                     </td>
-                    <td th:text="${#numbers.formatDecimal(o.originalPrice ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">399.000đ</td>
-                    <td th:text="${#numbers.formatDecimal(o.discount ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">100.000đ</td>
-                    <td class="amount-cell" th:text="${#numbers.formatDecimal(o.finalPrice ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">299.000đ</td>
                     <td class="amount-cell" th:text="${#numbers.formatDecimal(o.instructorRevenue ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">299.000đ</td>
                     <td><span class="order-status-badge" th:text="${o.paymentStatusText}">PAID</span></td>
                     <td>

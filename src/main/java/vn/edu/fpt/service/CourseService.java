@@ -60,20 +60,20 @@ public class CourseService {
     private final FeedbackService feedbackService;
     private final LessonNoteService lessonNoteService;
 
-    // Page course của mỗi instructor
+
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
 
         return repository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
     }
 
-    //Xoá khoá học
+
     public void deleteCourseById(Integer courseId){
         Course tmp = repository.findCourseById(courseId);
         if(tmp == null) return;
         repository.deleteCourseById(courseId);
     }
 
-    // Instructor course list: dùng chung để kiểm khóa học có thuộc instructor hiện tại không.
+
     public Course getInstructorOwnedCourse(Integer courseId, User user) {
         Course course = repository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id = " + courseId));
@@ -83,7 +83,7 @@ public class CourseService {
         return course;
     }
 
-    // Instructor course list: ẩn khóa học đang bán, backend đổi status PUBLISHED -> HIDDEN.
+
     public void hidePublishedCourse(Integer courseId, User user) {
         Course course = getInstructorOwnedCourse(courseId, user);
         if (course.getStatus() != CourseStatus.PUBLISHED) {
@@ -94,7 +94,7 @@ public class CourseService {
         repository.save(course);
     }
 
-    // Instructor course list: hiện lại khóa học đã ẩn, backend đổi status HIDDEN -> PUBLISHED.
+
     public void publishHiddenCourse(Integer courseId, User user) {
         Course course = getInstructorOwnedCourse(courseId, user);
         if (course.getStatus() != CourseStatus.HIDDEN) {
@@ -105,7 +105,6 @@ public class CourseService {
         repository.save(course);
     }
 
-    // Instructor course list: lấy danh sách đánh giá sau khi đã kiểm quyền sở hữu khóa học.
     public List<Feedback> getInstructorCourseReviews(Integer courseId, User user) {
         getInstructorOwnedCourse(courseId, user);
         return feedbackRepository.findByCourseIdOrderByCreatedAtDesc(courseId);
@@ -114,19 +113,19 @@ public class CourseService {
     public Course save(User user, CourseCreateDto courseCreateDto) {
         Course course;
         boolean isUpdate = courseCreateDto.getId() != null;
+        String normalizedTitle = courseCreateDto.getTitle() != null ? courseCreateDto.getTitle().trim() : "";
 
         if (isUpdate) {
             course = repository.findById(courseCreateDto.getId())
                     .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-            if (!course.getTitle().equals(courseCreateDto.getTitle()) &&
-                repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
+            if (repository.existsDuplicateTitleForInstructor(user.getId(), normalizedTitle, course.getId())) {
                 throw new CourseValidationException(
                         "title",
                         "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
             }
         } else {
             course = new Course();
-            if (repository.existsByInstructorAndTitle(user, courseCreateDto.getTitle())) {
+            if (repository.existsDuplicateTitleForInstructor(user.getId(), normalizedTitle, null)) {
                 throw new CourseValidationException(
                         "title",
                         "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
@@ -136,7 +135,7 @@ public class CourseService {
             course.setInstructor(user);
         }
 
-        if (courseCreateDto.getTitle().length() < 3) {
+        if (normalizedTitle.length() < 3) {
             throw new CourseValidationException(
                     "title",
                     "Tiêu đề khóa học phải có ít nhất 3 ký tự.");
@@ -149,6 +148,8 @@ public class CourseService {
                     "Mô tả khóa học phải có tối thiểu 50 ký tự.");
         }
 
+        validateCoursePrice(courseCreateDto.getPrice());
+
         String thumbnailUrl = course.getThumbnailUrl();
         if (courseCreateDto.getThumbnailFile() != null && !courseCreateDto.getThumbnailFile().isEmpty()) {
             thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS);
@@ -157,7 +158,7 @@ public class CourseService {
         Category category = categoryRepository.findById(courseCreateDto.getCategoryId())
                 .orElseThrow(() -> new CourseValidationException("categoryId", "Category không tồn tại"));
 
-        course.setTitle(courseCreateDto.getTitle());
+        course.setTitle(normalizedTitle);
         course.setDescription(courseCreateDto.getDescription());
         course.setCategory(category);
         course.setPrice(courseCreateDto.getPrice());
@@ -165,6 +166,25 @@ public class CourseService {
         course.setLevel(courseCreateDto.getLevel());
         course.setUpdateAt(LocalDateTime.now());
         return repository.save(course);
+    }
+
+    private void validateCoursePrice(BigDecimal price) {
+        if (price == null) {
+            throw new CourseValidationException("price", "Vui lòng nhập giá khóa học.");
+        }
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new CourseValidationException("price", "Giá khóa học không được âm.");
+        }
+        if (price.compareTo(BigDecimal.ZERO) == 0) {
+            return;
+        }
+
+        if (price.compareTo(BigDecimal.valueOf(2000)) <= 0) {
+            throw new CourseValidationException("price", "Giá khóa học phải lớn hơn 2.000 VNĐ hoặc bằng 0 nếu miễn phí.");
+        }
+        if (price.remainder(BigDecimal.valueOf(1000)).compareTo(BigDecimal.ZERO) != 0) {
+            throw new CourseValidationException("price", "Giá khóa học phải chia hết cho 1.000 VNĐ.");
+        }
     }
 
 

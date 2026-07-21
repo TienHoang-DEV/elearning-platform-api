@@ -29,8 +29,11 @@ import vn.edu.fpt.util.SecurityUtils;
 
 
 import javax.swing.text.Utilities;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/instructorcourse")
@@ -211,10 +214,43 @@ public class InstructorCourseController {
     public String viewCourseReviews(@PathVariable("id") Integer courseId, Model model) {
         User user = SecurityUtils.getCurrentUser();
         Course course = courseService.getInstructorOwnedCourse(courseId, user);
+        List<Feedback> reviews = courseService.getInstructorCourseReviews(courseId, user);
         // Instructor course list: truyen reviews cua dung course sang trang xem danh gia.
         model.addAttribute("course", course);
-        model.addAttribute("reviews", courseService.getInstructorCourseReviews(courseId, user));
+        model.addAttribute("reviews", reviews);
+        addCourseReviewStats(model, reviews);
+        model.addAttribute("userAvatarBaseUrl", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS + "/");
         return "instructor_course/course_reviews";
+    }
+
+    private void addCourseReviewStats(Model model, List<Feedback> reviews) {
+        int totalRatings = 0;
+        int ratingSum = 0;
+        int[] starCounts = new int[6];
+
+        for (Feedback review : reviews) {
+            Integer rating = review.getRating();
+            if (rating != null && rating >= 1 && rating <= 5) {
+                totalRatings++;
+                ratingSum += rating;
+                starCounts[rating]++;
+            }
+        }
+
+        double averageRating = totalRatings == 0 ? 0.0 : Math.round((ratingSum * 10.0 / totalRatings)) / 10.0;
+        List<Map<String, Object>> ratingBreakdown = new ArrayList<>();
+        for (int star = 5; star >= 1; star--) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("star", star);
+            row.put("count", starCounts[star]);
+            row.put("percent", totalRatings == 0 ? 0 : Math.round(starCounts[star] * 100.0 / totalRatings));
+            ratingBreakdown.add(row);
+        }
+
+        model.addAttribute("averageRating", averageRating);
+        model.addAttribute("ratingStars", (int) Math.round(averageRating));
+        model.addAttribute("ratingCount", totalRatings);
+        model.addAttribute("ratingBreakdown", ratingBreakdown);
     }
 
     @GetMapping("/{id}/rejection-reason")
@@ -276,7 +312,7 @@ public class InstructorCourseController {
 
     @PostMapping("/{id}/edit")
     public String EditCourse(@PathVariable("id") Integer CourseId,
-                             @Valid @ModelAttribute("CourseRequest") CourseCreateDto coursedto,
+                             @Valid @ModelAttribute("courseRequest") CourseCreateDto coursedto,
                              BindingResult bindingResult,
                              RedirectAttributes redirectAttributes,
                              Model model){
@@ -284,7 +320,8 @@ public class InstructorCourseController {
          loadFormModel(model);
          model.addAttribute("activeStep", "info");
          model.addAttribute("error", "Vui lòng kiểm tra lại các thông tin chưa hợp lệ.");
-         return "instructor_course/edit_course";
+          model.addAttribute("CourseRequest", coursedto);
+          return "instructor_course/edit_course";
      }
      try{
          User user = SecurityUtils.getCurrentUser();
@@ -298,10 +335,11 @@ public class InstructorCourseController {
                  "error",
                  e.getMessage());
 
-         loadFormModel(model);
-         model.addAttribute("activeStep", "info");
-         model.addAttribute("error", e.getMessage());
-         return "instructor_course/edit_course";
+          loadFormModel(model);
+          model.addAttribute("activeStep", "info");
+          model.addAttribute("error", e.getMessage());
+          model.addAttribute("CourseRequest", coursedto);
+          return "instructor_course/edit_course";
      }
 
     }
@@ -320,7 +358,6 @@ public class InstructorCourseController {
     public String hideCourse(@PathVariable("id") Integer courseId,
                              RedirectAttributes redirectAttributes) {
         User user = SecurityUtils.getCurrentUser();
-        // Instructor course list: xu ly nut An khoa hoc o tab Dang ban.
         courseService.hidePublishedCourse(courseId, user);
         redirectAttributes.addFlashAttribute("success", "Da an khoa hoc khoi danh sach dang ban.");
         return "redirect:/instructorcourse/courses?tab=all";
@@ -330,7 +367,6 @@ public class InstructorCourseController {
     public String publishHiddenCourse(@PathVariable("id") Integer courseId,
                                       RedirectAttributes redirectAttributes) {
         User user = SecurityUtils.getCurrentUser();
-        // Instructor course list: xu ly nut Hien lai khoa hoc o tab An.
         courseService.publishHiddenCourse(courseId, user);
         redirectAttributes.addFlashAttribute("success", "Da hien lai khoa hoc.");
         return "redirect:/instructorcourse/courses?tab=hidden";
