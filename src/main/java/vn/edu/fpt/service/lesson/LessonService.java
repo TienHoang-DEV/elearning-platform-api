@@ -171,8 +171,18 @@ public class LessonService {
 
     public String findLessonUrl(Integer lessonId) {
         try {
-            Lesson lesson = this.findById(lessonId).orElse(null);
-            if (lesson == null || lesson.getVideoUrl() == null || lesson.getVideoUrl().trim().isEmpty()) {
+            User user = SecurityUtils.getCurrentUser();
+            if (user == null) {
+                return null;
+            }
+            Lesson lesson = findById(lessonId).orElse(null);
+            if (lesson == null) {
+                return null;
+            }
+            if (!hasAccessToLesson(user, lesson)) {
+                return null;
+            }
+            if (lesson.getVideoUrl() == null || lesson.getVideoUrl().trim().isEmpty()) {
                 return "https://www.w3schools.com/html/mov_bbb.mp4";
             }
             return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());

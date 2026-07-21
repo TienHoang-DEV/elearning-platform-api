@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.util.SecurityUtils;
 
 @Service
 @Transactional
@@ -207,9 +209,17 @@ public class LessonMaterialService {
         return "Có thể xóa tài liệu.";
     }
 
-    public ResponseEntity<InputStreamResource> dowloadFile(LessonMaterial lessonMaterial) {
+    public ResponseEntity<InputStreamResource> dowloadFile(Integer id) {
+        User user = SecurityUtils.getCurrentUser();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        LessonMaterial lessonMaterial = findById(id).orElse(null);
         if (lessonMaterial == null) {
             return ResponseEntity.notFound().build();
+        }
+        if (!hasAccessToMaterial(user, lessonMaterial)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         BlobClient blobClient = azureBlobService.getBlobClient(
                 AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS,
@@ -273,5 +283,48 @@ public class LessonMaterialService {
     }
 
 
+    public String getViewmaterial(Integer id) {
+        User user = SecurityUtils.getCurrentUser();
+        if (user == null) {
+            return null;
+        }
+        LessonMaterial lessonMaterial = findById(id).orElse(null);
+        if (lessonMaterial == null) {
+            return null;
+        }
+        if (!hasAccessToMaterial(user, lessonMaterial)) {
+            return null;
+        }
+        String publicUrl = azureBlobService.getPublicUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
+        String fileType = lessonMaterial.getFileType() != null ? lessonMaterial.getFileType().toLowerCase().trim() : "";
+        if ("pdf".equals(fileType)) {
+            return publicUrl;
+        } else if ("doc".equals(fileType) || "docx".equals(fileType) || "xls".equals(fileType) || "xlsx".equals(fileType) || "ppt".equals(fileType) || "pptx".equals(fileType)) {
+            return AppConstants.OFFICE_VIEWER_BASE_URL + publicUrl;
+        }
+        return null;
+    }
+
+    public String viewMaterialRedirect(Integer id) {
+        User user = SecurityUtils.getCurrentUser();
+        if (user == null) {
+            return "redirect:/login";
+        }
+        LessonMaterial lessonMaterial = findById(id).orElse(null);
+        if (lessonMaterial == null) {
+            return "redirect:/";
+        }
+        if (!hasAccessToMaterial(user, lessonMaterial)) {
+            return "redirect:/course/" + lessonMaterial.getLesson().getCourseSection().getCourse().getId();
+        }
+        String publicUrl = azureBlobService.getPublicUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
+        String fileType = lessonMaterial.getFileType() != null ? lessonMaterial.getFileType().toLowerCase().trim() : "";
+        if ("pdf".equals(fileType)) {
+            return "redirect:" + publicUrl;
+        } else if ("doc".equals(fileType) || "docx".equals(fileType) || "xls".equals(fileType) || "xlsx".equals(fileType) || "ppt".equals(fileType) || "pptx".equals(fileType)) {
+            return "redirect:" + AppConstants.OFFICE_VIEWER_BASE_URL + publicUrl;
+        }
+        return "redirect:/material/" + id + "/download";
+    }
 }
 
