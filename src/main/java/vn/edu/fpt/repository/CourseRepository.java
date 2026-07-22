@@ -123,6 +123,24 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpe
             """)
     long countLessonsHavingVideoOrMaterial(@Param("courseId") Integer courseId);
 
+    // Course request validation: dem rieng lesson co video de khong bi tai lieu lam pass dieu kien video.
+    @Query("""
+            select count(l)
+            from Lesson l
+            where l.courseSection.course.id = :courseId
+              and l.videoUrl is not null
+              and trim(l.videoUrl) <> ''
+            """)
+    long countLessonsHavingVideoByCourseId(@Param("courseId") Integer courseId);
+
+    // Course request validation: dem rieng tai lieu de checklist khong bi gop chung voi quiz/video.
+    @Query("""
+            select count(m)
+            from LessonMaterial m
+            where m.lesson.courseSection.course.id = :courseId
+            """)
+    long countMaterialsByCourseId(@Param("courseId") Integer courseId);
+
     @Query("""
             select count(q) from Quiz q
             where q.lesson.courseSection.course.id = :courseId

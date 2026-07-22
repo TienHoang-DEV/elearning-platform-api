@@ -2,9 +2,11 @@ package vn.edu.fpt.service.section;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
+import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.CourseSectionValidation;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.CourseValidationException;
@@ -48,11 +50,16 @@ public class CourseSectionService {
     }
 
     @Transactional
-    public void deleteSection(Integer sectionId) {
+    public void deleteSection(Integer sectionId, User user) {
 
         CourseSection deleted = repository.findById(sectionId).orElseThrow();
+        Course course = deleted.getCourse();
+        // Delete section ownership: chi instructor so huu course moi duoc xoa section trong course do.
+        if (user == null || course == null || course.getInstructor() == null || !course.getInstructor().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Bạn không có quyền xóa chương này.");
+        }
         Integer deletedPos = deleted.getPosition();
-        Integer courseId = deleted.getCourse().getId();
+        Integer courseId = course.getId();
 
         repository.delete(deleted);
 

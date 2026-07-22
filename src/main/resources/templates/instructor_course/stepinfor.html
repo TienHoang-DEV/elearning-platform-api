@@ -24,15 +24,6 @@
 
       <div class="form-group" style="margin-bottom:16px;">
         <label>Mô Tả Khóa Học</label>
-        <div class="rich-toolbar">
-          <button data-cmd="bold" type="button"><b>B</b></button>
-          <button data-cmd="italic" type="button"><i>I</i></button>
-          <button data-cmd="underline" type="button"><u>U</u></button>
-          <button data-cmd="insertUnorderedList" type="button">• List</button>
-          <button data-cmd="insertOrderedList" type="button">1. List</button>
-          <button data-cmd="formatBlock" data-val="h3" type="button">H3</button>
-          <button data-cmd="removeFormat" type="button">✕</button>
-        </div>
         <div class="rich-editor" id="courseDescEditor" contenteditable="true"
              th:utext="*{description}"
              th:classappend="${#fields.hasErrors('description')} ? ' is-invalid' : ''"
@@ -96,7 +87,9 @@
         <label>Giá Khóa Học</label>
         <input type="text"
                class="form-control"
-               th:field="*{price}"
+               id="price"
+               name="price"
+               th:value="${courseRequest?.price != null ? courseRequest.price.stripTrailingZeros().toPlainString() : ''}"
                th:classappend="${#fields.hasErrors('price')} ? ' is-invalid' : ''"
                placeholder="Nhập giá khóa học (VNĐ)"
                inputmode="numeric"
@@ -174,6 +167,9 @@
       // Course price input: chan nhap chu va ky tu dac biet ngay o frontend.
       const priceInput = document.querySelector('[data-price-input]');
       if (priceInput) {
+        if (/^\d+\.0+$/.test(priceInput.value)) {
+          priceInput.value = priceInput.value.replace(/\.0+$/, '');
+        }
         priceInput.addEventListener('beforeinput', function (event) {
           if (event.data && !/^\d+$/.test(event.data)) {
             event.preventDefault();

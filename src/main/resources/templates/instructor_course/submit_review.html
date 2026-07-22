@@ -19,23 +19,27 @@
         </a>
     </header>
 
-    <section class="progress-card" aria-label="Tiến độ hoàn thành điều kiện duyệt">
+    <section class="progress-card"
+             aria-label="Tiến độ hoàn thành điều kiện duyệt"
+             th:data-completed-count="${submitReview.completedCount}"
+             th:data-total-count="${submitReview.totalCount}">
         <div class="progress-ring" th:style="'--percent: ' + ${submitReview.percent}">
-            <span th:text="${submitReview.percent} + '%'">85%</span>
+            <span id="submitReviewPercentText" th:text="${submitReview.percent} + '%'">85%</span>
         </div>
         <div class="progress-copy">
             <h2>
                 Đạt
-                <strong th:text="${submitReview.completedCount} + '/' + ${submitReview.totalCount}">11/13</strong>
+                <strong id="submitReviewRatioText" th:text="${submitReview.completedCount} + '/' + ${submitReview.totalCount}">11/13</strong>
                 điều kiện
             </h2>
             <p th:if="${!submitReview.submitReady}">Vui lòng hoàn thành các điều kiện còn thiếu để gửi yêu cầu.</p>
             <p th:if="${submitReview.submitReady}">Khóa học đã đủ điều kiện để gửi xét duyệt.</p>
         </div>
         <div class="progress-track" aria-hidden="true">
-            <span th:style="'width: ' + ${submitReview.percent} + '%'"></span>
+            <span id="submitReviewProgressBar" th:style="'width: ' + ${submitReview.percent} + '%'"></span>
         </div>
         <strong class="progress-number"
+                id="submitReviewProgressNumber"
                 th:text="${submitReview.completedCount} + ' / ' + ${submitReview.totalCount}">11 / 13</strong>
     </section>
 

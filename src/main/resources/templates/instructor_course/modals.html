@@ -62,7 +62,7 @@
             </div>
 
             <form
-                  method="POST" enctype="multipart/form-data" id="addLessonForm" th:object="${lesson}">
+                  method="POST" enctype="multipart/form-data" id="addLessonForm" th:object="${lesson}" data-lesson-upload-form>
                 <input type="hidden" name="sectionId" id="addLessonSectionId"/>
                 <input type="hidden" name="courseId" id="addLessonCourseId" th:value="${courseId}"/>
 <!--                <input type="hidden" name="source" value="create">-->
@@ -108,7 +108,8 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" data-close-modal="modal-add-lesson">Hủy</button>
-                    <button type="submit" class="btn btn-primary">Lưu Bài Giảng</button>
+                    <!-- Lesson video upload: disable khi submit de tranh double-click tao 2 lesson. -->
+                    <button type="submit" class="btn btn-primary" data-loading-text="Đang lưu video...">Lưu Bài Giảng</button>
                 </div>
             </form>
         </div>
@@ -125,7 +126,8 @@
             <form id="editLessonForm"
                   method="POST"
                   enctype="multipart/form-data"
-                  th:object="${lesson}">
+                  th:object="${lesson}"
+                  data-lesson-upload-form>
 
 
                 <!-- Hidden Fields -->
@@ -187,7 +189,8 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" data-close-modal="modal-edit-lesson">Hủy</button>
-                    <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
+                    <!-- Lesson video upload: disable khi submit de tranh double-click tao 2 lesson. -->
+                    <button type="submit" class="btn btn-primary" data-loading-text="Đang lưu video...">Lưu Thay Đổi</button>
                 </div>
             </form>
         </div>

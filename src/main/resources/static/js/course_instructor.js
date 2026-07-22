@@ -91,6 +91,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     initEditMaterialPreview();
 
+    initLessonUploadSubmitLock();
+
 });
 
 /* =====================================================
@@ -244,6 +246,29 @@ function syncRichEditor(editorId, hiddenId) {
     const editor = document.getElementById(editorId);
     const hidden = document.getElementById(hiddenId);
     if (editor && hidden) hidden.value = editor.innerHTML;
+}
+
+function initLessonUploadSubmitLock() {
+    document.querySelectorAll('form[data-lesson-upload-form]').forEach(form => {
+        form.addEventListener('submit', function (event) {
+            if (form.dataset.submitting === 'true') {
+                event.preventDefault();
+                return;
+            }
+
+            form.dataset.submitting = 'true';
+            const submitButton = form.querySelector('button[type="submit"]');
+            const closeButtons = form.querySelectorAll('[data-close-modal]');
+            closeButtons.forEach(button => button.disabled = true);
+
+            if (submitButton) {
+                submitButton.dataset.originalText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.classList.add('btn-loading');
+                submitButton.textContent = submitButton.dataset.loadingText || 'Đang lưu...';
+            }
+        });
+    });
 }
 
 function initAvatarPreview() {
@@ -732,10 +757,22 @@ function initSubmitReviewPolicy() {
     const policyTrailingIcon = policyItem?.querySelector('.item-check, .item-empty');
     const policyMissing = document.querySelector('[data-policy-missing="true"]');
     const missingBox = policyMissing?.closest('.missing-box');
+    const progressCard = document.querySelector('.progress-card[data-completed-count][data-total-count]');
+    const percentText = document.getElementById('submitReviewPercentText');
+    const ratioText = document.getElementById('submitReviewRatioText');
+    const progressNumber = document.getElementById('submitReviewProgressNumber');
+    const progressBar = document.getElementById('submitReviewProgressBar');
+    const progressRing = progressCard?.querySelector('.progress-ring');
+
+    const baseCompleted = progressCard ? Number(progressCard.dataset.completedCount || 0) : 0;
+    const totalCount = progressCard ? Number(progressCard.dataset.totalCount || 0) : 0;
+    const policyWasCompletedOnLoad = policyItem?.classList.contains('is-ok') === true;
 
     const updateState = () => {
         const accepted = checkbox.checked;
         button.disabled = !(readyExceptPolicy && accepted);
+        const completedCount = baseCompleted + (accepted && !policyWasCompletedOnLoad ? 1 : 0) - (!accepted && policyWasCompletedOnLoad ? 1 : 0);
+        const percent = totalCount === 0 ? 0 : Math.round(completedCount * 100 / totalCount);
 
         if (policyItem) {
             policyItem.classList.toggle('is-ok', accepted);
@@ -762,6 +799,22 @@ function initSubmitReviewPolicy() {
             const hasVisibleMissing = Array.from(missingBox.querySelectorAll('li'))
                 .some(item => item.style.display !== 'none');
             missingBox.style.display = hasVisibleMissing ? '' : 'none';
+        }
+
+        if (progressRing) {
+            progressRing.style.setProperty('--percent', percent);
+        }
+        if (percentText) {
+            percentText.textContent = `${percent}%`;
+        }
+        if (ratioText) {
+            ratioText.textContent = `${completedCount}/${totalCount}`;
+        }
+        if (progressNumber) {
+            progressNumber.textContent = `${completedCount} / ${totalCount}`;
+        }
+        if (progressBar) {
+            progressBar.style.width = `${percent}%`;
         }
     };
 

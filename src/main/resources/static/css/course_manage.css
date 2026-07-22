@@ -301,6 +301,13 @@ select.form-control { cursor: pointer; }
 
 .btn-primary { background: var(--primary); color: #fff; }
 .btn-primary:hover { background: var(--primary-hover); }
+.btn:disabled,
+.btn.btn-loading {
+    opacity: .65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
 
 .btn-success { background: var(--success); color: #fff; }
 .btn-success:hover { background: #15803d; }

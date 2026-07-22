@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.CourseSectionDto;
 import vn.edu.fpt.entity.Course;
+import vn.edu.fpt.entity.User;
 import vn.edu.fpt.exception.CourseSectionValidation;
 import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
+import vn.edu.fpt.util.SecurityUtils;
 
 @Controller
 @RequestMapping("/instructorcourse")
@@ -84,7 +86,8 @@ public class InstructorSectionController {
                                 @PathVariable("sectionId") Integer sectionId,
                                 RedirectAttributes redirectAttributes) {
         try {
-            courseSectionService.deleteSection(sectionId);
+            User user = SecurityUtils.getCurrentUser();
+            courseSectionService.deleteSection(sectionId, user);
             redirectAttributes.addFlashAttribute("success", "Xoá chương thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi khi xoá chương: " + e.getMessage());
