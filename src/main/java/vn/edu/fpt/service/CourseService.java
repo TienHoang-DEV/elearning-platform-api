@@ -426,6 +426,7 @@ public class CourseService {
                 .level(course.getLevel())
                 .instructorFirstName(course.getInstructor() != null ? course.getInstructor().getFirstName() : null)
                 .instructorLastName(course.getInstructor() != null ? course.getInstructor().getLastName() : null)
+                .instructorId(course.getInstructor() != null ? course.getInstructor().getId() : null)
                 .categoryId(course.getCategory() != null ? course.getCategory().getId() : null)
                 .categoryName(course.getCategory() != null ? course.getCategory().getName() : null)
                 .averageRating(course.getAverageRating())

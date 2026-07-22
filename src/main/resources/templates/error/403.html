@@ -31,7 +31,7 @@
         <div class="error-info">
             <div class="error-info-item" th:if="${timestamp != null}">
                 <span class="info-label">Thời gian</span>
-                <span class="info-value" th:text="${#temporals.format(timestamp, 'HH:mm:ss dd/MM/yyyy')}"></span>
+                <span class="info-value" th:text="${#temporals.format(timestamp.toInstant().atZone(T(java.time.ZoneId).systemDefault()), 'HH:mm:ss dd/MM/yyyy')}"></span>
             </div>
         </div>
 

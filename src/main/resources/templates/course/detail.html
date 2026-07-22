@@ -63,7 +63,7 @@
                     <div
                         class="instructor-container d-flex align-items-center gap-2 text-primary fw-semibold fs-6 mb-3">
                         <i data-lucide="user" style="width: 16px; height: 16px;"></i>
-                        <a th:href="@{/instructor/{id}/profile(id=${course.instructor.id})}" class="text-decoration-none text-primary instructor-profile-link">
+                        <a th:href="@{/instructor-profile/{id}(id=${course.instructor.id})}" class="text-decoration-none text-primary instructor-profile-link">
                             <span class="instructor-name tracking-wide"
                                 th:text="${course.instructor.lastName + ' ' + course.instructor.firstName}">TRANG HIÊN
                                 KHOA</span>

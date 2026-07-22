@@ -300,7 +300,7 @@
                                                 th:text="'(' + ${course.ratingCount} + ' đánh giá)'">(2 đánh giá)</span>
                                         </div>
 
-                                        <a th:href="@{/instructor/{id}/profile(id=${course.instructor.id})}" 
+                                        <a th:href="@{/instructor-profile/{id}(id=${course.instructor.id})}"
                                             class="instructor-name fw-bold fs-8 text-primary d-block mb-3 text-decoration-none text-primary"
                                             th:text="${course.instructor.lastName + ' ' + course.instructor.firstName}">NGUYỄN
                                             CÔNG THÁI SƠN</a>

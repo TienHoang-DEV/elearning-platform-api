@@ -92,12 +92,13 @@ public class SecurityConfig {
                                 "/",
                                 "/courses",
                                 "/course/detail",
-                                "/instructor/*/profile"
-                        ).access((authentication, context) -> {
-                            if (authentication.get() == null || !authentication.get().isAuthenticated()) {
+                                "/instructor-profile/*"
+                        ).access((authenticationSupplier, context) -> {
+                            org.springframework.security.core.Authentication currentAuth = authenticationSupplier.get();
+                            if (currentAuth == null || !currentAuth.isAuthenticated() || currentAuth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken) {
                                 return new org.springframework.security.authorization.AuthorizationDecision(true);
                             }
-                            boolean hasRestrictedRole = authentication.get().getAuthorities().stream()
+                            boolean hasRestrictedRole = currentAuth.getAuthorities().stream()
                                     .anyMatch(a -> {
                                         String role = a.getAuthority();
                                         return role.equals("ROLE_ADMIN") || role.equals("ROLE_MANAGER") || role.equals("ROLE_INSTRUCTOR");
