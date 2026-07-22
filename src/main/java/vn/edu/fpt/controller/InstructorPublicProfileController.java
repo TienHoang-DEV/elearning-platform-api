@@ -16,7 +16,7 @@ public class InstructorPublicProfileController {
         this.instructorPublicProfileService = instructorPublicProfileService;
     }
 
-    @GetMapping("/instructor/{id}/profile")
+    @GetMapping("/instructor-profile/{id}")
     public String showInstructorProfile(@PathVariable("id") Integer id, Model model) {
         InstructorPublicProfileDto profile = instructorPublicProfileService.getInstructorProfile(id);
         model.addAttribute("instructor", profile);

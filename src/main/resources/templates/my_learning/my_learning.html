@@ -98,7 +98,7 @@
                                 <div class="d-flex align-items-center gap-2 text-muted fs-8 mb-4">
                                     <i data-lucide="clock" class="flex-shrink-0" style="width: 14px; height: 14px;"></i>
                                     <span class="text-truncate"
-                                        th:text="'Trình độ: ' + ${enrollment.course?.level == 'beginner' ? 'Cơ bản' : (enrollment.course?.level == 'intermediate' ? 'Trung cấp' : 'Nâng cao')}">Trình
+                                        th:text="'Trình độ: ' + ${enrollment.course?.level ?: 'Cơ bản'}">Trình
                                         độ: Cơ bản</span>
                                 </div>
                             </div>

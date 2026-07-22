@@ -426,6 +426,7 @@ public class CourseService {
                 .level(course.getLevel())
                 .instructorFirstName(course.getInstructor() != null ? course.getInstructor().getFirstName() : null)
                 .instructorLastName(course.getInstructor() != null ? course.getInstructor().getLastName() : null)
+                .instructorId(course.getInstructor() != null ? course.getInstructor().getId() : null)
                 .categoryId(course.getCategory() != null ? course.getCategory().getId() : null)
                 .categoryName(course.getCategory() != null ? course.getCategory().getName() : null)
                 .averageRating(course.getAverageRating())
@@ -585,7 +586,6 @@ public class CourseService {
         return null;
     }
 
-    @Transactional
     public Course save(User instructor, String title, String shortdesc, String desc, String outcome, String requirement,
             CourseLevel level, Integer categoryId, MultipartFile file, BigDecimal price) {
         if (instructor == null) {
@@ -751,7 +751,6 @@ public class CourseService {
         return dto;
     }
 
-    @Transactional
     public void submitCourseForApproval(Integer courseId, User user, boolean acceptedPolicy) {
         CourseSubmitReviewDto review = getSubmitReview(courseId, user, acceptedPolicy);
         if (!review.isSubmitReady()) {
@@ -801,7 +800,6 @@ public class CourseService {
 
 
 
-    @Transactional
     public void resubmitCourse(Integer id) {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
@@ -811,7 +809,6 @@ public class CourseService {
         }
     }
 
-    @Transactional
     public void submitForApproval(Integer id) {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
@@ -821,7 +818,6 @@ public class CourseService {
         }
     }
 
-    @Transactional
     public void withdrawCourse(Integer id) {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
@@ -900,16 +896,7 @@ public class CourseService {
             coursesMap.put(child.getId(), top4);
         }
 
-        // 2. Lấy top 4 khóa học cho tab "Tất cả" (tổng hợp các danh mục con yêu thích) (dùng for thay cho stream)
-        List<Integer> childIds = new java.util.ArrayList<>();
-        for (CategoryDto child : favoriteChildren) {
-            childIds.add(child.getId());
-        }
-        List<CourseListDto> allFavorites = repository.findTop4ByCategoryIdsOrderByAverageRatingDesc(
-                childIds, 
-                PageRequest.of(0, 4)
-        );
-        coursesMap.put(0, allFavorites);
+
 
         return builder
                 .hasFavorites(true)
@@ -919,7 +906,6 @@ public class CourseService {
                 .build();
     }
 
-    @Transactional
     public CourseContentSidebarDTO viewCourseContent(User user, Integer courseId, Integer sectionId, Integer lessonId) {
         CourseContentSidebarDTO courseContentSidebarDTO = new CourseContentSidebarDTO();
 

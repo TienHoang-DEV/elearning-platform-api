@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.User;
@@ -87,14 +88,23 @@ public class UserFavoriteController {
     @PostMapping("/student/favorites/save")
     public String saveFavorites(@RequestParam("parentId") Integer parentId,
                                 @RequestParam(value = "childIds", required = false) List<Integer> childIds,
-                                HttpSession session) {
+                                HttpSession session,
+                                RedirectAttributes redirectAttributes) {
         User user = getSessionUser();
         if (user == null) {
             return "redirect:/login";
         }
 
         Set<Category> newFavorites = new HashSet<>();
-        if (childIds != null && !childIds.isEmpty()) {
+
+        if (childIds == null || childIds.isEmpty()) {
+            List<Category> allChildren = categoryRepository.findByParentIdAndStatus(parentId, "ACTIVE");
+            if (allChildren != null && !allChildren.isEmpty()) {
+                newFavorites.addAll(allChildren);
+            } else {
+                categoryRepository.findById(parentId).ifPresent(newFavorites::add);
+            }
+        } else {
             List<Category> selectedChildren = categoryRepository.findAllById(childIds);
             newFavorites.addAll(selectedChildren);
         }

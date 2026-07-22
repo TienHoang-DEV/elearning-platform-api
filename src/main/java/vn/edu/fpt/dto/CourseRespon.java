@@ -23,4 +23,15 @@ public class CourseRespon {
     private String level;
     private LocalDateTime createAt;
     private List<SectionRespon> sections;
+
+    public String getLevel() {
+        if ("BEGINNER".equalsIgnoreCase(level)) {
+            return "Cơ bản";
+        } else if ("INTERMEDIATE".equalsIgnoreCase(level)) {
+            return "Trung cấp";
+        } else if ("ADVANCED".equalsIgnoreCase(level)) {
+            return "Nâng cao";
+        }
+        return level;
+    }
 }
