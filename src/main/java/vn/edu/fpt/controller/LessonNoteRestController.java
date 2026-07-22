@@ -21,11 +21,7 @@ public class LessonNoteRestController {
     private final LessonNoteService lessonNoteService;
 
     @PostMapping("/save")
-    public ResponseEntity<Map<String, Object>> saveNote(
-            @RequestParam(value = "noteId", required = false) Integer noteId,
-            @RequestParam("lessonId") Integer lessonId,
-            @RequestParam("videoTimeSeconds") Integer videoTimeSeconds,
-            @RequestParam("noteContent") String noteContent) {
+    public ResponseEntity<Map<String, Object>> saveNote(@RequestParam(value = "noteId", required = false) Integer noteId, @RequestParam("lessonId") Integer lessonId, @RequestParam("videoTimeSeconds") Integer videoTimeSeconds, @RequestParam("noteContent") String noteContent) {
 
         Map<String, Object> response = new HashMap<>();
         try {
@@ -47,7 +43,7 @@ public class LessonNoteRestController {
         }
     }
 
-    @GetMapping("/remove")
+    @PostMapping("/remove")
     public void removeLessonNote(@RequestParam("noteId") Integer lessonNoteId) {
         User user = SecurityUtils.getCurrentUser();
         lessonNoteService.removeNote(user, lessonNoteId);
