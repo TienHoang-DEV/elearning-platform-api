@@ -85,17 +85,30 @@ public class SecurityConfig {
                                 "/images/**", "/oauth2/**",
                                 "/forgot-password",
                                 "/reset-password",
-                                "/password-reset-success",
+                                "/password-reset-success"
+                        ).permitAll()
+                        .requestMatchers(
                                 "/home",
                                 "/",
                                 "/courses",
                                 "/course/detail",
                                 "/instructor/*/profile"
-                        ).permitAll()
+                        ).access((authentication, context) -> {
+                            if (authentication.get() == null || !authentication.get().isAuthenticated()) {
+                                return new org.springframework.security.authorization.AuthorizationDecision(true);
+                            }
+                            boolean hasRestrictedRole = authentication.get().getAuthorities().stream()
+                                    .anyMatch(a -> {
+                                        String role = a.getAuthority();
+                                        return role.equals("ROLE_ADMIN") || role.equals("ROLE_MANAGER") || role.equals("ROLE_INSTRUCTOR");
+                                    });
+                            return new org.springframework.security.authorization.AuthorizationDecision(!hasRestrictedRole);
+                        })
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/instructor/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/manager/**").hasRole("MANAGER")
                         .requestMatchers("/instructorcourse/**").hasRole("INSTRUCTOR")
+                        .requestMatchers("/student/**").hasRole("LEARNER")
                         .anyRequest().authenticated()
                 )
 
