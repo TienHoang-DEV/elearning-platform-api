@@ -53,12 +53,12 @@
             </button>
             <div class="stacktrace-panel" id="tracePanel">
                 <div class="stacktrace-header">
-                    <span class="st-title">Stack Trace</span>
+                    <span class="st-title">Vết lỗi hệ thống (Stack Trace)</span>
                     <button class="st-copy" onclick="copyTrace()">
                         <i class="bi bi-clipboard"></i> Sao chép
                     </button>
                 </div>
-                <pre class="stacktrace-body" id="traceContent" th:text="${trace}">stack trace here</pre>
+                <pre class="stacktrace-body" id="traceContent" th:text="${trace}">chi tiết vết lỗi</pre>
             </div>
         </div>
 
