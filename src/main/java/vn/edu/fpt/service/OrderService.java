@@ -66,7 +66,7 @@ public class OrderService {
         return orderDtos;
     }
 
-
-
-
+    public List<Order> findOrderByUser(User user) {
+        return repository.findByUserAndStatus_Pending(user);
+    }
 }
