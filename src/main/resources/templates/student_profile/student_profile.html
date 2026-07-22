@@ -51,13 +51,7 @@
                         <button class="nav-link active whitespace-nowrap" id="account-tab" data-bs-toggle="tab" data-bs-target="#account-pane" type="button" role="tab" aria-controls="account-pane" aria-selected="true">Tài khoản</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link whitespace-nowrap" id="communication-tab" data-bs-toggle="tab" data-bs-target="#communication-pane" type="button" role="tab" aria-controls="communication-pane" aria-selected="false">Tùy chọn giao tiếp</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
                         <button class="nav-link whitespace-nowrap" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-pane" type="button" role="tab" aria-controls="notes-pane" aria-selected="false">Ghi chú &amp; Điểm nổi bật</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link whitespace-nowrap" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-pane" type="button" role="tab" aria-controls="calendar-pane" aria-selected="false">Đồng bộ hóa lịch</button>
                     </li>
                 </ul>
             </header>
@@ -162,29 +156,7 @@
                                 </div>
                             </section>
 
-                            <!-- Delete Account Section -->
-                            <section class="border-card rounded-4 p-4 p-md-5 order-5">
-                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-4 mb-4">
-                                    <div class="flex-grow-1">
-                                        <h2 class="h4 fw-bold text-danger mb-2">Xóa tài khoản</h2>
-                                        <p class="text-muted fs-7 leading-relaxed mb-0">
-                                            Nếu bạn xóa tài khoản của mình, thông tin cá nhân của bạn sẽ bị xóa khỏi máy chủ của Coursera, tất cả hoạt động học tập của bạn sẽ được ẩn danh và mọi chứng chỉ đã đạt được sẽ bị xóa. <span class="text-danger fw-bold">Không thể hoàn tác thao tác này!</span>
-                                        </p>
-                                    </div>
-                                    <button class="btn btn-outline-primary border-2 px-4 py-3 fw-bold whitespace-nowrap" type="button" id="btn-delete-account" 
-                                            onclick="return confirm('CẢNH BÁO: Hành động này không thể hoàn tác! Bạn có thực sự muốn xóa tài khoản của mình?') && confirm('Tất cả chứng chỉ và dữ liệu học tập sẽ bị xóa vĩnh viễn. Nhấn OK để xác nhận lần cuối.');"
-                                            style="border-color: #0056d2; color: #0056d2;">
-                                        Xóa tài khoản
-                                    </button>
-                                </div>
-                                <!-- Warning Alert Box -->
-                                <div class="warning-box p-4 d-flex align-items-center gap-3">
-                                    <div class="bg-warning bg-opacity-75 text-white p-2 rounded-2 d-flex align-items-center justify-content-center shrink-0" style="width: 32px; height: 32px; background-color: #8a5b11 !important;">
-                                        <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i>
-                                    </div>
-                                    <span class="text-dark fw-medium fs-6">Hủy bất kỳ đăng ký đang hoạt động nào trước khi bạn xóa tài khoản của mình.</span>
-                                </div>
-                            </section>
+
 
                         </form>
 
@@ -218,26 +190,6 @@
                         </div>
                     </div>
 
-                </div>
-
-                <!-- 2. TÙY CHỌN GIAO TIẾP PANE -->
-                <div class="tab-pane fade" id="communication-pane" role="tabpanel" aria-labelledby="communication-tab">
-                    <section class="border-card rounded-4 p-4 p-md-5">
-                        <h2 class="h4 fw-bold mb-3">Tùy chọn giao tiếp</h2>
-                        <p class="text-muted fs-7">Quản lý cách chúng tôi liên hệ với bạn và những thông báo bạn muốn nhận.</p>
-                        <div class="d-flex flex-column gap-3 mt-4">
-                            <div class="form-check form-switch p-3 border rounded-3 bg-light bg-opacity-50">
-                                <input class="form-check-input ms-0 me-3 float-start" type="checkbox" role="switch" id="emailNotifications" checked>
-                                <label class="form-check-label fw-bold" for="emailNotifications">Nhận thông báo qua Email</label>
-                                <div class="text-muted fs-8">Nhận cập nhật về các khóa học của bạn và các thông tin khuyến nghị hữu ích.</div>
-                            </div>
-                            <div class="form-check form-switch p-3 border rounded-3 bg-light bg-opacity-50">
-                                <input class="form-check-input ms-0 me-3 float-start" type="checkbox" role="switch" id="promoNotifications">
-                                <label class="form-check-label fw-bold" for="promoNotifications">Tin nhắn khuyến mại &amp; Ưu đãi</label>
-                                <div class="text-muted fs-8">Nhận thông tin về các sự kiện giảm giá, mã giảm giá và tính năng mới.</div>
-                            </div>
-                        </div>
-                    </section>
                 </div>
 
                 <!-- 3. GHI CHÚ PANE -->
@@ -297,18 +249,6 @@
                                 </div>
                             </div>
                         </div>
-                    </section>
-                </div>
-
-                <!-- 4. LỊCH PANE -->
-                <div class="tab-pane fade" id="calendar-pane" role="tabpanel" aria-labelledby="calendar-tab">
-                    <section class="border-card rounded-4 p-4 p-md-5">
-                        <h2 class="h4 fw-bold mb-3">Đồng bộ hóa lịch</h2>
-                        <p class="text-muted fs-7">Đồng bộ thời khóa biểu, lịch nộp bài tập của bạn với Google Calendar, Apple Calendar hoặc Outlook.</p>
-                        <button class="btn btn-outline-primary mt-3 px-4 py-3 fw-bold d-inline-flex align-items-center gap-2" style="border-color: #0056d2; color: #0056d2;">
-                            <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
-                            Đồng bộ hóa với Lịch cá nhân
-                        </button>
                     </section>
                 </div>
             </div>
