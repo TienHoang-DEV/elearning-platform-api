@@ -14,6 +14,8 @@ import vn.edu.fpt.service.CourseService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
+import vn.edu.fpt.enums.RoleType;
+
 @Controller
 public class HomeController {
 
@@ -32,7 +34,24 @@ public class HomeController {
     @GetMapping("/")
     public String showHomePage(Model model) {
         User currentUser = getSessionUser();
-        if (currentUser != null) {
+        if (currentUser != null && currentUser.getRoles() != null) {
+            boolean isAdmin = currentUser.getRoles().stream()
+                    .anyMatch(r -> r.getName() == RoleType.ADMIN);
+            boolean isManager = currentUser.getRoles().stream()
+                    .anyMatch(r -> r.getName() == RoleType.MANAGER);
+            boolean isInstructor = currentUser.getRoles().stream()
+                    .anyMatch(r -> r.getName() == RoleType.INSTRUCTOR);
+
+            if (isAdmin) {
+                return "redirect:/admin/dashboard";
+            }
+            if (isManager) {
+                return "redirect:/manager/dashboard";
+            }
+            if (isInstructor) {
+                return "redirect:/instructor/dashboard";
+            }
+
             if (!currentUser.isFavoriteSetupCompleted()) {
                 return "redirect:/student/favorites/step1";
             }

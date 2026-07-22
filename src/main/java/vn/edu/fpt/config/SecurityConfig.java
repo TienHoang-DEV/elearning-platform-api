@@ -1,5 +1,6 @@
 package vn.edu.fpt.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,9 @@ import vn.edu.fpt.service.CustomUserDetailsService;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${app.security.remember-me.key}")
+    private String rememberMeKey;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -93,18 +97,7 @@ public class SecurityConfig {
                                 "/courses",
                                 "/course/detail",
                                 "/instructor-profile/*"
-                        ).access((authenticationSupplier, context) -> {
-                            org.springframework.security.core.Authentication currentAuth = authenticationSupplier.get();
-                            if (currentAuth == null || !currentAuth.isAuthenticated() || currentAuth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken) {
-                                return new org.springframework.security.authorization.AuthorizationDecision(true);
-                            }
-                            boolean hasRestrictedRole = currentAuth.getAuthorities().stream()
-                                    .anyMatch(a -> {
-                                        String role = a.getAuthority();
-                                        return role.equals("ROLE_ADMIN") || role.equals("ROLE_MANAGER") || role.equals("ROLE_INSTRUCTOR");
-                                    });
-                            return new org.springframework.security.authorization.AuthorizationDecision(!hasRestrictedRole);
-                        })
+                        ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/instructor/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/manager/**").hasRole("MANAGER")
@@ -126,7 +119,7 @@ public class SecurityConfig {
                 .rememberMe(remember -> remember
                 .rememberMeParameter("remember-me")
                 .userDetailsService(userDetailsService)
-                .key("learninghub-remember-me-secret-key")
+                .key(rememberMeKey)
                 .tokenValiditySeconds(7 * 24 * 60 * 60)
                 .useSecureCookie(false)
         )
