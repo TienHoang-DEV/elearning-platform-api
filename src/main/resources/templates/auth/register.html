@@ -58,15 +58,6 @@
                 </div>
 
                 <div class="input-field-group">
-                    <label>Số điện thoại</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-phone input-icon"></i>
-                        <input type="tel" th:field="*{phoneNumber}" placeholder="0912 345 678" required autocomplete="off">
-                    </div>
-                    <div class="error-text" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
-                </div>
-
-                <div class="input-field-group">
                     <label>Mật khẩu</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-lock input-icon"></i>

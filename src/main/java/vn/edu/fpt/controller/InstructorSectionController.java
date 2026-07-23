@@ -16,7 +16,7 @@ import vn.edu.fpt.service.CourseService;
 import vn.edu.fpt.util.SecurityUtils;
 
 @Controller
-@RequestMapping("/instructorcourse")
+@RequestMapping("/instructor")
 public class InstructorSectionController {
 
     private final CourseService courseService;
@@ -97,8 +97,8 @@ public class InstructorSectionController {
 
     private String redirectAfterCurriculumAction(String source, Integer courseId) {
         return "edit".equals(source)
-                ? "redirect:/instructorcourse/" + courseId + "/edit"
-                : "redirect:/instructorcourse/" + courseId + "/curriculum";
+                ? "redirect:/instructor/" + courseId + "/edit"
+                : "redirect:/instructor/" + courseId + "/curriculum";
     }
 
 }

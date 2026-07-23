@@ -16,7 +16,7 @@ import vn.edu.fpt.util.SecurityUtils;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/instructorcourse")
+@RequestMapping("/instructor")
 public class InstructorMaterialLibraryController {
     private final LessonMaterialService lessonMaterialService;
 
@@ -47,7 +47,7 @@ public class InstructorMaterialLibraryController {
         return "instructor_course/material_library";
     }
 
-    @PostMapping("/materials/{materialId}/delete")
+    @PostMapping("/materials/library/{materialId}/delete")
     public String deleteMaterialFromLibrary(@PathVariable("materialId") Integer materialId,
                                             RedirectAttributes redirectAttributes) {
         User instructor = SecurityUtils.getCurrentUser();
@@ -57,6 +57,6 @@ public class InstructorMaterialLibraryController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/instructorcourse/materials";
+        return "redirect:/instructor/materials";
     }
 }

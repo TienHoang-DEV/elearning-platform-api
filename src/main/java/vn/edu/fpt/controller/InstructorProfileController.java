@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.user.InstructorProfileViewDto;
@@ -59,6 +60,25 @@ public class InstructorProfileController {
             model.addAttribute("error", e.getMessage());
             return "instructor_course/profile";
         }
+    }
+
+    @PostMapping("/profile/change-password")
+    public String changePassword(
+            @RequestParam(value = "oldPassword", required = false) String oldPassword,
+            @RequestParam("newPassword") String newPassword,
+            @RequestParam("confirmPassword") String confirmPassword,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            instructorProfileService.updateCurrentInstructorPassword(oldPassword, newPassword, confirmPassword);
+            redirectAttributes.addFlashAttribute("success", "Đổi mật khẩu thành công!");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi hệ thống khi đổi mật khẩu.");
+        }
+
+        return "redirect:/instructor/sidebar";
     }
 
     private void addProfileAttributes(Model model, InstructorProfileViewDto profileView) {

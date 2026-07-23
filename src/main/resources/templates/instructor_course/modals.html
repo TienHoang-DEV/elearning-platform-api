@@ -11,7 +11,7 @@
                 <h3>Thêm Chương Mới</h3>
                 <button class="modal-close" data-close-modal="modal-add-section">✕</button>
             </div>
-            <form th:action="@{/instructorcourse/{id}/sections(id=${courseId})}" method="POST" th:object="${section}">
+            <form th:action="@{/instructor/{id}/sections(id=${courseId})}" method="POST" th:object="${section}">
                 <input type="hidden" name="source" th:value="${source}">
                 <div class="modal-body">
                     <div class="form-group">
@@ -65,8 +65,8 @@
                   method="POST" enctype="multipart/form-data" id="addLessonForm" th:object="${lesson}" data-lesson-upload-form>
                 <input type="hidden" name="sectionId" id="addLessonSectionId"/>
                 <input type="hidden" name="courseId" id="addLessonCourseId" th:value="${courseId}"/>
-<!--                <input type="hidden" name="source" value="create">-->
-
+                <!-- Direct video upload: JS gan blobName vao day sau khi upload thang len Azure. -->
+                <input type="hidden" name="videoBlobName" id="videoBlobNameInput"/>
                 <div class="modal-body">
                     <div class="form-group" style="margin-bottom:16px;">
                         <label>Tên Bài Giảng <span class="required">*</span></label>
@@ -134,6 +134,8 @@
                 <input type="hidden" name="courseId" id="editCourseid"/>
                 <input type="hidden" name="sectionId" id="editSectionId"/>
                 <input type="hidden" name="lessonId" id="editLessonId"/>
+                <!-- Direct video upload: JS gan blobName moi vao day neu instructor chon video thay the. -->
+                <input type="hidden" name="videoBlobName" id="editVideoBlobNameInput"/>
 <!--                <input type="hidden" name="source" value="create">-->
 
                 <div class="modal-body">
@@ -203,14 +205,14 @@
                 <h3>Thêm Tài Liệu</h3>
                 <button class="modal-close" data-close-modal="modal-add-material">✕</button>
             </div>
-            <!-- TODO: xác nhận đúng route backend thật để tạo material. form.action được set động trong openAddMaterialModal() -->
             <form id="addMaterialForm" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="courseId" id="addMaterialCourseId">
                 <input type="hidden" name="lessonId" id="addMaterialLessonId" value=""/>
                 <div class="modal-body">
                     <div class="form-group">
                         <label style="display:block; font-size:13px; font-weight:500; margin-bottom:6px;">Chọn file <span class="required">*</span></label>
-                        <input type="file" name="materialFiles" id="addMaterialFile" class="form-control" multiple required>
+                        <input type="file" name="materialFiles" id="addMaterialFile" class="form-control"
+                               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple required>
                         <div id="addMaterialPreview"
                              style="margin-top:8px;"></div>
                     </div>

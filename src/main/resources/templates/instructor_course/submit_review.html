@@ -14,7 +14,7 @@
             <p>Kiểm tra điều kiện trước khi gửi yêu cầu đến Manager xét duyệt.</p>
         </div>
 
-        <a class="back-link" th:href="@{/instructorcourse/courses}">
+        <a class="back-link" th:href="@{/instructor/courses}">
             <i class="bi bi-arrow-left"></i>
             Quay lại khóa học
         </a>
@@ -110,14 +110,14 @@
     </section>
 
     <footer class="review-actions">
-        <a class="preview-btn" th:href="@{/instructorcourse/{id}/view(id=${submitReview.courseId})}">
+        <a class="preview-btn" th:href="@{/instructor/{id}/view(id=${submitReview.courseId})}">
             <i class="bi bi-eye"></i>
             Xem trước khóa học
         </a>
 
         <div class="submit-area">
             <form id="submitReviewForm"
-                  th:action="@{/instructorcourse/{id}/submit-review(id=${submitReview.courseId})}"
+                  th:action="@{/instructor/{id}/submit-review(id=${submitReview.courseId})}"
                   method="post"
                   th:data-ready-except-policy="${submitReview.readyExceptPolicy}">
                 <button id="submitReviewBtn"

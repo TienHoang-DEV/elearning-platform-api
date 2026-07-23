@@ -91,7 +91,7 @@ public class LessonService {
         return repository.FindMaxPositionByCourseSectionId(sectionId);
     }
 
-    public Lesson saveLesson(Integer sectiondId, LessonDto lessonDto, MultipartFile file){
+    public Lesson saveLesson(Integer sectiondId, LessonDto lessonDto, MultipartFile file, String videoBlobName){
         boolean exist = courseSectionService.existsById(sectiondId);
         if(!exist){
             throw new RuntimeException("Tiêu đề khoá học không tìm thấy với id: " + sectiondId);
@@ -99,6 +99,17 @@ public class LessonService {
 
         if(lessonDto == null){
             throw new RuntimeException("Dữ liệu bài học không tồn tại");
+        }
+
+        String videoUrl;
+        if(videoBlobName != null && !videoBlobName.isBlank()){
+            videoUrl = videoBlobName;
+        }else{
+            if(file == null || file.isEmpty()){
+                throw new RuntimeException("Video bài học không được để trông");
+            }
+
+            videoUrl = azureBlobService.saveFile(file, AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS);
         }
 
         String normalizedTitle = lessonDto.getTitle() != null ? lessonDto.getTitle().trim() : "";
@@ -115,7 +126,7 @@ public class LessonService {
             throw new RuntimeException("Tiêu đề bài học đã dài quá mức cho phép");
         }
 
-        if( file == null || file.isEmpty()){
+        if((videoBlobName == null || videoBlobName.isBlank()) && (file == null || file.isEmpty())){
             throw new RuntimeException("Video bài học không được để trống");
         }
 
@@ -125,10 +136,9 @@ public class LessonService {
 
         Integer po = repository.findMaxPositionLesson(sectiondId);  
 
-        String video_url = azureBlobService.saveFile(file, AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS);
         Lesson l = new Lesson();
         l.setTitle(normalizedTitle);
-        l.setVideoUrl(video_url);
+        l.setVideoUrl(videoUrl);
         l.setPosition(po + 1);
         l.setDurationSeconds(lessonDto.getDurationSeconds());
         l.setCreatedAt(LocalDateTime.now());
@@ -229,8 +239,7 @@ public class LessonService {
         }
     }
 
-    public Lesson updateLesson(Integer lessonId, LessonDto lessonDto, MultipartFile videoFile) {
-        // Validate ID
+    public Lesson updateLesson(Integer lessonId, LessonDto lessonDto, MultipartFile videoFile, String blobName) {
         if (lessonId == null || lessonId <= 0) {
             throw new RuntimeException("ID bài giảng không hợp lệ");
         }
@@ -238,7 +247,6 @@ public class LessonService {
         Lesson lesson = repository.findById(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bài giảng không tìm thấy với id: " + lessonId));
 
-        // Validate title
         String normalizedTitle = lessonDto.getTitle() != null ? lessonDto.getTitle().trim() : "";
         if (normalizedTitle.isEmpty()) {
             throw new RuntimeException("Tiêu đề bài học không được để trống");
@@ -247,7 +255,6 @@ public class LessonService {
             throw new RuntimeException("Tiêu đề bài học quá dài");
         }
 
-        // Lesson validation: khong cho trung ten lesson trong cung section khi edit.
         boolean titleExists = repository.existsDuplicateTitleInSection(
                 lesson.getCourseSection().getId(),
                 normalizedTitle,
@@ -262,7 +269,19 @@ public class LessonService {
 
         lesson.setIsFreePreview(lessonDto.getIsFreePreview() != null ? lessonDto.getIsFreePreview() : false);
 
-        if (videoFile != null && !videoFile.isEmpty()) {
+        if (blobName != null && !blobName.isBlank()) {
+            if (lesson.getVideoUrl() != null && !lesson.getVideoUrl().isEmpty()) {
+                try {
+                    azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
+                } catch (Exception e) {
+                    System.err.println("âš ï¸ Warning: KhÃ´ng thá»ƒ xÃ³a video cÅ©: " + e.getMessage());
+                }
+            }
+            lesson.setVideoUrl(blobName);
+            if (lessonDto.getDurationSeconds() != null && lessonDto.getDurationSeconds() > 0) {
+                lesson.setDurationSeconds(lessonDto.getDurationSeconds());
+            }
+        } else if (videoFile != null && !videoFile.isEmpty()) {
             if (lesson.getVideoUrl() != null && !lesson.getVideoUrl().isEmpty()) {
                 try {
                     azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());

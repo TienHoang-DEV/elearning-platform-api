@@ -77,7 +77,7 @@ public class AuthController {
                     "Email đã tồn tại");
         }
 
-        if (authService.isActivePhone(request.getPhoneNumber())) {
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank() && authService.isActivePhone(request.getPhoneNumber())) {
             result.rejectValue(
                     "phoneNumber",
                     "duplicate",

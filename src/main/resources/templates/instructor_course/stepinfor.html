@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
 <div th:fragment="content">
-  <form th:action="@{/instructorcourse/save}"
+  <form th:action="@{/instructor/save}"
         method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${courseRequest}">
       <input type="hidden" th:field="*{id}">
     <div class="card">

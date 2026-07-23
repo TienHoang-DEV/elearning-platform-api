@@ -112,10 +112,20 @@ public class StudentProfileService {
             throw new IllegalArgumentException("Địa chỉ email này đã được sử dụng bởi một tài khoản khác!");
         }
 
+        // Check phone duplication
+        if (phone != null && !phone.isBlank()) {
+            User existingPhoneUser = userRepository.findUserByPhone(phone.trim());
+            if (existingPhoneUser != null && !existingPhoneUser.getId().equals(user.getId())) {
+                throw new IllegalArgumentException("Số điện thoại này đã được sử dụng bởi một tài khoản khác!");
+            }
+            user.setPhone(phone.trim());
+        } else {
+            user.setPhone(null);
+        }
+
         user.setFirstName(firstName.trim());
         user.setLastName(lastName.trim());
         user.setEmail(email.trim());
-        user.setPhone(phone != null ? phone.trim() : null);
 
         if (deleteAvatar) {
             user.setAvatarUrl(null);

@@ -79,7 +79,7 @@ CREATE TABLE users (
                        email VARCHAR(255) UNIQUE NOT NULL,
     -- Email duy nhất dùng cho đăng nhập local, phải unique
 
-                       phone VARCHAR(20) UNIQUE NULL,
+                       phone VARCHAR(20) NULL,
     -- Số điện thoại (tuỳ chọn), duy nhất nếu có giá trị
 
                        bio NVARCHAR(MAX) NULL,
@@ -106,6 +106,9 @@ CREATE TABLE users (
                        updated_at DATETIME NULL
     -- Thời gian cập nhật gần nhất
 );
+
+-- Index duy nhất cho số điện thoại (chỉ áp dụng đối với các số điện thoại không NULL trong SQL Server)
+CREATE UNIQUE NONCLUSTERED INDEX UX_users_phone_notnull ON users(phone) WHERE phone IS NOT NULL;
 
 CREATE TABLE user_roles (
                             id INT PRIMARY KEY IDENTITY(1,1),

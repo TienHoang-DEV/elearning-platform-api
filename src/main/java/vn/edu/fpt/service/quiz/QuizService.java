@@ -42,8 +42,7 @@ public class QuizService {
     }
 
     public void populateLessonQuizModel(Integer lessonId, User user, boolean retake, Integer activeQuizId, Model model) {
-        Lesson lesson = lessonRepository.findByIdWithQuizzes(lessonId)
-                .orElseThrow(() -> new ResourceNotFoundException("Lesson with id " + lessonId + " not found"));
+        Lesson lesson = lessonRepository.findByIdWithQuizzes(lessonId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lesson với id " + lessonId));
         List<QuizDTO> quizzes = dtoMapper.toQuizDtos(lesson.getQuizzes());
         int totalQuestions = totalQuestion(quizzes);
         Map<Integer, List<QuizAttempt>> quizAttemptsMap = new HashMap<>();
