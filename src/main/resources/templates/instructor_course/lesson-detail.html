@@ -19,67 +19,52 @@
 <body class="bg-coupon-page">
 
 <div class="admin-wrapper">
-
-    <aside class="admin-sidebar">
-        <div class="sidebar-brand mb-4">
-            <a class="header-logo sidebar-logo-custom d-flex align-items-center gap-2 text-decoration-none" th:href="@{/}">
-                <img th:src="@{/images/logo.png}" alt="LearningHub Logo" style="height: 38px; width: auto; object-fit: contain;">
+    <header class="quiz-topbar">
+        <div class="quiz-topbar-inner">
+            <a class="quiz-brand d-flex align-items-center gap-2 text-decoration-none" th:href="@{/}">
+                <img th:src="@{/images/logo.png}" alt="LearningHub Logo">
                 <span class="logo-text fw-bold font-heading">LearningHub</span>
             </a>
-        </div>
 
-        <div class="dropdown sidebar-user-dropdown">
-            <div class="sidebar-user-brief d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false" role="button">
-                <div class="position-relative">
-                    <img th:src="${currentUser != null && currentUser.avatarUrl != null ? currentUser.avatarUrl : '/images/avatar.png'}" class="sidebar-avatar" alt="Admin">
-                    <span class="user-online-badge"></span>
+            <div class="quiz-topbar-actions">
+                <a th:href="@{/instructorcourse/{courseId}/curriculum(courseId=${course.id})}"
+                   class="btn-back-curriculum">
+                    <i data-lucide="arrow-left"></i>
+                    <span>Quay lại giáo trình</span>
+                </a>
+
+                <div class="dropdown">
+                    <button class="quiz-user-button" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img th:src="${currentUser != null && currentUser.avatarUrl != null ? currentUser.avatarUrl : '/images/avatar.png'}"
+                             class="quiz-header-avatar" alt="Ảnh đại diện người dùng">
+                        <span class="quiz-user-copy">
+                            <strong th:text="${currentUser != null ? currentUser.firstName + ' ' + currentUser.lastName : 'Giảng viên'}">Giảng viên</strong>
+                            <small>Giảng viên</small>
+                        </span>
+                        <i data-lucide="chevron-down" class="quiz-user-chevron"></i>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm custom-user-dropdown-menu p-2">
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded-2 fs-7" th:href="@{/instructor/sidebar}">
+                                <i data-lucide="user"></i>
+                                Thông tin hồ sơ
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-2 border-light"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded-2 fs-7 text-danger" th:href="@{/logout}">
+                                <i data-lucide="log-out"></i>
+                                Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                <div class="sidebar-user-info flex-grow-1">
-                    <h6 class="m-0 fw-bold fs-7 text-truncate" style="max-width: 140px;" th:text="${currentUser != null ? currentUser.firstName + ' ' + currentUser.lastName : 'Giảng viên'}">Nguyễn Văn A</h6>
-                    <span class="badge bg-primary-light text-primary fs-8 fw-semibold mt-1">Chuyên Viên</span>
-                </div>
-                <i data-lucide="chevron-down" class="dropdown-arrow-icon text-muted" style="width: 14px; height: 14px;"></i>
             </div>
-
-            <ul class="dropdown-menu border-0 shadow-sm custom-user-dropdown-menu p-2">
-                <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded-2 fs-7" th:href="@{/instructor/sidebar}">
-                        <i data-lucide="user" style="width: 16px; height: 16px;"></i> Thông tin hồ sơ
-                    </a>
-                </li>
-                <li><hr class="dropdown-divider my-2 border-light"></li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded-2 fs-7 text-danger" th:href="@{/logout}">
-                        <i data-lucide="log-out" style="width: 16px; height: 16px;"></i> Đăng xuất
-                    </a>
-                </li>
-            </ul>
         </div>
+    </header>
 
-        <nav class="sidebar-menu">
-            <span class="menu-category">Tài nguyên bài học</span>
-
-            <a href="javascript:void(0)" class="menu-item active">
-                <i data-lucide="help-circle"></i>
-                <span>Hệ thống Bài Quiz</span>
-                <span class="ms-auto badge bg-primary text-white fs-8 rounded-pill" th:text="${quizzes != null ? quizzes.size() : 3}">3</span>
-            </a>
-
-            <a th:href="@{/instructorcourse/material-manage(lessonId=${lesson != null ? lesson.id : ''})}" class="menu-item">
-                <i data-lucide="file-text"></i>
-                <span>Tài liệu đính kèm</span>
-                <span class="ms-auto badge bg-light text-muted fs-8 rounded-pill" th:text="${materials != null ? materials.size() : 2}">2</span>
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <a th:href="@{/instructorcourse/{courseId}/curriculum(courseId=${course.id})}" class="btn btn-back-home w-100 py-2.5 fw-semibold fs-7 d-flex align-items-center justify-content-center gap-2 shadow-sm">
-                <i data-lucide="arrow-left" style="width:16px;"></i> Quay về Giáo trình
-            </a>
-        </div>
-    </aside>
-
-    <main class="admin-main-content">
+    <main class="admin-main-content quiz-main-content">
 
         <div class="premium-header-card p-4 mb-4 rounded-4 shadow-sm position-relative overflow-hidden">
             <div class="header-card-bg-glow"></div>
