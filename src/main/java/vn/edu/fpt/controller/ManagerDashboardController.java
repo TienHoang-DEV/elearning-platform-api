@@ -43,6 +43,7 @@ public class ManagerDashboardController {
         model.addAttribute("totalInstructors", data.getTotalInstructors());
         model.addAttribute("totalLearners", data.getTotalLearners());
         model.addAttribute("pendingCourses", data.getPendingCourses());
+        model.addAttribute("totalRevenue", data.getTotalRevenue());
         model.addAttribute("monthlyRevenue", data.getMonthlyRevenue());
         model.addAttribute("chartLabels", data.getChartLabels());
         model.addAttribute("chartData", data.getChartData());

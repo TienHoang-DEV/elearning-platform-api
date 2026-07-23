@@ -1805,19 +1805,56 @@ INSERT INTO orders (
     user_id,
     total_amount,
     status,
-    payment_method
+    payment_method,
+    created_at,
+    updated_at
 )
 VALUES
-    (1, 1000, 'PAID', 'PAYOS'),
-    (2, 2000, 'PAID', 'PAYOS'),
-    (3, 5000, 'PAID', 'PAYOS'),
-    (4, 10000, 'PENDING', 'PAYOS'),
-    (5, 2000, 'PENDING', 'PAYOS'),
-    (6, 1000, 'PENDING', 'PAYOS'),
-    (7, 1000, 'PENDING', 'PAYOS'),
-    (8, 190000, 'CANCELLED', 'PAYOS'),
-    (9, 350000, 'PAID', 'PAYOS'),
-    (10, 250000, 'PAID', 'PAYOS');
+    -- THÁNG 1 (6 tháng trước)
+    (13, 890000, 'PAID', 'PAYOS', DATEADD(MONTH, -6, DATEADD(DAY, 5, GETDATE())), DATEADD(MONTH, -6, DATEADD(DAY, 5, GETDATE()))),
+    (14, 450000, 'PAID', 'PAYOS', DATEADD(MONTH, -6, DATEADD(DAY, 15, GETDATE())), DATEADD(MONTH, -6, DATEADD(DAY, 15, GETDATE()))),
+    (15, 350000, 'PAID', 'PAYOS', DATEADD(MONTH, -6, DATEADD(DAY, 22, GETDATE())), DATEADD(MONTH, -6, DATEADD(DAY, 22, GETDATE()))),
+
+    -- THÁNG 2 (5 tháng trước)
+    (16, 1900000, 'PAID', 'PAYOS', DATEADD(MONTH, -5, DATEADD(DAY, 3, GETDATE())), DATEADD(MONTH, -5, DATEADD(DAY, 3, GETDATE()))),
+    (17, 450000, 'PAID', 'PAYOS', DATEADD(MONTH, -5, DATEADD(DAY, 12, GETDATE())), DATEADD(MONTH, -5, DATEADD(DAY, 12, GETDATE()))),
+    (18, 840000, 'PAID', 'PAYOS', DATEADD(MONTH, -5, DATEADD(DAY, 20, GETDATE())), DATEADD(MONTH, -5, DATEADD(DAY, 20, GETDATE()))),
+
+    -- THÁNG 3 (4 tháng trước)
+    (19, 2500000, 'PAID', 'PAYOS', DATEADD(MONTH, -4, DATEADD(DAY, 7, GETDATE())), DATEADD(MONTH, -4, DATEADD(DAY, 7, GETDATE()))),
+    (20, 1190000, 'PAID', 'PAYOS', DATEADD(MONTH, -4, DATEADD(DAY, 18, GETDATE())), DATEADD(MONTH, -4, DATEADD(DAY, 18, GETDATE()))),
+    (21, 890000, 'PAID', 'PAYOS', DATEADD(MONTH, -4, DATEADD(DAY, 25, GETDATE())), DATEADD(MONTH, -4, DATEADD(DAY, 25, GETDATE()))),
+
+    -- THÁNG 4 (3 tháng trước)
+    (22, 1450000, 'PAID', 'PAYOS', DATEADD(MONTH, -3, DATEADD(DAY, 4, GETDATE())), DATEADD(MONTH, -3, DATEADD(DAY, 4, GETDATE()))),
+    (23, 1500000, 'PAID', 'PAYOS', DATEADD(MONTH, -3, DATEADD(DAY, 14, GETDATE())), DATEADD(MONTH, -3, DATEADD(DAY, 14, GETDATE()))),
+    (24, 890000, 'PAID', 'PAYOS', DATEADD(MONTH, -3, DATEADD(DAY, 21, GETDATE())), DATEADD(MONTH, -3, DATEADD(DAY, 21, GETDATE()))),
+
+    -- THÁNG 5 (2 tháng trước)
+    (25, 1890000, 'PAID', 'PAYOS', DATEADD(MONTH, -2, DATEADD(DAY, 2, GETDATE())), DATEADD(MONTH, -2, DATEADD(DAY, 2, GETDATE()))),
+    (26, 1250000, 'PAID', 'PAYOS', DATEADD(MONTH, -2, DATEADD(DAY, 10, GETDATE())), DATEADD(MONTH, -2, DATEADD(DAY, 10, GETDATE()))),
+    (27, 1110000, 'PAID', 'PAYOS', DATEADD(MONTH, -2, DATEADD(DAY, 19, GETDATE())), DATEADD(MONTH, -2, DATEADD(DAY, 19, GETDATE()))),
+    (28, 1000000, 'PAID', 'PAYOS', DATEADD(MONTH, -2, DATEADD(DAY, 26, GETDATE())), DATEADD(MONTH, -2, DATEADD(DAY, 26, GETDATE()))),
+
+    -- THÁNG 6 (1 tháng trước)
+    (29, 1450000, 'PAID', 'PAYOS', DATEADD(MONTH, -1, DATEADD(DAY, 5, GETDATE())), DATEADD(MONTH, -1, DATEADD(DAY, 5, GETDATE()))),
+    (30, 1350000, 'PAID', 'PAYOS', DATEADD(MONTH, -1, DATEADD(DAY, 12, GETDATE())), DATEADD(MONTH, -1, DATEADD(DAY, 12, GETDATE()))),
+    (31, 890000, 'PAID', 'PAYOS', DATEADD(MONTH, -1, DATEADD(DAY, 18, GETDATE())), DATEADD(MONTH, -1, DATEADD(DAY, 18, GETDATE()))),
+    (13, 1000000, 'PAID', 'PAYOS', DATEADD(MONTH, -1, DATEADD(DAY, 24, GETDATE())), DATEADD(MONTH, -1, DATEADD(DAY, 24, GETDATE()))),
+
+    -- THÁNG 7 (Tháng hiện tại - rải đều từ 20 ngày trước đến hôm nay)
+    (14, 190000, 'PAID', 'PAYOS', DATEADD(DAY, -20, GETDATE()), DATEADD(DAY, -20, GETDATE())),
+    (15, 350000, 'PAID', 'PAYOS', DATEADD(DAY, -18, GETDATE()), DATEADD(DAY, -18, GETDATE())),
+    (16, 250000, 'PAID', 'PAYOS', DATEADD(DAY, -15, GETDATE()), DATEADD(DAY, -15, GETDATE())),
+    (17, 890000, 'PAID', 'PAYOS', DATEADD(DAY, -12, GETDATE()), DATEADD(DAY, -12, GETDATE())),
+    (18, 450000, 'PAID', 'PAYOS', DATEADD(DAY, -10, GETDATE()), DATEADD(DAY, -10, GETDATE())),
+    (19, 190000, 'CANCELLED', 'PAYOS', DATEADD(DAY, -8, GETDATE()), DATEADD(DAY, -8, GETDATE())),
+    (20, 350000, 'PAID', 'PAYOS', DATEADD(DAY, -6, GETDATE()), DATEADD(DAY, -6, GETDATE())),
+    (21, 890000, 'PAID', 'PAYOS', DATEADD(DAY, -4, GETDATE()), DATEADD(DAY, -4, GETDATE())),
+    (22, 250000, 'PAID', 'PAYOS', DATEADD(DAY, -2, GETDATE()), DATEADD(DAY, -2, GETDATE())),
+    (23, 450000, 'PAID', 'PAYOS', DATEADD(DAY, -1, GETDATE()), DATEADD(DAY, -1, GETDATE())),
+    (24, 250000, 'PAID', 'PAYOS', GETDATE(), GETDATE()),
+    (25, 450000, 'PENDING', 'PAYOS', DATEADD(HOUR, -2, GETDATE()), DATEADD(HOUR, -2, GETDATE()));
 
 INSERT INTO payments (
     order_id,
@@ -1830,122 +1867,100 @@ INSERT INTO payments (
     webhook_received,
     webhook_received_at,
     paid_at,
-    expired_at
+    expired_at,
+    created_at,
+    updated_at
 )
 VALUES
+-- THÁNG 1
+(1, 'PAYOS', '1784283301', 890000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100001', 'PAID', 1, DATEADD(MINUTE, 2, DATEADD(MONTH, -6, DATEADD(DAY, 5, GETDATE()))), DATEADD(MONTH, -6, DATEADD(DAY, 5, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -6, DATEADD(DAY, 5, GETDATE()))), DATEADD(MONTH, -6, DATEADD(DAY, 5, GETDATE())), DATEADD(MONTH, -6, DATEADD(DAY, 5, GETDATE()))),
+(2, 'PAYOS', '1784283302', 450000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100002', 'PAID', 1, DATEADD(MINUTE, 3, DATEADD(MONTH, -6, DATEADD(DAY, 15, GETDATE()))), DATEADD(MONTH, -6, DATEADD(DAY, 15, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -6, DATEADD(DAY, 15, GETDATE()))), DATEADD(MONTH, -6, DATEADD(DAY, 15, GETDATE())), DATEADD(MONTH, -6, DATEADD(DAY, 15, GETDATE()))),
+(3, 'PAYOS', '1784283303', 350000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100003', 'PAID', 1, DATEADD(MINUTE, 1, DATEADD(MONTH, -6, DATEADD(DAY, 22, GETDATE()))), DATEADD(MONTH, -6, DATEADD(DAY, 22, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -6, DATEADD(DAY, 22, GETDATE()))), DATEADD(MONTH, -6, DATEADD(DAY, 22, GETDATE())), DATEADD(MONTH, -6, DATEADD(DAY, 22, GETDATE()))),
 
--- Thanh toán thành công
-(1, 'PAYOS', '1784283497', 1000,
- 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
- 'https://qr.payos.vn/100001',
- 'PAID',
- 1,
- DATEADD(MINUTE, 1, GETDATE()),
- GETDATE(),
- DATEADD(HOUR, 2, GETDATE())),
+-- THÁNG 2
+(4, 'PAYOS', '1784283304', 1900000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100004', 'PAID', 1, DATEADD(MINUTE, 5, DATEADD(MONTH, -5, DATEADD(DAY, 3, GETDATE()))), DATEADD(MONTH, -5, DATEADD(DAY, 3, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -5, DATEADD(DAY, 3, GETDATE()))), DATEADD(MONTH, -5, DATEADD(DAY, 3, GETDATE())), DATEADD(MONTH, -5, DATEADD(DAY, 3, GETDATE()))),
+(5, 'PAYOS', '1784283305', 450000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100005', 'PAID', 1, DATEADD(MINUTE, 2, DATEADD(MONTH, -5, DATEADD(DAY, 12, GETDATE()))), DATEADD(MONTH, -5, DATEADD(DAY, 12, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -5, DATEADD(DAY, 12, GETDATE()))), DATEADD(MONTH, -5, DATEADD(DAY, 12, GETDATE())), DATEADD(MONTH, -5, DATEADD(DAY, 12, GETDATE()))),
+(6, 'PAYOS', '1784283306', 840000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100006', 'PAID', 1, DATEADD(MINUTE, 4, DATEADD(MONTH, -5, DATEADD(DAY, 20, GETDATE()))), DATEADD(MONTH, -5, DATEADD(DAY, 20, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -5, DATEADD(DAY, 20, GETDATE()))), DATEADD(MONTH, -5, DATEADD(DAY, 20, GETDATE())), DATEADD(MONTH, -5, DATEADD(DAY, 20, GETDATE()))),
 
-(2, 'PAYOS', '1784283494', 2000,
- 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
- 'https://qr.payos.vn/100002',
- 'PAID',
- 1,
- DATEADD(MINUTE, 2, GETDATE()),
- GETDATE(),
- DATEADD(HOUR, 2, GETDATE())),
+-- THÁNG 3
+(7, 'PAYOS', '1784283307', 2500000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100007', 'PAID', 1, DATEADD(MINUTE, 2, DATEADD(MONTH, -4, DATEADD(DAY, 7, GETDATE()))), DATEADD(MONTH, -4, DATEADD(DAY, 7, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -4, DATEADD(DAY, 7, GETDATE()))), DATEADD(MONTH, -4, DATEADD(DAY, 7, GETDATE())), DATEADD(MONTH, -4, DATEADD(DAY, 7, GETDATE()))),
+(8, 'PAYOS', '1784283308', 1190000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100008', 'PAID', 1, DATEADD(MINUTE, 3, DATEADD(MONTH, -4, DATEADD(DAY, 18, GETDATE()))), DATEADD(MONTH, -4, DATEADD(DAY, 18, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -4, DATEADD(DAY, 18, GETDATE()))), DATEADD(MONTH, -4, DATEADD(DAY, 18, GETDATE())), DATEADD(MONTH, -4, DATEADD(DAY, 18, GETDATE()))),
+(9, 'PAYOS', '1784283309', 890000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100009', 'PAID', 1, DATEADD(MINUTE, 1, DATEADD(MONTH, -4, DATEADD(DAY, 25, GETDATE()))), DATEADD(MONTH, -4, DATEADD(DAY, 25, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -4, DATEADD(DAY, 25, GETDATE()))), DATEADD(MONTH, -4, DATEADD(DAY, 25, GETDATE())), DATEADD(MONTH, -4, DATEADD(DAY, 25, GETDATE()))),
 
-(3, 'PAYOS', '1784283491', 5000,
- 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
- 'https://qr.payos.vn/100003',
- 'PAID',
- 1,
- DATEADD(MINUTE, 3, GETDATE()),
- GETDATE(),
- DATEADD(HOUR, 2, GETDATE())),
+-- THÁNG 4
+(10, 'PAYOS', '1784283310', 1450000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100010', 'PAID', 1, DATEADD(MINUTE, 1, DATEADD(MONTH, -3, DATEADD(DAY, 4, GETDATE()))), DATEADD(MONTH, -3, DATEADD(DAY, 4, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -3, DATEADD(DAY, 4, GETDATE()))), DATEADD(MONTH, -3, DATEADD(DAY, 4, GETDATE())), DATEADD(MONTH, -3, DATEADD(DAY, 4, GETDATE()))),
+(11, 'PAYOS', '1784283311', 1500000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100011', 'PAID', 1, DATEADD(MINUTE, 2, DATEADD(MONTH, -3, DATEADD(DAY, 14, GETDATE()))), DATEADD(MONTH, -3, DATEADD(DAY, 14, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -3, DATEADD(DAY, 14, GETDATE()))), DATEADD(MONTH, -3, DATEADD(DAY, 14, GETDATE())), DATEADD(MONTH, -3, DATEADD(DAY, 14, GETDATE()))),
+(12, 'PAYOS', '1784283312', 890000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100012', 'PAID', 1, DATEADD(MINUTE, 5, DATEADD(MONTH, -3, DATEADD(DAY, 21, GETDATE()))), DATEADD(MONTH, -3, DATEADD(DAY, 21, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -3, DATEADD(DAY, 21, GETDATE()))), DATEADD(MONTH, -3, DATEADD(DAY, 21, GETDATE())), DATEADD(MONTH, -3, DATEADD(DAY, 21, GETDATE()))),
 
--- Đang chờ thanh toán
-(4, 'PAYOS', '1784283488', 10000,
- 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
- 'https://qr.payos.vn/100004',
- 'PENDING',
- 0,
- NULL,
- NULL,
- DATEADD(HOUR, 2, GETDATE())),
+-- THÁNG 5
+(13, 'PAYOS', '1784283313', 1890000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100013', 'PAID', 1, DATEADD(MINUTE, 3, DATEADD(MONTH, -2, DATEADD(DAY, 2, GETDATE()))), DATEADD(MONTH, -2, DATEADD(DAY, 2, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -2, DATEADD(DAY, 2, GETDATE()))), DATEADD(MONTH, -2, DATEADD(DAY, 2, GETDATE())), DATEADD(MONTH, -2, DATEADD(DAY, 2, GETDATE()))),
+(14, 'PAYOS', '1784283314', 1250000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100014', 'PAID', 1, DATEADD(MINUTE, 2, DATEADD(MONTH, -2, DATEADD(DAY, 10, GETDATE()))), DATEADD(MONTH, -2, DATEADD(DAY, 10, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -2, DATEADD(DAY, 10, GETDATE()))), DATEADD(MONTH, -2, DATEADD(DAY, 10, GETDATE())), DATEADD(MONTH, -2, DATEADD(DAY, 10, GETDATE()))),
+(15, 'PAYOS', '1784283315', 1110000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100015', 'PAID', 1, DATEADD(MINUTE, 4, DATEADD(MONTH, -2, DATEADD(DAY, 19, GETDATE()))), DATEADD(MONTH, -2, DATEADD(DAY, 19, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -2, DATEADD(DAY, 19, GETDATE()))), DATEADD(MONTH, -2, DATEADD(DAY, 19, GETDATE())), DATEADD(MONTH, -2, DATEADD(DAY, 19, GETDATE()))),
+(16, 'PAYOS', '1784283316', 1000000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100016', 'PAID', 1, DATEADD(MINUTE, 1, DATEADD(MONTH, -2, DATEADD(DAY, 26, GETDATE()))), DATEADD(MONTH, -2, DATEADD(DAY, 26, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -2, DATEADD(DAY, 26, GETDATE()))), DATEADD(MONTH, -2, DATEADD(DAY, 26, GETDATE())), DATEADD(MONTH, -2, DATEADD(DAY, 26, GETDATE()))),
 
-(5, 'PAYOS', '1784283473', 2000,
- 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
- 'https://qr.payos.vn/100005',
- 'PENDING',
- 0,
- NULL,
- NULL,
- DATEADD(HOUR, 2, GETDATE())),
+-- THÁNG 6
+(17, 'PAYOS', '1784283317', 1450000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100017', 'PAID', 1, DATEADD(MINUTE, 2, DATEADD(MONTH, -1, DATEADD(DAY, 5, GETDATE()))), DATEADD(MONTH, -1, DATEADD(DAY, 5, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -1, DATEADD(DAY, 5, GETDATE()))), DATEADD(MONTH, -1, DATEADD(DAY, 5, GETDATE())), DATEADD(MONTH, -1, DATEADD(DAY, 5, GETDATE()))),
+(18, 'PAYOS', '1784283318', 1350000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100018', 'PAID', 1, DATEADD(MINUTE, 3, DATEADD(MONTH, -1, DATEADD(DAY, 12, GETDATE()))), DATEADD(MONTH, -1, DATEADD(DAY, 12, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -1, DATEADD(DAY, 12, GETDATE()))), DATEADD(MONTH, -1, DATEADD(DAY, 12, GETDATE())), DATEADD(MONTH, -1, DATEADD(DAY, 12, GETDATE()))),
+(19, 'PAYOS', '1784283319', 890000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100019', 'PAID', 1, DATEADD(MINUTE, 1, DATEADD(MONTH, -1, DATEADD(DAY, 18, GETDATE()))), DATEADD(MONTH, -1, DATEADD(DAY, 18, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -1, DATEADD(DAY, 18, GETDATE()))), DATEADD(MONTH, -1, DATEADD(DAY, 18, GETDATE())), DATEADD(MONTH, -1, DATEADD(DAY, 18, GETDATE()))),
+(20, 'PAYOS', '1784283320', 1000000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100020', 'PAID', 1, DATEADD(MINUTE, 2, DATEADD(MONTH, -1, DATEADD(DAY, 24, GETDATE()))), DATEADD(MONTH, -1, DATEADD(DAY, 24, GETDATE())), DATEADD(HOUR, 2, DATEADD(MONTH, -1, DATEADD(DAY, 24, GETDATE()))), DATEADD(MONTH, -1, DATEADD(DAY, 24, GETDATE())), DATEADD(MONTH, -1, DATEADD(DAY, 24, GETDATE()))),
 
--- Hết hạn
-(6, 'PAYOS', '1784283469', 1000,
- 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
- 'https://qr.payos.vn/100006',
- 'EXPIRED',
- 0,
- NULL,
- NULL,
- DATEADD(HOUR, -1, GETDATE())),
-
--- Thanh toán thất bại
-(7, 'PAYOS', '1784283456', 1000,
- 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
- 'https://qr.payos.vn/100007',
- 'FAILED',
- 1,
- GETDATE(),
- NULL,
- DATEADD(HOUR, 2, GETDATE())),
-
--- Bị hủy
-(8, 'PAYOS', '1784283583', 190000,
- 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
- 'https://qr.payos.vn/100008',
- 'CANCELLED',
- 0,
- NULL,
- NULL,
- DATEADD(HOUR, 2, GETDATE())),
-
--- Thành công
-(9, 'PAYOS', '1784283594', 350000,
- 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
- 'https://qr.payos.vn/100009',
- 'PAID',
- 1,
- GETDATE(),
- GETDATE(),
- DATEADD(HOUR, 2, GETDATE())),
-
-(10, 'PAYOS', '1784283601', 250000,
- 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c',
- 'https://qr.payos.vn/100010',
- 'PAID',
- 1,
- GETDATE(),
- GETDATE(),
- DATEADD(HOUR, 2, GETDATE()));
-
+-- THÁNG 7 (Có 3 mã PayOS thật)
+(21, 'PAYOS', '1784811700', 190000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100021', 'PAID', 1, DATEADD(MINUTE, 2, DATEADD(DAY, -20, GETDATE())), DATEADD(DAY, -20, GETDATE()), DATEADD(HOUR, 2, DATEADD(DAY, -20, GETDATE())), DATEADD(DAY, -20, GETDATE()), DATEADD(DAY, -20, GETDATE())),
+(22, 'PAYOS', '1784811719', 350000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100022', 'PAID', 1, DATEADD(MINUTE, 3, DATEADD(DAY, -18, GETDATE())), DATEADD(DAY, -18, GETDATE()), DATEADD(HOUR, 2, DATEADD(DAY, -18, GETDATE())), DATEADD(DAY, -18, GETDATE()), DATEADD(DAY, -18, GETDATE())),
+(23, 'PAYOS', '1784811730', 250000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100023', 'PAID', 1, DATEADD(MINUTE, 1, DATEADD(DAY, -15, GETDATE())), DATEADD(DAY, -15, GETDATE()), DATEADD(HOUR, 2, DATEADD(DAY, -15, GETDATE())), DATEADD(DAY, -15, GETDATE()), DATEADD(DAY, -15, GETDATE())),
+(24, 'PAYOS', '1784283324', 890000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100024', 'PAID', 1, DATEADD(MINUTE, 5, DATEADD(DAY, -12, GETDATE())), DATEADD(DAY, -12, GETDATE()), DATEADD(HOUR, 2, DATEADD(DAY, -12, GETDATE())), DATEADD(DAY, -12, GETDATE()), DATEADD(DAY, -12, GETDATE())),
+(25, 'PAYOS', '1784283325', 450000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100025', 'PAID', 1, DATEADD(MINUTE, 2, DATEADD(DAY, -10, GETDATE())), DATEADD(DAY, -10, GETDATE()), DATEADD(HOUR, 2, DATEADD(DAY, -10, GETDATE())), DATEADD(DAY, -10, GETDATE()), DATEADD(DAY, -10, GETDATE())),
+(26, 'PAYOS', '1784283326', 190000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100026', 'CANCELLED', 0, NULL, NULL, DATEADD(HOUR, 2, DATEADD(DAY, -8, GETDATE())), DATEADD(DAY, -8, GETDATE()), DATEADD(DAY, -8, GETDATE())),
+(27, 'PAYOS', '1784283327', 350000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100027', 'PAID', 1, DATEADD(MINUTE, 4, DATEADD(DAY, -6, GETDATE())), DATEADD(DAY, -6, GETDATE()), DATEADD(HOUR, 2, DATEADD(DAY, -6, GETDATE())), DATEADD(DAY, -6, GETDATE()), DATEADD(DAY, -6, GETDATE())),
+(28, 'PAYOS', '1784283328', 890000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100028', 'PAID', 1, DATEADD(MINUTE, 1, DATEADD(DAY, -4, GETDATE())), DATEADD(DAY, -4, GETDATE()), DATEADD(HOUR, 2, DATEADD(DAY, -4, GETDATE())), DATEADD(DAY, -4, GETDATE()), DATEADD(DAY, -4, GETDATE())),
+(29, 'PAYOS', '1784283329', 250000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100029', 'PAID', 1, DATEADD(MINUTE, 2, DATEADD(DAY, -2, GETDATE())), DATEADD(DAY, -2, GETDATE()), DATEADD(HOUR, 2, DATEADD(DAY, -2, GETDATE())), DATEADD(DAY, -2, GETDATE()), DATEADD(DAY, -2, GETDATE())),
+(30, 'PAYOS', '1784283330', 450000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100030', 'PAID', 1, DATEADD(MINUTE, 1, DATEADD(DAY, -1, GETDATE())), DATEADD(DAY, -1, GETDATE()), DATEADD(HOUR, 2, DATEADD(DAY, -1, GETDATE())), DATEADD(DAY, -1, GETDATE()), DATEADD(DAY, -1, GETDATE())),
+(31, 'PAYOS', '1784283331', 250000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100031', 'PAID', 1, DATEADD(MINUTE, 1, GETDATE()), GETDATE(), DATEADD(HOUR, 2, GETDATE()), GETDATE(), GETDATE()),
+(32, 'PAYOS', '1784283332', 450000, 'https://pay.payos.vn/web/56b19a169a0845c880a8de4f0baa581c', 'https://qr.payos.vn/100032', 'PENDING', 0, NULL, NULL, DATEADD(HOUR, 2, GETDATE()), DATEADD(HOUR, -1, GETDATE()), DATEADD(HOUR, -1, GETDATE()));
 
 -- =========================
 -- ORDER ITEMS SAMPLE DATA
 -- =========================
-INSERT INTO order_items (order_id, course_id, price_snapshot, course_title_snapshot, created_at) 
+INSERT INTO order_items (order_id, course_id, price_snapshot, course_title_snapshot, created_at, updated_at) 
 VALUES
-(1, 1, 1000.00, N'Java Core Từ Cơ Bản Đến Nâng Cao', GETDATE()),
-(2, 5, 2000.00, N'Python Cho Người Mới Bắt Đầu', GETDATE()),
-(3, 3, 5000.00, N'CSS Mastery', GETDATE()),
-(4, 4, 10000.00, N'Node.js REST API Với Express', GETDATE()),
-(5, 5, 2000.00, N'Python Cho Người Mới Bắt Đầu', GETDATE()),
-(6, 6, 1000.00, N'Swift Programming Fundamentals', GETDATE()),
-(7, 7, 1000.00, N'Xây Dựng Giao Diện Với SwiftUI', GETDATE()),
-(8, 9, 190000.00, N'HTML5 & CSS3 Cơ Bản Cho Người Mới', GETDATE()),
-(9, 10, 350000.00, N'Thiết Kế Web Landing Page Với HTML5', GETDATE()),
-(10, 11, 250000.00, N'Tailwind CSS Từ Zero Đến Hero', GETDATE());
+(1, 13, 890000.00, N'React Native - Lập Trình Di Động Thực Chiến', DATEADD(MONTH, -6, DATEADD(DAY, 5, GETDATE())), DATEADD(MONTH, -6, DATEADD(DAY, 5, GETDATE()))),
+(2, 12, 450000.00, N'Responsive Web Design Với Flexbox & Grid', DATEADD(MONTH, -6, DATEADD(DAY, 15, GETDATE())), DATEADD(MONTH, -6, DATEADD(DAY, 15, GETDATE()))),
+(3, 10, 350000.00, N'Thiết Kế Web Landing Page Với HTML5', DATEADD(MONTH, -6, DATEADD(DAY, 22, GETDATE())), DATEADD(MONTH, -6, DATEADD(DAY, 22, GETDATE()))),
+
+(4, 13, 890000.00, N'React Native - Lập Trình Di Động Thực Chiến', DATEADD(MONTH, -5, DATEADD(DAY, 3, GETDATE())), DATEADD(MONTH, -5, DATEADD(DAY, 3, GETDATE()))),
+(5, 12, 450000.00, N'Responsive Web Design Với Flexbox & Grid', DATEADD(MONTH, -5, DATEADD(DAY, 12, GETDATE())), DATEADD(MONTH, -5, DATEADD(DAY, 12, GETDATE()))),
+(6, 11, 250000.00, N'Tailwind CSS Từ Zero Đến Hero', DATEADD(MONTH, -5, DATEADD(DAY, 20, GETDATE())), DATEADD(MONTH, -5, DATEADD(DAY, 20, GETDATE()))),
+
+(7, 13, 890000.00, N'React Native - Lập Trình Di Động Thực Chiến', DATEADD(MONTH, -4, DATEADD(DAY, 7, GETDATE())), DATEADD(MONTH, -4, DATEADD(DAY, 7, GETDATE()))),
+(8, 10, 350000.00, N'Thiết Kế Web Landing Page Với HTML5', DATEADD(MONTH, -4, DATEADD(DAY, 18, GETDATE())), DATEADD(MONTH, -4, DATEADD(DAY, 18, GETDATE()))),
+(9, 9, 190000.00, N'HTML5 & CSS3 Cơ Bản Cho Người Mới', DATEADD(MONTH, -4, DATEADD(DAY, 25, GETDATE())), DATEADD(MONTH, -4, DATEADD(DAY, 25, GETDATE()))),
+
+(10, 12, 450000.00, N'Responsive Web Design Với Flexbox & Grid', DATEADD(MONTH, -3, DATEADD(DAY, 4, GETDATE())), DATEADD(MONTH, -3, DATEADD(DAY, 4, GETDATE()))),
+(11, 13, 890000.00, N'React Native - Lập Trình Di Động Thực Chiến', DATEADD(MONTH, -3, DATEADD(DAY, 14, GETDATE())), DATEADD(MONTH, -3, DATEADD(DAY, 14, GETDATE()))),
+(12, 11, 250000.00, N'Tailwind CSS Từ Zero Đến Hero', DATEADD(MONTH, -3, DATEADD(DAY, 21, GETDATE())), DATEADD(MONTH, -3, DATEADD(DAY, 21, GETDATE()))),
+
+(13, 13, 890000.00, N'React Native - Lập Trình Di Động Thực Chiến', DATEADD(MONTH, -2, DATEADD(DAY, 2, GETDATE())), DATEADD(MONTH, -2, DATEADD(DAY, 2, GETDATE()))),
+(14, 10, 350000.00, N'Thiết Kế Web Landing Page Với HTML5', DATEADD(MONTH, -2, DATEADD(DAY, 10, GETDATE())), DATEADD(MONTH, -2, DATEADD(DAY, 10, GETDATE()))),
+(15, 12, 450000.00, N'Responsive Web Design Với Flexbox & Grid', DATEADD(MONTH, -2, DATEADD(DAY, 19, GETDATE())), DATEADD(MONTH, -2, DATEADD(DAY, 19, GETDATE()))),
+(16, 9, 190000.00, N'HTML5 & CSS3 Cơ Bản Cho Người Mới', DATEADD(MONTH, -2, DATEADD(DAY, 26, GETDATE())), DATEADD(MONTH, -2, DATEADD(DAY, 26, GETDATE()))),
+
+(17, 12, 450000.00, N'Responsive Web Design Với Flexbox & Grid', DATEADD(MONTH, -1, DATEADD(DAY, 5, GETDATE())), DATEADD(MONTH, -1, DATEADD(DAY, 5, GETDATE()))),
+(18, 10, 350000.00, N'Thiết Kế Web Landing Page Với HTML5', DATEADD(MONTH, -1, DATEADD(DAY, 12, GETDATE())), DATEADD(MONTH, -1, DATEADD(DAY, 12, GETDATE()))),
+(19, 13, 890000.00, N'React Native - Lập Trình Di Động Thực Chiến', DATEADD(MONTH, -1, DATEADD(DAY, 18, GETDATE())), DATEADD(MONTH, -1, DATEADD(DAY, 18, GETDATE()))),
+(20, 11, 250000.00, N'Tailwind CSS Từ Zero Đến Hero', DATEADD(MONTH, -1, DATEADD(DAY, 24, GETDATE())), DATEADD(MONTH, -1, DATEADD(DAY, 24, GETDATE()))),
+
+(21, 9, 190000.00, N'HTML5 & CSS3 Cơ Bản Cho Người Mới', DATEADD(DAY, -20, GETDATE()), DATEADD(DAY, -20, GETDATE())),
+(22, 10, 350000.00, N'Thiết Kế Web Landing Page Với HTML5', DATEADD(DAY, -18, GETDATE()), DATEADD(DAY, -18, GETDATE())),
+(23, 11, 250000.00, N'Tailwind CSS Từ Zero Đến Hero', DATEADD(DAY, -15, GETDATE()), DATEADD(DAY, -15, GETDATE())),
+(24, 13, 890000.00, N'React Native - Lập Trình Di Động Thực Chiến', DATEADD(DAY, -12, GETDATE()), DATEADD(DAY, -12, GETDATE())),
+(25, 12, 450000.00, N'Responsive Web Design Với Flexbox & Grid', DATEADD(DAY, -10, GETDATE()), DATEADD(DAY, -10, GETDATE())),
+(26, 9, 190000.00, N'HTML5 & CSS3 Cơ Bản Cho Người Mới', DATEADD(DAY, -8, GETDATE()), DATEADD(DAY, -8, GETDATE())),
+(27, 10, 350000.00, N'Thiết Kế Web Landing Page Với HTML5', DATEADD(DAY, -6, GETDATE()), DATEADD(DAY, -6, GETDATE())),
+(28, 13, 890000.00, N'React Native - Lập Trình Di Động Thực Chiến', DATEADD(DAY, -4, GETDATE()), DATEADD(DAY, -4, GETDATE())),
+(29, 11, 250000.00, N'Tailwind CSS Từ Zero Đến Hero', DATEADD(DAY, -2, GETDATE()), DATEADD(DAY, -2, GETDATE())),
+(30, 12, 450000.00, N'Responsive Web Design Với Flexbox & Grid', DATEADD(DAY, -1, GETDATE()), DATEADD(DAY, -1, GETDATE())),
+(31, 11, 250000.00, N'Tailwind CSS Từ Zero Đến Hero', GETDATE(), GETDATE()),
+(32, 12, 450000.00, N'Responsive Web Design Với Flexbox & Grid', DATEADD(HOUR, -1, GETDATE()), DATEADD(HOUR, -1, GETDATE()));
 
 -- =========================
 -- TỰ ĐỘNG ĐỒNG BỘ ENROLLMENTS & ORDERS CHO FEEDBACKS
@@ -1953,7 +1968,7 @@ VALUES
 -- =========================
 
 -- 1. Insert missing orders and order_items
-DECLARE @user_id INT, @course_id INT, @price DECIMAL(18,2), @title NVARCHAR(255), @order_id INT;
+DECLARE @user_id INT, @course_id INT, @price DECIMAL(18,2), @title NVARCHAR(255), @order_id INT, @days_ago INT;
 DECLARE cur CURSOR FOR 
 SELECT f.user_id, f.course_id, c.price, c.title 
 FROM feedbacks f 
@@ -1968,16 +1983,18 @@ WHERE o_existing.course_id IS NULL;
 
 OPEN cur; 
 FETCH NEXT FROM cur INTO @user_id, @course_id, @price, @title; 
+SET @days_ago = 20;
 WHILE @@FETCH_STATUS = 0 
 BEGIN 
     INSERT INTO orders (user_id, total_amount, status, payment_method, created_at, updated_at) 
-    VALUES (@user_id, @price, 'PAID', 'SYSTEM', GETDATE(), GETDATE()); 
+    VALUES (@user_id, @price, 'PAID', 'SYSTEM', DATEADD(DAY, -@days_ago, GETDATE()), DATEADD(DAY, -@days_ago, GETDATE())); 
     
     SET @order_id = SCOPE_IDENTITY(); 
     
     INSERT INTO order_items (order_id, course_id, price_snapshot, course_title_snapshot, created_at, updated_at) 
-    VALUES (@order_id, @course_id, @price, @title, GETDATE(), GETDATE()); 
+    VALUES (@order_id, @course_id, @price, @title, DATEADD(DAY, -@days_ago, GETDATE()), DATEADD(DAY, -@days_ago, GETDATE())); 
     
+    SET @days_ago = CASE WHEN @days_ago > 2 THEN @days_ago - 2 ELSE 15 END;
     FETCH NEXT FROM cur INTO @user_id, @course_id, @price, @title; 
 END; 
 CLOSE cur; 
@@ -1997,7 +2014,7 @@ JOIN feedbacks f ON e.user_id = f.user_id AND e.course_id = f.course_id;
 
 -- 3. Insert missing enrollments for any PAID orders
 INSERT INTO enrollments (user_id, course_id, progress_percent, created_at, updated_at) 
-SELECT o.user_id, oi.course_id, 0.00, GETDATE(), GETDATE() 
+SELECT DISTINCT o.user_id, oi.course_id, 0.00, GETDATE(), GETDATE() 
 FROM orders o 
 JOIN order_items oi ON o.id = oi.order_id 
 WHERE o.status IN ('PAID', 'COMPLETED') 
