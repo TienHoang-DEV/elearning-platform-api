@@ -87,6 +87,32 @@ public class PaymentService {
             throw new BadRequestException("Tổng giá trị đơn hàng phải từ 2,000 VNĐ trở lên để thực hiện thanh toán!");
         }
 
+
+        List<Order> orderByUser = orderService.findOrderByUser(user);
+        Order orderContinue = null;
+        Set<Integer> courseIdSelectedInCart = selectedItems.stream().map(cartItem -> {
+            return cartItem.getCourse().getId();
+        }).collect(Collectors.toSet());
+        for (Order order : orderByUser) {
+            if (order.getItems().size() != selectedItems.size()) {
+                continue;
+            }
+            Set<Integer> courseIdInOrderItem = order.getItems().stream().map(orderItem -> {
+                return orderItem.getCourse().getId();
+            }).collect(Collectors.toSet());
+            if (courseIdInOrderItem.containsAll(courseIdSelectedInCart)) {
+                orderContinue = order;
+                break;
+            }
+        }
+
+        if (orderContinue != null && orderContinue.getPayment().getExpiredAt().isAfter(LocalDateTime.now())) {
+            Payment payment = orderContinue.getPayment();
+            log.info("Tiếp tục lấy đơn hàng đang ở trạng thái pending với ID: {}", payment.getId());
+            return payment;
+        }
+
+
         BigDecimal totalAmount = BigDecimal.valueOf(cartDetails.getTotal());
 
         Order order = Order.builder()
@@ -146,8 +172,9 @@ public class PaymentService {
         }
         if (payment.getOrder() != null && payment.getOrder().getUser() != null) {
             boolean isOwner = payment.getOrder().getUser().getId().equals(currentUser.getId());
-            boolean isStaff = currentUser.getRoles().stream().anyMatch((r) ->{
-                return r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_MANAGER");}
+            boolean isStaff = currentUser.getRoles().stream().anyMatch((r) -> {
+                        return r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_MANAGER");
+                    }
             );
             if (!isOwner && !isStaff) {
                 throw new BadRequestException("Bạn không có quyền truy cập thông tin thanh toán này!");
@@ -263,7 +290,7 @@ public class PaymentService {
                     }
                     data.put("itemsByInstructor", itemsByInstructor);
                 }
-                data.put("qrCode",AppConstants.QR_CODE_BASE_URL + payment.getQrCodeUrl());
+                data.put("qrCode", AppConstants.QR_CODE_BASE_URL + payment.getQrCodeUrl());
                 data.put("payOsAccountNumber", payment.getAccountNumber());
                 data.put("payOsDescription", payment.getDescription());
                 data.put("payOsBankName", payment.getBankName());

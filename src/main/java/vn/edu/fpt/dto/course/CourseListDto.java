@@ -26,6 +26,18 @@ public class CourseListDto {
     private Long ratingCount;
     private Long totalLessonsCount;
     private Long enrollmentsCount;
+    private Long totalDurationSeconds;
+
+    public String getLevel() {
+        if ("BEGINNER".equalsIgnoreCase(level)) {
+            return "Cơ bản";
+        } else if ("INTERMEDIATE".equalsIgnoreCase(level)) {
+            return "Trung cấp";
+        } else if ("ADVANCED".equalsIgnoreCase(level)) {
+            return "Nâng cao";
+        }
+        return level;
+    }
 
     // Helper method to keep compatibility with Thymeleaf template referring to
     // course.instructor.lastName / firstName
@@ -71,6 +83,10 @@ public class CourseListDto {
     // course.enrollmentsCount
     public int getEnrollmentsCount() {
         return enrollmentsCount != null ? enrollmentsCount.intValue() : 0;
+    }
+
+    public int getDurationMinutes() {
+        return totalDurationSeconds != null ? (int)(totalDurationSeconds / 60) : 0;
     }
 
     // Resolved path for course thumbnail

@@ -1,5 +1,6 @@
 package vn.edu.fpt.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,9 @@ import vn.edu.fpt.service.CustomUserDetailsService;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${app.security.remember-me.key}")
+    private String rememberMeKey;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -85,16 +89,20 @@ public class SecurityConfig {
                                 "/images/**", "/oauth2/**",
                                 "/forgot-password",
                                 "/reset-password",
-                                "/password-reset-success",
+                                "/password-reset-success"
+                        ).permitAll()
+                        .requestMatchers(
                                 "/home",
                                 "/",
                                 "/courses",
                                 "/course/detail",
-                                "/instructor/*/profile"
+                                "/instructor-profile/*"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/instructor/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/manager/**").hasRole("MANAGER")
+                        .requestMatchers("/instructorcourse/**").hasRole("INSTRUCTOR")
+                        .requestMatchers("/student/**").hasRole("LEARNER")
                         .anyRequest().authenticated()
                 )
 
@@ -111,7 +119,7 @@ public class SecurityConfig {
                 .rememberMe(remember -> remember
                 .rememberMeParameter("remember-me")
                 .userDetailsService(userDetailsService)
-                .key("learninghub-remember-me-secret-key")
+                .key(rememberMeKey)
                 .tokenValiditySeconds(7 * 24 * 60 * 60)
                 .useSecureCookie(false)
         )

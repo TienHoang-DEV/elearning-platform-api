@@ -1,14 +1,10 @@
 package vn.edu.fpt.service;
 
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +23,9 @@ import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.*;
+
+import java.math.BigDecimal;
+import java.util.Objects;
 
 import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.mapper.DtoMapper;
@@ -406,11 +405,50 @@ public class CourseService {
             int page,
             int size) {
         int currentPage = Math.max(page, 1);
-        Specification<Course> specification = buildCourseListSpecification(search, categoryId, ratings, prices, sort);
-        Page<Course> coursePage = repository.findAll(specification, PageRequest.of(currentPage - 1, size));
+
+        Double minRating = (ratings != null && !ratings.isEmpty())
+                ? ratings.stream().filter(Objects::nonNull).min(Double::compareTo).orElse(null)
+                : null;
+
+        BigDecimal minPrice = null;
+        BigDecimal maxPrice = null;
+        if (prices != null && !prices.isEmpty()) {
+            for (String price : prices) {
+                if (price != null && price.contains("-")) {
+                    String[] parts = price.split("-");
+                    try {
+                        BigDecimal min = new BigDecimal(parts[0].trim());
+                        BigDecimal max = new BigDecimal(parts[1].trim());
+                        if (minPrice == null || min.compareTo(minPrice) < 0) minPrice = min;
+                        if (maxPrice == null || max.compareTo(maxPrice) > 0) maxPrice = max;
+                    } catch (NumberFormatException ignored) {}
+                }
+            }
+        }
+
+        Pageable pageable;
+        Page<Course> coursePage;
+
+        if ("rating".equals(sort)) {
+            pageable = PageRequest.of(currentPage - 1, size);
+            coursePage = repository.findPublishedCoursesOrderByRating(search, categoryId, minRating, minPrice, maxPrice, pageable);
+        } else {
+            Sort sortObj = switch (sort == null ? "" : sort) {
+                case "price-asc" -> Sort.by(Sort.Direction.ASC, "price");
+                case "price-desc" -> Sort.by(Sort.Direction.DESC, "price");
+                default -> Sort.by(Sort.Direction.DESC, "id");
+            };
+            pageable = PageRequest.of(currentPage - 1, size, sortObj);
+            coursePage = repository.findPublishedCourses(search, categoryId, minRating, minPrice, maxPrice, pageable);
+        }
 
         if (coursePage.isEmpty() && currentPage > 1 && coursePage.getTotalPages() > 0) {
-            coursePage = repository.findAll(specification, PageRequest.of(coursePage.getTotalPages() - 1, size));
+            pageable = PageRequest.of(coursePage.getTotalPages() - 1, size, pageable.getSort());
+            if ("rating".equals(sort)) {
+                coursePage = repository.findPublishedCoursesOrderByRating(search, categoryId, minRating, minPrice, maxPrice, pageable);
+            } else {
+                coursePage = repository.findPublishedCourses(search, categoryId, minRating, minPrice, maxPrice, pageable);
+            }
         }
 
         return coursePage.map(this::toCourseListDto);
@@ -425,6 +463,7 @@ public class CourseService {
                 .level(course.getLevel())
                 .instructorFirstName(course.getInstructor() != null ? course.getInstructor().getFirstName() : null)
                 .instructorLastName(course.getInstructor() != null ? course.getInstructor().getLastName() : null)
+                .instructorId(course.getInstructor() != null ? course.getInstructor().getId() : null)
                 .categoryId(course.getCategory() != null ? course.getCategory().getId() : null)
                 .categoryName(course.getCategory() != null ? course.getCategory().getName() : null)
                 .averageRating(course.getAverageRating())
@@ -432,120 +471,6 @@ public class CourseService {
                 .totalLessonsCount((long) course.getTotalLessonsCount())
                 .enrollmentsCount((long) course.getEnrollmentsCount())
                 .build();
-    }
-
-    private Specification<Course> buildCourseListSpecification(
-            String search,
-            Integer categoryId,
-            List<Double> ratings,
-            List<String> prices,
-            String sort) {
-        return fetchCourseListSummary()
-                .and(courseListFilter(search, categoryId, ratings, prices, sort));
-    }
-
-    private Specification<Course> fetchCourseListSummary() {
-        return (root, query, cb) -> {
-            if (!isCountQuery(query.getResultType())) {
-                root.fetch("instructor");
-                root.fetch("category");
-            }
-            return cb.conjunction();
-        };
-    }
-
-    private Specification<Course> courseListFilter(
-            String search,
-            Integer categoryId,
-            List<Double> ratings,
-            List<String> prices,
-            String sort) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.<CourseStatus>get("status"), CourseStatus.PUBLISHED));
-
-            if (search != null && !search.trim().isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.<String>get("title")), "%" + search.trim().toLowerCase() + "%"));
-            }
-
-            if (categoryId != null) {
-                predicates.add(cb.equal(root.get("category").<Integer>get("id"), categoryId));
-            }
-
-            Double minRating = resolveMinRating(ratings);
-            if (minRating != null) {
-                predicates.add(cb.ge(averageRatingSubquery(root, query, cb), minRating));
-            }
-
-            Predicate pricePredicate = buildPricePredicate(root, cb, prices);
-            if (pricePredicate != null) {
-                predicates.add(pricePredicate);
-            }
-
-            if (!isCountQuery(query.getResultType())) {
-                query.orderBy(switch (sort == null ? "" : sort) {
-                    case "price-asc" -> cb.asc(root.<BigDecimal>get("price"));
-                    case "price-desc" -> cb.desc(root.<BigDecimal>get("price"));
-                    case "rating" -> cb.desc(averageRatingSubquery(root, query, cb));
-                    default -> cb.desc(root.<Integer>get("id"));
-                });
-            }
-
-            return cb.and(predicates.toArray(Predicate[]::new));
-        };
-    }
-
-    private Double resolveMinRating(List<Double> ratings) {
-        if (ratings == null || ratings.isEmpty()) {
-            return null;
-        }
-        return ratings.stream()
-                .filter(Objects::nonNull)
-                .min(Double::compareTo)
-                .orElse(null);
-    }
-
-    private Predicate buildPricePredicate(
-            Root<Course> root,
-            jakarta.persistence.criteria.CriteriaBuilder cb,
-            List<String> prices) {
-        if (prices == null || prices.isEmpty()) {
-            return null;
-        }
-
-        List<Predicate> ranges = new ArrayList<>();
-        for (String price : prices) {
-            if (price == null) {
-                continue;
-            }
-            String[] parts = price.split("-");
-            if (parts.length != 2) {
-                continue;
-            }
-            try {
-                BigDecimal min = BigDecimal.valueOf(Double.parseDouble(parts[0]));
-                BigDecimal max = BigDecimal.valueOf(Double.parseDouble(parts[1]));
-                ranges.add(cb.between(root.<BigDecimal>get("price"), min, max));
-            } catch (NumberFormatException ignored) {
-            }
-        }
-
-        return ranges.isEmpty() ? null : cb.or(ranges.toArray(Predicate[]::new));
-    }
-
-    private Expression<Double> averageRatingSubquery(
-            Root<Course> root,
-            jakarta.persistence.criteria.CriteriaQuery<?> query,
-            jakarta.persistence.criteria.CriteriaBuilder cb) {
-        Subquery<Double> subquery = query.subquery(Double.class);
-        Root<Feedback> feedbackRoot = subquery.from(Feedback.class);
-        subquery.select(cb.coalesce(cb.avg(feedbackRoot.<Integer>get("rating")), 0.0));
-        subquery.where(cb.equal(feedbackRoot.get("course").<Integer>get("id"), root.<Integer>get("id")));
-        return subquery;
-    }
-
-    private boolean isCountQuery(Class<?> resultType) {
-        return Long.class.equals(resultType) || long.class.equals(resultType);
     }
 
     public List<Course> findAll() {
@@ -584,7 +509,6 @@ public class CourseService {
         return null;
     }
 
-    @Transactional
     public Course save(User instructor, String title, String shortdesc, String desc, String outcome, String requirement,
             CourseLevel level, Integer categoryId, MultipartFile file, BigDecimal price) {
         if (instructor == null) {
@@ -750,7 +674,6 @@ public class CourseService {
         return dto;
     }
 
-    @Transactional
     public void submitCourseForApproval(Integer courseId, User user, boolean acceptedPolicy) {
         CourseSubmitReviewDto review = getSubmitReview(courseId, user, acceptedPolicy);
         if (!review.isSubmitReady()) {
@@ -800,7 +723,6 @@ public class CourseService {
 
 
 
-    @Transactional
     public void resubmitCourse(Integer id) {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
@@ -810,7 +732,6 @@ public class CourseService {
         }
     }
 
-    @Transactional
     public void submitForApproval(Integer id) {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
@@ -820,7 +741,6 @@ public class CourseService {
         }
     }
 
-    @Transactional
     public void withdrawCourse(Integer id) {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
@@ -899,16 +819,7 @@ public class CourseService {
             coursesMap.put(child.getId(), top4);
         }
 
-        // 2. Lấy top 4 khóa học cho tab "Tất cả" (tổng hợp các danh mục con yêu thích) (dùng for thay cho stream)
-        List<Integer> childIds = new java.util.ArrayList<>();
-        for (CategoryDto child : favoriteChildren) {
-            childIds.add(child.getId());
-        }
-        List<CourseListDto> allFavorites = repository.findTop4ByCategoryIdsOrderByAverageRatingDesc(
-                childIds, 
-                PageRequest.of(0, 4)
-        );
-        coursesMap.put(0, allFavorites);
+
 
         return builder
                 .hasFavorites(true)
@@ -918,7 +829,6 @@ public class CourseService {
                 .build();
     }
 
-    @Transactional
     public CourseContentSidebarDTO viewCourseContent(User user, Integer courseId, Integer sectionId, Integer lessonId) {
         CourseContentSidebarDTO courseContentSidebarDTO = new CourseContentSidebarDTO();
 

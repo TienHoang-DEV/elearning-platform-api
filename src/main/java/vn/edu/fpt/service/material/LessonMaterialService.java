@@ -36,10 +36,10 @@ import vn.edu.fpt.util.SecurityUtils;
 @Transactional
 @RequiredArgsConstructor
 public class LessonMaterialService {
+
     private static final Set<String> ALLOWED_MATERIAL_EXTENSIONS = Set.of(
             "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"
     );
-
     private final LessonMaterialRepository repository;
     private final AzureBlobService azureBlobService;
     private final LessonRepository lessonRepository;
@@ -116,7 +116,6 @@ public class LessonMaterialService {
     }
 
     public List<LessonMaterialDto> getInstructorMaterialLibrary(User instructor) {
-        // Instructor material library: gom tai lieu theo course/lesson de hien thi sau khi bam Thu vien tai lieu.
         return repository.findLibraryByInstructorId(instructor.getId())
                 .stream()
                 .map(this::toLibraryDto)
@@ -130,7 +129,6 @@ public class LessonMaterialService {
                                                                 Integer lessonId,
                                                                 String fileType,
                                                                 Pageable pageable) {
-        // Instructor material library: paging + search/filter theo file/course/section/lesson/type.
         return repository.searchLibraryByInstructorId(
                 instructor.getId(),
                 keyword != null ? keyword.trim() : "",
@@ -192,7 +190,6 @@ public class LessonMaterialService {
         if (course.getStatus() == CourseStatus.DRAFT || course.getStatus() == CourseStatus.REJECTED) {
             return true;
         }
-        // Instructor material library: HIDDEN chi duoc xoa khi course khong con enrollment nao.
         if (course.getStatus() == CourseStatus.HIDDEN) {
             return enrollmentRepository.countByCourseId(course.getId()) == 0;
         }
@@ -258,7 +255,6 @@ public class LessonMaterialService {
         Course course = material.getLesson() != null && material.getLesson().getCourseSection() != null
                 ? material.getLesson().getCourseSection().getCourse()
                 : material.getCourse();
-        // Instructor material library: enforce rule xoa theo status o backend, khong chi khoa nut tren UI.
         if (!canDeleteMaterial(course)) {
             throw new RuntimeException(getDeleteReason(course));
         }

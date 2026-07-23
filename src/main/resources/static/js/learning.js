@@ -605,22 +605,20 @@ function initializeNotes() {
                 e.preventDefault();
                 const item = deleteBtn.closest(".note-item");
                 const lessonNoteId = item.dataset.lessonNoteId;
-                if (lessonNoteId) {
-                    fetch(`/api/lesson-note/remove?noteId=${lessonNoteId}`)
-                        .then(response => {
-                            if (response.ok) {
-                                item.remove();
-                            } else {
-                                alert("Không thể xóa ghi chú này.");
-                            }
-                        })
-                        .catch(err => {
-                            console.error("Error deleting note:", err);
-                            alert("Lỗi kết nối.");
-                        });
-                } else {
-                    item.remove();
-                }
+                fetch(`/api/lesson-note/remove?noteId=${lessonNoteId}`, {
+                    method: "POST"
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            item.remove();
+                        } else {
+                            alert("Không thể xóa ghi chú này.");
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Error deleting note:", err);
+                        alert("Lỗi kết nối.");
+                    });
                 return;
             }
         });

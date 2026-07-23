@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-background.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>400 — Yêu cầu không hợp lệ</title>
@@ -53,12 +54,12 @@
             </button>
             <div class="stacktrace-panel" id="tracePanel">
                 <div class="stacktrace-header">
-                    <span class="st-title">Stack Trace</span>
+                    <span class="st-title">Vết lỗi hệ thống (Stack Trace)</span>
                     <button class="st-copy" onclick="copyTrace()">
                         <i class="bi bi-clipboard"></i> Sao chép
                     </button>
                 </div>
-                <pre class="stacktrace-body" id="traceContent" th:text="${trace}">stack trace here</pre>
+                <pre class="stacktrace-body" id="traceContent" th:text="${trace}">chi tiết vết lỗi</pre>
             </div>
         </div>
 
