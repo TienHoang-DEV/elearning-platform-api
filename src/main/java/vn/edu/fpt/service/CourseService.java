@@ -470,6 +470,7 @@ public class CourseService {
                 .ratingCount((long) course.getRatingCount())
                 .totalLessonsCount((long) course.getTotalLessonsCount())
                 .enrollmentsCount((long) course.getEnrollmentsCount())
+                .totalDurationSeconds(course.getTotalDurationSeconds())
                 .build();
     }
 

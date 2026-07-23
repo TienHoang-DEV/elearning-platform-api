@@ -100,9 +100,9 @@ public class SecurityConfig {
                                 "/instructor-profile/*"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/instructor/*/view").hasAnyRole("INSTRUCTOR", "MANAGER")
                         .requestMatchers("/instructor/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/manager/**").hasRole("MANAGER")
-                        .requestMatchers("/instructorcourse/**").authenticated()
                         .requestMatchers("/student/**").hasRole("LEARNER")
                         .anyRequest().authenticated()
                 )
