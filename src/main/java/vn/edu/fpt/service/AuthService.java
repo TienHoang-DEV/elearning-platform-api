@@ -76,8 +76,10 @@ public class AuthService {
             user.setLastName(
                     request.getLastName());
 
-            user.setPhone(
-                    request.getPhoneNumber());
+            String phone = (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank())
+                    ? request.getPhoneNumber().trim() : null;
+
+            user.setPhone(phone);
 
             userRepository.save(user);
 
@@ -115,7 +117,10 @@ public class AuthService {
         user.setLastName(
                 request.getLastName());
 
-        user.setPhone(request.getPhoneNumber());
+        String phone = (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank())
+                ? request.getPhoneNumber().trim() : null;
+
+        user.setPhone(phone);
 
         user.setAvatarUrl("https://cdn2.fptshop.com.vn/small/avatar_trang_1_cd729c335b.jpg");
 
@@ -187,7 +192,7 @@ public class AuthService {
     }
 
     public boolean isActivePhone(String phone) {
-
+        if (phone == null || phone.isBlank()) return false;
         return userRepository.existsByPhoneAndStatus(
                 phone,
                 UserStatus.ACTIVE
@@ -199,6 +204,7 @@ public class AuthService {
     }
 
     public boolean existsByPhone(String phone){
+        if (phone == null || phone.isBlank()) return false;
         return userRepository.existsByPhone(phone);
     }
 

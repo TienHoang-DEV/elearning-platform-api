@@ -27,8 +27,7 @@ public class RegisterRequest {
         @NotBlank(message = "Retype password không được để trống")
         private String confirmPassword;
 
-        @NotBlank(message = "Số điện thoại không được để trống")
-        @Pattern(regexp = "^(03|05|07|08|09)\\d{8}$", message = "Số điện thoại không hợp lệ")
+        @Pattern(regexp = "^$|^(03|05|07|08|09)\\d{8}$", message = "Số điện thoại không hợp lệ")
         private String phoneNumber;
 
         public boolean isPasswordMatched() {
