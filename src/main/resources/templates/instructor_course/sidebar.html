@@ -23,26 +23,19 @@
             </span>
             <span>Tổng quan</span>
         </a>
-        <a th:href="@{/instructorcourse/courses}"
+        <a th:href="@{/instructor/courses}"
            th:classappend="${activePage == 'courses'} ? 'active' : ''">
             <span class="nav-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21V5.5Zm0 0V21"/></svg>
             </span>
             <span>Khóa học</span>
         </a>
-        <a th:href="@{/instructorcourse/materials}"
+        <a th:href="@{/instructor/materials}"
            th:classappend="${activePage == 'materials'} ? 'active' : ''">
             <span class="nav-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M5 4h14v16H5V4Zm4 4h6M9 12h6M9 16h4"/></svg>
             </span>
             <span>Thư viện tài liệu</span>
-        </a>
-        <a th:href="@{/instructor/orders}"
-           th:classappend="${activePage == 'orders'} ? 'active' : ''">
-            <span class="nav-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M5 5h14v12H7l-2 2V5Zm4 4h6M9 13h4"/></svg>
-            </span>
-            <span>Đơn mua khóa học</span>
         </a>
         <a th:href="@{/logout}" class="nav-logout">
             <span class="nav-icon" aria-hidden="true">

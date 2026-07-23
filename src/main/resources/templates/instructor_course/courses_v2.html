@@ -15,7 +15,7 @@
 <main class="main-content">
     <div class="page-header">
         <h1><span class="icon"></span> Khóa Học</h1>
-        <a th:href="@{/instructorcourse/create}" class="btn btn-primary">+ Tạo Khóa Học Mới</a>
+        <a th:href="@{/instructor/create}" class="btn btn-primary">+ Tạo Khóa Học Mới</a>
     </div>
 
     <div class="app-toast toast-error" th:if="${error != null}">
@@ -31,36 +31,32 @@
             <a class="tab-btn"
                th:classappend="${activeTab == null or activeTab == 'all'} ? ' active' : ''"
                data-tab="all" data-tab-group="courses"
-               th:href="@{/instructorcourse/courses(tab='all')}">Khóa Học Đang Bán</a>
+               th:href="@{/instructor/courses(tab='all')}">Khóa Học Đang Bán</a>
             <a class="tab-btn"
                th:classappend="${activeTab == 'pending'} ? ' active' : ''"
                data-tab="pending" data-tab-group="courses"
-               th:href="@{/instructorcourse/courses(tab='pending')}">Chờ Duyệt</a>
+               th:href="@{/instructor/courses(tab='pending')}">Chờ Duyệt</a>
             <a class="tab-btn"
                th:classappend="${activeTab == 'draft'} ? ' active' : ''"
                data-tab="draft" data-tab-group="courses"
-               th:href="@{/instructorcourse/courses(tab='draft')}">Nháp</a>
+               th:href="@{/instructor/courses(tab='draft')}">Nháp</a>
             <a class="tab-btn"
                th:classappend="${activeTab == 'rejected'} ? ' active' : ''"
                data-tab="rejected" data-tab-group="courses"
-               th:href="@{/instructorcourse/courses(tab='rejected')}">Bị Từ Chối</a>
+               th:href="@{/instructor/courses(tab='rejected')}">Bị Từ Chối</a>
             <a class="tab-btn"
                th:classappend="${activeTab == 'resubmit'} ? ' active' : ''"
                data-tab="resubmit" data-tab-group="courses"
-               th:href="@{/instructorcourse/courses(tab='resubmit')}">Duyệt Lại</a>
+               th:href="@{/instructor/courses(tab='resubmit')}">Duyệt Lại</a>
             <a class="tab-btn"
                th:classappend="${activeTab == 'hidden'} ? ' active' : ''"
                data-tab="hidden" data-tab-group="courses"
-               th:href="@{/instructorcourse/courses(tab='hidden')}">Ẩn</a>
+               th:href="@{/instructor/courses(tab='hidden')}">Ẩn</a>
         </div>
 
         <!-- Tab: Đang Bán -->
         <div class="tab-content" data-tab-group="courses" data-tab="all"
              th:style="${activeTab == null or activeTab == 'all'} ? '' : 'display:none;'">
-            <div style="margin-bottom:12px;">
-                <input type="text" class="form-control" placeholder="🔍 Tìm kiếm khóa học..." style="max-width:320px;"/>
-            </div>
-
             <div class="course-grid" th:if="${listpublished != null and not #lists.isEmpty(listpublished)}">
                 <div class="course-card" th:each="course, stat : ${listpublished}">
                     <div class="course-card-thumb">
@@ -84,9 +80,9 @@
                             <details class="dropdown">
                                 <summary class="btn btn-sm btn-outline course-more-btn" aria-label="Thao tác khác">⋯</summary>
                                 <div class="dropdown-menu">
-                                    <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}">Xem chi tiết</a>
-                                    <a th:href="@{/instructorcourse/{id}/reviews(id=${course.id})}">Xem đánh giá</a>
-                                    <form th:action="@{/instructorcourse/{id}/hide(id=${course.id})}" method="post">
+                                    <a th:href="@{/instructor/{id}/view(id=${course.id})}">Xem chi tiết</a>
+                                    <a th:href="@{/instructor/{id}/reviews(id=${course.id})}">Xem đánh giá</a>
+                                    <form th:action="@{/instructor/{id}/hide(id=${course.id})}" method="post">
                                         <!-- Instructor course list: nút Ẩn khóa học gọi backend đổi status PUBLISHED -> HIDDEN. -->
                                         <button type="submit"
                                                 class="dropdown-action danger"
@@ -97,7 +93,7 @@
                                 </div>
                             </details>
                         </div>
-                        <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}" class="btn btn-sm btn-primary">Quản lý khóa học</a>
+                        <a th:href="@{/instructor/{id}/view(id=${course.id})}" class="btn btn-sm btn-primary">Quản lý khóa học</a>
                     </div>
                 </div>
             </div>
@@ -130,7 +126,7 @@
                         <div class="course-card-action-top">
                             <span class="course-card-status status-pending">Chờ duyệt</span>
                         </div>
-                        <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem chi tiết</a>
+                        <a th:href="@{/instructor/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem chi tiết</a>
                     </div>
                 </div>
             </div>
@@ -165,8 +161,8 @@
                             <details class="dropdown">
                                 <summary class="btn btn-sm btn-outline course-more-btn" aria-label="Thao tác khác">⋯</summary>
                                 <div class="dropdown-menu">
-                                    <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}">Xem chi tiết</a>
-                                    <form th:action="@{/instructorcourse/{id}/delete(id=${course.id}, tab='draft')}" method="post">
+                                    <a th:href="@{/instructor/{id}/view(id=${course.id})}">Xem chi tiết</a>
+                                    <form th:action="@{/instructor/{id}/delete(id=${course.id}, tab='draft')}" method="post">
                                         <button type="submit"
                                                 class="dropdown-action danger"
                                                 onclick="return confirm('Bạn có chắc muốn xóa khóa học này?')">
@@ -176,7 +172,7 @@
                                 </div>
                             </details>
                         </div>
-                        <a th:href="@{/instructorcourse/{id}/edit(id=${course.id})}" class="btn btn-sm btn-primary">Tiếp tục chỉnh sửa</a>
+                        <a th:href="@{/instructor/{id}/edit(id=${course.id})}" class="btn btn-sm btn-primary">Tiếp tục chỉnh sửa</a>
                     </div>
                 </div>
             </div>
@@ -211,13 +207,13 @@
                             <details class="dropdown">
                                 <summary class="btn btn-sm btn-outline course-more-btn" aria-label="Thao tác khác">⋯</summary>
                                 <div class="dropdown-menu">
-                                    <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}">Xem chi tiết</a>
-                                    <a th:href="@{/instructorcourse/{id}/rejection-reason(id=${course.id})}">Xem lý do từ chối</a>
-                                    <a th:href="@{/instructorcourse/{id}/submit-review(id=${course.id})}">Gửi lại duyệt</a>
+                                    <a th:href="@{/instructor/{id}/view(id=${course.id})}">Xem chi tiết</a>
+                                    <a th:href="@{/instructor/{id}/rejection-reason(id=${course.id})}">Xem lý do từ chối</a>
+                                    <a th:href="@{/instructor/{id}/submit-review(id=${course.id})}">Gửi lại duyệt</a>
                                 </div>
                             </details>
                         </div>
-                        <a th:href="@{/instructorcourse/{id}/edit(id=${course.id})}" class="btn btn-sm btn-primary">Chỉnh sửa lại</a>
+                        <a th:href="@{/instructor/{id}/edit(id=${course.id})}" class="btn btn-sm btn-primary">Chỉnh sửa lại</a>
                     </div>
                 </div>
             </div>
@@ -250,7 +246,7 @@
                         <div class="course-card-action-top">
                             <span class="course-card-status status-resubmit">Duyệt lại</span>
                         </div>
-                        <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem Chi Tiết</a>
+                        <a th:href="@{/instructor/{id}/view(id=${course.id})}" class="btn btn-sm btn-outline">Xem Chi Tiết</a>
                     </div>
                 </div>
             </div>
@@ -285,8 +281,8 @@
                             <details class="dropdown">
                                 <summary class="btn btn-sm btn-outline course-more-btn" aria-label="Thao tác khác">⋯</summary>
                                 <div class="dropdown-menu">
-                                    <a th:href="@{/instructorcourse/{id}/view(id=${course.id})}">Xem chi tiết</a>
-                                    <form th:action="@{/instructorcourse/{id}/publish(id=${course.id})}" method="post">
+                                    <a th:href="@{/instructor/{id}/view(id=${course.id})}">Xem chi tiết</a>
+                                    <form th:action="@{/instructor/{id}/publish(id=${course.id})}" method="post">
                                         <!-- Instructor course list: nút Hiện lại gọi backend đổi status HIDDEN -> PUBLISHED. -->
                                         <button type="submit" class="dropdown-action">
                                             Hiện lại khóa học
@@ -295,7 +291,7 @@
                                 </div>
                             </details>
                         </div>
-                        <a th:href="@{/instructorcourse/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Chỉnh sửa lại</a>
+                        <a th:href="@{/instructor/{id}/edit(id=${course.id})}" class="btn btn-sm btn-outline">Chỉnh sửa lại</a>
                     </div>
                 </div>
             </div>

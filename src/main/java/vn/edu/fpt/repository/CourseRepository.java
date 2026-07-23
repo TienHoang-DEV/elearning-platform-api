@@ -144,6 +144,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpe
     @Query("""
             select count(q) from Quiz q
             where q.lesson.courseSection.course.id = :courseId
+              and upper(q.status) = 'PUBLISHED'
             """)
     long countQuizzesByCourseId(@Param("courseId") Integer courseId);
 

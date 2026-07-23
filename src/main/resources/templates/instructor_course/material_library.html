@@ -29,13 +29,12 @@
             </div>
             <div class="material-summary-note">
                 <strong>Quy tắc xóa:</strong>
-                Draft/Rejected được xóa. Pending/Published bị khóa. Hidden chỉ xóa khi khóa học không còn học viên truy cập.
+                Khóa học ở trạng thái Bản nháp hoặc Bị Từ Chối có thể được xóa. Khóa học ở trạng thái Đang Chờ Duyệt hoặc Đã Xuất Bản sẽ bị khóa. Khóa học ở trạng thái Đã Ẩn chỉ được phép xóa khi không còn học viên truy cập.
             </div>
         </div>
 
         <div class="card material-library-card">
-            <!-- Instructor material library: search + filter + paging params duoc gui ve backend. -->
-            <form class="material-filter-bar" th:action="@{/instructorcourse/materials}" method="get">
+            <form class="material-filter-bar" th:action="@{/instructor/materials}" method="get">
                 <input type="text"
                        name="keyword"
                        class="form-control material-search-input"
@@ -51,7 +50,7 @@
                 </select>
 
                 <select name="sectionId" class="form-control">
-                    <option value="">Tất cả section</option>
+                    <option value="">Tất cả chương</option>
                     <option th:each="s : ${sections}"
                             th:value="${s.id}"
                             th:selected="${selectedSectionId != null and selectedSectionId == s.id}"
@@ -59,7 +58,7 @@
                 </select>
 
                 <select name="lessonId" class="form-control">
-                    <option value="">Tất cả lesson</option>
+                    <option value="">Tất cả bài học</option>
                     <option th:each="l : ${lessons}"
                             th:value="${l.id}"
                             th:selected="${selectedLessonId != null and selectedLessonId == l.id}"
@@ -81,7 +80,7 @@
                 </select>
 
                 <button type="submit" class="btn btn-primary">Lọc</button>
-                <a th:href="@{/instructorcourse/materials}" class="btn btn-outline">Xóa lọc</a>
+                <a th:href="@{/instructor/materials}" class="btn btn-outline">Xóa lọc</a>
             </form>
 
             <div class="material-list-heading">
@@ -119,12 +118,12 @@
                                 <strong th:text="${m.courseTitle ?: 'Chưa gắn khóa học'}">Tên khóa học</strong>
                             </div>
                             <div>
-                                <span>Section</span>
-                                <strong th:text="${m.sectionTitle ?: 'Chưa gắn section'}">Tên section</strong>
+                                <span>Chương</span>
+                                <strong th:text="${m.sectionTitle ?: 'Chưa gắn chương'}">Tên chương</strong>
                             </div>
                             <div>
-                                <span>Lesson</span>
-                                <strong th:text="${m.lessonTitle ?: 'Chưa gắn lesson'}">Tên lesson</strong>
+                                <span>Bài học</span>
+                                <strong th:text="${m.lessonTitle ?: 'Chưa gắn bài học'}">Tên bài học</strong>
                             </div>
                             <div>
                                 <span>Kích thước</span>
@@ -150,7 +149,7 @@
 
                         <!-- Instructor material library: nut xoa chi enable khi backend danh dau deleteAllowed. -->
                         <form th:if="${m.deleteAllowed}"
-                              th:action="@{/instructorcourse/materials/{id}/delete(id=${m.id})}"
+                              th:action="@{/instructor/materials/library/{id}/delete(id=${m.id})}"
                               method="post"
                               onsubmit="return confirm('Bạn chắc chắn muốn xóa tài liệu này?');">
                             <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
@@ -168,7 +167,7 @@
             <nav class="material-pagination" th:if="${materialPage != null and materialPage.totalPages > 1}">
                 <a class="btn btn-sm btn-outline"
                    th:classappend="${materialPage.first} ? ' disabled' : ''"
-                   th:href="@{/instructorcourse/materials(page=${materialPage.number - 1}, size=${pageSize}, keyword=${keyword}, courseId=${selectedCourseId}, sectionId=${selectedSectionId}, lessonId=${selectedLessonId}, fileType=${selectedFileType})}">
+                   th:href="@{/instructor/materials(page=${materialPage.number - 1}, size=${pageSize}, keyword=${keyword}, courseId=${selectedCourseId}, sectionId=${selectedSectionId}, lessonId=${selectedLessonId}, fileType=${selectedFileType})}">
                     Trước
                 </a>
 
@@ -176,12 +175,12 @@
                    th:each="p : ${#numbers.sequence(0, materialPage.totalPages - 1)}"
                    th:if="${p == 0 or p == materialPage.totalPages - 1 or (p >= materialPage.number - 2 and p <= materialPage.number + 2)}"
                    th:classappend="${p == materialPage.number} ? ' active' : ''"
-                   th:href="@{/instructorcourse/materials(page=${p}, size=${pageSize}, keyword=${keyword}, courseId=${selectedCourseId}, sectionId=${selectedSectionId}, lessonId=${selectedLessonId}, fileType=${selectedFileType})}"
+                   th:href="@{/instructor/materials(page=${p}, size=${pageSize}, keyword=${keyword}, courseId=${selectedCourseId}, sectionId=${selectedSectionId}, lessonId=${selectedLessonId}, fileType=${selectedFileType})}"
                    th:text="${p + 1}">1</a>
 
                 <a class="btn btn-sm btn-outline"
                    th:classappend="${materialPage.last} ? ' disabled' : ''"
-                   th:href="@{/instructorcourse/materials(page=${materialPage.number + 1}, size=${pageSize}, keyword=${keyword}, courseId=${selectedCourseId}, sectionId=${selectedSectionId}, lessonId=${selectedLessonId}, fileType=${selectedFileType})}">
+                   th:href="@{/instructor/materials(page=${materialPage.number + 1}, size=${pageSize}, keyword=${keyword}, courseId=${selectedCourseId}, sectionId=${selectedSectionId}, lessonId=${selectedLessonId}, fileType=${selectedFileType})}">
                     Sau
                 </a>
             </nav>

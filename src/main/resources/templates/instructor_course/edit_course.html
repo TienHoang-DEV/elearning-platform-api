@@ -60,10 +60,10 @@
 
     <div th:if="${submitReview == null}" class="page-header">
         <h1>Chỉnh Sửa Khóa Học</h1>
-        <a th:href="@{/instructorcourse/courses}" class="btn btn-outline">← Quay lại danh sách</a>
+        <a th:href="@{/instructor/courses}" class="btn btn-outline">← Quay lại danh sách</a>
     </div>
 
-    <form th:if="${submitReview == null}" th:action="@{/instructorcourse/{id}/edit(id=*{id})}" method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${CourseRequest}">
+    <form th:if="${submitReview == null}" th:action="@{/instructor/{id}/edit(id=*{id})}" method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${CourseRequest}">
         <div class="card">
             <div class="card-title">Thông Tin Chung</div>
 

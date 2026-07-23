@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/instructorcourse")
+@RequestMapping("/instructor")
 public class InstructorCourseController {
     private CategoryService categoryService;
     private CourseService courseService;
@@ -111,7 +111,7 @@ public class InstructorCourseController {
             courseService.validateInstructorProfileReadyForCreateCourse(currentUser);
         } catch (CourseValidationException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/instructorcourse/courses";
+            return "redirect:/instructor/courses";
         }
 
         List<CourseLevel> levels = Arrays.asList(CourseLevel.values());
@@ -167,17 +167,17 @@ public class InstructorCourseController {
             attributes.addFlashAttribute("success",
                     isUpdate ? "Cập nhật khoá học thành công!" : "Thêm khoá học thành công!");
             if (isUpdate && ("save".equals(status) || "save_publish".equals(status))) {
-                return "redirect:/instructorcourse/" + id + "/submit-review";
+                return "redirect:/instructor/" + id + "/submit-review";
             }
             if (!isUpdate || "save_continue".equals(status)) {
-                return "redirect:/instructorcourse/" + id + "/curriculum";
+                return "redirect:/instructor/" + id + "/curriculum";
             }
-            return "redirect:/instructorcourse/create";
+            return "redirect:/instructor/create";
 
         } catch (CourseValidationException e) {
             if ("profile".equals(e.getField())) {
                 attributes.addFlashAttribute("error", e.getMessage());
-                return "redirect:/instructorcourse/courses";
+                return "redirect:/instructor/courses";
             }
 
             bindingResult.rejectValue(
@@ -234,7 +234,6 @@ public class InstructorCourseController {
         User user = SecurityUtils.getCurrentUser();
         Course course = courseService.getInstructorOwnedCourse(courseId, user);
         List<Feedback> reviews = courseService.getInstructorCourseReviews(courseId, user);
-        // Instructor course list: truyen reviews cua dung course sang trang xem danh gia.
         model.addAttribute("course", course);
         model.addAttribute("reviews", reviews);
         addCourseReviewStats(model, reviews);
@@ -297,7 +296,7 @@ public class InstructorCourseController {
 
             courseService.submitCourseForApproval(courseId, user, acceptPolicy);
             redirectAttributes.addFlashAttribute("success", "Đã gửi yêu cầu xét duyệt khóa học thành công!");
-            return "redirect:/instructorcourse/courses?tab=" + (isResubmit ? "resubmit" : "pending");
+            return "redirect:/instructor/courses?tab=" + (isResubmit ? "resubmit" : "pending");
         } catch (CourseValidationException e) {
             model.addAttribute("error", e.getMessage());
             loadSubmitReviewModel(courseId, user, model);
@@ -349,7 +348,7 @@ public class InstructorCourseController {
          User user = SecurityUtils.getCurrentUser();
          courseService.save(user, coursedto);
          redirectAttributes.addFlashAttribute("success", "Chỉnh Sửa Khoá Học Thành Công");
-         return "redirect:/instructorcourse/"+coursedto.getId()+"/submit-review";
+         return "redirect:/instructor/"+coursedto.getId()+"/submit-review";
      }catch(CourseValidationException e){
 
          bindingResult.rejectValue(
@@ -378,7 +377,7 @@ public class InstructorCourseController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi khi xoá khoá học: " + e.getMessage());
         }
-        return "redirect:/instructorcourse/courses?tab=" + tab;
+        return "redirect:/instructor/courses?tab=" + tab;
     }
 
     @PostMapping("/{id}/hide")
@@ -387,7 +386,7 @@ public class InstructorCourseController {
         User user = SecurityUtils.getCurrentUser();
         courseService.hidePublishedCourse(courseId, user);
         redirectAttributes.addFlashAttribute("success", "Da an khoa hoc khoi danh sach dang ban.");
-        return "redirect:/instructorcourse/courses?tab=all";
+        return "redirect:/instructor/courses?tab=all";
     }
 
     @PostMapping("/{id}/publish")
@@ -396,7 +395,7 @@ public class InstructorCourseController {
         User user = SecurityUtils.getCurrentUser();
         courseService.publishHiddenCourse(courseId, user);
         redirectAttributes.addFlashAttribute("success", "Da hien lai khoa hoc.");
-        return "redirect:/instructorcourse/courses?tab=hidden";
+        return "redirect:/instructor/courses?tab=hidden";
     }
 
 }

@@ -7,6 +7,7 @@ import vn.edu.fpt.dto.*;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.QuizStatus;
 import vn.edu.fpt.exception.CourseSectionValidation;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.CourseValidationException;
@@ -54,7 +55,6 @@ public class CourseSectionService {
 
         CourseSection deleted = repository.findById(sectionId).orElseThrow();
         Course course = deleted.getCourse();
-        // Delete section ownership: chi instructor so huu course moi duoc xoa section trong course do.
         if (user == null || course == null || course.getInstructor() == null || !course.getInstructor().getId().equals(user.getId())) {
             throw new AccessDeniedException("Bạn không có quyền xóa chương này.");
         }
@@ -186,7 +186,10 @@ public class CourseSectionService {
                         lessonDto.setDurationSeconds(l.getDurationSeconds());
                         lessonDto.setIsFreePreview(l.getIsFreePreview());
                         lessonDto.setQuizzes(
-                                l.getQuizzes().stream().map(q -> LessonQuizDto.builder()
+                                l.getQuizzes().stream()
+                                        // Step curriculum preview: chi hien thi quiz da publish cho instructor xem truoc.
+                                        .filter(q -> QuizStatus.PUBLISHED.name().equalsIgnoreCase(q.getStatus()))
+                                        .map(q -> LessonQuizDto.builder()
                                         .id(q.getId())
                                         .title(q.getTitle())
                                         .status(q.getStatus())

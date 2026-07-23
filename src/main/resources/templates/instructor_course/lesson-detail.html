@@ -65,7 +65,7 @@
                 <span class="ms-auto badge bg-primary text-white fs-8 rounded-pill" th:text="${quizzes != null ? quizzes.size() : 3}">3</span>
             </a>
 
-            <a th:href="@{/instructorcourse/material-manage(lessonId=${lesson != null ? lesson.id : ''})}" class="menu-item">
+            <a th:href="@{/instructor/materials(lessonId=${lesson != null ? lesson.id : ''})}" class="menu-item">
                 <i data-lucide="file-text"></i>
                 <span>Tài liệu đính kèm</span>
                 <span class="ms-auto badge bg-light text-muted fs-8 rounded-pill" th:text="${materials != null ? materials.size() : 2}">2</span>
@@ -73,7 +73,7 @@
         </nav>
 
         <div class="sidebar-footer">
-            <a th:href="@{/instructorcourse/{courseId}/curriculum(courseId=${course.id})}" class="btn btn-back-home w-100 py-2.5 fw-semibold fs-7 d-flex align-items-center justify-content-center gap-2 shadow-sm">
+            <a th:href="@{/instructor/{courseId}/curriculum(courseId=${course.id})}" class="btn btn-back-home w-100 py-2.5 fw-semibold fs-7 d-flex align-items-center justify-content-center gap-2 shadow-sm">
                 <i data-lucide="arrow-left" style="width:16px;"></i> Quay về Giáo trình
             </a>
         </div>

@@ -25,7 +25,9 @@ import vn.edu.fpt.enums.RoleType;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.SecurityUtils;
@@ -34,6 +36,10 @@ import vn.edu.fpt.util.SecurityUtils;
 @Transactional
 @RequiredArgsConstructor
 public class LessonMaterialService {
+    private static final Set<String> ALLOWED_MATERIAL_EXTENSIONS = Set.of(
+            "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"
+    );
+
     private final LessonMaterialRepository repository;
     private final AzureBlobService azureBlobService;
     private final LessonRepository lessonRepository;
@@ -66,14 +72,14 @@ public class LessonMaterialService {
             if(f == null || f.isEmpty()) continue;
 
             String fileName = f.getOriginalFilename();
-            String fileType = f.getContentType();
+            String fileType = getValidatedMaterialExtension(fileName);
             Long fileSize = f.getSize();
 
             String url = azureBlobService.saveFile(f, "materials");
             LessonMaterial lessonMaterial = new LessonMaterial();
             lessonMaterial.setLesson(lesson);
             lessonMaterial.setCourse(lesson.getCourseSection() != null ? lesson.getCourseSection().getCourse() : null);
-            lessonMaterial.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1));
+            lessonMaterial.setFileType(fileType);
             lessonMaterial.setFileName(fileName);
             lessonMaterial.setFileSize(fileSize);
             lessonMaterial.setFileUrl(url);
@@ -271,15 +277,32 @@ public class LessonMaterialService {
         }
 
         for(MultipartFile file : materialFile){
+            String fileName = file.getOriginalFilename();
+            String fileType = getValidatedMaterialExtension(fileName);
             String newFilePath = azureBlobService.saveFile(file, AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS);
 
-            material.setFileName(file.getOriginalFilename());
+            material.setFileName(fileName);
+            material.setFileType(fileType);
             material.setFileUrl(newFilePath);
             material.setInstructor(user);
             material.setUpdatedAt(LocalDateTime.now());
 
             repository.save(material);
         }
+    }
+
+    private String getValidatedMaterialExtension(String fileName) {
+        if (fileName == null || fileName.isBlank() || !fileName.contains(".")) {
+            throw new RuntimeException("File tai lieu phai co dinh dang: pdf, doc, docx, xls, xlsx, ppt, pptx.");
+        }
+
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1)
+                .toLowerCase(Locale.ROOT)
+                .trim();
+        if (!ALLOWED_MATERIAL_EXTENSIONS.contains(extension)) {
+            throw new RuntimeException("Chi chap nhan material dang: pdf, doc, docx, xls, xlsx, ppt, pptx.");
+        }
+        return extension;
     }
 
 

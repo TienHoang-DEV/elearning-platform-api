@@ -95,7 +95,6 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/instructor/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/manager/**").hasRole("MANAGER")
-                        .requestMatchers("/instructorcourse/**").hasRole("INSTRUCTOR")
                         .anyRequest().authenticated()
                 )
 

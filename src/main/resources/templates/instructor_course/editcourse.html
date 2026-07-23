@@ -20,7 +20,7 @@
             <span class="icon"></span>
             <span th:text="${courseRequest != null ? courseRequest.title : 'Tạo Khóa Học Mới'}">Khóa Học</span>
         </h1>
-        <a th:href="@{/instructorcourse/courses}" class="btn btn-outline">← Quay lại danh sách</a>
+        <a th:href="@{/instructor/courses}" class="btn btn-outline">← Quay lại danh sách</a>
     </div>
 
     <!-- Wizard Notice -->
@@ -31,7 +31,7 @@
     <!-- Wizard Steps -->
     <div class="wizard-steps">
         <a th:href="${courseRequest?.id != null}
-               ? @{/instructorcourse/{id}/edit(id=${courseRequest.id})}
+               ? @{/instructor/{id}/edit(id=${courseRequest.id})}
                : '#'"
            class="wizard-step" th:classappend="${activeStep == 'info'} ? 'active' : ''">
             <div class="step-dot">1</div>
@@ -39,7 +39,7 @@
         </a>
 
         <a th:href="${courseRequest?.id != null}
-               ? @{/instructorcourse/{id}/curriculum(id=${courseRequest.id})}
+               ? @{/instructor/{id}/curriculum(id=${courseRequest.id})}
                : '#'"
            class="wizard-step" th:classappend="${activeStep == 'curriculum'} ? 'active' : ''">
             <div class="step-dot">2</div>
@@ -47,7 +47,7 @@
         </a>
 
         <a th:href="${courseRequest?.id != null}
-               ? @{/instructorcourse/{id}/submit-review(id=${courseRequest.id})}
+               ? @{/instructor/{id}/submit-review(id=${courseRequest.id})}
                : '#'"
            class="wizard-step" th:classappend="${activeStep == 'publish'} ? 'active' : ''">
             <div class="step-dot">3</div>

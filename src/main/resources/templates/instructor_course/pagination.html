@@ -9,7 +9,7 @@
 
     <!-- Nút Trước -->
     <a th:if="${pageObj.number > 0}"
-       th:href="@{/instructorcourse/courses(
+       th:href="@{/instructor/courses(
                     pagePublished=${paramName == 'pagePublished' ? pageObj.number - 1 : pagePublished},
                     pagePending=${paramName == 'pagePending' ? pageObj.number - 1 : pagePending},
                     pageDraft=${paramName == 'pageDraft' ? pageObj.number - 1 : pageDraft},
@@ -21,7 +21,7 @@
 
     <!-- Các số trang -->
     <th:block th:each="i : ${#numbers.sequence(0, pageObj.totalPages - 1)}">
-        <a th:href="@{/instructorcourse/courses(
+        <a th:href="@{/instructor/courses(
                         pagePublished=${paramName == 'pagePublished' ? i : pagePublished},
                         pagePending=${paramName == 'pagePending' ? i : pagePending},
                         pageDraft=${paramName == 'pageDraft' ? i : pageDraft},
@@ -35,7 +35,7 @@
 
     <!-- Nút Sau -->
     <a th:if="${pageObj.number < pageObj.totalPages - 1}"
-       th:href="@{/instructorcourse/courses(
+       th:href="@{/instructor/courses(
                     pagePublished=${paramName == 'pagePublished' ? pageObj.number + 1 : pagePublished},
                     pagePending=${paramName == 'pagePending' ? pageObj.number + 1 : pagePending},
                     pageDraft=${paramName == 'pageDraft' ? pageObj.number + 1 : pageDraft},

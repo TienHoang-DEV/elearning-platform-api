@@ -471,6 +471,13 @@ select.form-control { cursor: pointer; }
     align-items: center;
     gap: 12px;
 }
+.profile-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
 .profile-form-actions {
     display: flex;
     justify-content: flex-end;
@@ -487,6 +494,15 @@ select.form-control { cursor: pointer; }
     border: 1px solid #ffc9c9;
     background: #fff5f5;
     color: #c92a2a;
+}
+.profile-password-card {
+    margin-top: 18px;
+}
+.profile-password-form .form-grid {
+    align-items: end;
+}
+.profile-password-form .profile-form-actions {
+    margin-top: 4px;
 }
 
 /* Instructor orders: bang don hang dung lai cho dashboard, list full va detail. */

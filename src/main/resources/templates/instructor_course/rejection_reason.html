@@ -16,7 +16,7 @@
             <h1>Lý do từ chối khóa học</h1>
             <p class="page-subtitle">Xem phản hồi từ Manager và chỉnh sửa lại khóa học trước khi gửi duyệt lần nữa.</p>
         </div>
-        <a th:href="@{/instructorcourse/courses(tab='rejected')}" class="btn btn-outline">Quay lại danh sách</a>
+        <a th:href="@{/instructor/courses(tab='rejected')}" class="btn btn-outline">Quay lại danh sách</a>
     </div>
 
     <section class="rejection-shell">
@@ -75,8 +75,8 @@
                 </div>
 
                 <div class="rejection-reason-actions">
-                    <a th:href="@{/instructorcourse/{id}/edit(id=${course.id})}" class="btn btn-primary">Chỉnh sửa khóa học</a>
-                    <a th:href="@{/instructorcourse/{id}/submit-review(id=${course.id})}" class="btn btn-outline">Gửi lại request</a>
+                    <a th:href="@{/instructor/{id}/edit(id=${course.id})}" class="btn btn-primary">Chỉnh sửa khóa học</a>
+                    <a th:href="@{/instructor/{id}/submit-review(id=${course.id})}" class="btn btn-outline">Gửi lại request</a>
                 </div>
             </aside>
         </div>
