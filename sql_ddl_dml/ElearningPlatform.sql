@@ -585,6 +585,38 @@ CREATE TABLE quiz_attempts (
 );
 
 -- =========================
+-- QUIZ ATTEMPT ANSWERS
+-- =========================
+CREATE TABLE quiz_attempt_answers (
+                                      id INT PRIMARY KEY IDENTITY(1,1),
+    -- Mã định danh câu trả lời trong lần làm quiz
+
+                                      attempt_id INT NOT NULL,
+    -- Tham chiếu đến bảng quiz_attempts, thuộc lần làm bài nào
+
+                                      question_id INT NOT NULL,
+    -- Tham chiếu đến bảng quiz_questions, câu hỏi nào được trả lời
+
+                                      selected_answer_id INT NULL,
+    -- Tham chiếu đến bảng quiz_answers, đáp án được chọn (nếu có)
+
+                                      is_correct BIT NULL,
+    -- Đánh dấu câu trả lời này đúng hay sai (1 = đúng, 0 = sai)
+
+                                      created_at DATETIME DEFAULT GETDATE(),
+    -- Thời gian ghi nhận câu trả lời
+                                      updated_at DATETIME NULL,
+    -- Thời gian cập nhật gần nhất
+
+                                      CONSTRAINT FK_attempt_answers_attempt
+                                          FOREIGN KEY (attempt_id) REFERENCES quiz_attempts(id) ON DELETE CASCADE,
+                                      CONSTRAINT FK_attempt_answers_question
+                                          FOREIGN KEY (question_id) REFERENCES quiz_questions(id),
+                                      CONSTRAINT FK_attempt_answers_selected_answer
+                                          FOREIGN KEY (selected_answer_id) REFERENCES quiz_answers(id)
+);
+
+-- =========================
 -- CARTS
 -- =========================
 CREATE TABLE carts (
@@ -835,6 +867,7 @@ CREATE INDEX IX_courses_category ON courses(category_id);
 CREATE INDEX IX_course_sections_course ON course_sections(course_id);
 CREATE INDEX IX_lessons_section ON lessons(section_id);
 CREATE INDEX IX_quiz_attempts_user_quiz ON quiz_attempts(user_id, quiz_id);
+CREATE INDEX IX_quiz_attempt_answers_attempt ON quiz_attempt_answers(attempt_id);
 CREATE INDEX IX_lesson_progress_lookup ON lesson_progress(enrollment_id, lesson_id);
 CREATE INDEX IX_orders_user ON orders(user_id);
 CREATE INDEX IX_order_items_order ON order_items(order_id);

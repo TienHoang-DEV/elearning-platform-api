@@ -7,6 +7,7 @@ import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
 import vn.edu.fpt.entity.*;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
+import vn.edu.fpt.repository.QuizAttemptAnswerRepository;
 import vn.edu.fpt.repository.QuizAttemptRepository;
 import vn.edu.fpt.repository.QuizRepository;
 
@@ -19,12 +20,14 @@ import java.util.*;
 public class QuizAttemptService {
     private final QuizAttemptRepository repository;
     private final QuizRepository quizRepository;
+    private final QuizAttemptAnswerRepository quizAttemptAnswerRepository;
     private final DtoMapper dtoMapper;
 
-    public QuizAttemptService(QuizAttemptRepository quizAttemptRepository, QuizRepository quizRepository, DtoMapper dtoMapper)
+    public QuizAttemptService(QuizAttemptRepository quizAttemptRepository, QuizRepository quizRepository, QuizAttemptAnswerRepository quizAttemptAnswerRepository, DtoMapper dtoMapper)
     {
         this.repository = quizAttemptRepository;
         this.quizRepository = quizRepository;
+        this.quizAttemptAnswerRepository = quizAttemptAnswerRepository;
         this.dtoMapper = dtoMapper;
     }
 
@@ -33,6 +36,18 @@ public class QuizAttemptService {
 
         int totalPoints = 0;
         int userPoints = 0;
+        List<QuizAttemptAnswer> attemptAnswers = new ArrayList<>();
+
+        QuizAttempt attempt = QuizAttempt.builder()
+                .user(user)
+                .quiz(quiz)
+                .score(BigDecimal.ZERO)
+                .passed(false)
+                .startedAt(LocalDateTime.now().minusMinutes(5))
+                .submittedAt(LocalDateTime.now())
+                .build();
+
+        QuizAttempt savedAttempt = repository.save(attempt);
 
         for (QuizQuestion question : quiz.getQuestions()) {
             int qPoints = question.getPoints() != null ? question.getPoints() : 1;
@@ -50,7 +65,25 @@ public class QuizAttemptService {
             List<Integer> userSelected = new ArrayList<>();
             if (paramValues != null) {
                 for (String val : paramValues) {
-                    userSelected.add(Integer.parseInt(val));
+                    try {
+                        Integer ansId = Integer.parseInt(val);
+                        userSelected.add(ansId);
+
+                        QuizAnswer selectedAns = question.getAnswers().stream()
+                                .filter(a -> a.getId().equals(ansId))
+                                .findFirst().orElse(null);
+
+                        boolean isOptionCorrect = correctAnswers.contains(ansId);
+
+                        QuizAttemptAnswer qaa = QuizAttemptAnswer.builder()
+                                .attempt(savedAttempt)
+                                .question(question)
+                                .selectedAnswer(selectedAns)
+                                .isCorrect(isOptionCorrect)
+                                .build();
+                        attemptAnswers.add(qaa);
+                    } catch (NumberFormatException ignored) {
+                    }
                 }
             }
             Collections.sort(userSelected);
@@ -64,16 +97,15 @@ public class QuizAttemptService {
         double scorePercentage = totalPoints > 0 ? ((double) userPoints * 100.0 / totalPoints) : 0.0;
         boolean passed = scorePercentage >= quiz.getPassScorePercent();
 
-        QuizAttempt attempt = QuizAttempt.builder()
-                .user(user)
-                .quiz(quiz)
-                .score(BigDecimal.valueOf(scorePercentage))
-                .passed(passed)
-                .startedAt(LocalDateTime.now().minusMinutes(5))
-                .submittedAt(LocalDateTime.now())
-                .build();
+        savedAttempt.setScore(BigDecimal.valueOf(scorePercentage));
+        savedAttempt.setPassed(passed);
 
-        return repository.save(attempt);
+        if (!attemptAnswers.isEmpty()) {
+            quizAttemptAnswerRepository.saveAll(attemptAnswers);
+            savedAttempt.setAttemptAnswers(attemptAnswers);
+        }
+
+        return repository.save(savedAttempt);
     }
 
     public List<QuizAttempt> findAll() {

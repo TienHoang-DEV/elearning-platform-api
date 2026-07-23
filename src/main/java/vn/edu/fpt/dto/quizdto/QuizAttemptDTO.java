@@ -5,6 +5,7 @@ import vn.edu.fpt.dto.user.UserDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,4 +21,5 @@ public class QuizAttemptDTO {
     private Integer id;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<QuizAttemptAnswerDTO> attemptAnswers;
 }
