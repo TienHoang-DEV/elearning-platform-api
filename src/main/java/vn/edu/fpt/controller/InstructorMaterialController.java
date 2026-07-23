@@ -55,7 +55,7 @@ public class InstructorMaterialController {
 
     private String redirectAfterCurriculumAction(String source, Integer courseId) {
         return "edit".equals(source)
-                ? "redirect:/instructorcourse/" + courseId + "/edit"
-                : "redirect:/instructorcourse/" + courseId + "/curriculum";
+                ? "redirect:/instructor/" + courseId + "/edit"
+                : "redirect:/instructor/" + courseId + "/curriculum";
     }
 }

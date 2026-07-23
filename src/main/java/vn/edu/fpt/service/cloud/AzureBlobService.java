@@ -49,6 +49,7 @@ public class AzureBlobService {
         }
     }
 
+
     public ResponseEntity<InputStreamResource> dowloadFile(BlobClient blobClient) {
         BlobProperties properties = blobClient.getProperties();
         MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
@@ -70,6 +71,18 @@ public class AzureBlobService {
         );
         return blobClient.getBlobUrl() + "?" + blobClient.generateSas(sasValues);
     }
+
+    public String generateUploadSasUrl(String containerName, String blobName) {
+        BlobClient blobClient = getBlobClient(containerName, blobName);
+        BlobServiceSasSignatureValues sasValues = new BlobServiceSasSignatureValues(
+                OffsetDateTime.now().plusMinutes(15),
+                new BlobSasPermission()
+                        .setCreatePermission(true)
+                        .setWritePermission(true)
+        );
+        return blobClient.getBlobUrl() + "?" + blobClient.generateSas(sasValues);
+    }
+
 
     public BlobClient getBlobClient(String containerName, String blobName) {
         return blobServiceClient.getBlobContainerClient(containerName).getBlobClient(blobName);

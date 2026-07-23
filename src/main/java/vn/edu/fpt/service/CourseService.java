@@ -67,7 +67,6 @@ public class CourseService {
 
 
     public void deleteCourseById(Integer courseId, User user){
-        // Delete course ownership: chi instructor chinh chu moi duoc xoa khoa hoc cua minh.
         getInstructorOwnedCourse(courseId, user);
         repository.deleteCourseById(courseId);
     }

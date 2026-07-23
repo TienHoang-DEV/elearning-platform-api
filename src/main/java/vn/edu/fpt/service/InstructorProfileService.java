@@ -1,5 +1,6 @@
 package vn.edu.fpt.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.user.InstructorProfileViewDto;
@@ -14,10 +15,12 @@ import vn.edu.fpt.util.SecurityUtils;
 public class InstructorProfileService {
     private final UserService userService;
     private final FeedbackRepository feedbackRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public InstructorProfileService(UserService userService, FeedbackRepository feedbackRepository) {
+    public InstructorProfileService(UserService userService, FeedbackRepository feedbackRepository, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.feedbackRepository = feedbackRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public InstructorProfileViewDto getCurrentInstructorProfile(boolean editMode) {
@@ -34,6 +37,37 @@ public class InstructorProfileService {
 
     public void updateCurrentInstructorProfile(ProfileDto profileDto) {
         userService.updateProfileInstuctor(SecurityUtils.getCurrentUser(), profileDto);
+    }
+
+    public void updateCurrentInstructorPassword(String oldPassword, String newPassword, String confirmPassword) {
+        User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser == null) {
+            throw new IllegalArgumentException("Không tìm thấy thông tin tài khoản.");
+        }
+
+        User user = userService.findById(currentUser.getId());
+
+        if (newPassword == null || newPassword.isBlank() || confirmPassword == null || confirmPassword.isBlank()) {
+            throw new IllegalArgumentException("Vui lòng nhập đầy đủ mật khẩu mới.");
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không khớp.");
+        }
+        if (newPassword.length() < 6) {
+            throw new IllegalArgumentException("Mật khẩu mới phải có ít nhất 6 ký tự.");
+        }
+
+        if (user.getPasswordHash() != null && !user.getPasswordHash().isBlank()) {
+            if (oldPassword == null || oldPassword.isBlank()) {
+                throw new IllegalArgumentException("Vui lòng nhập mật khẩu hiện tại.");
+            }
+            if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
+                throw new IllegalArgumentException("Mật khẩu hiện tại không chính xác.");
+            }
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userService.save(user);
     }
 
     private InstructorProfileViewDto buildProfileView(ProfileDto profileDto, User instructor, boolean editMode) {

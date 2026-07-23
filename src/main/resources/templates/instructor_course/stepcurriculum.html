@@ -125,8 +125,9 @@
                     <div class="section-actions">
                         <button type="button" class="btn btn-sm btn-outline"
                                 th:data-section-id="${section.id}"
+                                th:data-course-id="${section.course.id}"
                                 th:data-source="${source}"
-                                onclick="openAddLessonModal(this.dataset.sectionId, this.dataset.source)">
+                                onclick="openAddLessonModal(this.dataset.sectionId, this.dataset.source, this.dataset.courseId)">
                             + Thêm Bài Giảng
                         </button>
                         <button type="button" class="btn btn-sm btn-danger"
@@ -199,12 +200,10 @@
         </div>
 
 
-        <!-- Nút thêm chương -->
         <div class="add-section-btn" id="addSectionBtn">
             ＋ Thêm Mục (Chương)
         </div>
 
-        <!-- ===== XEM TRƯỚC CHƯƠNG TRÌNH GIẢNG DẠY (đồng bộ giao diện với edit_course.html) ===== -->
         <!-- Đây là nơi duy nhất hiển thị Quiz + Tài liệu của từng bài giảng -->
         <div class="preview-panel" style="margin-top:20px;">
             <div class="preview-panel-header">Xem trước chương trình giảng dạy</div>
@@ -251,14 +250,7 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Hành động: Xem Video / Tài liệu / Quiz -->
                             <div style="display:flex; gap:8px; align-items:center; flex-shrink:0;">
-
-                                <!-- Nút xem Video -->
-                                <!-- TODO xác nhận route: hiện đang set player.src = '/lesson/' + lessonId trong JS bên dưới.
-                                     Nếu route thật để lấy file video khác (vd /lesson/{id}/video hoặc lesson.videoUrl),
-                                     cần đổi trong hàm playPreviewVideo() -->
                                 <button type="button" class="btn btn-sm btn-outline"
                                         th:data-lesson-id="${lesson.id}"
                                         onclick="playPreviewVideo(this.dataset.lessonId)"
@@ -354,12 +346,12 @@
 
     <!-- Nút điều hướng -->
     <div class="gap-row" style="margin-top:16px;">
-        <a th:href="@{/instructorcourse/{id}/view(id=${courseId})}"
+        <a th:href="@{/instructor/{id}/view(id=${courseId})}"
            class="btn btn-outline">
             ← Quay về khóa học
         </a>
 
-        <a th:href="@{/instructorcourse/{id}/submit-review(id=${courseId})}"
+        <a th:href="@{/instructor/{id}/submit-review(id=${courseId})}"
            class="btn btn-primary">
             Gửi yêu Cầu Duyệt
         </a>
@@ -371,7 +363,7 @@
     <div class="modal-overlay" id="modal-preview-video">
         <div class="modal modal-lg" style="max-width: 750px;">
             <div class="modal-header">
-                <h3>🎬 Xem Thử Video Bài Giảng</h3>
+                <h3>Xem Thử Video Bài Giảng</h3>
                 <button class="modal-close" onclick="closeVideoModal()">✕</button>
             </div>
             <div class="modal-body" style="padding:0; background:#000; display:flex; justify-content:center;">

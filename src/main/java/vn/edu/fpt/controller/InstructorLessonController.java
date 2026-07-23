@@ -14,6 +14,7 @@
     import vn.edu.fpt.dto.LessonDto;
     import vn.edu.fpt.dto.quizdto.QuizDTO;
     import vn.edu.fpt.entity.*;
+    import vn.edu.fpt.service.cloud.VideoUploadService;
     import vn.edu.fpt.service.section.CourseSectionService;
     import vn.edu.fpt.service.CourseService;
     import vn.edu.fpt.service.material.LessonMaterialService;
@@ -22,6 +23,7 @@
     import vn.edu.fpt.util.SecurityUtils;
 
     import java.util.List;
+    import java.util.Map;
 
     @Controller
     @RequestMapping("/instructor")
@@ -31,14 +33,16 @@
         private final CourseSectionService courseSectionService;
         private final CourseService courseService;
         private final LessonMaterialService lessonMaterialService;
+        private final VideoUploadService videoUploadService;
 
 
-        public InstructorLessonController(QuizService quizService, LessonService lessonService, CourseSectionService courseSectionService, CourseService courseService, LessonMaterialService lessonMaterialService) {
+        public InstructorLessonController(QuizService quizService, LessonService lessonService, CourseSectionService courseSectionService, CourseService courseService, LessonMaterialService lessonMaterialService, VideoUploadService videoUploadService) {
             this.quizService = quizService;
             this.lessonService = lessonService;
             this.courseSectionService = courseSectionService;
             this.courseService = courseService;
             this.lessonMaterialService = lessonMaterialService;
+            this.videoUploadService = videoUploadService;
         }
 
 
@@ -137,6 +141,7 @@
                 @PathVariable("sectionId") Integer sectionId,
                 @RequestParam("courseId") Integer courseId,
                 @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
+                @RequestParam(value = "videoBlobName", required = false) String videoBlobName,
                 @RequestParam(value = "materialFiles", required = false) List<MultipartFile> materials,
                 @Valid @ModelAttribute("lesson") LessonDto lessonDto,
                 BindingResult bindingResult,
@@ -150,7 +155,7 @@
             }
 
             try {
-                Lesson tmp = lessonService.saveLesson(sectionId, lessonDto, videoFile);
+                Lesson tmp = lessonService.saveLesson(sectionId, lessonDto, videoFile, videoBlobName);
                 lessonMaterialService.saveAllMaterial(materials, tmp.getId(), instructor);
                 redirectAttributes.addFlashAttribute("success", "Thêm bài giảng thành công!");
             } catch (RuntimeException e) {
@@ -167,13 +172,14 @@
                 @PathVariable("lessonId") Integer lessonId,
                 @RequestParam("courseId") Integer courseId,
                 @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
+                @RequestParam(value = "videoBlobName", required = false) String videoBlobName,
                 @ModelAttribute("lesson") LessonDto lessonDto,
                 RedirectAttributes redirectAttributes) {
 
             User instructor = SecurityUtils.getCurrentUser();
 
             try {
-                lessonService.updateLesson(lessonId, lessonDto, videoFile);
+                lessonService.updateLesson(lessonId, lessonDto, videoFile, videoBlobName);
                 redirectAttributes.addFlashAttribute("success", "Cập nhật bài giảng thành công!");
             } catch (RuntimeException e) {
                 redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
@@ -182,6 +188,15 @@
             return redirectAfterCurriculumAction(source, courseId);
         }
 
+        @PostMapping("/video-upload-url")
+        @ResponseBody
+        public Map<String, String> uploadVideo(@RequestParam("fileName") String fileName,
+                                               @RequestParam("sectionId") Integer sectionId){
+            User user = SecurityUtils.getCurrentUser();
+            // Direct lesson video upload: Spring chi cap SAS URL, khong nhan MultipartFile video.
+            return videoUploadService.generateDirectUploadUrl(fileName, sectionId, user);
+
+        }
         @PostMapping("/lessons/{lessonId}/delete")
         public String deleteLesson(
                 @RequestParam(value = "source", defaultValue = "create") String source,
@@ -202,8 +217,8 @@
 
         private String redirectAfterCurriculumAction(String source, Integer courseId) {
             return "edit".equals(source)
-                    ? "redirect:/instructorcourse/" + courseId + "/edit"
-                    : "redirect:/instructorcourse/" + courseId + "/curriculum";
+                    ? "redirect:/instructor/" + courseId + "/edit"
+                    : "redirect:/instructor/" + courseId + "/curriculum";
         }
 
 

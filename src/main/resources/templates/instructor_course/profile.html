@@ -19,8 +19,12 @@
                 Xem thông tin hồ sơ giảng viên
             </p>
         </div>
-        <a th:if="${!editMode}" th:href="@{/instructor/profile/edit}" class="btn btn-primary">Chỉnh sửa</a>
-        <a th:if="${editMode}" th:href="@{/instructor/sidebar}" class="btn btn-outline">Hủy</a>
+        <div class="profile-header-actions">
+            <!-- Instructor profile password: nut nay mo popup doi mat khau, khong hien form truc tiep tren trang. -->
+            <button type="button" class="btn btn-outline" data-open-modal="modal-change-password">Thay m&#7853;t kh&#7849;u</button>
+            <a th:if="${!editMode}" th:href="@{/instructor/profile/edit}" class="btn btn-primary">Ch&#7881;nh s&#7917;a</a>
+            <a th:if="${editMode}" th:href="@{/instructor/sidebar}" class="btn btn-outline">H&#7911;y</a>
+        </div>
     </div>
 
     <div th:if="${success}" class="success-msg" th:text="${success}">Thay đổi thành công!</div>
@@ -183,6 +187,54 @@
             <button type="submit" class="btn btn-primary btn-lg">Lưu thay đổi</button>
         </div>
     </form>
+
+    <!-- Instructor profile password: popup doi mat khau, submit ve endpoint backend hien co. -->
+    <div class="modal-overlay" id="modal-change-password">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Thay m&#7853;t kh&#7849;u</h3>
+                <button type="button" class="modal-close" data-close-modal="modal-change-password">&times;</button>
+            </div>
+            <form th:action="@{/instructor/profile/change-password}" method="post" class="profile-password-form">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>M&#7853;t kh&#7849;u hi&#7879;n t&#7841;i</label>
+                        <input type="password"
+                               name="oldPassword"
+                               class="form-control"
+                               autocomplete="current-password"
+                               placeholder="Nh&#7853;p m&#7853;t kh&#7849;u hi&#7879;n t&#7841;i n&#7871;u t&#224;i kho&#7843;n &#273;&#227; c&#243; m&#7853;t kh&#7849;u"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label>M&#7853;t kh&#7849;u m&#7899;i <span class="required">*</span></label>
+                        <input type="password"
+                               name="newPassword"
+                               class="form-control"
+                               minlength="6"
+                               autocomplete="new-password"
+                               placeholder="T&#7889;i thi&#7875;u 6 k&#253; t&#7921;"
+                               required/>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nh&#7853;p l&#7841;i m&#7853;t kh&#7849;u <span class="required">*</span></label>
+                        <input type="password"
+                               name="confirmPassword"
+                               class="form-control"
+                               minlength="6"
+                               autocomplete="new-password"
+                               placeholder="X&#225;c nh&#7853;n m&#7853;t kh&#7849;u m&#7899;i"
+                               required/>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close-modal="modal-change-password">H&#7911;y</button>
+                    <button type="submit" class="btn btn-primary">C&#7853;p nh&#7853;t m&#7853;t kh&#7849;u</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </main>
 
 <script th:src="@{/js/course_instructor.js}"></script>
