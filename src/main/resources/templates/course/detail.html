@@ -497,8 +497,7 @@
                                 <img th:src="${course.thumbnailPath}" th:alt="${course.title}"
                                     class="w-100 h-100 object-fit-cover"
                                     onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
-                                <div class="badge bg-warning text-dark position-absolute top-0 start-0 m-3 px-3 py-2 fw-extrabold fs-7 rounded-sm shadow-sm"
-                                    style="z-index: 2;">GIẢM 20%</div>
+
 
                                 <div class="thumbnail-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-40"
                                     th:if="${course.getFirstLessonId() != null}">

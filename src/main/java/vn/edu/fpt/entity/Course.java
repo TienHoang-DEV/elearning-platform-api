@@ -177,6 +177,23 @@ public class Course extends BaseEntity {
         return count;
     }
 
+    public Long getTotalDurationSeconds() {
+        if (sections == null) {
+            return 0L;
+        }
+        long totalSeconds = 0L;
+        for (CourseSection sec : sections) {
+            if (sec.getLessons() != null) {
+                for (Lesson lesson : sec.getLessons()) {
+                    if (lesson.getDurationSeconds() != null) {
+                        totalSeconds += lesson.getDurationSeconds();
+                    }
+                }
+            }
+        }
+        return totalSeconds;
+    }
+
     public String getFirstLessonVideoUrl() {
         if (sections == null || sections.isEmpty()) return null;
         for (CourseSection sec : sections) {
