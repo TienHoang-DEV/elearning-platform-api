@@ -15,6 +15,7 @@ import vn.edu.fpt.dto.course.OrderItemDto;
 import vn.edu.fpt.dto.instructor.InstructorPublicProfileDto;
 import vn.edu.fpt.dto.lesson.LessonNoteSiderbarDTO;
 import vn.edu.fpt.dto.quizdto.QuizAnswerDTO;
+import vn.edu.fpt.dto.quizdto.QuizAttemptAnswerDTO;
 import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
@@ -95,6 +96,13 @@ public interface DtoMapper {
     QuizAnswerDTO toQuizAnswerDto(QuizAnswer quizAnswer);
 
     QuizAttemptDTO toQuizAttemptDto(QuizAttempt quizAttempt);
+
+    @Mapping(source = "attempt.id", target = "attemptId")
+    @Mapping(source = "question.id", target = "questionId")
+    @Mapping(source = "selectedAnswer.id", target = "selectedAnswerId")
+    QuizAttemptAnswerDTO toQuizAttemptAnswerDto(QuizAttemptAnswer quizAttemptAnswer);
+
+    List<QuizAttemptAnswerDTO> toQuizAttemptAnswerDtos(List<QuizAttemptAnswer> quizAttemptAnswers);
 
     CourseSectionDto toCourseSectionDto(CourseSection section);
     LessonDto toLessonDto(Lesson lesson);

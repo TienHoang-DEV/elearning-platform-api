@@ -147,10 +147,11 @@
 
                             <!-- Đáp án & Giải thích chi tiết -->
                             <div class="quiz-review-section"
+                                th:with="latestAttempt=${quizAttemptsMap.get(quiz.id).get(0)}, selectedAnswerIds=${attemptSelectedAnswersMap != null ? attemptSelectedAnswersMap.get(quizAttemptsMap.get(quiz.id).get(0).id) : null}"
                                 style="margin-top: 40px; border-top: 1px dashed var(--quiz-border); padding-top: 30px;">
                                 <h3 class="quiz-history-title"
                                     style="font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--quiz-text);">
-                                    Đáp án & Giải thích chi tiết
+                                    Đáp án & Giải thích chi tiết (Lần làm bài gần nhất)
                                 </h3>
 
                                 <div class="quiz-question-list" th:if="${quiz.questions != null and !quiz.questions.isEmpty()}">
@@ -167,12 +168,17 @@
 
                                         <div class="quiz-options"
                                             style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px;">
-                                            <div th:each="answer, answerStat : ${question.answers}" class="quiz-option-ui"
-                                                th:classappend="${answer.correct} ? 'is-correct' : ''"
+                                            <div th:each="answer, answerStat : ${question.answers}" 
+                                                th:with="isUserSelected=${selectedAnswerIds != null and selectedAnswerIds.contains(answer.id)}, isCorrectAnswer=${answer.correct}"
+                                                class="quiz-option-ui"
+                                                th:classappend="${isUserSelected and isCorrectAnswer} ? 'is-user-correct' : (${isUserSelected and !isCorrectAnswer} ? 'is-user-wrong' : (${!isUserSelected and isCorrectAnswer} ? 'is-correct-missed' : ''))"
                                                 style="pointer-events: none; user-select: none;">
                                                 <span class="quiz-option-index" th:text="${answerStat.count}">A</span>
                                                 <span class="quiz-option-text" th:text="${answer.answerText}">Đáp án</span>
-                                                <span th:if="${answer.correct}" class="quiz-answer-badge">Đáp án đúng</span>
+                                                
+                                                <span th:if="${isUserSelected and isCorrectAnswer}" class="quiz-answer-badge badge-user-correct">✓ Lựa chọn của bạn (Đúng)</span>
+                                                <span th:if="${isUserSelected and !isCorrectAnswer}" class="quiz-answer-badge badge-user-wrong">✗ Lựa chọn của bạn (Sai)</span>
+                                                <span th:if="${!isUserSelected and isCorrectAnswer}" class="quiz-answer-badge badge-correct-missed">✓ Đáp án đúng</span>
                                             </div>
                                         </div>
 
