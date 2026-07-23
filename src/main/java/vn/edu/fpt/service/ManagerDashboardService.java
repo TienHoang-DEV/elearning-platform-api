@@ -57,12 +57,9 @@ public class ManagerDashboardService {
         //Đếm số lượng khóa học đang ở trạng thái "PENDING"
         long pendingCourses = courseRepository.countByStatus(CourseStatus.PENDING);
         dto.setPendingCourses(pendingCourses);
-        //Tính doanh thu từ đầu tháng đến thời điểm hiện tại (status = SUCCESS)
-        LocalDateTime startOfMonth = LocalDateTime.now()
-                .with(TemporalAdjusters.firstDayOfMonth())
-                .withHour(0).withMinute(0).withSecond(0).withNano(0);//set ngày đầu tiên vd: 01/06/2026 00:00:00
-        BigDecimal monthlyRevenue = paymentRepository.sumAmountByStatusAndPaidAtAfter(PaymentStatus.PAID, startOfMonth);
-        dto.setMonthlyRevenue(formatRevenue(monthlyRevenue));
+        // Tính tổng doanh thu toàn hệ thống (status = PAID)
+        BigDecimal totalRevenue = paymentRepository.sumAmountByStatus(PaymentStatus.PAID);
+        dto.setTotalRevenue(formatRevenue(totalRevenue));
         // --- Chuẩn bị dữ liệu cho biểu đồ (12 tháng trong năm hiện tại) ---
         List<String> chartLabels = new ArrayList<>();// nhãn: "Tháng 1" -> "Tháng 12"
         List<BigDecimal> chartData = new ArrayList<>();// giá trị doanh thu tương ứng
