@@ -699,48 +699,13 @@
 //                    .filter(q -> q.getLesson().getId().equals(lesson.getId()))
 //                    .findFirst().orElse(null);
 //            if (quiz != null) {
-//                quizAttemptRepository.save(QuizAttempt.builder()
-//                        .user(user)
-//                        .quiz(quiz)
-//                        .score(new BigDecimal(score))
-//                        .passed(passed)
-//                        .startedAt(LocalDateTime.now().minusMinutes(10))
-//                        .submittedAt(LocalDateTime.now())
-//                        .build());
-//            }
-//        }
-//    }
-//
-//    private void seedFeedback(User user, Course course, int rating, String comment) {
-//        if (course == null) return;
-//        boolean exists = feedbackRepository.findAll().stream()
-//                .anyMatch(f -> f.getUser().getId().equals(user.getId()) && f.getCourse().getId().equals(course.getId()));
-//        if (!exists) {
-//            feedbackRepository.save(Feedback.builder()
-//                    .user(user)
-//                    .course(course)
-//                    .rating(rating)
-//                    .comment(comment)
-//                    .status("VISIBLE")
-//                    .build());
-//        }
-//    }
-//
-//
-//    private void seedQuizForLesson2(Lesson lesson2) {
-//        Quiz quiz = Quiz.builder()
-//                .lesson(lesson2)
-//                .title("Quiz - Kiểu dữ liệu và biến")
-//                .passScore(70)
-//                .build();
-//        quiz = quizRepository.save(quiz);
-//
-//        QuizQuestion q1 = QuizQuestion.builder()
+//                quizAttemptRepository.save(QuizAttempt.builder()//        QuizQuestion q1 = QuizQuestion.builder()
 //                .quiz(quiz)
 //                .questionText("Kiểu dữ liệu nào dùng để lưu số nguyên trong C?")
 //                .questionType("SINGLE")
 //                .points(1)
 //                .position(1)
+//                .explanation("int được dùng để khai báo biến kiểu số nguyên trong ngôn ngữ C.")
 //                .build();
 //        q1 = quizQuestionRepository.save(q1);
 //        persistAnswer(q1, "int", true);
@@ -754,6 +719,7 @@
 //                .questionType("SINGLE")
 //                .points(1)
 //                .position(2)
+//                .explanation("float được dùng để khai báo số thực đơn trong ngôn ngữ C.")
 //                .build();
 //        q2 = quizQuestionRepository.save(q2);
 //        persistAnswer(q2, "float", true);
@@ -776,6 +742,7 @@
 //                .questionType("SINGLE")
 //                .points(1)
 //                .position(1)
+//                .explanation("printf() là hàm chuẩn dùng để in chuỗi hoặc giá trị biến ra màn hình.")
 //                .build();
 //        q1 = quizQuestionRepository.save(q1);
 //        persistAnswer(q1, "printf", true);
@@ -789,6 +756,7 @@
 //                .questionType("SINGLE")
 //                .points(1)
 //                .position(2)
+//                .explanation("%d là specifier đại diện cho số nguyên có dấu (signed integer).")
 //                .build();
 //        q2 = quizQuestionRepository.save(q2);
 //        persistAnswer(q2, "Số nguyên", true);
@@ -826,6 +794,43 @@
 //                .published(true)
 //                .moderationStatus("APPROVED")
 //                .build());
+//    }
+//
+//    private void seedQuizWithTwoQuestions(Lesson lesson,
+//                                          String quizTitle,
+//                                          String q1Text,
+//                                          String q1Correct,
+//                                          String[] q1WrongAnswers,
+//                                          String q2Text,
+//                                          String q2Correct,
+//                                          String[] q2WrongAnswers) {
+//        Quiz quiz = quizRepository.save(Quiz.builder()
+//                .lesson(lesson)
+//                .title(quizTitle)
+//                .passScore(70)
+//                .build());
+//
+//        QuizQuestion q1 = quizQuestionRepository.save(QuizQuestion.builder()
+//                .quiz(quiz)
+//                .questionText(q1Text)
+//                .questionType("SINGLE")
+//                .points(1)
+//                .position(1)
+//                .explanation("Giải thích chi tiết cho câu hỏi: " + q1Text)
+//                .build());
+//        persistAnswer(q1, q1Correct, true);
+//        for (String wrongAnswer : q1WrongAnswers) {
+//            persistAnswer(q1, wrongAnswer, false);
+//        }
+//
+//        QuizQuestion q2 = quizQuestionRepository.save(QuizQuestion.builder()
+//                .quiz(quiz)
+//                .questionText(q2Text)
+//                .questionType("SINGLE")
+//                .points(1)
+//                .position(2)
+//                .explanation("Giải thích chi tiết cho câu hỏi: " + q2Text)
+//                .build());         .build());
 //    }
 //
 //    private void seedQuizWithTwoQuestions(Lesson lesson,
