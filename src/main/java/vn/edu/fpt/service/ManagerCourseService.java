@@ -70,10 +70,9 @@ public class ManagerCourseService {
                            (status == CourseStatus.REJECTED) ? LogAction.REJECT_COURSE : null;
                            
         if (action != null) {
-            String meta = "Tên khóa học: " + course.getTitle();
-            if (status == CourseStatus.REJECTED && rejectionReason != null) {
-                meta += " | Lý do từ chối: " + rejectionReason;
-            }
+            String meta = (status == CourseStatus.REJECTED && rejectionReason != null && !rejectionReason.isBlank()) 
+                          ? rejectionReason 
+                          : ((status == CourseStatus.PUBLISHED) ? "Khóa học đã được phê duyệt" : course.getTitle());
             systemLogService.log(currentUser, action, "COURSE", String.valueOf(course.getId()), meta);
         }
     }
