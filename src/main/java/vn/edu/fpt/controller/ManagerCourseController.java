@@ -19,6 +19,10 @@ import vn.edu.fpt.service.CourseService;
 import vn.edu.fpt.service.ManagerCourseService;
 import vn.edu.fpt.util.AppConstants;
 
+import vn.edu.fpt.entity.SystemLog;
+import vn.edu.fpt.repository.SystemLogRepository;
+import java.util.List;
+
 @Controller
 @RequestMapping("/manager/course")
 public class ManagerCourseController {
@@ -26,11 +30,16 @@ public class ManagerCourseController {
     private final ManagerCourseService managerCourseService;
     private final CourseService courseService;
     private final CategoryService categoryService;
+    private final SystemLogRepository systemLogRepository;
 
-    public ManagerCourseController(ManagerCourseService managerCourseService, CourseService courseService, CategoryService categoryService) {
+    public ManagerCourseController(ManagerCourseService managerCourseService, 
+                                   CourseService courseService, 
+                                   CategoryService categoryService,
+                                   SystemLogRepository systemLogRepository) {
         this.managerCourseService = managerCourseService;
         this.courseService = courseService;
         this.categoryService = categoryService;
+        this.systemLogRepository = systemLogRepository;
     }
 
     /**
@@ -75,7 +84,9 @@ public class ManagerCourseController {
     @GetMapping("/detail/{id}")
     public String detailCourse(@PathVariable Integer id, Model model) {
         CourseDto course = courseService.getCourseDetail(id);
+        List<SystemLog> courseLogs = systemLogRepository.findCourseLogs(String.valueOf(id));
         model.addAttribute("course", course);
+        model.addAttribute("courseLogs", courseLogs);
         return "manager/approval-course/course-detail";
     }
 

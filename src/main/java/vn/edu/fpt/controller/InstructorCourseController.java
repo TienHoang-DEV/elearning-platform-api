@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -35,19 +36,28 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import vn.edu.fpt.service.SystemLogService;
+import vn.edu.fpt.enums.LogAction;
+
 @Controller
 @RequestMapping("/instructor")
 public class InstructorCourseController {
-    private CategoryService categoryService;
-    private CourseService courseService;
-    private CourseSectionService courseSectionService;
-    private LessonService lessonService;
+    private final CategoryService categoryService;
+    private final CourseService courseService;
+    private final CourseSectionService courseSectionService;
+    private final LessonService lessonService;
+    private final SystemLogService systemLogService;
 
-    public InstructorCourseController(CategoryService categoryService, CourseService courseService, CourseSectionService courseSectionService, LessonService lessonService) {
+    public InstructorCourseController(CategoryService categoryService, 
+                                       CourseService courseService, 
+                                       CourseSectionService courseSectionService, 
+                                       LessonService lessonService,
+                                       SystemLogService systemLogService) {
         this.categoryService = categoryService;
         this.courseService = courseService;
         this.courseSectionService = courseSectionService;
         this.lessonService = lessonService;
+        this.systemLogService = systemLogService;
     }
 
 
@@ -208,6 +218,7 @@ public class InstructorCourseController {
 
     }
 
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'MANAGER')")
     @GetMapping("/{id}/view")
     public String viewCourse(@PathVariable("id") Integer courseId, Model model)
     {
@@ -287,6 +298,7 @@ public class InstructorCourseController {
     @PostMapping("/{id}/submit-review")
     public String submitReview(@PathVariable("id") Integer courseId,
                                @RequestParam(name = "acceptPolicy", defaultValue = "false") boolean acceptPolicy,
+                               @RequestParam(name = "resubmitNote", required = false) String resubmitNote,
                                RedirectAttributes redirectAttributes,
                                Model model) {
         User user = SecurityUtils.getCurrentUser();
@@ -295,6 +307,13 @@ public class InstructorCourseController {
             boolean isResubmit = course.getStatus() == CourseStatus.REJECTED || course.getStatus() == CourseStatus.RESUBMIT;
 
             courseService.submitCourseForApproval(courseId, user, acceptPolicy);
+
+            String logMeta = (resubmitNote != null && !resubmitNote.isBlank()) 
+                             ? resubmitNote 
+                             : (isResubmit ? "Giảng viên đã chỉnh sửa và gửi lại yêu cầu xét duyệt khóa học." : "Giảng viên đã gửi yêu cầu xét duyệt khóa học.");
+
+            systemLogService.log(user, isResubmit ? LogAction.RESUBMIT_COURSE : LogAction.CREATE_COURSE, "COURSE", String.valueOf(courseId), logMeta);
+
             redirectAttributes.addFlashAttribute("success", "Đã gửi yêu cầu xét duyệt khóa học thành công!");
             return "redirect:/instructor/courses?tab=" + (isResubmit ? "resubmit" : "pending");
         } catch (CourseValidationException e) {
