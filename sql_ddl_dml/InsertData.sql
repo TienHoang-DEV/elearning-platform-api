@@ -924,104 +924,88 @@ END
 -- =========================
 
 INSERT INTO quiz_questions
-(quiz_id, question_text, question_type, points, position)
+(quiz_id, question_text, question_type, points, position, explanation)
 VALUES
-(1, N'Java là ngôn ngữ lập trình thuộc loại nào?', 'SINGLE', 1, 1),
-
-(1, N'Từ khóa nào được sử dụng để kế thừa trong Java?', 'SINGLE', 1, 2),
-
-(1, N'Những kiểu dữ liệu nguyên thủy nào tồn tại trong Java?', 'MULTIPLE', 1, 3);
+(1, N'Java là ngôn ngữ lập trình thuộc loại nào?', 'SINGLE', 1, 1, N'Java là ngôn ngữ lập trình hướng đối tượng (OOP) phổ biến, chạy trên môi trường máy ảo JVM.'),
+(1, N'Từ khóa nào được sử dụng để kế thừa trong Java?', 'SINGLE', 1, 2, N'Từ khóa extends được sử dụng để một lớp kế thừa các thuộc tính và phương thức từ lớp cha.'),
+(1, N'Những kiểu dữ liệu nguyên thủy nào tồn tại trong Java?', 'MULTIPLE', 1, 3, N'Java có 8 kiểu dữ liệu nguyên thủy bao gồm byte, short, int, long, float, double, boolean, char. String là kiểu đối tượng.');
 
 -- =========================
 -- QUIZ 2 (Java)
 -- =========================
 
 INSERT INTO quiz_questions
-(quiz_id, question_text, question_type, points, position)
+(quiz_id, question_text, question_type, points, position, explanation)
 VALUES
-(2, N'OOP là viết tắt của cụm từ nào?', 'SINGLE', 1, 1),
-
-(2, N'Đặc tính nào KHÔNG thuộc OOP?', 'SINGLE', 1, 2),
-
-(2, N'Những tính chất nào thuộc OOP?', 'MULTIPLE', 1, 3);
+(2, N'OOP là viết tắt của cụm từ nào?', 'SINGLE', 1, 1, N'OOP là viết tắt của Object-Oriented Programming (Lập trình hướng đối tượng).'),
+(2, N'Đặc tính nào KHÔNG thuộc OOP?', 'SINGLE', 1, 2, N'Biên dịch động không phải là tính chất cốt lõi của OOP. 4 tính chất cơ bản là Đóng gói, Kế thừa, Đa hình và Trừu tượng.'),
+(2, N'Những tính chất nào thuộc OOP?', 'MULTIPLE', 1, 3, N'4 tính chất cốt lõi của lập trình hướng đối tượng gồm Đóng gói, Kế thừa, Đa hình và Trừu tượng.');
 
 -- =========================
 -- QUIZ 3 (React)
 -- =========================
 
 INSERT INTO quiz_questions
-(quiz_id, question_text, question_type, points, position)
+(quiz_id, question_text, question_type, points, position, explanation)
 VALUES
-(3, N'React được phát triển bởi công ty nào?', 'SINGLE', 1, 1),
-
-(3, N'Hook nào dùng để quản lý state?', 'SINGLE', 1, 2),
-
-(3, N'Những Hook nào là Hook có sẵn của React?', 'MULTIPLE', 1, 3);
+(3, N'React được phát triển bởi công ty nào?', 'SINGLE', 1, 1, N'React là thư viện JavaScript mã nguồn mở được phát triển và duy trì bởi Meta (Facebook).'),
+(3, N'Hook nào dùng để quản lý state?', 'SINGLE', 1, 2, N'useState là Hook cơ bản trong React dùng để khởi tạo và cập nhật state của Functional Component.'),
+(3, N'Những Hook nào là Hook có sẵn của React?', 'MULTIPLE', 1, 3, N'useState, useEffect và useMemo là các React Hook chuẩn tích hợp sẵn.');
 
 -- =========================
 -- QUIZ 4 (React)
 -- =========================
 
 INSERT INTO quiz_questions
-(quiz_id, question_text, question_type, points, position)
+(quiz_id, question_text, question_type, points, position, explanation)
 VALUES
-(4, N'JSX là gì?', 'SINGLE', 1, 1),
-
-(4, N'Virtual DOM dùng để làm gì?', 'SINGLE', 1, 2),
-
-(4, N'Các lợi ích của React là gì?', 'MULTIPLE', 1, 3);
+(4, N'JSX là gì?', 'SINGLE', 1, 1, N'JSX (JavaScript XML) cho phép người dùng viết cú pháp HTML trực tiếp bên trong file JavaScript.'),
+(4, N'Virtual DOM dùng để làm gì?', 'SINGLE', 1, 2, N'Virtual DOM giúp React so sánh sự thay đổi và chỉ cập nhật những node cần thiết lên Real DOM để tối ưu hiệu năng.'),
+(4, N'Các lợi ích của React là gì?', 'MULTIPLE', 1, 3, N'React cho phép tái sử dụng Component, tối ưu hiệu năng nhờ Virtual DOM và có hệ sinh thái rộng lớn.');
 
 -- =========================
 -- QUIZ 5 (NodeJS)
 -- =========================
 
 INSERT INTO quiz_questions
-(quiz_id, question_text, question_type, points, position)
+(quiz_id, question_text, question_type, points, position, explanation)
 VALUES
-(5, N'Node.js chạy trên engine nào?', 'SINGLE', 1, 1),
-
-(5, N'Framework phổ biến nhất của Node.js là gì?', 'SINGLE', 1, 2),
-
-(5, N'Node.js thường được sử dụng để làm gì?', 'MULTIPLE', 1, 3);
+(5, N'Node.js chạy trên engine nào?', 'SINGLE', 1, 1, N'Node.js thực thi mã JavaScript bằng V8 Engine - bộ công cụ thực thi mã nhanh của Google Chrome.'),
+(5, N'Framework phổ biến nhất của Node.js là gì?', 'SINGLE', 1, 2, N'Express.js là web framework tối giản, linh hoạt và được dùng nhiều nhất cho Node.js.'),
+(5, N'Node.js thường được sử dụng để làm gì?', 'MULTIPLE', 1, 3, N'Node.js tối ưu cho việc xây dựng REST API, ứng dụng thời gian thực (Realtime) và Backend services.');
 
 -- =========================
 -- QUIZ 6 (Python)
 -- =========================
 
 INSERT INTO quiz_questions
-(quiz_id, question_text, question_type, points, position)
+(quiz_id, question_text, question_type, points, position, explanation)
 VALUES
-(6, N'Python là ngôn ngữ thông dịch hay biên dịch?', 'SINGLE', 1, 1),
-
-(6, N'Hàm nào dùng để xuất dữ liệu ra màn hình?', 'SINGLE', 1, 2),
-
-(6, N'Những kiểu dữ liệu nào tồn tại trong Python?', 'MULTIPLE', 1, 3);
+(6, N'Python là ngôn ngữ thông dịch hay biên dịch?', 'SINGLE', 1, 1, N'Python là ngôn ngữ thông dịch (Interpreted), code được thực thi từng dòng thông qua trình thông dịch Python.'),
+(6, N'Hàm nào dùng để xuất dữ liệu ra màn hình?', 'SINGLE', 1, 2, N'Hàm print() được dùng mặc định trong Python để xuất thông tin ra màn hình.'),
+(6, N'Những kiểu dữ liệu nào tồn tại trong Python?', 'MULTIPLE', 1, 3, N'Python cung cấp sẵn các kiểu dữ liệu phong phú như int, str, list, dict, tuple, set, bool.');
 
 -- =========================
 -- QUIZ 7 (Swift)
 -- =========================
 
 INSERT INTO quiz_questions
-(quiz_id, question_text, question_type, points, position)
+(quiz_id, question_text, question_type, points, position, explanation)
 VALUES
-(7, N'Ngôn ngữ Swift được phát triển bởi công ty nào?', 'SINGLE', 1, 1),
-
-(7, N'Swift chủ yếu dùng để phát triển nền tảng nào?', 'SINGLE', 1, 2),
-
-(7, N'Những framework nào thuộc hệ sinh thái Apple?', 'MULTIPLE', 1, 3);
+(7, N'Ngôn ngữ Swift được phát triển bởi công ty nào?', 'SINGLE', 1, 1, N'Swift do Apple nghiên cứu và phát triển nhằm thay thế cho Objective-C.'),
+(7, N'Swift chủ yếu dùng để phát triển nền tảng nào?', 'SINGLE', 1, 2, N'Swift được sử dụng làm ngôn ngữ chính để lập trình ứng dụng trên hệ sinh thái Apple (iOS, macOS, watchOS, tvOS).'),
+(7, N'Những framework nào thuộc hệ sinh thái Apple?', 'MULTIPLE', 1, 3, N'SwiftUI, UIKit và Combine là các framework chuẩn do Apple cung cấp cho lập trình viên.');
 
 -- =========================
 -- QUIZ 8 (Spring Boot)
 -- =========================
 
 INSERT INTO quiz_questions
-(quiz_id, question_text, question_type, points, position)
+(quiz_id, question_text, question_type, points, position, explanation)
 VALUES
-(8, N'Spring Boot thuộc hệ sinh thái nào?', 'SINGLE', 1, 1),
-
-(8, N'Annotation nào dùng để đánh dấu Controller REST?', 'SINGLE', 1, 2),
-
-(8, N'Những module nào thuộc Spring Framework?', 'MULTIPLE', 1, 3);
+(8, N'Spring Boot thuộc hệ sinh thái nào?', 'SINGLE', 1, 1, N'Spring Boot là framework thuộc hệ sinh thái Java Spring Framework rộng lớn.'),
+(8, N'Annotation nào dùng để đánh dấu Controller REST?', 'SINGLE', 1, 2, N'@RestController là sự kết hợp giữa @Controller và @ResponseBody, dùng tạo RESTful Web Services trong Spring.'),
+(8, N'Những module nào thuộc Spring Framework?', 'MULTIPLE', 1, 3, N'Spring MVC, Spring Security và Spring Data JPA là các thành phần phổ biến hàng đầu của Spring Framework.');
 
 -- =========================
 -- QUESTION 1
@@ -1253,13 +1237,14 @@ BEGIN
         WHERE q.id = @currentQuizId;
 
         -- Câu hỏi 1 (SINGLE choice)
-        INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position)
+        INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position, explanation)
         VALUES (
             @currentQuizId, 
             N'Câu hỏi trắc nghiệm số 1 của bài học "' + @lessonTitle + N'" thuộc "' + @sectionTitle + N'" của khóa học "' + @courseTitle + N'". Đâu là khẳng định đúng?', 
             'SINGLE', 
             1, 
-            1
+            1,
+            N'Giải thích chi tiết cho câu hỏi 1 của bài học "' + @lessonTitle + N'": Đáp án đúng phản ánh chính xác nội dung cốt lõi và lý thuyết được trình bày trong bài học.'
         );
         SET @insertedQuestionId = (SELECT MAX(id) FROM quiz_questions);
 
@@ -1271,13 +1256,14 @@ BEGIN
         (@insertedQuestionId, N'Tất cả các phương án trên đều sai', 0);
 
         -- Câu hỏi 2 (MULTIPLE choice)
-        INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position)
+        INSERT INTO quiz_questions (quiz_id, question_text, question_type, points, position, explanation)
         VALUES (
             @currentQuizId, 
             N'Câu hỏi trắc nghiệm số 2 của bài học "' + @lessonTitle + N'" thuộc "' + @sectionTitle + N'" của khóa học "' + @courseTitle + N'". Chọn các đáp án đúng:', 
             'MULTIPLE', 
             1, 
-            2
+            2,
+            N'Giải thích chi tiết cho câu hỏi 2 của bài học "' + @lessonTitle + N'": Các đáp án đúng mô tả chính xác các đặc tính cơ bản và phương pháp thực hành được khuyến nghị.'
         );
         SET @insertedQuestionId = (SELECT MAX(id) FROM quiz_questions);
 

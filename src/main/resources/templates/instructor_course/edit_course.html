@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="vi"  xmlns:th="http://www.thymeleaf.org">
 <head>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-background.png}">
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Learning Hub - Chỉnh Sửa Khóa Học</title>
@@ -60,10 +61,10 @@
 
     <div th:if="${submitReview == null}" class="page-header">
         <h1>Chỉnh Sửa Khóa Học</h1>
-        <a th:href="@{/instructorcourse/courses}" class="btn btn-outline">← Quay lại danh sách</a>
+        <a th:href="@{/instructor/courses}" class="btn btn-outline">← Quay lại danh sách</a>
     </div>
 
-    <form th:if="${submitReview == null}" th:action="@{/instructorcourse/{id}/edit(id=*{id})}" method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${CourseRequest}">
+    <form th:if="${submitReview == null}" th:action="@{/instructor/{id}/edit(id=*{id})}" method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${CourseRequest}">
         <div class="card">
             <div class="card-title">Thông Tin Chung</div>
 
@@ -95,8 +96,8 @@
                     <label>Trình Độ Khóa Học</label>
                     <select th:field="*{level}" class="form-control">
                         <option value="">Chọn trình độ</option>
-                        <option th:each="l : ${courselevels}" th:value="${l}"
-                                th:text="${l == 'BEGINNER' ? 'Người mới bắt đầu' : (l == 'INTERMEDIATE' ? 'Trung cấp' : 'Nâng cao')}"></option>
+                        <option th:each="l : ${courselevels}" th:value="${l.name()}"
+                                th:text="${l.name() == 'BEGINNER' ? 'Người mới bắt đầu' : (l.name() == 'INTERMEDIATE' ? 'Trung cấp' : 'Nâng cao')}"></option>
                     </select>
                 </div>
                 <div class="form-group">

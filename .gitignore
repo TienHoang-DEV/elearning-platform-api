@@ -63,5 +63,6 @@ jacoco.exec
 
 # Ignore docs folder
 docs/
+/outputs/
 
 

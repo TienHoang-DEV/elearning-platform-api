@@ -86,10 +86,7 @@ public class CustomOAuth2UserService
 
             user.addUserRole(role);
 
-            userRepository.save(user);
-
-            user.setPhone("NONE_" + user.getId());
-            //System.out.println(user.getId());
+            user.setPhone(null);
 
             userRepository.save(user);
 

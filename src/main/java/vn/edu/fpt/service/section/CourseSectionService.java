@@ -2,9 +2,13 @@ package vn.edu.fpt.service.section;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.CourseSection;
+import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.QuizStatus;
+import vn.edu.fpt.exception.CourseSectionValidation;
 import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
@@ -47,11 +51,15 @@ public class CourseSectionService {
     }
 
     @Transactional
-    public void deleteSection(Integer sectionId) {
+    public void deleteSection(Integer sectionId, User user) {
 
         CourseSection deleted = repository.findById(sectionId).orElseThrow();
+        Course course = deleted.getCourse();
+        if (user == null || course == null || course.getInstructor() == null || !course.getInstructor().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Bạn không có quyền xóa chương này.");
+        }
         Integer deletedPos = deleted.getPosition();
-        Integer courseId = deleted.getCourse().getId();
+        Integer courseId = course.getId();
 
         repository.delete(deleted);
 
@@ -77,7 +85,12 @@ public class CourseSectionService {
 
         public void updateCourseSection(Integer sectionId, CourseSectionDto courseSectionDto){
            CourseSection courseSection = repository.findById(sectionId).orElseThrow();
-           courseSection.setTitle(courseSectionDto.getTitle());
+           String normalizedTitle = courseSectionDto.getTitle() != null ? courseSectionDto.getTitle().trim() : "";
+           // Section validation: khong cho trung ten section trong cung course khi edit.
+           if (repository.existsDuplicateTitleInCourse(courseSection.getCourse().getId(), normalizedTitle, sectionId)) {
+               throw new CourseSectionValidation("Tên chương này đã tồn tại trong khóa học.", "title");
+           }
+           courseSection.setTitle(normalizedTitle);
            courseSection.setUpdatedAt(LocalDateTime.now());
            repository.save(courseSection);
         }
@@ -120,9 +133,15 @@ public class CourseSectionService {
             throw new CourseValidationException("courseRequets","Khoá học này không tồn tại");
         }
 
+        String normalizedTitle = courseSectionDto.getTitle() != null ? courseSectionDto.getTitle().trim() : "";
+        // Section validation: khong cho trung ten section trong cung course khi tao moi.
+        if (repository.existsDuplicateTitleInCourse(course.getId(), normalizedTitle, null)) {
+            throw new CourseSectionValidation("Tên chương này đã tồn tại trong khóa học.", "title");
+        }
+
         Integer po = repository.FindMaxPositionByCourseId(course.getId());
         CourseSection courseSection = new CourseSection();
-        courseSection.setTitle(courseSectionDto.getTitle());
+        courseSection.setTitle(normalizedTitle);
         courseSection.setPosition(po + 1);
         courseSection.setCourse(course);
         courseSection.setCreatedAt(LocalDateTime.now());
@@ -167,7 +186,10 @@ public class CourseSectionService {
                         lessonDto.setDurationSeconds(l.getDurationSeconds());
                         lessonDto.setIsFreePreview(l.getIsFreePreview());
                         lessonDto.setQuizzes(
-                                l.getQuizzes().stream().map(q -> LessonQuizDto.builder()
+                                l.getQuizzes().stream()
+                                        // Step curriculum preview: chi hien thi quiz da publish cho instructor xem truoc.
+                                        .filter(q -> QuizStatus.PUBLISHED.name().equalsIgnoreCase(q.getStatus()))
+                                        .map(q -> LessonQuizDto.builder()
                                         .id(q.getId())
                                         .title(q.getTitle())
                                         .status(q.getStatus())

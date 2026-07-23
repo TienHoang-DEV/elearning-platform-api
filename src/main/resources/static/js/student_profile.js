@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
             const noteId = btn.getAttribute('data-note-id');
             fetch(`/api/lesson-note/remove?noteId=${noteId}`, {
-                method: 'GET'
+                method: 'POST'
             })
             .then(response => {
                 if (response.ok) {

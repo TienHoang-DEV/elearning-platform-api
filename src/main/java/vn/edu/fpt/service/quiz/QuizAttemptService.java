@@ -4,24 +4,108 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
-import vn.edu.fpt.entity.QuizAttempt;
+import vn.edu.fpt.entity.*;
+import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
+import vn.edu.fpt.repository.QuizAttemptAnswerRepository;
 import vn.edu.fpt.repository.QuizAttemptRepository;
+import vn.edu.fpt.repository.QuizRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @Transactional
 public class QuizAttemptService {
     private final QuizAttemptRepository repository;
+    private final QuizRepository quizRepository;
+    private final QuizAttemptAnswerRepository quizAttemptAnswerRepository;
     private final DtoMapper dtoMapper;
 
-    public QuizAttemptService(QuizAttemptRepository quizAttemptRepository, DtoMapper dtoMapper)
+    public QuizAttemptService(QuizAttemptRepository quizAttemptRepository, QuizRepository quizRepository, QuizAttemptAnswerRepository quizAttemptAnswerRepository, DtoMapper dtoMapper)
     {
         this.repository = quizAttemptRepository;
+        this.quizRepository = quizRepository;
+        this.quizAttemptAnswerRepository = quizAttemptAnswerRepository;
         this.dtoMapper = dtoMapper;
+    }
+
+    public QuizAttempt submitQuiz(Integer quizId, User user, Map<String, String[]> parameterMap) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new ResourceNotFoundException("Không thấy Quiz"));
+
+        int totalPoints = 0;
+        int userPoints = 0;
+        List<QuizAttemptAnswer> attemptAnswers = new ArrayList<>();
+
+        QuizAttempt attempt = QuizAttempt.builder()
+                .user(user)
+                .quiz(quiz)
+                .score(BigDecimal.ZERO)
+                .passed(false)
+                .startedAt(LocalDateTime.now().minusMinutes(5))
+                .submittedAt(LocalDateTime.now())
+                .build();
+
+        QuizAttempt savedAttempt = repository.save(attempt);
+
+        for (QuizQuestion question : quiz.getQuestions()) {
+            int qPoints = question.getPoints() != null ? question.getPoints() : 1;
+            totalPoints += qPoints;
+
+            List<Integer> correctAnswers = new ArrayList<>();
+            for (QuizAnswer answer : question.getAnswers()) {
+                if (Boolean.TRUE.equals(answer.getCorrect())) {
+                    correctAnswers.add(answer.getId());
+                }
+            }
+            Collections.sort(correctAnswers);
+
+            String[] paramValues = parameterMap.get("quiz-" + quizId + "-question-" + question.getId());
+            List<Integer> userSelected = new ArrayList<>();
+            if (paramValues != null) {
+                for (String val : paramValues) {
+                    try {
+                        Integer ansId = Integer.parseInt(val);
+                        userSelected.add(ansId);
+
+                        QuizAnswer selectedAns = question.getAnswers().stream()
+                                .filter(a -> a.getId().equals(ansId))
+                                .findFirst().orElse(null);
+
+                        boolean isOptionCorrect = correctAnswers.contains(ansId);
+
+                        QuizAttemptAnswer qaa = QuizAttemptAnswer.builder()
+                                .attempt(savedAttempt)
+                                .question(question)
+                                .selectedAnswer(selectedAns)
+                                .isCorrect(isOptionCorrect)
+                                .build();
+                        attemptAnswers.add(qaa);
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+            Collections.sort(userSelected);
+
+            boolean isCorrect = userSelected.equals(correctAnswers);
+            if (isCorrect) {
+                userPoints += qPoints;
+            }
+        }
+
+        double scorePercentage = totalPoints > 0 ? ((double) userPoints * 100.0 / totalPoints) : 0.0;
+        boolean passed = scorePercentage >= quiz.getPassScorePercent();
+
+        savedAttempt.setScore(BigDecimal.valueOf(scorePercentage));
+        savedAttempt.setPassed(passed);
+
+        if (!attemptAnswers.isEmpty()) {
+            quizAttemptAnswerRepository.saveAll(attemptAnswers);
+            savedAttempt.setAttemptAnswers(attemptAnswers);
+        }
+
+        return repository.save(savedAttempt);
     }
 
     public List<QuizAttempt> findAll() {

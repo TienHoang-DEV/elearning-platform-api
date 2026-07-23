@@ -2,6 +2,7 @@
 <html lang="vi">
 
 <head>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-background.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kết Quả Tìm Kiếm "Guitar" - Learning Hub</title>
@@ -268,7 +269,7 @@
                                         onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
                                     <span
                                         class="position-absolute bottom-0 end-0 bg-dark bg-opacity-75 text-white fs-8 px-2.5 py-1 rounded-pill m-3 fw-medium"
-                                        th:text="${course.getTotalLessonsCount() * 10} + ' phút'">31 phút</span>
+                                        th:text="${course.getDurationMinutes()} + ' phút'">31 phút</span>
                                 </a>
 
                                 <!-- Right: Info -->
@@ -300,7 +301,7 @@
                                                 th:text="'(' + ${course.ratingCount} + ' đánh giá)'">(2 đánh giá)</span>
                                         </div>
 
-                                        <a th:href="@{/instructor/{id}/profile(id=${course.instructor.id})}" 
+                                        <a th:href="@{/instructor-profile/{id}(id=${course.instructor.id})}"
                                             class="instructor-name fw-bold fs-8 text-primary d-block mb-3 text-decoration-none text-primary"
                                             th:text="${course.instructor.lastName + ' ' + course.instructor.firstName}">NGUYỄN
                                             CÔNG THÁI SƠN</a>
@@ -311,7 +312,7 @@
                                         <!-- Meta Attributes -->
                                         <div class="d-flex align-items-center gap-3 text-muted fs-8">
                                             <span class="d-flex align-items-center gap-1"><i data-lucide="clock"
-                                                    class="course-meta-icon"></i> 31 phút</span>
+                                                    class="course-meta-icon"></i> <span th:text="${course.getDurationMinutes()} + ' phút'">31 phút</span></span>
                                             <span class="d-flex align-items-center gap-1"><i data-lucide="zap"
                                                     class="course-meta-icon"></i> <span th:text="${course.level}">Cơ
                                                      bản</span></span>

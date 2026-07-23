@@ -11,7 +11,7 @@
                 <h3>Thêm Chương Mới</h3>
                 <button class="modal-close" data-close-modal="modal-add-section">✕</button>
             </div>
-            <form th:action="@{/instructorcourse/{id}/sections(id=${courseId})}" method="POST" th:object="${section}">
+            <form th:action="@{/instructor/{id}/sections(id=${courseId})}" method="POST" th:object="${section}">
                 <input type="hidden" name="source" th:value="${source}">
                 <div class="modal-body">
                     <div class="form-group">
@@ -33,18 +33,19 @@
         <div class="modal">
             <div class="modal-header">
                 <h3>Chỉnh Sửa Chương</h3>
+                <button class="modal-close" data-close-modal="modal-edit-section">x</button>
             </div>
             <form id="editSectionForm" method="POST" th:object="${section}">
-                <input type="hidden" name="source" value="create">
+                <input type="hidden" name="source" th:value="${source}">
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Tên Chương <span class="required">*</span></label>
-                        <input type="text" th:field="*{title}" class="form-control"
+                        <input type="text" th:field="*{title}" id="editSectionTitle" class="form-control"
                                placeholder="VD: Giới thiệu về guitar điện" required/>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" data-close-modal="modal-add-section">Hủy</button>
+                    <button type="button" class="btn btn-outline" data-close-modal="modal-edit-section">Hủy</button>
                     <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
                 </div>
             </form>
@@ -61,11 +62,11 @@
             </div>
 
             <form
-                  method="POST" enctype="multipart/form-data" id="addLessonForm" th:object="${lesson}">
+                  method="POST" enctype="multipart/form-data" id="addLessonForm" th:object="${lesson}" data-lesson-upload-form>
                 <input type="hidden" name="sectionId" id="addLessonSectionId"/>
                 <input type="hidden" name="courseId" id="addLessonCourseId" th:value="${courseId}"/>
-<!--                <input type="hidden" name="source" value="create">-->
-
+                <!-- Direct video upload: JS gan blobName vao day sau khi upload thang len Azure. -->
+                <input type="hidden" name="videoBlobName" id="videoBlobNameInput"/>
                 <div class="modal-body">
                     <div class="form-group" style="margin-bottom:16px;">
                         <label>Tên Bài Giảng <span class="required">*</span></label>
@@ -107,7 +108,8 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" data-close-modal="modal-add-lesson">Hủy</button>
-                    <button type="submit" class="btn btn-primary">Lưu Bài Giảng</button>
+                    <!-- Lesson video upload: disable khi submit de tranh double-click tao 2 lesson. -->
+                    <button type="submit" class="btn btn-primary" data-loading-text="Đang lưu video...">Lưu Bài Giảng</button>
                 </div>
             </form>
         </div>
@@ -124,13 +126,16 @@
             <form id="editLessonForm"
                   method="POST"
                   enctype="multipart/form-data"
-                  th:object="${lesson}">
+                  th:object="${lesson}"
+                  data-lesson-upload-form>
 
 
                 <!-- Hidden Fields -->
                 <input type="hidden" name="courseId" id="editCourseid"/>
                 <input type="hidden" name="sectionId" id="editSectionId"/>
                 <input type="hidden" name="lessonId" id="editLessonId"/>
+                <!-- Direct video upload: JS gan blobName moi vao day neu instructor chon video thay the. -->
+                <input type="hidden" name="videoBlobName" id="editVideoBlobNameInput"/>
 <!--                <input type="hidden" name="source" value="create">-->
 
                 <div class="modal-body">
@@ -186,7 +191,8 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" data-close-modal="modal-edit-lesson">Hủy</button>
-                    <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
+                    <!-- Lesson video upload: disable khi submit de tranh double-click tao 2 lesson. -->
+                    <button type="submit" class="btn btn-primary" data-loading-text="Đang lưu video...">Lưu Thay Đổi</button>
                 </div>
             </form>
         </div>
@@ -199,14 +205,14 @@
                 <h3>Thêm Tài Liệu</h3>
                 <button class="modal-close" data-close-modal="modal-add-material">✕</button>
             </div>
-            <!-- TODO: xác nhận đúng route backend thật để tạo material. form.action được set động trong openAddMaterialModal() -->
             <form id="addMaterialForm" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="courseId" id="addMaterialCourseId">
                 <input type="hidden" name="lessonId" id="addMaterialLessonId" value=""/>
                 <div class="modal-body">
                     <div class="form-group">
                         <label style="display:block; font-size:13px; font-weight:500; margin-bottom:6px;">Chọn file <span class="required">*</span></label>
-                        <input type="file" name="materialFiles" id="addMaterialFile" class="form-control" multiple required>
+                        <input type="file" name="materialFiles" id="addMaterialFile" class="form-control"
+                               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple required>
                         <div id="addMaterialPreview"
                              style="margin-top:8px;"></div>
                     </div>

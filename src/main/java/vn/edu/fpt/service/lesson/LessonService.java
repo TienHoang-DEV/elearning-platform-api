@@ -1,6 +1,7 @@
 package vn.edu.fpt.service.lesson;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,7 +91,7 @@ public class LessonService {
         return repository.FindMaxPositionByCourseSectionId(sectionId);
     }
 
-    public Lesson saveLesson(Integer sectiondId, LessonDto lessonDto, MultipartFile file){
+    public Lesson saveLesson(Integer sectiondId, LessonDto lessonDto, MultipartFile file, String videoBlobName){
         boolean exist = courseSectionService.existsById(sectiondId);
         if(!exist){
             throw new RuntimeException("Tiêu đề khoá học không tìm thấy với id: " + sectiondId);
@@ -100,18 +101,32 @@ public class LessonService {
             throw new RuntimeException("Dữ liệu bài học không tồn tại");
         }
 
-        if(repository.existsByTitleAndCourseSection_Id(lessonDto.getTitle(), sectiondId)){
+        String videoUrl;
+        if(videoBlobName != null && !videoBlobName.isBlank()){
+            videoUrl = videoBlobName;
+        }else{
+            if(file == null || file.isEmpty()){
+                throw new RuntimeException("Video bài học không được để trông");
+            }
+
+            videoUrl = azureBlobService.saveFile(file, AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS);
+        }
+
+        String normalizedTitle = lessonDto.getTitle() != null ? lessonDto.getTitle().trim() : "";
+
+        // Lesson validation: khong cho trung ten lesson trong cung section khi tao moi.
+        if(repository.existsDuplicateTitleInSection(sectiondId, normalizedTitle, null)){
             throw new RuntimeException("Tiêu đề bài này đã được thiết lập");
         }
 
-        if(lessonDto.getTitle() == null || lessonDto.getTitle().isEmpty()){
+        if(normalizedTitle.isEmpty()){
             throw new RuntimeException("Tiêu đề bài học được để trống");
         }
-        if(lessonDto.getTitle().length() > 255){
+        if(normalizedTitle.length() > 255){
             throw new RuntimeException("Tiêu đề bài học đã dài quá mức cho phép");
         }
 
-        if( file == null || file.isEmpty()){
+        if((videoBlobName == null || videoBlobName.isBlank()) && (file == null || file.isEmpty())){
             throw new RuntimeException("Video bài học không được để trống");
         }
 
@@ -121,10 +136,9 @@ public class LessonService {
 
         Integer po = repository.findMaxPositionLesson(sectiondId);  
 
-        String video_url = azureBlobService.saveFile(file, AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS);
         Lesson l = new Lesson();
-        l.setTitle(lessonDto.getTitle());
-        l.setVideoUrl(video_url);
+        l.setTitle(normalizedTitle);
+        l.setVideoUrl(videoUrl);
         l.setPosition(po + 1);
         l.setDurationSeconds(lessonDto.getDurationSeconds());
         l.setCreatedAt(LocalDateTime.now());
@@ -168,8 +182,18 @@ public class LessonService {
 
     public String findLessonUrl(Integer lessonId) {
         try {
-            Lesson lesson = this.findById(lessonId).orElse(null);
-            if (lesson == null || lesson.getVideoUrl() == null || lesson.getVideoUrl().trim().isEmpty()) {
+            User user = SecurityUtils.getCurrentUser();
+            if (user == null) {
+                return null;
+            }
+            Lesson lesson = findById(lessonId).orElse(null);
+            if (lesson == null) {
+                return null;
+            }
+            if (!hasAccessToLesson(user, lesson)) {
+                return null;
+            }
+            if (lesson.getVideoUrl() == null || lesson.getVideoUrl().trim().isEmpty()) {
                 return "https://www.w3schools.com/html/mov_bbb.mp4";
             }
             return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
@@ -215,8 +239,7 @@ public class LessonService {
         }
     }
 
-    public Lesson updateLesson(Integer lessonId, LessonDto lessonDto, MultipartFile videoFile) {
-        // Validate ID
+    public Lesson updateLesson(Integer lessonId, LessonDto lessonDto, MultipartFile videoFile, String blobName) {
         if (lessonId == null || lessonId <= 0) {
             throw new RuntimeException("ID bài giảng không hợp lệ");
         }
@@ -224,17 +247,17 @@ public class LessonService {
         Lesson lesson = repository.findById(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bài giảng không tìm thấy với id: " + lessonId));
 
-        // Validate title
-        if (lessonDto.getTitle() == null || lessonDto.getTitle().trim().isEmpty()) {
+        String normalizedTitle = lessonDto.getTitle() != null ? lessonDto.getTitle().trim() : "";
+        if (normalizedTitle.isEmpty()) {
             throw new RuntimeException("Tiêu đề bài học không được để trống");
         }
-        if (lessonDto.getTitle().length() > 255) {
+        if (normalizedTitle.length() > 255) {
             throw new RuntimeException("Tiêu đề bài học quá dài");
         }
 
-        boolean titleExists = repository.existsByTitleAndCourseSection_IdAndIdNot(
-                lessonDto.getTitle(),
+        boolean titleExists = repository.existsDuplicateTitleInSection(
                 lesson.getCourseSection().getId(),
+                normalizedTitle,
                 lessonId
         );
         if (titleExists) {
@@ -242,11 +265,23 @@ public class LessonService {
         }
 
 
-        lesson.setTitle(lessonDto.getTitle().trim());
+        lesson.setTitle(normalizedTitle);
 
         lesson.setIsFreePreview(lessonDto.getIsFreePreview() != null ? lessonDto.getIsFreePreview() : false);
 
-        if (videoFile != null && !videoFile.isEmpty()) {
+        if (blobName != null && !blobName.isBlank()) {
+            if (lesson.getVideoUrl() != null && !lesson.getVideoUrl().isEmpty()) {
+                try {
+                    azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
+                } catch (Exception e) {
+                    System.err.println("âš ï¸ Warning: KhÃ´ng thá»ƒ xÃ³a video cÅ©: " + e.getMessage());
+                }
+            }
+            lesson.setVideoUrl(blobName);
+            if (lessonDto.getDurationSeconds() != null && lessonDto.getDurationSeconds() > 0) {
+                lesson.setDurationSeconds(lessonDto.getDurationSeconds());
+            }
+        } else if (videoFile != null && !videoFile.isEmpty()) {
             if (lesson.getVideoUrl() != null && !lesson.getVideoUrl().isEmpty()) {
                 try {
                     azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
@@ -275,7 +310,7 @@ public class LessonService {
     }
 
 
-    public void deleteLesson(Integer lessonId) {
+    public void deleteLesson(Integer lessonId, User user) {
         if (lessonId == null || lessonId <= 0) {
             throw new RuntimeException("ID bài giảng không hợp lệ");
         }
@@ -285,6 +320,12 @@ public class LessonService {
             throw new ResourceNotFoundException("Bài giảng không tìm thấy với id: " + lessonId);
         }
 
+
+        Course course = lesson.getCourseSection() != null ? lesson.getCourseSection().getCourse() : null;
+        // Delete lesson ownership: chi instructor so huu course moi duoc xoa lesson trong course do.
+        if (user == null || course == null || course.getInstructor() == null || !course.getInstructor().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Bạn không có quyền xóa bài giảng này.");
+        }
 
         if (lesson.getVideoUrl() != null && !lesson.getVideoUrl().isEmpty()) {
             try {

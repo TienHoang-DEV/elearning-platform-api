@@ -1,10 +1,10 @@
-package vn.edu.fpt.service.payment;
+package vn.edu.fpt.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import vn.edu.fpt.util.AppConstants;
+import vn.edu.fpt.service.payment.PaymentSyncService;
 
 @Slf4j
 @Component
@@ -19,7 +19,6 @@ public class PaymentScheduledTasks {
             log.debug("[SCHEDULED TASK] Bắt đầu expirePaymentsByTimeout");
             int expiredCount = paymentSyncService.expirePaymentsByTimeout();
             log.debug("[SCHEDULED TASK] Hoàn tất expirePaymentsByTimeout: {} giao dịch đã expire", expiredCount);
-            
         } catch (Exception e) {
             log.error("[SCHEDULED TASK] Lỗi trong expirePaymentsByTimeout: {}", e.getMessage(), e);
         }
@@ -30,9 +29,7 @@ public class PaymentScheduledTasks {
         try {
             log.debug("[SCHEDULED TASK] Bắt đầu syncPendingPaymentsFromPayOs");
             int syncedCount = paymentSyncService.syncPendingPaymentsFromPayOs();
-            
             log.debug("[SCHEDULED TASK] Hoàn tất syncPendingPaymentsFromPayOs: {} giao dịch đã sync", syncedCount);
-            
         } catch (Exception e) {
             log.error("[SCHEDULED TASK] Lỗi trong syncPendingPaymentsFromPayOs: {}", e.getMessage(), e);
         }
@@ -43,9 +40,7 @@ public class PaymentScheduledTasks {
         try {
             log.debug("[SCHEDULED TASK] Bắt đầu retryFailedWebhooks");
             int retriedCount = paymentSyncService.retryFailedWebhooks();
-            
             log.debug("[SCHEDULED TASK] Hoàn tất retryFailedWebhooks: {} giao dịch đã retry", retriedCount);
-            
         } catch (Exception e) {
             log.error("[SCHEDULED TASK] Lỗi trong retryFailedWebhooks: {}", e.getMessage(), e);
         }

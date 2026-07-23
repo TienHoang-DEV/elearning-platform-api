@@ -62,6 +62,11 @@ public class Course extends BaseEntity {
     @Column(name = "rejection_reason", columnDefinition = "NVARCHAR(1000)")
     private String rejectionReason;
 
+    @Version
+    @Column(name = "version", nullable = false, columnDefinition = "int default 0")
+    @Builder.Default
+    private Integer version = 0;
+
     @Builder.Default
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("position ASC")
@@ -170,6 +175,23 @@ public class Course extends BaseEntity {
             }
         }
         return count;
+    }
+
+    public Long getTotalDurationSeconds() {
+        if (sections == null) {
+            return 0L;
+        }
+        long totalSeconds = 0L;
+        for (CourseSection sec : sections) {
+            if (sec.getLessons() != null) {
+                for (Lesson lesson : sec.getLessons()) {
+                    if (lesson.getDurationSeconds() != null) {
+                        totalSeconds += lesson.getDurationSeconds();
+                    }
+                }
+            }
+        }
+        return totalSeconds;
     }
 
     public String getFirstLessonVideoUrl() {

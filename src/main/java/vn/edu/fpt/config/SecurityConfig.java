@@ -1,10 +1,12 @@
 package vn.edu.fpt.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +21,9 @@ import vn.edu.fpt.service.CustomUserDetailsService;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${app.security.remember-me.key}")
+    private String rememberMeKey;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -85,17 +90,20 @@ public class SecurityConfig {
                                 "/images/**", "/oauth2/**",
                                 "/forgot-password",
                                 "/reset-password",
-                                "/password-reset-success",
+                                "/password-reset-success"
+                        ).permitAll()
+                        .requestMatchers(
                                 "/home",
                                 "/",
                                 "/courses",
                                 "/course/detail",
-                                "/instructor/*/profile"
+                                "/instructor-profile/*"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/instructor/*/view").hasAnyRole("INSTRUCTOR", "MANAGER")
                         .requestMatchers("/instructor/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/manager/**").hasRole("MANAGER")
-                        .requestMatchers("/instructorcourse/**").hasRole("INSTRUCTOR")
+                        .requestMatchers("/student/**").hasRole("LEARNER")
                         .anyRequest().authenticated()
                 )
 
@@ -112,7 +120,7 @@ public class SecurityConfig {
                 .rememberMe(remember -> remember
                 .rememberMeParameter("remember-me")
                 .userDetailsService(userDetailsService)
-                .key("learninghub-remember-me-secret-key")
+                .key(rememberMeKey)
                 .tokenValiditySeconds(7 * 24 * 60 * 60)
                 .useSecureCookie(false)
         )

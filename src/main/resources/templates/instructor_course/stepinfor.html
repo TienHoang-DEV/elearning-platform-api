@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
 <div th:fragment="content">
-  <form th:action="@{/instructorcourse/save}"
+  <form th:action="@{/instructor/save}"
         method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${courseRequest}">
       <input type="hidden" th:field="*{id}">
     <div class="card">
@@ -24,15 +24,6 @@
 
       <div class="form-group" style="margin-bottom:16px;">
         <label>Mô Tả Khóa Học</label>
-        <div class="rich-toolbar">
-          <button data-cmd="bold" type="button"><b>B</b></button>
-          <button data-cmd="italic" type="button"><i>I</i></button>
-          <button data-cmd="underline" type="button"><u>U</u></button>
-          <button data-cmd="insertUnorderedList" type="button">• List</button>
-          <button data-cmd="insertOrderedList" type="button">1. List</button>
-          <button data-cmd="formatBlock" data-val="h3" type="button">H3</button>
-          <button data-cmd="removeFormat" type="button">✕</button>
-        </div>
         <div class="rich-editor" id="courseDescEditor" contenteditable="true"
              th:utext="*{description}"
              th:classappend="${#fields.hasErrors('description')} ? ' is-invalid' : ''"
@@ -48,12 +39,12 @@
       <div class="form-grid" style="margin-top:16px;">
         <div class="form-group">
           <label>Trình Độ Khóa Học</label>
-          <select name="level" class="form-control"
+          <select th:field="*{level}" class="form-control"
                   th:classappend="${#fields.hasErrors('level')} ? ' is-invalid' : ''">
             <option value="">Chọn Trình Độ</option>
             <option th:each="l : ${courselevels}"
-                    th:value="${l}"
-                    th:selected="${l == courseRequest.level}"
+                    th:value="${l.name()}"
+                    th:selected="${courseRequest.level != null and l.name() == courseRequest.level}"
                     th:text="${{
                                     BEGINNER:'Người mới bắt đầu',
                                     INTERMEDIATE:'Trung cấp',
@@ -94,13 +85,18 @@
       <!-- Giá khóa học -->
       <div class="form-group" style="margin-top:16px;">
         <label>Giá Khóa Học</label>
-        <input type="number"
+        <input type="text"
                class="form-control"
-               th:field="*{price}"
+               id="price"
+               name="price"
+               th:value="${courseRequest?.price != null ? courseRequest.price.stripTrailingZeros().toPlainString() : ''}"
                th:classappend="${#fields.hasErrors('price')} ? ' is-invalid' : ''"
                placeholder="Nhập giá khóa học (VNĐ)"
-               min="0"/>
-        <div class="form-hint">Nhập 0 nếu khóa học miễn phí</div>
+               inputmode="numeric"
+               pattern="[0-9]*"
+               autocomplete="off"
+               data-price-input/>
+        <div class="form-hint">Nhập 0 nếu khóa học miễn phí; giá thu phí phải lớn hơn 2.000 VNĐ và chia hết cho 1.000</div>
         <p class="text-danger"
            th:if="${#fields.hasErrors('price')}"
            th:errors="*{price}"></p>
@@ -165,6 +161,22 @@
       if (form && editor) {
         form.addEventListener('submit', function () {
           document.getElementById('descHidden').value = editor.innerHTML;
+        });
+      }
+
+      // Course price input: chan nhap chu va ky tu dac biet ngay o frontend.
+      const priceInput = document.querySelector('[data-price-input]');
+      if (priceInput) {
+        if (/^\d+\.0+$/.test(priceInput.value)) {
+          priceInput.value = priceInput.value.replace(/\.0+$/, '');
+        }
+        priceInput.addEventListener('beforeinput', function (event) {
+          if (event.data && !/^\d+$/.test(event.data)) {
+            event.preventDefault();
+          }
+        });
+        priceInput.addEventListener('input', function () {
+          this.value = this.value.replace(/\D/g, '');
         });
       }
 

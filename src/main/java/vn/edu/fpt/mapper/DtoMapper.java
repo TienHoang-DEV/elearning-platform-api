@@ -15,6 +15,7 @@ import vn.edu.fpt.dto.course.OrderItemDto;
 import vn.edu.fpt.dto.instructor.InstructorPublicProfileDto;
 import vn.edu.fpt.dto.lesson.LessonNoteSiderbarDTO;
 import vn.edu.fpt.dto.quizdto.QuizAnswerDTO;
+import vn.edu.fpt.dto.quizdto.QuizAttemptAnswerDTO;
 import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
@@ -40,6 +41,12 @@ public interface DtoMapper {
     @Mapping(target = "hasPassword", expression = "java(user.getPasswordHash() != null && !user.getPasswordHash().isEmpty())")
     UserDto toSimpleUserDto(User user);
 
+    @Named("toVerySimpleUserDto")
+    @Mapping(target = "avatarUrl", expression = "java(user.getFullAvatarUrl())")
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "courseCount", ignore = true)
+    UserDto toVerySimpleUserDto(User user);
+
     @Mapping(target = "averageRating", expression = "java(course.getAverageRating())")
     @Mapping(target = "ratingCount", expression = "java(course.getRatingCount())")
     @Mapping(target = "totalLessonsCount", expression = "java(course.getTotalLessonsCount())")
@@ -61,7 +68,9 @@ public interface DtoMapper {
     @Mapping(target = "firstLessonId", ignore = true)
     @Mapping(target = "enrollmentsCount", ignore = true)
     @Mapping(target = "category", qualifiedByName = "toSimpleCategoryDto")
-    @Mapping(target = "instructor", qualifiedByName = "toSimpleUserDto")
+    @Mapping(target = "instructor", qualifiedByName = "toVerySimpleUserDto")
+    @Mapping(target = "thumbnailPath", expression = "java(course.getThumbnailPath())")
+    @Mapping(target = "rejectionReason", source = "rejectionReason")
     CourseDto toSimpleCourseDto(Course course);
 
     @Mapping(target = "courseCount", expression = "java(category.getCourses() != null ? category.getCourses().size() : 0)")
@@ -87,6 +96,13 @@ public interface DtoMapper {
     QuizAnswerDTO toQuizAnswerDto(QuizAnswer quizAnswer);
 
     QuizAttemptDTO toQuizAttemptDto(QuizAttempt quizAttempt);
+
+    @Mapping(source = "attempt.id", target = "attemptId")
+    @Mapping(source = "question.id", target = "questionId")
+    @Mapping(source = "selectedAnswer.id", target = "selectedAnswerId")
+    QuizAttemptAnswerDTO toQuizAttemptAnswerDto(QuizAttemptAnswer quizAttemptAnswer);
+
+    List<QuizAttemptAnswerDTO> toQuizAttemptAnswerDtos(List<QuizAttemptAnswer> quizAttemptAnswers);
 
     CourseSectionDto toCourseSectionDto(CourseSection section);
     LessonDto toLessonDto(Lesson lesson);

@@ -85,13 +85,17 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 		SELECT new vn.edu.fpt.dto.revenue_manager.InstructorRevenueForManagerDTO(
 			u.id, u.firstName, u.lastName, u.email,
 			COUNT(DISTINCT c.id),
-			COALESCE(SUM(CASE WHEN o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED THEN 1 ELSE 0 END), 0),
-			COALESCE(SUM(CASE WHEN o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED THEN oi.priceSnapshot ELSE 0 END), 0)
+			COALESCE(SUM(CASE WHEN (o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED) 
+			                       AND (:month IS NULL OR MONTH(o.createdAt) = :month) 
+			                       AND (:year IS NULL OR YEAR(o.createdAt) = :year) THEN 1 ELSE 0 END), 0),
+			COALESCE(SUM(CASE WHEN (o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED) 
+			                       AND (:month IS NULL OR MONTH(o.createdAt) = :month) 
+			                       AND (:year IS NULL OR YEAR(o.createdAt) = :year) THEN oi.priceSnapshot ELSE 0 END), 0)
 		)
 		FROM User u
 		JOIN u.userRoles ur
 		JOIN ur.role r
-		LEFT JOIN Course c ON c.instructor.id = u.id
+		LEFT JOIN Course c ON c.instructor.id = u.id AND c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED
 		LEFT JOIN OrderItem oi ON oi.course.id = c.id
 		LEFT JOIN oi.order o
 		WHERE LOWER(r.name) = 'instructor'
@@ -103,5 +107,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	""")
 	Page<InstructorRevenueForManagerDTO> getInstructorsRevenueStats(
 			@Param("keyword") String keyword,
+			@Param("month") Integer month,
+			@Param("year") Integer year,
 			Pageable pageable);
 }

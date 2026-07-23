@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.fpt.util.AppConstants;
 
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
@@ -48,6 +49,7 @@ public class AzureBlobService {
         }
     }
 
+
     public ResponseEntity<InputStreamResource> dowloadFile(BlobClient blobClient) {
         BlobProperties properties = blobClient.getProperties();
         MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
@@ -70,16 +72,51 @@ public class AzureBlobService {
         return blobClient.getBlobUrl() + "?" + blobClient.generateSas(sasValues);
     }
 
+    public String generateUploadSasUrl(String containerName, String blobName) {
+        BlobClient blobClient = getBlobClient(containerName, blobName);
+        BlobServiceSasSignatureValues sasValues = new BlobServiceSasSignatureValues(
+                OffsetDateTime.now().plusMinutes(15),
+                new BlobSasPermission()
+                        .setCreatePermission(true)
+                        .setWritePermission(true)
+        );
+        return blobClient.getBlobUrl() + "?" + blobClient.generateSas(sasValues);
+    }
+
+
     public BlobClient getBlobClient(String containerName, String blobName) {
-        return blobServiceClient
-                .getBlobContainerClient(containerName)
-                .getBlobClient(blobName);
+        return blobServiceClient.getBlobContainerClient(containerName).getBlobClient(blobName);
     }
 
     public String getPublicUrl(String containerName, String blobName) {
         return getBlobClient(containerName, blobName).getBlobUrl();
     }
-    public void deleteFile(String azureStorageContainerMaterials, String fileUrl) {
+    public void deleteFile(String containerName, String fileUrl) {
+        if (containerName == null || containerName.isBlank() || fileUrl == null || fileUrl.isBlank()) {
+            return;
+        }
 
+        try {
+            String blobName = normalizeBlobName(fileUrl);
+            if (blobName.isBlank()) {
+                return;
+            }
+            getBlobClient(containerName, blobName).deleteIfExists();
+        } catch (Exception e) {
+            throw new RuntimeException("Không thể xóa file trên Azure: " + e.getMessage(), e);
+        }
+    }
+
+    private String normalizeBlobName(String fileUrl) {
+        String value = fileUrl.trim();
+        int queryIndex = value.indexOf('?');
+        if (queryIndex >= 0) {
+            value = value.substring(0, queryIndex);
+        }
+        int slashIndex = value.lastIndexOf('/');
+        if (slashIndex >= 0) {
+            value = value.substring(slashIndex + 1);
+        }
+        return URLDecoder.decode(value, StandardCharsets.UTF_8);
     }
 }

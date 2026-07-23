@@ -91,6 +91,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     initEditMaterialPreview();
 
+    initMaterialFileValidation();
+    initLessonUploadSubmitLock();
+    initMaterialUploadSubmitLock();
+
 });
 
 /* =====================================================
@@ -117,13 +121,10 @@ function initTabs() {
         });
     });
 
-    // === Khôi phục tab active dựa vào query param ?tab=... (dùng cho pagination reload) ===
     const params = new URLSearchParams(window.location.search);
     const activeTab = params.get('tab');
 
     if (activeTab) {
-        // Tab nào có data-tab khớp với param sẽ được active,
-        // áp dụng cho tất cả tab-group có trên trang (an toàn nếu có nhiều group)
         document.querySelectorAll(`.tab-btn[data-tab="${activeTab}"]`).forEach(btn => {
             const group = btn.dataset.tabGroup;
             activateTab(group, activeTab);
@@ -131,17 +132,16 @@ function initTabs() {
     }
 
 
-    // ← THÊM: Media tabs (video / tài liệu)
+
     document.querySelectorAll('.media-tab').forEach(tab => {
         tab.addEventListener('click', function () {
             const group = this.dataset.group;
             const type  = this.dataset.type;
 
-            // Active tab
             document.querySelectorAll(`.media-tab[data-group="${group}"]`)
                 .forEach(t => t.classList.toggle('active', t === this));
 
-            // Hiện/ẩn content
+
             document.querySelectorAll(`.media-content[data-group="${group}"]`)
                 .forEach(c => {
                     c.style.display = c.dataset.type === type ? '' : 'none';
@@ -149,7 +149,7 @@ function initTabs() {
         });
     });
 
-    // Khởi tạo: ẩn tất cả media-content không active
+
     document.querySelectorAll('.media-tab.active').forEach(tab => {
         const group = tab.dataset.group;
         const type  = tab.dataset.type;
@@ -161,9 +161,6 @@ function initTabs() {
 
 }
 
-/**
- * Active 1 tab cụ thể trong 1 group, ẩn các tab còn lại.
- */
 function activateTab(group, tab) {
     document.querySelectorAll(`.tab-btn[data-tab-group="${group}"]`)
         .forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
@@ -178,7 +175,7 @@ function activateTab(group, tab) {
 
 
 function initModals() {
-    // Open modal via data-open-modal attribute
+
     document.querySelectorAll('[data-open-modal]').forEach(btn => {
         btn.addEventListener('click', function () {
             const id = this.dataset.openModal;
@@ -190,14 +187,13 @@ function initModals() {
     document.querySelectorAll('[data-close-modal]').forEach(btn => {
         btn.addEventListener('click', () => {
             const id = btn.dataset.closeModal;
-            document.getElementById(id).classList.remove('active');
+            closeModal(id);
         });
     });
 
-    // Close modal on overlay click
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', e => {
-            if (e.target === overlay) overlay.classList.remove('active');
+            if (e.target === overlay) closeModal(overlay.id);
         });
     });
 
@@ -216,11 +212,12 @@ function openModal(id) {
 
 function closeModal(id) {
     const el = document.getElementById(id);
-    if (el) el.classList.remove('active');
+    if (!el) return;
+    if (el.dataset.uploadLocked === 'true') return;
+    el.classList.remove('active');
 }
 
 function initRichEditors() {
-    // Toolbar buttons
     document.querySelectorAll('.rich-toolbar button[data-cmd]').forEach(btn => {
         btn.addEventListener('click', function () {
             const cmd = this.dataset.cmd;
@@ -244,6 +241,209 @@ function syncRichEditor(editorId, hiddenId) {
     const editor = document.getElementById(editorId);
     const hidden = document.getElementById(hiddenId);
     if (editor && hidden) hidden.value = editor.innerHTML;
+}
+
+function setUploadModalLock(form, locked, fallbackLoadingText) {
+    const overlay = form.closest('.modal-overlay');
+    if (overlay) {
+        overlay.dataset.uploadLocked = locked ? 'true' : 'false';
+        overlay.classList.toggle('modal-upload-locked', locked);
+        overlay.querySelectorAll('[data-close-modal]').forEach(button => {
+            button.disabled = locked;
+        });
+    }
+
+    form.querySelectorAll('input, textarea, select, button').forEach(control => {
+        if (control.type === 'hidden' || control.type === 'submit' || control.matches('[data-close-modal]')) {
+            return;
+        }
+
+        if (locked) {
+            control.dataset.uploadLockPointerEvents = control.style.pointerEvents || '';
+            control.dataset.uploadLockTabIndex = control.getAttribute('tabindex') || '';
+            control.style.pointerEvents = 'none';
+            control.setAttribute('tabindex', '-1');
+            if (control.matches('input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea')) {
+                control.dataset.uploadLockReadOnly = control.readOnly ? 'true' : 'false';
+                control.readOnly = true;
+            }
+            if (document.activeElement === control) {
+                control.blur();
+            }
+            return;
+        }
+
+        control.style.pointerEvents = control.dataset.uploadLockPointerEvents || '';
+        if (control.dataset.uploadLockTabIndex) {
+            control.setAttribute('tabindex', control.dataset.uploadLockTabIndex);
+        } else {
+            control.removeAttribute('tabindex');
+        }
+        if (control.dataset.uploadLockReadOnly !== undefined) {
+            control.readOnly = control.dataset.uploadLockReadOnly === 'true';
+        }
+        delete control.dataset.uploadLockPointerEvents;
+        delete control.dataset.uploadLockTabIndex;
+        delete control.dataset.uploadLockReadOnly;
+    });
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (!submitButton) return;
+
+    if (locked) {
+        if (!submitButton.dataset.originalText) {
+            submitButton.dataset.originalText = submitButton.textContent;
+        }
+        submitButton.disabled = true;
+        submitButton.classList.add('btn-loading');
+        submitButton.textContent = submitButton.dataset.loadingText || fallbackLoadingText || 'Dang luu...';
+        return;
+    }
+
+    submitButton.disabled = false;
+    submitButton.classList.remove('btn-loading');
+    submitButton.textContent = submitButton.dataset.originalText || 'Luu';
+}
+
+function initLessonUploadSubmitLock() {
+    document.querySelectorAll('form[data-lesson-upload-form]').forEach(form => {
+        form.addEventListener('submit', async function (event) {
+            if (form.dataset.submitting === 'true') {
+                event.preventDefault();
+                return;
+            }
+
+            const videoInput = form.querySelector('input[type="file"][name="videoFile"]');
+            const blobInput = form.querySelector('input[name="videoBlobName"]');
+            const selectedVideo = videoInput?.files?.[0];
+
+            form.dataset.submitting = 'true';
+            setUploadModalLock(form, true);
+            if (selectedVideo && blobInput && form.dataset.directUploaded !== 'true') {
+                event.preventDefault();
+                try {
+                    const sectionId = resolveLessonFormSectionId(form);
+                    const blobName = await uploadLessonVideoDirectToAzure(selectedVideo, sectionId);
+                    blobInput.value = blobName;
+                    videoInput.disabled = true;
+                    form.dataset.directUploaded = 'true';
+                    form.submit();
+                } catch (error) {
+                    console.error('Direct Azure video upload failed:', error);
+                    alert(error.message || 'Upload video truc tiep len Azure that bai.');
+                    form.dataset.submitting = 'false';
+                    setUploadModalLock(form, false);
+                }
+            }
+        });
+    });
+}
+
+function initMaterialUploadSubmitLock() {
+    const form = document.getElementById('addMaterialForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function (event) {
+        const materialInput = document.getElementById('addMaterialFile');
+        if (!validateMaterialFiles(materialInput)) {
+            event.preventDefault();
+            return;
+        }
+
+        if (form.dataset.submitting === 'true') {
+            event.preventDefault();
+            return;
+        }
+
+        form.dataset.submitting = 'true';
+        setUploadModalLock(form, true, 'Dang luu tai lieu...');
+    });
+}
+
+function validateMaterialFiles(input) {
+    if (!input || !input.files || input.files.length === 0) {
+        return true;
+    }
+
+    const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
+    const invalidFiles = Array.from(input.files).filter(file => {
+        const extension = file.name.includes('.')
+            ? file.name.split('.').pop().toLowerCase()
+            : '';
+        return !allowedExtensions.includes(extension);
+    });
+
+    if (invalidFiles.length === 0) {
+        return true;
+    }
+
+    alert('Chi chap nhan material dang: pdf, doc, docx, xls, xlsx, ppt, pptx.');
+    input.value = '';
+    return false;
+}
+
+function initMaterialFileValidation() {
+    const input = document.getElementById('addMaterialFile');
+    if (!input) return;
+
+    input.addEventListener('change', function () {
+        validateMaterialFiles(input);
+    });
+}
+
+function resolveLessonFormSectionId(form) {
+    const sectionInput = form.querySelector('input[name="sectionId"]');
+    if (sectionInput?.value) {
+        return sectionInput.value;
+    }
+
+    const match = form.action.match(/\/sections\/(\d+)\/lessons/);
+    if (match) {
+        return match[1];
+    }
+
+    throw new Error('Khong tim thay section de upload video.');
+}
+
+async function uploadLessonVideoDirectToAzure(file, sectionId) {
+    const requestBody = new FormData();
+    requestBody.append('fileName', file.name);
+    requestBody.append('sectionId', sectionId);
+
+    let sasResponse;
+    try {
+        sasResponse = await fetch('/instructor/video-upload-url', {
+            method: 'POST',
+            body: requestBody
+        });
+    } catch (error) {
+        throw new Error('Khong goi duoc server de xin URL upload video.');
+    }
+
+    if (!sasResponse.ok) {
+        throw new Error('Khong lay duoc URL upload video.');
+    }
+
+    const uploadInfo = await sasResponse.json();
+    let azureResponse;
+    try {
+        azureResponse = await fetch(uploadInfo.uploadUrl, {
+            method: 'PUT',
+            headers: {
+                'x-ms-blob-type': 'BlockBlob',
+                'Content-Type': file.type || 'application/octet-stream'
+            },
+            body: file
+        });
+    } catch (error) {
+        throw new Error('Khong upload truc tiep len Azure duoc. Kiem tra CORS cua Azure Blob.');
+    }
+
+    if (!azureResponse.ok) {
+        throw new Error('Upload video truc tiep len Azure that bai.');
+    }
+
+    return uploadInfo.blobName;
 }
 
 function initAvatarPreview() {
@@ -527,14 +727,25 @@ function updateCurriculumPreview() {
 }
 
 function openEditSectionModal(dataset) {
-    const source = dataset.source || 'create'
+    const source = dataset.source || 'create';
     const form = document.getElementById("editSectionForm");
+    if (!form) {
+        alert('Khong tim thay form chinh sua chuong!');
+        return;
+    }
 
     form.action =
-        `/instructorcourse/${dataset.courseId}/sections/${dataset.sectionId}/edit?source=${source}`;
+        `/instructor/${dataset.courseId}/sections/${dataset.sectionId}/edit?source=${source}`;
 
-    document.getElementById("editSectionTitle").value =
-        dataset.sectionTitle;
+    const sourceInput = form.querySelector('input[name="source"]');
+    if (sourceInput) {
+        sourceInput.value = source;
+    }
+
+    const titleInput = form.querySelector('[name="title"]');
+    if (titleInput) {
+        titleInput.value = dataset.sectionTitle || '';
+    }
 
     openModal("modal-edit-section");
 }
@@ -560,7 +771,13 @@ function openEditLessonModal(dataset) {
 
     const videoPreviewContainer = document.getElementById('editVideoPreviewContainer');
     videoPreviewContainer.innerHTML = '';
-    document.getElementById('editVideoFileInput').value = '';
+    const editVideoInput = document.getElementById('editVideoFileInput');
+    editVideoInput.value = '';
+    editVideoInput.disabled = false;
+    document.getElementById('editVideoBlobNameInput').value = '';
+    form.dataset.submitting = 'false';
+    form.dataset.directUploaded = 'false';
+    setUploadModalLock(form, false);
 
 
     const oldVideoUrl = dataset.lessonVideoUrl || dataset.videoUrl;
@@ -678,17 +895,34 @@ function renderExistingMaterials(materials, lessonId, courseId) {
 function deleteSection(sectionId, courseId, source) {
     source = source || 'create';
     if (!confirm('Xóa chương này và tất cả bài giảng bên trong?')) return;
-    fetch(`/instructorcourse/${courseId}/sections/${sectionId}/delete?source=${source}`, { method: 'POST' })
+    fetch(`/instructor/${courseId}/sections/${sectionId}/delete?source=${source}`, { method: 'POST' })
         .then(r => { if (r.ok) location.reload(); });
 }
 
 
-function openAddLessonModal(sectionId, source) {
+function openAddLessonModal(sectionId, source, courseId) {
     const form = document.getElementById('addLessonForm');
     source = source || 'create';
     form.action = `/instructor/sections/${sectionId}/lessons?source=${source}`;
 
     document.getElementById('addLessonSectionId').value = sectionId;
+    const courseInput = document.getElementById('addLessonCourseId');
+    if (courseInput && courseId) {
+        courseInput.value = courseId;
+    }
+    document.getElementById('videoBlobNameInput').value = '';
+    const videoInput = document.getElementById('videoFileInput');
+    if (videoInput) {
+        videoInput.value = '';
+        videoInput.disabled = false;
+    }
+    const preview = document.getElementById('videoPreviewContainer');
+    if (preview) {
+        preview.innerHTML = '';
+    }
+    form.dataset.submitting = 'false';
+    form.dataset.directUploaded = 'false';
+    setUploadModalLock(form, false);
 
     document.getElementById('modal-add-lesson').classList.add('active');
 }
@@ -721,10 +955,22 @@ function initSubmitReviewPolicy() {
     const policyTrailingIcon = policyItem?.querySelector('.item-check, .item-empty');
     const policyMissing = document.querySelector('[data-policy-missing="true"]');
     const missingBox = policyMissing?.closest('.missing-box');
+    const progressCard = document.querySelector('.progress-card[data-completed-count][data-total-count]');
+    const percentText = document.getElementById('submitReviewPercentText');
+    const ratioText = document.getElementById('submitReviewRatioText');
+    const progressNumber = document.getElementById('submitReviewProgressNumber');
+    const progressBar = document.getElementById('submitReviewProgressBar');
+    const progressRing = progressCard?.querySelector('.progress-ring');
+
+    const baseCompleted = progressCard ? Number(progressCard.dataset.completedCount || 0) : 0;
+    const totalCount = progressCard ? Number(progressCard.dataset.totalCount || 0) : 0;
+    const policyWasCompletedOnLoad = policyItem?.classList.contains('is-ok') === true;
 
     const updateState = () => {
         const accepted = checkbox.checked;
         button.disabled = !(readyExceptPolicy && accepted);
+        const completedCount = baseCompleted + (accepted && !policyWasCompletedOnLoad ? 1 : 0) - (!accepted && policyWasCompletedOnLoad ? 1 : 0);
+        const percent = totalCount === 0 ? 0 : Math.round(completedCount * 100 / totalCount);
 
         if (policyItem) {
             policyItem.classList.toggle('is-ok', accepted);
@@ -751,6 +997,22 @@ function initSubmitReviewPolicy() {
             const hasVisibleMissing = Array.from(missingBox.querySelectorAll('li'))
                 .some(item => item.style.display !== 'none');
             missingBox.style.display = hasVisibleMissing ? '' : 'none';
+        }
+
+        if (progressRing) {
+            progressRing.style.setProperty('--percent', percent);
+        }
+        if (percentText) {
+            percentText.textContent = `${percent}%`;
+        }
+        if (ratioText) {
+            ratioText.textContent = `${completedCount}/${totalCount}`;
+        }
+        if (progressNumber) {
+            progressNumber.textContent = `${completedCount} / ${totalCount}`;
+        }
+        if (progressBar) {
+            progressBar.style.width = `${percent}%`;
         }
     };
 
@@ -887,6 +1149,8 @@ function openAddMaterialModal(dataset) {
         dataset.courseId;
 
     document.getElementById('addMaterialFile').value = '';
+    form.dataset.submitting = 'false';
+    setUploadModalLock(form, false);
 
     const preview =
         document.getElementById('addMaterialPreview');
@@ -915,9 +1179,6 @@ function initToastNotifications() {
 }
 
 
-/* =====================
-   UTILS
-===================== */
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

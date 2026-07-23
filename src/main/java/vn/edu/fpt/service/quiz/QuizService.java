@@ -6,14 +6,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
 import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.Quiz;
+import vn.edu.fpt.entity.QuizAttempt;
+import vn.edu.fpt.entity.QuizAttemptAnswer;
+import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.QuizStatus;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.LessonRepository;
+import vn.edu.fpt.repository.QuizAttemptAnswerRepository;
+import vn.edu.fpt.repository.QuizAttemptRepository;
 import vn.edu.fpt.repository.QuizQuestionRepository;
 import vn.edu.fpt.repository.QuizRepository;
 
@@ -27,12 +33,54 @@ public class QuizService {
     private final DtoMapper dtoMapper;
     private final LessonRepository lessonRepository;
     private final QuizQuestionRepository quizQuestionRepository;
+    private final QuizAttemptRepository quizAttemptRepository;
+    private final QuizAttemptAnswerRepository quizAttemptAnswerRepository;
 
-    public QuizService(QuizRepository quizRepository, DtoMapper dtoMapper, LessonRepository lessonRepository, QuizQuestionRepository quizQuestionRepository) {
+    public QuizService(QuizRepository quizRepository, DtoMapper dtoMapper, LessonRepository lessonRepository, QuizQuestionRepository quizQuestionRepository, QuizAttemptRepository quizAttemptRepository, QuizAttemptAnswerRepository quizAttemptAnswerRepository) {
         this.repository = quizRepository;
         this.dtoMapper = dtoMapper;
         this.lessonRepository = lessonRepository;
         this.quizQuestionRepository = quizQuestionRepository;
+        this.quizAttemptRepository = quizAttemptRepository;
+        this.quizAttemptAnswerRepository = quizAttemptAnswerRepository;
+    }
+
+    public void populateLessonQuizModel(Integer lessonId, User user, boolean retake, Integer activeQuizId, Model model) {
+        Lesson lesson = lessonRepository.findByIdWithQuizzes(lessonId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lesson với id " + lessonId));
+        List<QuizDTO> quizzes = dtoMapper.toQuizDtos(lesson.getQuizzes());
+        int totalQuestions = totalQuestion(quizzes);
+        Map<Integer, List<QuizAttempt>> quizAttemptsMap = new HashMap<>();
+        List<Integer> allAttemptIds = new ArrayList<>();
+
+        for (QuizDTO q : quizzes) {
+            List<QuizAttempt> attempts = quizAttemptRepository.findByUserIdAndQuizIdOrderBySubmittedAtDesc(user.getId(), q.getId());
+            quizAttemptsMap.put(q.getId(), attempts);
+            for (QuizAttempt att : attempts) {
+                allAttemptIds.add(att.getId());
+            }
+        }
+
+        Map<Integer, Set<Integer>> attemptSelectedAnswersMap = new HashMap<>();
+        if (!allAttemptIds.isEmpty()) {
+            List<QuizAttemptAnswer> attemptAnswers = quizAttemptAnswerRepository.findByAttemptIdIn(allAttemptIds);
+            for (QuizAttemptAnswer qaa : attemptAnswers) {
+                if (qaa.getAttempt() != null && qaa.getSelectedAnswer() != null) {
+                    attemptSelectedAnswersMap
+                            .computeIfAbsent(qaa.getAttempt().getId(), k -> new HashSet<>())
+                            .add(qaa.getSelectedAnswer().getId());
+                }
+            }
+        }
+
+        model.addAttribute("lessonId", lesson.getId());
+        model.addAttribute("lessonTitle", lesson.getTitle());
+        model.addAttribute("quizzes", quizzes);
+        model.addAttribute("quizCount", quizzes.size());
+        model.addAttribute("totalQuestions", totalQuestions);
+        model.addAttribute("quizAttemptsMap", quizAttemptsMap);
+        model.addAttribute("attemptSelectedAnswersMap", attemptSelectedAnswersMap);
+        model.addAttribute("retake", retake);
+        model.addAttribute("activeQuizId", activeQuizId != null ? activeQuizId : (quizzes.isEmpty() ? null : quizzes.get(0).getId()));
     }
 
     public List<Quiz> findAll() {

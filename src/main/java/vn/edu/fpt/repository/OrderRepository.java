@@ -21,5 +21,9 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findByUser(User user);
     List<Order> findByUserAndStatusIn(User user, List<OrderStatus> statuses);
 
+    @Query("""
+    select o from Order o where o.user = :user and o.status = vn.edu.fpt.enums.OrderStatus.PENDING
+""")
+    List<Order> findByUserAndStatus_Pending(@Param("user") User user);
 }
 

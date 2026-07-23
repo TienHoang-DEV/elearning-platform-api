@@ -40,6 +40,17 @@ public class CourseDto {
         return status != null ? status.getLabel() : "";
     }
 
+    public String getLevel() {
+        if ("BEGINNER".equalsIgnoreCase(level)) {
+            return "Cơ bản";
+        } else if ("INTERMEDIATE".equalsIgnoreCase(level)) {
+            return "Trung cấp";
+        } else if ("ADVANCED".equalsIgnoreCase(level)) {
+            return "Nâng cao";
+        }
+        return level;
+    }
+
     // Đếm số lượng feedback đạt mức đánh giá sao tương ứng (star)
     public int getStarCount(int star) {
         if (feedbacks == null) {

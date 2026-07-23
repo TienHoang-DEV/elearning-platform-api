@@ -2,6 +2,7 @@
 <html lang="vi">
 
 <head>
+    <link rel="icon" type="image/png" th:href="@{/images/logo-background.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${course.title} + ' - Learning Hub'">Guitar điện cơ bản cùng Khoa (FPTU MUSIC) - Learning Hub
@@ -63,7 +64,7 @@
                     <div
                         class="instructor-container d-flex align-items-center gap-2 text-primary fw-semibold fs-6 mb-3">
                         <i data-lucide="user" style="width: 16px; height: 16px;"></i>
-                        <a th:href="@{/instructor/{id}/profile(id=${course.instructor.id})}" class="text-decoration-none text-primary instructor-profile-link">
+                        <a th:href="@{/instructor-profile/{id}(id=${course.instructor.id})}" class="text-decoration-none text-primary instructor-profile-link">
                             <span class="instructor-name tracking-wide"
                                 th:text="${course.instructor.lastName + ' ' + course.instructor.firstName}">TRANG HIÊN
                                 KHOA</span>
@@ -496,8 +497,7 @@
                                 <img th:src="${course.thumbnailPath}" th:alt="${course.title}"
                                     class="w-100 h-100 object-fit-cover"
                                     onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
-                                <div class="badge bg-warning text-dark position-absolute top-0 start-0 m-3 px-3 py-2 fw-extrabold fs-7 rounded-sm shadow-sm"
-                                    style="z-index: 2;">GIẢM 20%</div>
+
 
                                 <div class="thumbnail-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-40"
                                     th:if="${course.getFirstLessonId() != null}">
@@ -530,9 +530,6 @@
                                             <span class="text-primary fw-bold fs-5 d-block"
                                                 th:text="${#numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">239,200
                                                 đ</span>
-                                            <span class="text-muted text-decoration-line-through d-block fs-8"
-                                                style="font-size:11px; margin-top:-2px;"
-                                                th:if="${course.price.doubleValue() > 0}">299,000 đ</span>
                                         </div>
                                     </li>
 
@@ -544,7 +541,7 @@
                                             <span>Thời lượng:</span>
                                         </div>
                                         <span class="fw-semibold text-dark fs-7"
-                                            th:text="${course.getTotalLessonsCount() * 10} + ' phút'">3 phút</span>
+                                            th:text="${course.getTotalDurationMinutes()} + ' phút'">3 phút</span>
                                     </li>
 
                                     <!-- Lectures Row -->

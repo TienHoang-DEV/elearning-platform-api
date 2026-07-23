@@ -83,11 +83,15 @@ public class UserService {
 
     public void updateProfileInstuctor(User user, ProfileDto profileDto) {
 
-        User tmp = repository.findUserByPhone(profileDto.getPhone());
-        if (tmp != null && !tmp.getId().equals(user.getId())) {
-            throw new UserValidationException("phone","Số điện thoại này đã được sử dụng.");
+        if (profileDto.getPhone() != null && !profileDto.getPhone().isBlank()) {
+            User tmp = repository.findUserByPhone(profileDto.getPhone().trim());
+            if (tmp != null && !tmp.getId().equals(user.getId())) {
+                throw new UserValidationException("phone", "Số điện thoại này đã được sử dụng.");
+            }
+            user.setPhone(profileDto.getPhone().trim());
+        } else {
+            user.setPhone(null);
         }
-
 
         if (profileDto.getFile() != null && !profileDto.getFile().isEmpty()) {
             if (profileDto.getFile().getSize() > 2 * 1024 * 1024) {
@@ -100,8 +104,7 @@ public class UserService {
 
         user.setFirstName(profileDto.getFirstname().trim());
         user.setLastName(profileDto.getLastname().trim());
-        user.setBio(profileDto.getBio().trim());
-        user.setPhone(profileDto.getPhone().trim());
+        user.setBio(profileDto.getBio() != null ? profileDto.getBio().trim() : "");
         user.setUpdatedAt(LocalDateTime.now());
 
         repository.save(user);
@@ -116,7 +119,11 @@ public class UserService {
      */
     public Page<UserDto> searchAndFilterInstructors(String keyword, UserStatus status, Pageable pageable) {
         Page<User> instructorPage = repository.searchAndFilterInstructors(keyword, status, pageable);
-        return instructorPage.map(dtoMapper::toUserDto);
+        return instructorPage.map(user -> {
+            UserDto dto = dtoMapper.toUserDto(user);
+            dto.setCourseCount((int) user.getCourses().stream().filter(c -> c.getStatus() == vn.edu.fpt.enums.CourseStatus.PUBLISHED).count());
+            return dto;
+        });
     }
 
     /**
@@ -125,7 +132,9 @@ public class UserService {
     public UserDto getInstructorDetail(Integer id) {
         User instructor = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên với ID: " + id));
-        return dtoMapper.toUserDto(instructor);
+        UserDto dto = dtoMapper.toUserDto(instructor);
+        dto.setCourseCount((int) instructor.getCourses().stream().filter(c -> c.getStatus() == vn.edu.fpt.enums.CourseStatus.PUBLISHED).count());
+        return dto;
     }
 
     /**
@@ -134,7 +143,7 @@ public class UserService {
     public List<Course> getInstructorCourses(Integer instructorId) {
         User instructor = repository.findById(instructorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên với ID: " + instructorId));
-        return courseRepository.findByInstructor(instructor);
+        return courseRepository.findByInstructorAndStatus(instructor, vn.edu.fpt.enums.CourseStatus.PUBLISHED);
     }
 
     /**

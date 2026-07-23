@@ -44,7 +44,7 @@ public class User extends BaseEntity {
     @Column(length= 255, nullable = false, unique = true)
     private String email;
 
-    @Column(length = 20, unique = true, nullable = true)
+    @Column(length = 20, nullable = true)
     private String phone;
 
     @Column(columnDefinition = "NVARCHAR(MAX)", nullable = true)

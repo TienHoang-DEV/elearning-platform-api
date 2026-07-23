@@ -48,7 +48,7 @@
                                           stroke-width="5" stroke-linecap="round"/>
                                 </svg>
                             </span>
-                        Khóa Học Chất Lượng Cao <span class="headline-accent">Tại Learning Hub</span>
+                        Khóa Học Chất Lượng Cao <span class="headline-accent">Tại <span class="brand-text-gradient">Learning Hub</span></span>
                     </h1>
 
                     <p class="hero-description animate-fadeInUp">
@@ -61,16 +61,6 @@
                             <span>Tìm Khóa Học</span>
                             <i data-lucide="arrow-right" class="btn-arrow-icon" style="width:18px; height:18px;"></i>
                         </a>
-
-                        <button class="btn-play-wrapper d-inline-flex align-items-center gap-3" id="btn-play-intro">
-                                <span class="play-btn-circle">
-                                    <span class="ripple ripple-1" aria-hidden="true"></span>
-                                    <span class="ripple ripple-2" aria-hidden="true"></span>
-                                    <i data-lucide="play" class="play-icon"
-                                       style="width:16px; height:16px; fill:var(--primary);"></i>
-                                </span>
-                            <span class="play-btn-label">Xem Giới Thiệu</span>
-                        </button>
                     </div>
 
                     <div class="hero-students-row d-inline-flex align-items-center gap-3 animate-fadeInUp text-start">
@@ -80,7 +70,7 @@
                             <img th:src="@{/images/avatar.png}" alt="Học viên" class="avatar-img" loading="lazy">
                             <div class="avatar-more" th:text="${'+' + (homeData.totalLearners ?: 0)}">+2k</div>
                         </div>
-                        <p class="students-text m-0">Tham gia cùng hàng nghìn <br><strong>học viên mỗi ngày</strong></p>
+                        <p class="students-text m-0">Khám phá và nâng cao <br><strong>giá trị bản thân mỗi ngày</strong></p>
                     </div>
                 </div>
 
@@ -186,74 +176,24 @@
 
             <!-- Tab Pills Navigation -->
             <div class="d-flex flex-wrap gap-2 mb-5 justify-content-center justify-content-lg-start nav nav-pills" id="favorite-tabs" role="tablist">
-                <button class="nav-link active rounded-pill px-4 py-2.5 fw-semibold fs-7 tab-btn border border-light-subtle shadow-none" 
-                        id="tab-all-btn" data-bs-toggle="tab" data-bs-target="#tab-pane-all" type="button" role="tab" aria-controls="tab-pane-all" aria-selected="true">
-                    Tất cả
-                </button>
                 <button class="nav-link rounded-pill px-4 py-2.5 fw-semibold fs-7 tab-btn border border-light-subtle shadow-none" 
-                        th:each="child : ${homeData.favoriteChildren}"
+                        th:each="child, iterStat : ${homeData.favoriteChildren}"
+                        th:classappend="${iterStat.index == 0} ? 'active' : ''"
                         th:id="'tab-' + ${child.id} + '-btn'"
                         data-bs-toggle="tab" 
                         th:data-bs-target="'#tab-pane-' + ${child.id}" 
                         type="button" role="tab" 
                         th:aria-controls="'tab-pane-' + ${child.id}" 
-                        aria-selected="false" 
+                        th:aria-selected="${iterStat.index == 0}" 
                         th:text="${child.name}">Danh mục con</button>
             </div>
 
             <!-- Tab Contents -->
             <div class="tab-content" id="favorite-tabs-content">
-                <!-- Tab Pane "Tất cả" -->
-                <div class="tab-pane fade show active" id="tab-pane-all" role="tabpanel" aria-labelledby="tab-all-btn">
-                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4" th:if="${homeData.coursesMap.get(0) != null && !homeData.coursesMap.get(0).isEmpty()}">
-                        <div class="col" th:each="course : ${homeData.coursesMap.get(0)}">
-                            <div class="card h-100 border-0 shadow-sm course-card overflow-hidden d-flex flex-column justify-content-between">
-                                <a th:href="@{/course/detail(id=${course.id})}" class="text-decoration-none text-dark d-block">
-                                    <div class="position-relative overflow-hidden">
-                                        <img th:src="${course.getThumbnailPath()}" th:alt="${course.title}" class="w-100 object-fit-cover" style="height: 180px;" onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
-                                    </div>
-                                    <div class="card-body p-4 pb-1">
-                                        <h3 class="course-card-title fw-bold fs-6 mb-3 font-heading leading-snug" th:text="${course.title}">Tiêu đề</h3>
-                                        <div class="d-flex align-items-center gap-2 text-muted fs-8 mb-2">
-                                            <i data-lucide="user" style="width: 14px; height: 14px;"></i>
-                                            <span th:text="${course.getInstructor() != null ? course.getInstructor().lastName + ' ' + course.getInstructor().firstName : 'GIẢNG VIÊN'}">GIẢNG VIÊN</span>
-                                        </div>
-                                        <div class="rating-stars mb-4 d-flex align-items-center gap-1">
-                                            <span class="rating-value fw-bold text-dark fs-8 me-1" th:text="${course.getAverageRating()}">5</span>
-                                            <i data-lucide="star" th:class="${course.getAverageRating() >= starIdx ? 'star-icon star-filled' : 'star-icon star-empty'}" th:each="starIdx : ${#numbers.sequence(1, 5)}"></i>
-                                            <span class="text-muted fs-8 ms-1" th:text="'(' + ${course.getRatingCount()} + ')'">(0)</span>
-                                        </div>
-                                    </div>
-                                </a>
-                                <div class="card-body p-4 pt-1 d-flex align-items-end justify-content-between">
-                                    <div class="price-box">
-                                        <span class="price-current fw-extrabold fs-6 text-primary" th:text="${course.price == null || course.price.compareTo(T(java.math.BigDecimal).ZERO) == 0 ? 'Miễn phí' : #numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + ' đ'}">VND</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card border border-light-subtle rounded-3 p-5 bg-white text-center shadow-sm" th:if="${homeData.coursesMap.get(0) == null || homeData.coursesMap.get(0).isEmpty()}">
-                        <div class="d-flex flex-column align-items-center justify-content-center py-4">
-                            <div class="empty-cart-icon-wrapper rounded-circle bg-light d-flex align-items-center justify-content-center mb-4" style="width: 70px; height: 70px;">
-                                <i data-lucide="sparkles" class="text-muted" style="width: 28px; height: 28px;"></i>
-                            </div>
-                            <h4 class="fw-bold fs-6 font-heading text-dark mb-2">Chưa có khóa học!</h4>
-                            <p class="text-muted fs-7 mb-0">Các danh mục con của bạn hiện tại chưa có khóa học nào được xuất bản.</p>
-                        </div>
-                    </div>
-
-                    <div class="text-center mt-5" th:if="${homeData.coursesMap.get(0) != null && !homeData.coursesMap.get(0).isEmpty()}">
-                        <a th:href="@{/courses(categoryId=${homeData.parentCategory.id})}" class="btn btn-outline-primary rounded-3 px-5 py-2.5 fw-semibold fs-7 shadow-sm">
-                            Xem thêm <i class="fa-solid fa-chevron-right ms-1"></i>
-                        </a>
-                    </div>
-                </div>
-
                 <!-- Child Tabs Panes -->
                 <div class="tab-pane fade" 
-                     th:each="child : ${homeData.favoriteChildren}" 
+                     th:each="child, iterStat : ${homeData.favoriteChildren}" 
+                     th:classappend="${iterStat.index == 0} ? 'show active' : ''"
                      th:id="'tab-pane-' + ${child.id}" 
                      role="tabpanel" 
                      th:aria-labelledby="'tab-' + ${child.id} + '-btn'">

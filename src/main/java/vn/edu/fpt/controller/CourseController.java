@@ -24,7 +24,6 @@ import vn.edu.fpt.service.EnrollmentService;
 import vn.edu.fpt.service.CartService;
 import vn.edu.fpt.service.CartItemService;
 import vn.edu.fpt.exception.ResourceNotFoundException;
-import vn.edu.fpt.service.FeedbackService;
 import vn.edu.fpt.util.SecurityUtils;
 
 import java.time.LocalDateTime;
@@ -39,12 +38,8 @@ import java.util.Set;
 public class CourseController {
 
     private final CourseService courseService;
-    private final FeedbackService feedbackService;
     private final CategoryService categoryService;
-    private final UserService userService;
     private final EnrollmentService enrollmentService;
-    private final CartService cartService;
-    private final CartItemService cartItemService;
 
     private User getSessionUser() {
         return SecurityUtils.getCurrentUser();
@@ -101,9 +96,9 @@ public class CourseController {
         model.addAttribute("course", courseDto);
         User user = getSessionUser();
         if (user != null) {
-            java.util.Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
+            Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
             model.addAttribute("enrolledCourseIds", enrolledCourseIds);
-            boolean hasReviewed = feedbackService.hasUserReviewedCourse(user.getId(), id);
+            boolean hasReviewed = courseService.hasUserReviewedCourse(user.getId(), id);
             model.addAttribute("hasReviewed", hasReviewed);
             boolean canReview = courseService.canUserReviewCourse(user, id);
             model.addAttribute("canReview", canReview);
@@ -124,21 +119,7 @@ public class CourseController {
             return ResponseEntity.status(401).body(response);
         }
         try {
-            Feedback feedback = courseService.addCourseReview(user, courseId, rating, comment);
-            
-            Map<String, Object> fbData = new HashMap<>();
-            fbData.put("id", feedback.getId());
-            fbData.put("rating", feedback.getRating());
-            fbData.put("comment", feedback.getComment());
-            fbData.put("createdAt", feedback.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-            
-            Map<String, Object> userData = new HashMap<>();
-            userData.put("id", user.getId());
-            userData.put("firstName", user.getFirstName());
-            userData.put("lastName", user.getLastName());
-            userData.put("avatarUrl", user.getFullAvatarUrl());
-            fbData.put("user", userData);
-            
+            Map<String, Object> fbData = courseService.addCourseReviewAndBuildData(user, courseId, rating, comment);
             response.put("success", true);
             response.put("message", "Cảm ơn bạn đã gửi đánh giá khóa học thành công!");
             response.put("feedback", fbData);
@@ -163,7 +144,7 @@ public class CourseController {
             return ResponseEntity.status(401).body(response);
         }
         try {
-            feedbackService.updateReview(feedbackId, rating, comment, user);
+            courseService.editCourseReview(feedbackId, rating, comment, user);
             response.put("success", true);
             response.put("message", "Cập nhật đánh giá thành công!");
             return ResponseEntity.ok(response);
@@ -189,7 +170,7 @@ public class CourseController {
             return ResponseEntity.status(401).body(response);
         }
         try {
-            feedbackService.deleteReview(feedbackId, user);
+            courseService.deleteCourseReview(feedbackId, user);
             response.put("success", true);
             response.put("message", "Xóa đánh giá thành công!");
             return ResponseEntity.ok(response);

@@ -23,6 +23,7 @@ public enum LogAction {
     REJECT_INSTRUCTOR("Từ chối giảng viên"),
     APPROVE_COURSE("Phê duyệt khóa học"),
     REJECT_COURSE("Từ chối khóa học"),
+    RESUBMIT_COURSE("Gửi lại duyệt khóa học"),
     MANUAL_ENROLLMENT_GRANTED("Quản lí cấp quyền xem khóa học"),
 
     // Course Management

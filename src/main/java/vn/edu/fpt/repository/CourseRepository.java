@@ -3,6 +3,7 @@ package vn.edu.fpt.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -11,6 +12,7 @@ import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.CourseStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +21,7 @@ import vn.edu.fpt.dto.course.CourseListDto;
 import vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO;
 
 @Repository
-public interface CourseRepository extends JpaRepository<Course, Integer>, CourseRepositoryCustom {
+public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     //Luu khoá học
     Course save(Course course);
@@ -32,6 +34,18 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
 
     //Kiểm tra không title trùng
     boolean existsByInstructorAndTitle(User instructor, String title);
+
+    // Course validation: khong cho instructor tao/edit course trung tieu de, bo qua hoa thuong va khoang trang dau/cuoi.
+    @Query("""
+            select case when count(c) > 0 then true else false end
+            from Course c
+            where c.instructor.id = :instructorId
+              and lower(trim(c.title)) = lower(trim(:title))
+              and (:excludeCourseId is null or c.id <> :excludeCourseId)
+            """)
+    boolean existsDuplicateTitleForInstructor(@Param("instructorId") Integer instructorId,
+                                              @Param("title") String title,
+                                              @Param("excludeCourseId") Integer excludeCourseId);
 
 
     //Phân trang khoá học của mỗi instructor
@@ -110,18 +124,33 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
             """)
     long countLessonsHavingVideoOrMaterial(@Param("courseId") Integer courseId);
 
+    // Course request validation: dem rieng lesson co video de khong bi tai lieu lam pass dieu kien video.
+    @Query("""
+            select count(l)
+            from Lesson l
+            where l.courseSection.course.id = :courseId
+              and l.videoUrl is not null
+              and trim(l.videoUrl) <> ''
+            """)
+    long countLessonsHavingVideoByCourseId(@Param("courseId") Integer courseId);
+
+    // Course request validation: dem rieng tai lieu de checklist khong bi gop chung voi quiz/video.
+    @Query("""
+            select count(m)
+            from LessonMaterial m
+            where m.lesson.courseSection.course.id = :courseId
+            """)
+    long countMaterialsByCourseId(@Param("courseId") Integer courseId);
+
     @Query("""
             select count(q) from Quiz q
             where q.lesson.courseSection.course.id = :courseId
+              and upper(q.status) = 'PUBLISHED'
             """)
     long countQuizzesByCourseId(@Param("courseId") Integer courseId);
 
     @Query("""
             select distinct c from Course c 
-            left join fetch c.instructor i 
-            left join fetch c.category cat 
-            left join fetch c.sections s 
-            left join fetch s.lessons 
             where c.id = :id
             """)
     Optional<Course> findByIdWithDetails(@Param("id") Integer id);
@@ -144,8 +173,10 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
 
     @Query("SELECT c FROM Course c " +
             "LEFT JOIN FETCH c.instructor i " +
-            "WHERE (:status IS NULL OR c.status = :status) " +
-            "AND (:categoryId IS NULL OR c.category.id = :categoryId) " +
+            "LEFT JOIN FETCH c.category cat " +
+            "WHERE c.status != vn.edu.fpt.enums.CourseStatus.DRAFT " +
+            "AND (:status IS NULL OR c.status = :status) " +
+            "AND (:categoryId IS NULL OR cat.id = :categoryId) " +
             "AND (:keyword IS NULL OR :keyword = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Course> searchAndFilter(
             @Param("keyword") String keyword,
@@ -155,11 +186,51 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
 
     Course findCourseById(Integer id);
 
+    @Query("""
+        SELECT c FROM Course c
+        LEFT JOIN FETCH c.instructor i
+        LEFT JOIN FETCH c.category cat
+        WHERE c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED
+          AND (:search IS NULL OR :search = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :search, '%')))
+          AND (:categoryId IS NULL OR cat.id = :categoryId)
+          AND (:minRating IS NULL OR (SELECT COALESCE(AVG(f.rating), 0.0) FROM Feedback f WHERE f.course.id = c.id) >= :minRating)
+          AND (:minPrice IS NULL OR c.price >= :minPrice)
+          AND (:maxPrice IS NULL OR c.price <= :maxPrice)
+        """)
+    Page<Course> findPublishedCourses(
+            @Param("search") String search,
+            @Param("categoryId") Integer categoryId,
+            @Param("minRating") Double minRating,
+            @Param("minPrice") BigDecimal minPrice,
+            @Param("maxPrice") BigDecimal maxPrice,
+            Pageable pageable);
+
+    @Query("""
+        SELECT c FROM Course c
+        LEFT JOIN FETCH c.instructor i
+        LEFT JOIN FETCH c.category cat
+        WHERE c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED
+          AND (:search IS NULL OR :search = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :search, '%')))
+          AND (:categoryId IS NULL OR cat.id = :categoryId)
+          AND (:minRating IS NULL OR (SELECT COALESCE(AVG(f.rating), 0.0) FROM Feedback f WHERE f.course.id = c.id) >= :minRating)
+          AND (:minPrice IS NULL OR c.price >= :minPrice)
+          AND (:maxPrice IS NULL OR c.price <= :maxPrice)
+        ORDER BY (SELECT COALESCE(AVG(f.rating), 0.0) FROM Feedback f WHERE f.course.id = c.id) DESC, c.id DESC
+        """)
+    Page<Course> findPublishedCoursesOrderByRating(
+            @Param("search") String search,
+            @Param("categoryId") Integer categoryId,
+            @Param("minRating") Double minRating,
+            @Param("minPrice") BigDecimal minPrice,
+            @Param("maxPrice") BigDecimal maxPrice,
+            Pageable pageable);
+
     @Query("SELECT new vn.edu.fpt.dto.course.CourseListDto(c.id, c.title, c.thumbnailUrl, c.price, c.level, i.firstName, i.lastName, i.id, cat.id, cat.name, " +
             "COALESCE((SELECT AVG(f.rating) FROM Feedback f WHERE f.course.id = c.id), 0.0), " +
             "(SELECT COUNT(f.id) FROM Feedback f WHERE f.course.id = c.id), " +
             "(SELECT COUNT(l.id) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id), " +
-            "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id)) " +
+            "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id), " +
+            "(SELECT COALESCE(SUM(l.durationSeconds), 0L) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id)) " +
             "FROM Course c JOIN c.instructor i JOIN c.category cat " +
             "WHERE c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED " +
             "AND cat.id IN :categoryIds " +
@@ -183,23 +254,35 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, Course
     @Query("""
         SELECT new vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO(
             c.id, c.title, c.price,
-            COALESCE(SUM(CASE WHEN o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED THEN 1 ELSE 0 END), 0),
-            COALESCE(SUM(CASE WHEN o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED THEN oi.priceSnapshot ELSE 0 END), 0)
+            COALESCE(SUM(CASE WHEN (o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED) 
+                                   AND (:month IS NULL OR MONTH(o.createdAt) = :month)
+                                   AND (:year IS NULL OR YEAR(o.createdAt) = :year) THEN 1 ELSE 0 END), 0),
+            COALESCE(SUM(CASE WHEN (o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED) 
+                                   AND (:month IS NULL OR MONTH(o.createdAt) = :month)
+                                   AND (:year IS NULL OR YEAR(o.createdAt) = :year) THEN oi.priceSnapshot ELSE 0 END), 0)
         )
         FROM Course c
         LEFT JOIN OrderItem oi ON oi.course.id = c.id
         LEFT JOIN oi.order o
         WHERE c.instructor.id = :instructorId
+        AND c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED
         GROUP BY c.id, c.title, c.price
-        ORDER BY COALESCE(SUM(CASE WHEN o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED THEN oi.priceSnapshot ELSE 0 END), 0) DESC
+        ORDER BY COALESCE(SUM(CASE WHEN (o.status = vn.edu.fpt.enums.OrderStatus.PAID OR o.status = vn.edu.fpt.enums.OrderStatus.COMPLETED) 
+                                       AND (:month IS NULL OR MONTH(o.createdAt) = :month)
+                                       AND (:year IS NULL OR YEAR(o.createdAt) = :year) THEN oi.priceSnapshot ELSE 0 END), 0) DESC
     """)
+    List<InstructorCourseRevenueDTO> getCourseRevenueStatsByInstructor(
+            @Param("instructorId") Integer instructorId,
+            @Param("month") Integer month,
+            @Param("year") Integer year);
     List<InstructorCourseRevenueDTO> getCourseRevenueStatsByInstructor(@Param("instructorId") Integer instructorId);
 
     @Query("SELECT new vn.edu.fpt.dto.course.CourseListDto(c.id, c.title, c.thumbnailUrl, c.price, c.level, i.firstName, i.lastName, i.id, cat.id, cat.name, " +
            "COALESCE((SELECT AVG(f.rating) FROM Feedback f WHERE f.course.id = c.id), 0.0), " +
            "(SELECT COUNT(f.id) FROM Feedback f WHERE f.course.id = c.id), " +
            "(SELECT COUNT(l.id) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id), " +
-           "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id)) " +
+           "(SELECT COUNT(e.id) FROM Enrollment e WHERE e.course.id = c.id), " +
+           "(SELECT COALESCE(SUM(l.durationSeconds), 0L) FROM CourseSection cs JOIN cs.lessons l WHERE cs.course.id = c.id)) " +
            "FROM Course c JOIN c.instructor i JOIN c.category cat " +
            "WHERE c.instructor.id = :instructorId AND c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED")
     List<CourseListDto> getInstructorCoursesWithStats(@Param("instructorId") Integer instructorId);
