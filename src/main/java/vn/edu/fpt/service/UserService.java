@@ -83,11 +83,15 @@ public class UserService {
 
     public void updateProfileInstuctor(User user, ProfileDto profileDto) {
 
-        User tmp = repository.findUserByPhone(profileDto.getPhone());
-        if (tmp != null && !tmp.getId().equals(user.getId())) {
-            throw new UserValidationException("phone","Số điện thoại này đã được sử dụng.");
+        if (profileDto.getPhone() != null && !profileDto.getPhone().isBlank()) {
+            User tmp = repository.findUserByPhone(profileDto.getPhone().trim());
+            if (tmp != null && !tmp.getId().equals(user.getId())) {
+                throw new UserValidationException("phone", "Số điện thoại này đã được sử dụng.");
+            }
+            user.setPhone(profileDto.getPhone().trim());
+        } else {
+            user.setPhone(null);
         }
-
 
         if (profileDto.getFile() != null && !profileDto.getFile().isEmpty()) {
             if (profileDto.getFile().getSize() > 2 * 1024 * 1024) {
@@ -100,8 +104,7 @@ public class UserService {
 
         user.setFirstName(profileDto.getFirstname().trim());
         user.setLastName(profileDto.getLastname().trim());
-        user.setBio(profileDto.getBio().trim());
-        user.setPhone(profileDto.getPhone().trim());
+        user.setBio(profileDto.getBio() != null ? profileDto.getBio().trim() : "");
         user.setUpdatedAt(LocalDateTime.now());
 
         repository.save(user);

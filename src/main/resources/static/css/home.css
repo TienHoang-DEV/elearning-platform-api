@@ -226,12 +226,12 @@ body {
     50% { opacity: 0.4; transform: scale(0.7); }
 }
 
-/* Headline Fix (Fluid typography tránh bể chữ) */
+/* Headline Fix (Fluid typography đồng đều, hài hòa) */
 .hero-headline {
-    font-size: clamp(32px, 4.5vw, 54px);
-    font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: -1.5px;
+    font-size: clamp(32px, 4.2vw, 52px);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
     color: var(--text-main);
     margin-bottom: 24px;
 }
@@ -240,13 +240,18 @@ body {
     position: relative;
     display: inline-block;
     color: var(--primary);
-    font-weight: 900;
+    font-weight: 700;
     z-index: 1;
 }
 
 .headline-accent {
-    color: var(--text-light);
-    font-weight: 600;
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.brand-text-gradient {
+    color: var(--primary);
+    font-weight: 800;
 }
 
 /* SVG Decorative Underline */
@@ -510,7 +515,7 @@ body {
    ========================================================= */
 .categories-section { padding: 80px 0; background: #f8fafc; }
 .section-badge { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: var(--radius-full); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
-.section-title { font-size: clamp(26px, 3vw, 34px); font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; margin-bottom: 12px; }
+.section-title { font-size: clamp(24px, 2.8vw, 32px); font-weight: 700; color: var(--text-main); letter-spacing: -0.3px; line-height: 1.3; margin-bottom: 12px; }
 .section-desc { font-size: 15px; color: var(--text-muted); max-width: 540px; margin: 0 auto 48px; line-height: 1.6; }
 
 .category-card {
