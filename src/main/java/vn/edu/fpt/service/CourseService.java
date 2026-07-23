@@ -59,18 +59,25 @@ public class CourseService {
     private final LessonService lessonService;
     private final FeedbackService feedbackService;
     private final LessonNoteService lessonNoteService;
-
+    private final EnrollmentRepository enrollmentRepository;
 
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
         return repository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
     }
 
+    public void deleteCourseById(Integer courseId, User user) {
+        Course course = getInstructorOwnedCourse(courseId, user);
 
-    public void deleteCourseById(Integer courseId, User user){
-        getInstructorOwnedCourse(courseId, user);
+        if (course.getStatus() != CourseStatus.DRAFT && course.getStatus() != CourseStatus.REJECTED) {
+            throw new CourseValidationException("status", "Chỉ có thể xóa khóa học ở trạng thái Bản nháp (DRAFT) hoặc Bị từ chối (REJECTED).");
+        }
+
+        if (enrollmentRepository.countByCourseId(courseId) > 0) {
+            throw new CourseValidationException("enrollment", "Khóa học đã có học viên đăng ký, không thể xóa.");
+        }
+
         repository.deleteCourseById(courseId);
     }
-
 
     public Course getInstructorOwnedCourse(Integer courseId, User user) {
         Course course = repository.findById(courseId)
@@ -81,7 +88,6 @@ public class CourseService {
         return course;
     }
 
-
     public void hidePublishedCourse(Integer courseId, User user) {
         Course course = getInstructorOwnedCourse(courseId, user);
         if (course.getStatus() != CourseStatus.PUBLISHED) {
@@ -91,7 +97,6 @@ public class CourseService {
         course.setUpdateAt(LocalDateTime.now());
         repository.save(course);
     }
-
 
     public void publishHiddenCourse(Integer courseId, User user) {
         Course course = getInstructorOwnedCourse(courseId, user);
@@ -151,7 +156,8 @@ public class CourseService {
 
         String thumbnailUrl = course.getThumbnailUrl();
         if (courseCreateDto.getThumbnailFile() != null && !courseCreateDto.getThumbnailFile().isEmpty()) {
-            thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS);
+            thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(),
+                    AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS);
         }
 
         Category category = categoryRepository.findById(courseCreateDto.getCategoryId())
@@ -170,23 +176,29 @@ public class CourseService {
     public void validateInstructorProfileReadyForCreateCourse(User user) {
         List<String> missingFields = getMissingInstructorProfileFields(user);
         if (!missingFields.isEmpty()) {
-            // Create course guard: rule nghiep vu dat trong service de ca GET create va POST save deu dung chung.
+            // Create course guard: rule nghiep vu dat trong service de ca GET create va
+            // POST save deu dung chung.
             throw new CourseValidationException(
                     "profile",
                     "Vui lòng cập nhật đầy đủ hồ sơ giảng viên trước khi tạo khóa học: "
-                            + String.join(", ", missingFields) + "."
-            );
+                            + String.join(", ", missingFields) + ".");
         }
     }
 
     private List<String> getMissingInstructorProfileFields(User user) {
         List<String> missingFields = new ArrayList<>();
-        if (user == null || !hasText(user.getFirstName())) missingFields.add("Tên");
-        if (user == null || !hasText(user.getLastName())) missingFields.add("Họ");
-        if (user == null || !hasText(user.getEmail())) missingFields.add("Email");
-        if (user == null || !hasText(user.getPhone())) missingFields.add("Số điện thoại");
-        if (user == null || !hasText(user.getBio())) missingFields.add("Mô tả bản thân");
-        if (user == null || !hasText(user.getAvatarUrl())) missingFields.add("Ảnh đại diện");
+        if (user == null || !hasText(user.getFirstName()))
+            missingFields.add("Tên");
+        if (user == null || !hasText(user.getLastName()))
+            missingFields.add("Họ");
+        if (user == null || !hasText(user.getEmail()))
+            missingFields.add("Email");
+        if (user == null || !hasText(user.getPhone()))
+            missingFields.add("Số điện thoại");
+        if (user == null || !hasText(user.getBio()))
+            missingFields.add("Mô tả bản thân");
+        if (user == null || !hasText(user.getAvatarUrl()))
+            missingFields.add("Ảnh đại diện");
         return missingFields;
     }
 
@@ -201,14 +213,14 @@ public class CourseService {
             return;
         }
 
-        if (price.compareTo(BigDecimal.valueOf(2000)) <= 0) {
-            throw new CourseValidationException("price", "Giá khóa học phải lớn hơn 2.000 VNĐ hoặc bằng 0 nếu miễn phí.");
+        if (price.compareTo(BigDecimal.valueOf(2000)) < 0) {
+            throw new CourseValidationException("price",
+                    "Giá khóa học phải từ 2.000 VNĐ trở lên hoặc bằng 0 nếu miễn phí.");
         }
         if (price.remainder(BigDecimal.valueOf(1000)).compareTo(BigDecimal.ZERO) != 0) {
             throw new CourseValidationException("price", "Giá khóa học phải chia hết cho 1.000 VNĐ.");
         }
     }
-
 
     private String toPlainText(String html) {
         if (html == null) {
@@ -220,11 +232,12 @@ public class CourseService {
                 .trim();
     }
 
-    ///getCourseForEdit
-    public CourseCreateDto getCourseForEdit(Integer coureId, User user){
-        Course course = repository.findById(coureId).orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khoá học có id = " + coureId));
+    /// getCourseForEdit
+    public CourseCreateDto getCourseForEdit(Integer coureId, User user) {
+        Course course = repository.findById(coureId)
+                .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khoá học có id = " + coureId));
 
-        if(!course.getInstructor().getId().equals(user.getId())){
+        if (!course.getInstructor().getId().equals(user.getId())) {
             throw new AccessDeniedException("Bạn không có quyền chỉnh sửa khoá học này");
         }
 
@@ -240,8 +253,8 @@ public class CourseService {
         return courseCreateDto;
     }
 
-    ///Show Chi tiết khoá học
-    public CourseRespon getCourseDetailToView(Integer courseId){
+    /// Show Chi tiết khoá học
+    public CourseRespon getCourseDetailToView(Integer courseId) {
         Course course = repository.findDetailById(courseId);
         CourseRespon courseRespon = new CourseRespon();
         courseRespon.setTittle(course.getTitle());
@@ -253,43 +266,39 @@ public class CourseService {
         courseRespon.setCreateAt(course.getCreatedAt());
         courseRespon.setThumnaiUrl(course.getThumbnailUrl());
 
-        List<SectionRespon> sections = course.getSections().
-                stream().map(section -> {
-                    SectionRespon sr = new SectionRespon();
-                    sr.setId(section.getId());
-                    sr.setPosition(section.getPosition());
-                    sr.setTitle(section.getTitle());
-                    sr.setCreateAt(section.getCreatedAt());
+        List<SectionRespon> sections = course.getSections().stream().map(section -> {
+            SectionRespon sr = new SectionRespon();
+            sr.setId(section.getId());
+            sr.setPosition(section.getPosition());
+            sr.setTitle(section.getTitle());
+            sr.setCreateAt(section.getCreatedAt());
 
-                    List<LessonRespon> lessons = section.getLessons().
-                            stream().map(lesson -> {
-                                LessonRespon lr = new LessonRespon();
-                                lr.setId(lesson.getId());
-                                lr.setPosition(lesson.getPosition());
-                                lr.setTitle(lesson.getTitle());
-                                lr.setCreateAt(lesson.getCreatedAt());
-                                lr.setVideoUrl(lesson.getVideoUrl());
-                                lr.setDutationSecond(lesson.getDurationSeconds());
+            List<LessonRespon> lessons = section.getLessons().stream().map(lesson -> {
+                LessonRespon lr = new LessonRespon();
+                lr.setId(lesson.getId());
+                lr.setPosition(lesson.getPosition());
+                lr.setTitle(lesson.getTitle());
+                lr.setCreateAt(lesson.getCreatedAt());
+                lr.setVideoUrl(lesson.getVideoUrl());
+                lr.setDutationSecond(lesson.getDurationSeconds());
 
-                                List<LessonMaterialRespon> materials = lesson.getMaterials().
-                                        stream().map(material -> {
-                                            LessonMaterialRespon lms = new LessonMaterialRespon();
-                                            lms.setId(material.getId());
-                                            lms.setFile_name(material.getFileName());
-                                            return lms;
-                                        }).toList();
-                                lr.setMaterials(materials);
-                                return lr;
-                            }).toList();
-                    sr.setLessons(lessons);
-                    return sr;
+                List<LessonMaterialRespon> materials = lesson.getMaterials().stream().map(material -> {
+                    LessonMaterialRespon lms = new LessonMaterialRespon();
+                    lms.setId(material.getId());
+                    lms.setFile_name(material.getFileName());
+                    return lms;
                 }).toList();
+                lr.setMaterials(materials);
+                return lr;
+            }).toList();
+            sr.setLessons(lessons);
+            return sr;
+        }).toList();
 
         courseRespon.setSections(sections);
 
         return courseRespon;
     }
-
 
     public List<CourseDto> getCoursesBySearch(String search) {
         List<Course> courses;
@@ -315,7 +324,6 @@ public class CourseService {
         List<CourseDto> allCourses = getCoursesBySearch(search);
         List<CourseDto> filteredCourses = new java.util.ArrayList<>();
 
-
         for (CourseDto course : allCourses) {
 
             // Lọc theo danh mục
@@ -324,7 +332,6 @@ public class CourseService {
                     continue;
                 }
             }
-
 
             if (ratings != null && !ratings.isEmpty()) {
                 boolean matchRating = false;
@@ -367,7 +374,6 @@ public class CourseService {
             filteredCourses.add(course);
         }
 
-
         filteredCourses.sort((c1, c2) -> {
             if ("rating".equals(sort)) {
                 return Double.compare(c2.getAverageRating(), c1.getAverageRating());
@@ -388,7 +394,6 @@ public class CourseService {
 
         return filteredCourses;
     }
-
 
     public CourseDto getCourseDetail(Integer id) {
         Course course = repository.findByIdWithDetails(id)
@@ -419,9 +424,12 @@ public class CourseService {
                     try {
                         BigDecimal min = new BigDecimal(parts[0].trim());
                         BigDecimal max = new BigDecimal(parts[1].trim());
-                        if (minPrice == null || min.compareTo(minPrice) < 0) minPrice = min;
-                        if (maxPrice == null || max.compareTo(maxPrice) > 0) maxPrice = max;
-                    } catch (NumberFormatException ignored) {}
+                        if (minPrice == null || min.compareTo(minPrice) < 0)
+                            minPrice = min;
+                        if (maxPrice == null || max.compareTo(maxPrice) > 0)
+                            maxPrice = max;
+                    } catch (NumberFormatException ignored) {
+                    }
                 }
             }
         }
@@ -431,7 +439,8 @@ public class CourseService {
 
         if ("rating".equals(sort)) {
             pageable = PageRequest.of(currentPage - 1, size);
-            coursePage = repository.findPublishedCoursesOrderByRating(search, categoryId, minRating, minPrice, maxPrice, pageable);
+            coursePage = repository.findPublishedCoursesOrderByRating(search, categoryId, minRating, minPrice, maxPrice,
+                    pageable);
         } else {
             Sort sortObj = switch (sort == null ? "" : sort) {
                 case "price-asc" -> Sort.by(Sort.Direction.ASC, "price");
@@ -445,9 +454,11 @@ public class CourseService {
         if (coursePage.isEmpty() && currentPage > 1 && coursePage.getTotalPages() > 0) {
             pageable = PageRequest.of(coursePage.getTotalPages() - 1, size, pageable.getSort());
             if ("rating".equals(sort)) {
-                coursePage = repository.findPublishedCoursesOrderByRating(search, categoryId, minRating, minPrice, maxPrice, pageable);
+                coursePage = repository.findPublishedCoursesOrderByRating(search, categoryId, minRating, minPrice,
+                        maxPrice, pageable);
             } else {
-                coursePage = repository.findPublishedCourses(search, categoryId, minRating, minPrice, maxPrice, pageable);
+                coursePage = repository.findPublishedCourses(search, categoryId, minRating, minPrice, maxPrice,
+                        pageable);
             }
         }
 
@@ -585,8 +596,8 @@ public class CourseService {
         boolean owner = user != null
                 && course.getInstructor() != null
                 && course.getInstructor().getId().equals(user.getId());
-        boolean editableStatus = course.getStatus() == CourseStatus.DRAFT 
-                || course.getStatus() == CourseStatus.REJECTED 
+        boolean editableStatus = course.getStatus() == CourseStatus.DRAFT
+                || course.getStatus() == CourseStatus.REJECTED
                 || course.getStatus() == CourseStatus.RESUBMIT;
         boolean noPendingRequest = course.getStatus() != CourseStatus.PENDING;
 
@@ -662,10 +673,12 @@ public class CourseService {
         int total = dto.getContentChecks().size() + dto.getBusinessChecks().size();
         int completed = 0;
         for (CourseSubmitReviewDto.CheckItem item : dto.getContentChecks()) {
-            if (item.isPassed()) completed++;
+            if (item.isPassed())
+                completed++;
         }
         for (CourseSubmitReviewDto.CheckItem item : dto.getBusinessChecks()) {
-            if (item.isPassed()) completed++;
+            if (item.isPassed())
+                completed++;
         }
 
         dto.setTotalCount(total);
@@ -696,7 +709,7 @@ public class CourseService {
     }
 
     private void addCheck(List<CourseSubmitReviewDto.CheckItem> checks, List<String> missingMessages,
-                          String label, boolean passed, String missingMessage) {
+            String label, boolean passed, String missingMessage) {
         checks.add(new CourseSubmitReviewDto.CheckItem(label, passed));
         if (!passed && missingMessage != null) {
             missingMessages.add(missingMessage);
@@ -721,8 +734,6 @@ public class CourseService {
         }
         return value.replaceAll("<[^>]*>", "").trim().length();
     }
-
-
 
     public void resubmitCourse(Integer id) {
         Course course = repository.findById(id)
@@ -750,6 +761,7 @@ public class CourseService {
             repository.save(course);
         }
     }
+
     public HomeDto getHomeData(User currentUser) {
         long totalCourses = repository.countByStatus(CourseStatus.PUBLISHED);
         long totalInstructors = userRepository.countInstructors();
@@ -814,13 +826,10 @@ public class CourseService {
         // 1. Lấy top 4 khóa học cho từng danh mục con
         for (CategoryDto child : favoriteChildren) {
             List<CourseListDto> top4 = repository.findTop4ByCategoryIdsOrderByAverageRatingDesc(
-                    java.util.Collections.singletonList(child.getId()), 
-                    PageRequest.of(0, 4)
-            );
+                    java.util.Collections.singletonList(child.getId()),
+                    PageRequest.of(0, 4));
             coursesMap.put(child.getId(), top4);
         }
-
-
 
         return builder
                 .hasFavorites(true)
@@ -833,9 +842,12 @@ public class CourseService {
     public CourseContentSidebarDTO viewCourseContent(User user, Integer courseId, Integer sectionId, Integer lessonId) {
         CourseContentSidebarDTO courseContentSidebarDTO = new CourseContentSidebarDTO();
 
-        Course course = repository.findByCourseIdAndUserId(courseId, user.getId()).orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này hoặc khóa học không tồn tại trong hệ thống!"));
+        Course course = repository.findByCourseIdAndUserId(courseId, user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Người dùng chưa mua khóa học này hoặc khóa học không tồn tại trong hệ thống!"));
 
-        List<SectionSiderbarDTO> sectionSiderbarDTOS = courseSectionRepository.findSectionSiderbarDTOByCourseId(courseId);
+        List<SectionSiderbarDTO> sectionSiderbarDTOS = courseSectionRepository
+                .findSectionSiderbarDTOByCourseId(courseId);
 
         Set<Integer> lessonIdCompleted = lessonProgressRepository.findByUserIdAndCourseId(user.getId(), courseId);
 
@@ -853,7 +865,7 @@ public class CourseService {
                 }
                 if (lessonIdCompleted.contains(lessonSiderbarDTO.getId())) {
                     lessonSiderbarDTO.setCompleted(true);
-                } else  {
+                } else {
                     sectionCompleted = false;
                 }
             }
@@ -862,16 +874,17 @@ public class CourseService {
             dto.setLessons(lessonSiderbarDTOS);
         }
 
-
         courseContentSidebarDTO.setSections(sectionSiderbarDTOS);
         courseContentSidebarDTO.setTotalLesson(totalLesson);
         courseContentSidebarDTO.setCompletedLesson(lessonIdCompleted.size());
         courseContentSidebarDTO.setCurrentLessonId(lessonId);
         courseContentSidebarDTO.setCurrentLessonTitle(currentLessonTitle);
         courseContentSidebarDTO.setCourseId(courseId);
-        courseContentSidebarDTO.setThumbanailURL(AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + course.getThumbnailUrl());
+        courseContentSidebarDTO.setThumbanailURL(AppConstants.AZURE_STORAGE_BASE_URL + "/"
+                + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + course.getThumbnailUrl());
 
-        Lesson nextLesson = lessonService.findNextLessonByCurrentLesson(lessonId, courseId ,totalLesson, lessonIdCompleted.size());
+        Lesson nextLesson = lessonService.findNextLessonByCurrentLesson(lessonId, courseId, totalLesson,
+                lessonIdCompleted.size());
         if (nextLesson != null) {
             courseContentSidebarDTO.setNextLessonId(nextLesson.getId());
             courseContentSidebarDTO.setNextLessonTitle(nextLesson.getTitle());
@@ -913,7 +926,8 @@ public class CourseService {
         courseContentSidebarDTO.setShowReviewPrompt(showReviewPrompt);
 
         // tải ghi chú của tôi
-        List<LessonNoteSiderbarDTO> lessonNoteSiderbarDTOS = lessonNoteService.findLessonNoteByUserIdAndLessonId(user.getId(), lessonId);
+        List<LessonNoteSiderbarDTO> lessonNoteSiderbarDTOS = lessonNoteService
+                .findLessonNoteByUserIdAndLessonId(user.getId(), lessonId);
 
         courseContentSidebarDTO.setLessonNoteSiderbarDTOS(lessonNoteSiderbarDTOS);
         return courseContentSidebarDTO;
@@ -927,7 +941,8 @@ public class CourseService {
         if (courseOpt.isEmpty()) {
             return false;
         }
-        List<SectionSiderbarDTO> sectionSiderbarDTOS = courseSectionRepository.findSectionSiderbarDTOByCourseId(courseId);
+        List<SectionSiderbarDTO> sectionSiderbarDTOS = courseSectionRepository
+                .findSectionSiderbarDTOByCourseId(courseId);
         Set<Integer> lessonIdCompleted = lessonProgressRepository.findByUserIdAndCourseId(user.getId(), courseId);
         int totalLesson = 0;
         for (SectionSiderbarDTO dto : sectionSiderbarDTOS) {
@@ -947,7 +962,8 @@ public class CourseService {
         }
 
         if (!canUserReviewCourse(user, courseId)) {
-            throw new IllegalArgumentException("Bạn cần hoàn thành ít nhất 30% tiến trình bài học để đánh giá khóa học này!");
+            throw new IllegalArgumentException(
+                    "Bạn cần hoàn thành ít nhất 30% tiến trình bài học để đánh giá khóa học này!");
         }
 
         Course course = repository.findById(courseId)
@@ -965,7 +981,8 @@ public class CourseService {
         return feedbackRepository.save(feedback);
     }
 
-    public Map<String, Object> addCourseReviewAndBuildData(User user, Integer courseId, Integer rating, String comment) {
+    public Map<String, Object> addCourseReviewAndBuildData(User user, Integer courseId, Integer rating,
+            String comment) {
         Feedback feedback = addCourseReview(user, courseId, rating, comment);
 
         Map<String, Object> fbData = new HashMap<>();
@@ -1004,4 +1021,3 @@ public class CourseService {
         return repository.findAvailableCoursesForUser(userId);
     }
 }
-

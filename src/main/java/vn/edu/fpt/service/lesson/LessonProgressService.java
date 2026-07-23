@@ -20,16 +20,30 @@ public class LessonProgressService {
         this.repository = lessonProgressRepository;
     }
 
-    public List<LessonProgress> findAll() { return repository.findAll(); }
-    public Optional<LessonProgress> findById(Integer id) { return repository.findById(id); }
-    public LessonProgress save(LessonProgress entity) { return repository.save(entity); }
-    public void deleteById(Integer id) { repository.deleteById(id); }
-    public boolean existsById(Integer id) { return repository.existsById(id); }
+    public List<LessonProgress> findAll() {
+        return repository.findAll();
+    }
+
+    public Optional<LessonProgress> findById(Integer id) {
+        return repository.findById(id);
+    }
+
+    public LessonProgress save(LessonProgress entity) {
+        return repository.save(entity);
+    }
+
+    public void deleteById(Integer id) {
+        repository.deleteById(id);
+    }
+
+    public boolean existsById(Integer id) {
+        return repository.existsById(id);
+    }
 
     public void saveLessonProgressByEnrollmentAndLessonId(Enrollment enrollment, Integer lessonId) {
         LessonProgress lessonProgress = repository.findByEnrollmentIdAndLessonId(enrollment.getId(), lessonId);
         if (lessonProgress == null) {
-             lessonProgress = LessonProgress.builder()
+            lessonProgress = LessonProgress.builder()
                     .enrollment(enrollment)
                     .lesson(Lesson.builder().id(lessonId).build())
                     .completed(true)

@@ -54,7 +54,7 @@
                 </a>
                 <div class="dropdown">
                     <button class="dropdown-toggle">
-                        <img th:src="${currentUser?.avatarUrl ?: '/images/avatar.png'}"
+                        <img th:src="${currentUser?.getFullAvatarUrl() ?: '/images/avatar.png'}"
                              alt="Avatar" class="avatar-sm"/>
                         <span th:text="${currentUser?.fullName ?: 'Tài khoản'}">Tài khoản</span>
                     </button>
