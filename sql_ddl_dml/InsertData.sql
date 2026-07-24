@@ -213,6 +213,7 @@ INSERT INTO courses (
     title,
     description,
     thumbnail_url,
+    intro_video_url,
     price,
     level,
     status,

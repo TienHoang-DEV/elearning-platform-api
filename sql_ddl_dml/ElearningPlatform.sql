@@ -291,6 +291,8 @@ CREATE TABLE courses (
                          status VARCHAR(20),
     -- Trạng thái: draft (nháp), pending (chờ duyệt), published (đã xuất bản), rejected (từ chối), hidden (ẩn)
 
+                         intro_video_url NVARCHAR(500)
+    --Video giới thiệu khoá học
                          approved_by INT NULL,
     -- Tham chiếu đến manager/admin đã phê duyệt khóa học
 

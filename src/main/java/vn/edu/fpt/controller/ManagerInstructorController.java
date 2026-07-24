@@ -89,8 +89,12 @@ public class ManagerInstructorController {
             @RequestParam("status") UserStatus status,
             RedirectAttributes redirectAttributes) {
 
-        userService.updateInstructorStatus(id, status);
-        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái tài khoản giảng viên thành công.");
+        try {
+            userService.updateInstructorStatus(id, status);
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái tài khoản giảng viên thành công.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
 
         return "redirect:/manager/instructor/detail/" + id;
     }

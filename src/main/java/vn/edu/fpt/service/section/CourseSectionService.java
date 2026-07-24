@@ -184,10 +184,8 @@ public class CourseSectionService {
                         lessonDto.setTitle(l.getTitle());
                         lessonDto.setPosition(l.getPosition());
                         lessonDto.setDurationSeconds(l.getDurationSeconds());
-                        lessonDto.setIsFreePreview(l.getIsFreePreview());
                         lessonDto.setQuizzes(
                                 l.getQuizzes().stream()
-                                        // Step curriculum preview: chi hien thi quiz da publish cho instructor xem truoc.
                                         .filter(q -> QuizStatus.PUBLISHED.name().equalsIgnoreCase(q.getStatus()))
                                         .map(q -> LessonQuizDto.builder()
                                         .id(q.getId())

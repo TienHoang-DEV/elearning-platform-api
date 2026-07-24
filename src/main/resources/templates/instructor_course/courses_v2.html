@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <link rel="icon" type="image/png" th:href="@{/images/logo-background.png}">
@@ -25,6 +25,9 @@
     </div>
     <div class="app-toast toast-success" th:if="${success != null}">
         <span th:text="${success}">Thành công</span>
+    </div>
+    <div class="app-toast toast-warning" th:if="${warning != null}">
+        <span th:text="${warning}">Cảnh báo</span>
     </div>
 
     <div class="card">
@@ -307,3 +310,4 @@
 <script th:src="@{/js/course_instructor.js}"></script>
 </body>
 </html>
+

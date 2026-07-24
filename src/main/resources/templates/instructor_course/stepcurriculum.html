@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <!--
@@ -155,7 +155,6 @@
                             <div class="lesson-info">
                                 <span class="lesson-icon"></span>
                                 <span class="lesson-title" th:text="'Bài ' + ${lesson.position} + ': ' + ${lesson.title}">Tên bài giảng</span>
-                                <span th:if="${lesson.isFreePreview}" class="badge badge-free">Miễn phí</span>
                             </div>
                             <div class="lesson-actions">
                                 <a th:href="@{/instructor/lesson-detail/{lessonId}(lessonId=${lesson.id})}"
@@ -174,7 +173,6 @@
                                 <button type="button" class="btn btn-sm btn-outline"
                                         th:data-lesson-id="${lesson.id}"
                                         th:data-lesson-title="${lesson.title}"
-                                        th:data-lesson-free="${lesson.isFreePreview}"
                                         th:data-course-id="${section.course.id}"
                                         th:data-section-id="${section.id}"
                                         th:data-source="${source}"
@@ -435,4 +433,5 @@
 
 </div>
 </html>
+
 
