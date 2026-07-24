@@ -11,20 +11,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import vn.edu.fpt.dto.course.CourseGrantDTO;
 import vn.edu.fpt.dto.user.LearnerInfomationGrantAccessDTO;
-import vn.edu.fpt.entity.Course;
-import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.EnrollmentGrantReason;
-import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.CourseService;
 import vn.edu.fpt.service.EnrollmentService;
 import vn.edu.fpt.service.UserService;
-import vn.edu.fpt.service.EmailService;
 import vn.edu.fpt.util.AppConstants;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 @Controller
 @RequiredArgsConstructor
@@ -33,7 +28,6 @@ public class ManagerGrantAccessController {
     private final UserService userService;
     private final CourseService courseService;
     private final EnrollmentService enrollmentService;
-    private final EmailService emailService;
 
     @GetMapping("/manager/grant-access")
     public String managerGrantAccess(Model model, @RequestParam(value = "keyword", required = false) String keyword,

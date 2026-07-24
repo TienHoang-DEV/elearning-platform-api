@@ -61,7 +61,7 @@ public class ManagerCourseController {
         int startPage = 0;
         int endPage = 0;
         if (coursePage.getTotalPages() > 0) {
-            startPage = (coursePage.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK;
+            startPage = (coursePage.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
             endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, coursePage.getTotalPages() - 1);
         }
 
