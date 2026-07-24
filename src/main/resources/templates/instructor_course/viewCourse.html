@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -43,6 +43,12 @@
 
             <!-- Course Info Section -->
             <div class="p-4 border-bottom bg-light bg-opacity-25">
+                <div class="mb-3">
+                    <a th:href="@{/instructor/courses}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Quay lại danh sách khóa học
+                    </a>
+                </div>
                 <div class="row g-4">
                     <!-- Course Thumbnail -->
                     <div class="col-lg-3 col-12">
@@ -84,7 +90,9 @@
             <div class="video-player-container position-relative overflow-hidden bg-dark">
                 <video id="lesson-video" class="w-100"
                        style="height: 700px; object-fit: cover;" controls controlsList="nodownload" preload="metadata"
-                       playsinline th:poster="${urlAvatar + courseDetal.thumnaiUrl}">
+                       playsinline
+                       th:src="${courseDetal.introVideoPreviewUrl != null and courseDetal.introVideoPreviewUrl != '' ? courseDetal.introVideoPreviewUrl : ''}"
+                       th:poster="${urlAvatar + courseDetal.thumnaiUrl}">
                     Trình duyệt của bạn không hỗ trợ thẻ video.
                 </video>
                 <div id="video-error-overlay" class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-dark text-white d-none" style="z-index: 10;">
@@ -506,3 +514,4 @@
 </body>
 
 </html>
+

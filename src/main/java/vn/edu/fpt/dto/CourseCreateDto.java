@@ -43,4 +43,8 @@ public class CourseCreateDto {
     private Integer categoryId;
 
     private String thumbnailUrl;
+
+    private String introVideoUrl;
+
+    private String introVideoPreviewUrl;
 }

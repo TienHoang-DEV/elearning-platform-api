@@ -5,6 +5,7 @@
   <form th:action="@{/instructor/save}"
         method="POST" enctype="multipart/form-data" id="courseInfoForm" th:object="${courseRequest}">
       <input type="hidden" th:field="*{id}">
+      <input type="hidden" th:field="*{introVideoUrl}" id="introVideoBlobName">
     <div class="card">
       <div class="card-title">Giới Thiệu Khóa Học</div>
 
@@ -139,6 +140,29 @@
                 th:if="${#fields.hasErrors('thumbnailFile')}"
         th:errors="*{thumbnailFile}"></p>
       </div>
+
+      <!-- Course intro video: video gioi thieu chung cua khoa hoc, DB chi luu blobName. -->
+      <div class="form-group" style="margin-top:16px;">
+        <label>Video Giới Thiệu Khóa Học</label>
+        <div class="file-upload-area"
+             style="margin-top:8px;"
+             onclick="document.getElementById('introVideoInput').click()">
+          <div class="upload-icon"></div>
+          <p>Nhấn để tải video giới thiệu khóa học</p>
+          <p style="font-size:.75rem;color:#94a3b8;margin-top:4px;">MP4, MOV, AVI. Video này hiển thị ở phần tổng quan khóa học.</p>
+          <span class="choose-btn">Chọn Video Giới Thiệu</span>
+        </div>
+        <input type="file" id="introVideoInput" accept="video/*" style="display:none;">
+        <div id="introVideoPreview" style="margin-top:12px;">
+          <div th:if="${courseRequest?.introVideoPreviewUrl != null and courseRequest?.introVideoPreviewUrl != ''}"
+               style="padding:12px;border:1px dashed #cbd5e1;border-radius:8px;background:#f8fafc;">
+            <p style="font-size:13px;color:#475569;margin-bottom:8px;">Video giới thiệu hiện tại</p>
+            <video controls
+                   th:src="${courseRequest.introVideoPreviewUrl}"
+                   style="width:100%;max-height:220px;border-radius:8px;background:#0f172a;"></video>
+          </div>
+        </div>
+      </div>
     </div>
 
 
@@ -159,9 +183,76 @@
       const editor = document.getElementById('courseDescEditor');
 
       if (form && editor) {
-        form.addEventListener('submit', function () {
+        form.addEventListener('submit', async function (event) {
           document.getElementById('descHidden').value = editor.innerHTML;
+          const introInput = document.getElementById('introVideoInput');
+          const introBlobInput = document.getElementById('introVideoBlobName');
+          const submitter = event.submitter;
+          const introFile = introInput?.files?.[0];
+
+          if (!introFile || form.dataset.introUploaded === 'true') {
+            return;
+          }
+
+          event.preventDefault();
+          if (form.dataset.submitting === 'true') {
+            return;
+          }
+
+          form.dataset.submitting = 'true';
+          if (submitter) {
+            submitter.disabled = true;
+            submitter.dataset.originalText = submitter.textContent;
+            submitter.textContent = 'Đang tải video...';
+          }
+
+          try {
+            introBlobInput.value = await uploadCourseIntroVideoDirectToAzure(introFile, document.querySelector('input[name="id"]')?.value);
+            form.dataset.introUploaded = 'true';
+            if (submitter) {
+              submitter.disabled = false;
+              submitter.textContent = submitter.dataset.originalText || submitter.textContent;
+            }
+            form.requestSubmit(submitter || undefined);
+          } catch (error) {
+            alert(error.message || 'Không tải được video giới thiệu.');
+            form.dataset.submitting = 'false';
+            if (submitter) {
+              submitter.disabled = false;
+              submitter.textContent = submitter.dataset.originalText || 'Lưu';
+            }
+          }
         });
+      }
+
+      async function uploadCourseIntroVideoDirectToAzure(file, courseId) {
+        const requestBody = new FormData();
+        requestBody.append('fileName', file.name);
+        if (courseId) {
+          requestBody.append('courseId', courseId);
+        }
+
+        const sasResponse = await fetch('/instructor/course-intro-upload-url', {
+          method: 'POST',
+          body: requestBody
+        });
+        if (!sasResponse.ok) {
+          throw new Error('Không lấy được URL upload video giới thiệu.');
+        }
+
+        const uploadInfo = await sasResponse.json();
+        const azureResponse = await fetch(uploadInfo.uploadUrl, {
+          method: 'PUT',
+          headers: {
+            'x-ms-blob-type': 'BlockBlob',
+            'Content-Type': file.type || 'application/octet-stream'
+          },
+          body: file
+        });
+        if (!azureResponse.ok) {
+          throw new Error('Upload video giới thiệu lên Azure thất bại.');
+        }
+        return uploadInfo.blobName;
       }
 
       // Course price input: chan nhap chu va ky tu dac biet ngay o frontend.
@@ -227,6 +318,23 @@
                   reader.readAsDataURL(file);
                 }
               });
+
+      const introVideoInput = document.getElementById('introVideoInput');
+      const introVideoPreview = document.getElementById('introVideoPreview');
+      if (introVideoInput && introVideoPreview) {
+        introVideoInput.addEventListener('change', function () {
+          const file = this.files[0];
+          if (!file) return;
+          document.getElementById('introVideoBlobName').value = '';
+          document.getElementById('courseInfoForm').dataset.introUploaded = 'false';
+          const url = URL.createObjectURL(file);
+          introVideoPreview.innerHTML = `
+            <div style="padding:12px;border:1px dashed #cbd5e1;border-radius:8px;background:#f8fafc;">
+              <p style="font-size:13px;color:#475569;margin-bottom:8px;">Video giới thiệu mới</p>
+              <video controls src="${url}" style="width:100%;max-height:220px;border-radius:8px;background:#0f172a;"></video>
+            </div>`;
+        });
+      }
 
     });
   </script>

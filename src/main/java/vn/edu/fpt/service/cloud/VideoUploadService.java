@@ -5,6 +5,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.entity.CourseSection;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.util.AppConstants;
 
@@ -15,10 +16,21 @@ import java.util.Map;
 public class VideoUploadService {
 
     private final CourseSectionService courseSectionService;
+    private final CourseRepository courseRepository;
     private final AzureBlobService azureBlobService;
 
     public Map<String, String> generateDirectUploadUrl(String fileName, Integer sectionId, User user) {
         validateInstructorOwnsSection(sectionId, user);
+        String blobName = normalizeOriginalFileName(fileName);
+        String uploadUrl = azureBlobService.generateUploadSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, blobName);
+        return Map.of(
+                "uploadUrl", uploadUrl,
+                "blobName", blobName
+        );
+    }
+
+    public Map<String, String> generateCourseIntroUploadUrl(String fileName, Integer courseId, User user) {
+        validateCourseIntroUploadPermission(courseId, user);
         String blobName = normalizeOriginalFileName(fileName);
         String uploadUrl = azureBlobService.generateUploadSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, blobName);
         return Map.of(
@@ -36,7 +48,7 @@ public class VideoUploadService {
 
     private void validateInstructorOwnsSection(Integer sectionId, User user) {
         if (user == null) {
-            throw new AccessDeniedException("Bạn cần đăng nhập để tải video lên.");
+            throw new AccessDeniedException("Ban can dang nhap de tai video len.");
         }
 
         CourseSection section = courseSectionService.findBySectionId(sectionId);
@@ -44,7 +56,25 @@ public class VideoUploadService {
                 || section.getCourse() == null
                 || section.getCourse().getInstructor() == null
                 || !section.getCourse().getInstructor().getId().equals(user.getId())) {
-            throw new AccessDeniedException("Bạn không có quyền tải video lên chương này.");
+            throw new AccessDeniedException("Ban khong co quyen tai video len chuong nay.");
+        }
+    }
+
+    private void validateCourseIntroUploadPermission(Integer courseId, User user) {
+        if (user == null) {
+            throw new AccessDeniedException("Ban can dang nhap de tai video gioi thieu.");
+        }
+        
+        if (courseId == null) {
+            return;
+        }
+
+        boolean ownsCourse = courseRepository.findById(courseId)
+                .map(course -> course.getInstructor() != null
+                        && course.getInstructor().getId().equals(user.getId()))
+                .orElse(false);
+        if (!ownsCourse) {
+            throw new AccessDeniedException("Ban khong co quyen tai video cho khoa hoc nay.");
         }
     }
 }

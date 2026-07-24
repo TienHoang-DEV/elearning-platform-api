@@ -500,11 +500,12 @@
 
 
                                 <div class="thumbnail-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-40"
-                                    th:if="${course.getFirstLessonId() != null}">
+                                    th:if="${course.introVideoPath != null or course.getFirstLessonId() != null}">
                                     <button
                                         class="btn play-overlay-btn btn-light rounded-pill px-4 py-2 fw-semibold fs-7 shadow d-flex align-items-center gap-2 border-0"
                                         data-bs-toggle="modal" data-bs-target="#videoModal"
                                         th:data-lesson-id="${course.getFirstLessonId()}"
+                                        th:data-intro-video-url="${course.introVideoPath}"
                                         th:data-lesson-title="${course.title}">
                                         <i data-lucide="play" class="fill-current" style="width:16px;"></i>
                                         <span>Xem thử khóa học</span>
@@ -601,13 +602,14 @@
                 </div>
                 <div class="modal-body p-0 bg-dark">
                     <!-- Real video player or fallback -->
-                    <div th:if="${course.getFirstLessonId() != null}" class="ratio ratio-16x9 w-100 bg-black">
+                    <div th:if="${course.introVideoPath != null or course.getFirstLessonId() != null}" class="ratio ratio-16x9 w-100 bg-black">
                         <video controls style="width: 100%; height: 100%; object-fit: contain;" id="previewVideo"
+                            th:src="${course.introVideoPath}"
                             th:data-lesson-id="${course.getFirstLessonId()}">
                             Trình duyệt của bạn không hỗ trợ thẻ video.
                         </video>
                     </div>
-                    <div th:unless="${course.getFirstLessonId() != null}"
+                    <div th:unless="${course.introVideoPath != null or course.getFirstLessonId() != null}"
                         class="simulated-player position-relative w-100 bg-black d-flex align-items-center justify-content-center"
                         style="aspect-ratio: 16/9; overflow: hidden;">
                         <img th:src="${course.thumbnailPath}" alt="Course Preview"

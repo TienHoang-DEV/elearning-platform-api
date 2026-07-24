@@ -35,6 +35,16 @@ public class SystemLogService {
         return repository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
+    public long countCourseRejections(Integer courseId) {
+        if (courseId == null) {
+            return 0;
+        }
+        return repository.countByTargetTypeAndTargetIdAndAction(
+                "COURSE",
+                String.valueOf(courseId),
+                LogAction.REJECT_COURSE);
+    }
+
     public List<SystemLog> findAll() { return repository.findAll(); }
     public Optional<SystemLog> findById(Integer id) { return repository.findById(id); }
     public SystemLog save(SystemLog entity) { return repository.save(entity); }

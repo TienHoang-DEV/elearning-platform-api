@@ -76,6 +76,14 @@ public class CourseService {
             throw new CourseValidationException("enrollment", "Khóa học đã có học viên đăng ký, không thể xóa.");
         }
 
+        if (hasText(course.getIntroVideoUrl())) {
+            try {
+                azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, course.getIntroVideoUrl());
+            } catch (Exception e) {
+                System.err.println("Warning: Khong the xoa video gioi thieu khoa hoc: " + e.getMessage());
+            }
+        }
+
         repository.deleteCourseById(courseId);
     }
 
@@ -160,6 +168,20 @@ public class CourseService {
                     AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS);
         }
 
+        String introVideoUrl = course.getIntroVideoUrl();
+        if (hasText(courseCreateDto.getIntroVideoUrl())) {
+            String newIntroVideoUrl = courseCreateDto.getIntroVideoUrl().trim();
+            // Course intro video: neu instructor thay video moi thi xoa blob cu de tranh file rac tren Azure.
+            if (hasText(introVideoUrl) && !introVideoUrl.equals(newIntroVideoUrl)) {
+                try {
+                    azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, introVideoUrl);
+                } catch (Exception e) {
+                    System.err.println("Warning: Khong the xoa video gioi thieu cu: " + e.getMessage());
+                }
+            }
+            introVideoUrl = newIntroVideoUrl;
+        }
+
         Category category = categoryRepository.findById(courseCreateDto.getCategoryId())
                 .orElseThrow(() -> new CourseValidationException("categoryId", "Category không tồn tại"));
 
@@ -168,6 +190,8 @@ public class CourseService {
         course.setCategory(category);
         course.setPrice(courseCreateDto.getPrice());
         course.setThumbnailUrl(thumbnailUrl);
+        // Course intro video: luu blobName video gioi thieu chung cua khoa hoc, khong gan vao tung lesson.
+        course.setIntroVideoUrl(introVideoUrl);
         course.setLevel(courseCreateDto.getLevel());
         course.setUpdateAt(LocalDateTime.now());
         return repository.save(course);
@@ -247,6 +271,8 @@ public class CourseService {
         courseCreateDto.setDescription(course.getDescription());
         courseCreateDto.setPrice(course.getPrice());
         courseCreateDto.setThumbnailUrl(course.getThumbnailUrl());
+        courseCreateDto.setIntroVideoUrl(course.getIntroVideoUrl());
+        courseCreateDto.setIntroVideoPreviewUrl(resolveVideoPreviewUrl(course.getIntroVideoUrl()));
         courseCreateDto.setLevel(course.getLevel());
         courseCreateDto.setCategoryId(course.getCategory() != null ? course.getCategory().getId() : null);
 
@@ -265,6 +291,8 @@ public class CourseService {
         courseRespon.setLevel(course.getLevel());
         courseRespon.setCreateAt(course.getCreatedAt());
         courseRespon.setThumnaiUrl(course.getThumbnailUrl());
+        courseRespon.setIntroVideoUrl(course.getIntroVideoUrl());
+        courseRespon.setIntroVideoPreviewUrl(resolveVideoPreviewUrl(course.getIntroVideoUrl()));
 
         List<SectionRespon> sections = course.getSections().stream().map(section -> {
             SectionRespon sr = new SectionRespon();
@@ -398,7 +426,19 @@ public class CourseService {
     public CourseDto getCourseDetail(Integer id) {
         Course course = repository.findByIdWithDetails(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-        return dtoMapper.toCourseDto(course);
+        CourseDto dto = dtoMapper.toCourseDto(course);
+        dto.setIntroVideoUrl(resolveVideoPreviewUrl(course.getIntroVideoUrl()));
+        return dto;
+    }
+
+    private String resolveVideoPreviewUrl(String blobName) {
+        if (!hasText(blobName)) {
+            return null;
+        }
+        if (blobName.startsWith("http://") || blobName.startsWith("https://")) {
+            return blobName;
+        }
+        return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, blobName);
     }
 
     public Page<CourseListDto> getPagedCoursesSummary(

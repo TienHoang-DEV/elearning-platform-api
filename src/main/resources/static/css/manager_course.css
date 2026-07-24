@@ -1,4 +1,4 @@
-/* ===== LEARNING HUB - INSTRUCTOR DASHBOARD CSS ===== */
+﻿/* ===== LEARNING HUB - INSTRUCTOR DASHBOARD CSS ===== */
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Playfair+Display:wght@600&display=swap');
 
 :root {
@@ -442,7 +442,6 @@ tr:hover td { background: #f7faff; }
 .lesson-item .lesson-icon { color: var(--primary); font-size: 1rem; flex-shrink: 0; }
 .lesson-item .lesson-name { flex: 1; font-size: .87rem; font-weight: 500; }
 .lesson-item .lesson-meta { font-size: .75rem; color: var(--text-muted); }
-.lesson-item .lesson-free-badge {
     background: #e0faf4; color: var(--success);
     padding: 2px 8px; border-radius: 20px; font-size: .72rem; font-weight: 700;
 }
@@ -567,34 +566,6 @@ tr:hover td { background: #f7faff; }
 }
 .media-tab.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 .media-tab .tab-icon { font-size: 1.3rem; display: block; margin-bottom: 4px; }
-
-.free-preview-toggle {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px;
-    background: var(--primary-light);
-    border-radius: 8px;
-    margin-top: 12px;
-}
-.toggle-switch {
-    position: relative; width: 40px; height: 22px; flex-shrink: 0;
-}
-.toggle-switch input { opacity: 0; width: 0; height: 0; }
-.toggle-slider {
-    position: absolute; inset: 0;
-    background: #ccc; border-radius: 22px; cursor: pointer;
-    transition: background .2s;
-}
-.toggle-slider::before {
-    content: '';
-    position: absolute;
-    width: 16px; height: 16px;
-    background: #fff; border-radius: 50%;
-    left: 3px; top: 3px;
-    transition: transform .2s;
-}
-.toggle-switch input:checked + .toggle-slider { background: var(--success); }
-.toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
-.free-preview-toggle label { font-size: .85rem; font-weight: 600; cursor: pointer; user-select: none; }
 
 /* ===== SUBMIT REQUEST ===== */
 .submit-request-card {

@@ -4,6 +4,7 @@ import lombok.*;
 import vn.edu.fpt.dto.*;
 import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.enums.CourseStatus;
+import vn.edu.fpt.util.AppConstants;
 import java.math.BigDecimal;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ public class CourseDto {
     private String title;
     private String description;
     private String thumbnailUrl;
+    private String introVideoUrl;
     private BigDecimal price;
     private String level;
     private CourseStatus status;
@@ -94,5 +96,15 @@ public class CourseDto {
             }
         }
         return totalSeconds / 60;
+    }
+
+    public String getIntroVideoPath() {
+        if (introVideoUrl == null || introVideoUrl.trim().isEmpty()) {
+            return null;
+        }
+        if (introVideoUrl.startsWith("http://") || introVideoUrl.startsWith("https://")) {
+            return introVideoUrl;
+        }
+        return AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS + "/" + introVideoUrl;
     }
 }

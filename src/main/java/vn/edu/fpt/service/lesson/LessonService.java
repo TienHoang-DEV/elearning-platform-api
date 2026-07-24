@@ -114,7 +114,6 @@ public class LessonService {
 
         String normalizedTitle = lessonDto.getTitle() != null ? lessonDto.getTitle().trim() : "";
 
-        // Lesson validation: khong cho trung ten lesson trong cung section khi tao moi.
         if(repository.existsDuplicateTitleInSection(sectiondId, normalizedTitle, null)){
             throw new RuntimeException("Tiêu đề bài này đã được thiết lập");
         }
@@ -146,7 +145,6 @@ public class LessonService {
 
         l.setModerationStatus(LessonModerationStatus.PENDING.toString());
         l.setCourseSection(courseSectionService.findById(sectiondId).orElseThrow());
-        l.setIsFreePreview(lessonDto.getIsFreePreview() != null ? lessonDto.getIsFreePreview() : false);
         return repository.save(l);
     }
 
@@ -266,8 +264,6 @@ public class LessonService {
 
 
         lesson.setTitle(normalizedTitle);
-
-        lesson.setIsFreePreview(lessonDto.getIsFreePreview() != null ? lessonDto.getIsFreePreview() : false);
 
         if (blobName != null && !blobName.isBlank()) {
             if (lesson.getVideoUrl() != null && !lesson.getVideoUrl().isEmpty()) {
