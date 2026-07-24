@@ -1,4 +1,4 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     // 1. Initialize Lucide Icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
@@ -21,7 +21,7 @@
             const rating = reviewForm.querySelector('input[name="rating"]:checked');
             if (!rating) {
                 e.preventDefault();
-                alert('Vui lÃ²ng chá»n sá»‘ sao Ä‘Ã¡nh giÃ¡!');
+                alert('Vui lòng chọn số sao đánh giá!');
             }
         });
     }
@@ -82,43 +82,28 @@
             const trigger = event.relatedTarget;
             if (!trigger) return;
 
-            const lessonId = trigger.getAttribute('data-lesson-id');
             const lessonTitle = trigger.getAttribute('data-lesson-title');
             const introVideoUrl = trigger.getAttribute('data-intro-video-url');
 
             const video = document.getElementById('previewVideo');
             const modalTitle = document.getElementById('videoModalLabel');
 
-            if (video && (introVideoUrl || lessonId)) {
+            if (video && introVideoUrl) {
                 if (lessonTitle && modalTitle) {
-                    modalTitle.textContent = "Xem thá»­ khÃ³a há»c - " + lessonTitle;
+                    modalTitle.textContent = "Xem thử khóa học - " + lessonTitle;
                 }
 
-                if (introVideoUrl) {
-                    video.src = introVideoUrl;
-                    video.load();
-                    video.play().catch(e => console.log("Autoplay prevented:", e));
-                    return;
-                }
-
-                try {
-                    const response = await fetch("/lesson/" + lessonId);
-                    if (!response.ok) {
-                        if (response.status === 401) {
-                            showToast('Vui lÃ²ng Ä‘Äƒng nháº­p Ä‘á»ƒ xem!', 'warning');
-                            return;
-                        }
-                        throw new Error('CÃ³ lá»—i khi táº£i video xem thá»­.');
+                video.onerror = function() {
+                    if (typeof showToast === 'function') {
+                        showToast('Lỗi: Không thể tải video xem thử.', 'warning');
+                    } else {
+                        alert('Lỗi: Không thể tải video xem thử.');
                     }
-                    
-                    const url = await response.text();
-                    video.src = url;
-                    video.load();
-                    video.play().catch(e => console.log("Autoplay prevented:", e));
-                } catch (err) {
-                    console.error("Error loading preview video:", err);
-                    showToast(err.message, 'warning');
-                }
+                };
+
+                video.src = introVideoUrl;
+                video.load();
+                video.play().catch(e => console.log("Autoplay prevented:", e));
             }
         });
 
@@ -153,16 +138,16 @@ async function addToCart(btn, courseId) {
         });
         
         if (response.redirected || response.url.includes('/login') || response.url.includes('/login_no')) {
-            showToast('Báº¡n chÆ°a Ä‘Äƒng nháº­p. Vui lÃ²ng Ä‘Äƒng nháº­p Ä‘á»ƒ thá»±c hiá»‡n chá»©c nÄƒng nÃ y.', 'warning');
+            showToast('Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.', 'warning');
             return;
         }
 
         if (!response.ok) {
             if (response.status === 401) {
-                showToast('Báº¡n chÆ°a Ä‘Äƒng nháº­p. Vui lÃ²ng Ä‘Äƒng nháº­p Ä‘á»ƒ thá»±c hiá»‡n chá»©c nÄƒng nÃ y.', 'warning');
+                showToast('Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.', 'warning');
                 return;
             }
-            let errMsg = 'CÃ³ lá»—i xáº£y ra khi thÃªm vÃ o giá» hÃ ng.';
+            let errMsg = 'Có lỗi xảy ra khi thêm vào giỏ hàng.';
             try {
                 const errData = await response.json();
                 errMsg = errData.message || errData.error || errMsg;
@@ -172,7 +157,7 @@ async function addToCart(btn, courseId) {
 
         const contentType = response.headers.get("content-type");
         if (!contentType || contentType.indexOf("application/json") === -1) {
-            throw new Error("Lá»—i mÃ¡y chá»§: KhÃ´ng tráº£ vá» JSON.");
+            throw new Error("Lỗi máy chủ: Không trả về JSON.");
         }
 
         const data = await response.json();
@@ -184,10 +169,10 @@ async function addToCart(btn, courseId) {
             }
             showToast(data.message, data.newlyAdded ? 'success' : 'warning');
         } else {
-            showToast(data.message || 'KhÃ´ng thá»ƒ thÃªm vÃ o giá» hÃ ng.', 'warning');
+            showToast(data.message || 'Không thể thêm vào giỏ hàng.', 'warning');
         }
     } catch (error) {
-        console.error('Lá»—i khi thÃªm vÃ o giá» hÃ ng:', error);
+        console.error('Lỗi khi thêm vào giỏ hàng:', error);
         showToast(error.message, 'warning');
     } finally {
         btn.disabled = false;
@@ -209,7 +194,7 @@ function showToast(message, type = 'success') {
             toastEl.classList.add('bg-success', 'text-white');
 
             if (titleEl) {
-                titleEl.textContent = "ThÃ nh cÃ´ng!";
+                titleEl.textContent = "Thành công!";
                 titleEl.classList.remove('text-dark');
                 titleEl.classList.add('text-white');
             }
@@ -228,7 +213,7 @@ function showToast(message, type = 'success') {
             toastEl.classList.add('bg-warning', 'text-dark');
 
             if (titleEl) {
-                titleEl.textContent = "ThÃ´ng bÃ¡o!";
+                titleEl.textContent = "Thông báo!";
                 titleEl.classList.remove('text-white');
                 titleEl.classList.add('text-dark');
             }
@@ -269,7 +254,7 @@ async function deleteReview(btn, feedbackId) {
         });
 
         if (!response.ok) {
-            let errMsg = 'CÃ³ lá»—i xáº£y ra khi xÃ³a Ä‘Ã¡nh giÃ¡.';
+            let errMsg = 'Có lỗi xảy ra khi xóa đánh giá.';
             try {
                 const errData = await response.json();
                 errMsg = errData.message || errMsg;
@@ -283,7 +268,7 @@ async function deleteReview(btn, feedbackId) {
             if (card) {
                 card.remove();
             }
-            showToast(data.message || 'XÃ³a Ä‘Ã¡nh giÃ¡ thÃ nh cÃ´ng!', 'success');
+            showToast(data.message || 'Xóa đánh giá thành công!', 'success');
 
             const form = document.getElementById('reviewForm');
             if (form) {
@@ -299,15 +284,15 @@ async function deleteReview(btn, feedbackId) {
                 const noReviewsAlert = document.createElement('div');
                 noReviewsAlert.className = 'alert alert-info py-3 text-center border-0 rounded-3';
                 noReviewsAlert.id = 'no-reviews-alert';
-                noReviewsAlert.textContent = 'ChÆ°a cÃ³ Ä‘Ã¡nh giÃ¡ nÃ o cho khÃ³a há»c nÃ y.';
+                noReviewsAlert.textContent = 'Chưa có đánh giá nào cho khóa học này.';
                 container.prepend(noReviewsAlert);
             }
         } else {
-            showToast(data.message || 'KhÃ´ng thá»ƒ xÃ³a Ä‘Ã¡nh giÃ¡.', 'warning');
+            showToast(data.message || 'Không thể xóa đánh giá.', 'warning');
             btn.disabled = false;
         }
     } catch (error) {
-        console.error('Lá»—i khi xÃ³a Ä‘Ã¡nh giÃ¡:', error);
+        console.error('Lỗi khi xóa đánh giá:', error);
         showToast(error.message, 'warning');
         btn.disabled = false;
     }
@@ -324,7 +309,7 @@ async function submitEditReview(event) {
     const comment = form.querySelector('#edit-review-comment').value;
 
     if (!ratingInput) {
-        showToast('Vui lÃ²ng chá»n sá»‘ sao Ä‘Ã¡nh giÃ¡!', 'warning');
+        showToast('Vui lòng chọn số sao đánh giá!', 'warning');
         if (submitBtn) submitBtn.disabled = false;
         return;
     }
@@ -347,7 +332,7 @@ async function submitEditReview(event) {
         });
 
         if (!response.ok) {
-            let errMsg = 'CÃ³ lá»—i xáº£y ra khi cáº­p nháº­t Ä‘Ã¡nh giÃ¡.';
+            let errMsg = 'Có lỗi xảy ra khi cập nhật đánh giá.';
             try {
                 const errData = await response.json();
                 errMsg = errData.message || errMsg;
@@ -394,12 +379,12 @@ async function submitEditReview(event) {
                 modalInstance.hide();
             }
 
-            showToast(data.message || 'Cáº­p nháº­t Ä‘Ã¡nh giÃ¡ thÃ nh cÃ´ng!', 'success');
+            showToast(data.message || 'Cập nhật đánh giá thành công!', 'success');
         } else {
-            showToast(data.message || 'KhÃ´ng thá»ƒ cáº­p nháº­t Ä‘Ã¡nh giÃ¡.', 'warning');
+            showToast(data.message || 'Không thể cập nhật đánh giá.', 'warning');
         }
     } catch (error) {
-        console.error('Lá»—i khi cáº­p nháº­t Ä‘Ã¡nh giÃ¡:', error);
+        console.error('Lỗi khi cập nhật đánh giá:', error);
         showToast(error.message, 'warning');
     } finally {
         if (submitBtn) submitBtn.disabled = false;
@@ -417,7 +402,7 @@ async function submitAddReview(event) {
     const comment = form.querySelector('#course-review-comment').value;
 
     if (!ratingInput) {
-        showToast('Vui lÃ²ng chá»n sá»‘ sao Ä‘Ã¡nh giÃ¡!', 'warning');
+        showToast('Vui lòng chọn số sao đánh giá!', 'warning');
         if (submitBtn) submitBtn.disabled = false;
         return;
     }
@@ -440,7 +425,7 @@ async function submitAddReview(event) {
         });
 
         if (!response.ok) {
-            let errMsg = 'CÃ³ lá»—i xáº£y ra khi gá»­i Ä‘Ã¡nh giÃ¡.';
+            let errMsg = 'Có lỗi xảy ra khi gửi đánh giá.';
             try {
                 const errData = await response.json();
                 errMsg = errData.message || errMsg;
@@ -450,7 +435,7 @@ async function submitAddReview(event) {
 
         const data = await response.json();
         if (data.success) {
-            showToast(data.message || 'Gá»­i Ä‘Ã¡nh giÃ¡ thÃ nh cÃ´ng!', 'success');
+            showToast(data.message || 'Gửi đánh giá thành công!', 'success');
             
             const noReviewsAlert = document.getElementById('no-reviews-alert');
             if (noReviewsAlert) {
@@ -497,14 +482,14 @@ async function submitAddReview(event) {
                                     data-feedback-comment="${fb.comment}"
                                     data-feedback-rating="${fb.rating}"
                                     data-bs-toggle="modal" data-bs-target="#editReviewModal">
-                                <i class="fa-regular fa-pen-to-square me-1"></i>Sá»­a
+                                <i class="fa-regular fa-pen-to-square me-1"></i>Sửa
                             </button>
                             <button class="btn btn-link btn-sm text-danger p-0 me-2 text-decoration-none fs-8 fw-semibold btn-delete-review"
                                     data-feedback-id="${fb.id}"
                                     onclick="deleteReview(this, ${fb.id})">
-                                <i class="fa-regular fa-trash-can me-1"></i>XÃ³a
+                                <i class="fa-regular fa-trash-can me-1"></i>Xóa
                             </button>
-                            <span class="text-muted fs-8">Vá»«a xong</span>
+                            <span class="text-muted fs-8">Vừa xong</span>
                         </div>
                     </div>
                     <p class="feedback-comment text-muted fs-7 mb-0 text-justify">${fb.comment}</p>
@@ -517,10 +502,10 @@ async function submitAddReview(event) {
                 lucide.createIcons();
             }
         } else {
-            showToast(data.message || 'KhÃ´ng thá»ƒ gá»­i Ä‘Ã¡nh giÃ¡.', 'warning');
+            showToast(data.message || 'Không thể gửi đánh giá.', 'warning');
         }
     } catch (error) {
-        console.error('Lá»—i khi gá»­i Ä‘Ã¡nh giÃ¡:', error);
+        console.error('Lỗi khi gửi đánh giá:', error);
         showToast(error.message, 'warning');
     } finally {
         if (submitBtn) submitBtn.disabled = false;

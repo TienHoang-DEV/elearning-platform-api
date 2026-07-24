@@ -102,7 +102,7 @@ public class CourseService {
             throw new CourseValidationException("status", "Chỉ khóa học đang bán mới được ẩn.");
         }
         course.setStatus(CourseStatus.HIDDEN);
-        course.setUpdateAt(LocalDateTime.now());
+        course.setUpdatedAt(LocalDateTime.now());
         repository.save(course);
     }
 
@@ -112,7 +112,7 @@ public class CourseService {
             throw new CourseValidationException("status", "Chỉ khóa học đã ẩn mới được hiện lại.");
         }
         course.setStatus(CourseStatus.PUBLISHED);
-        course.setUpdateAt(LocalDateTime.now());
+        course.setUpdatedAt(LocalDateTime.now());
         repository.save(course);
     }
 
@@ -193,7 +193,7 @@ public class CourseService {
         // Course intro video: luu blobName video gioi thieu chung cua khoa hoc, khong gan vao tung lesson.
         course.setIntroVideoUrl(introVideoUrl);
         course.setLevel(courseCreateDto.getLevel());
-        course.setUpdateAt(LocalDateTime.now());
+        course.setUpdatedAt(LocalDateTime.now());
         return repository.save(course);
     }
 
@@ -529,10 +529,7 @@ public class CourseService {
         return repository.findAll();
     }
 
-    public Course findByIdWithSectionsAndLessons(Integer id) {
-        return repository.findByIdWithSectionsAndLessons(id)
-                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-    }
+
 
     public void deleteById(Integer id) {
         repository.deleteById(id);
@@ -744,7 +741,7 @@ public class CourseService {
         course.setRejectionReason(null);
         course.setApprovedAt(null);
         course.setApprovedBy(null);
-        course.setUpdateAt(LocalDateTime.now());
+        course.setUpdatedAt(LocalDateTime.now());
         repository.save(course);
     }
 

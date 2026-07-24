@@ -90,10 +90,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
                         @Param("fromDate") LocalDateTime fromDate,
                         @Param("toDate") LocalDateTime toDate);
 
-    @Query("""
-            select distinct c from Course c left join fetch c.sections s left join fetch s.lessons where c.id = :id
-            """)
-    Optional<Course> findByIdWithSectionsAndLessons(@Param("id") Integer id);
+
 
     @Query("select count(s) from CourseSection s where s.course.id = :courseId")
     long countSectionsByCourseId(@Param("courseId") Integer courseId);

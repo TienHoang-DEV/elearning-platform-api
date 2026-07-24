@@ -56,11 +56,7 @@ public class Course extends BaseEntity {
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
-    @Column(name = "update_at")
-    private LocalDateTime updateAt;
 
-    @Column(name = "create_at")
-    private LocalDateTime createAt;
 
     @Column(name = "rejection_reason", columnDefinition = "NVARCHAR(1000)")
     private String rejectionReason;
