@@ -79,11 +79,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoResourceFoundException.class)
     public Object handleNoResourceFound(NoResourceFoundException ex, HttpServletRequest request) {
+        log.warn("Không tìm thấy tài nguyên tĩnh tại [{}]: {}", request.getRequestURI(), ex.getMessage());
         if (isApiRequest(request)) {
             ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), "Không tìm thấy trang", ex.getMessage(), request.getRequestURI());
             return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
         }
-        return buildErrorView("error/404", HttpStatus.NOT_FOUND, "Không tìm thấy trang", "Không tìm thấy trang yêu cầu hoặc trang đã bị xóa.", request, ex);
+        return buildErrorView("error/404", HttpStatus.NOT_FOUND, "Không tìm thấy trang", "Không tìm thấy trang yêu cầu hoặc trang đã bị xóa.", request, null);
     }
 
     /**

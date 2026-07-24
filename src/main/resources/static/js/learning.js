@@ -43,7 +43,7 @@ function initializeTabs() {
 }
 
 // Quiz AJAX Loader and Interceptor
-function loadQuizContent(url) {
+async function loadQuizContent(url) {
     const container = document.getElementById("quiz-content-container");
     if (!container) return;
 
@@ -59,23 +59,20 @@ function loadQuizContent(url) {
         </div>
     `;
 
-    fetch(fetchUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Không thể tải bài tập ôn tập.");
-            }
-            return response.text();
-        })
-        .then(html => {
-            container.innerHTML = html;
-        })
-        .catch(error => {
-            container.innerHTML = `
-                <div class="alert alert-danger rounded-3" role="alert">
-                    <i class="fa-solid fa-circle-exclamation me-2"></i> ${error.message}
-                </div>
-            `;
-        });
+    try {
+        const response = await fetch(fetchUrl);
+        if (!response.ok) {
+            throw new Error("Không thể tải bài tập ôn tập.");
+        }
+        const html = await response.text();
+        container.innerHTML = html;
+    } catch (error) {
+        container.innerHTML = `
+            <div class="alert alert-danger rounded-3" role="alert">
+                <i class="fa-solid fa-circle-exclamation me-2"></i> ${error.message}
+            </div>
+        `;
+    }
 }
 
 function initializeQuizAjax() {

@@ -28,7 +28,7 @@
             </a>
 
             <div class="quiz-topbar-actions">
-                <a th:href="@{/instructorcourse/{courseId}/curriculum(courseId=${course.id})}"
+                <a th:href="@{/instructor/{courseId}/curriculum(courseId=${course.id})}"
                    class="btn-back-curriculum">
                     <i data-lucide="arrow-left"></i>
                     <span>Quay lại giáo trình</span>
@@ -36,7 +36,7 @@
 
                 <div class="dropdown">
                     <button class="quiz-user-button" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img th:src="${currentUser != null && currentUser.avatarUrl != null ? currentUser.avatarUrl : '/images/avatar.png'}"
+                        <img th:src="${currentUser != null && currentUser.getFullAvatarUrl() != null ? currentUser.getFullAvatarUrl() : '/images/avatar.png'}"
                              class="quiz-header-avatar" alt="Ảnh đại diện người dùng">
                         <span class="quiz-user-copy">
                             <strong th:text="${currentUser != null ? currentUser.firstName + ' ' + currentUser.lastName : 'Giảng viên'}">Giảng viên</strong>
