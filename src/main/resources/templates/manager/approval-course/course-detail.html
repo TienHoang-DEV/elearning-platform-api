@@ -84,13 +84,129 @@
                 <span>Giáo trình & Tài liệu học tập</span>
             </div>
 
-            <div class="p-4 border rounded bg-light text-center mt-3 mb-4">
-                <p class="text-muted mb-3 fs-6">Nhấp vào nút bên dưới để chuyển sang trang xem chi tiết Giáo trình & Tài liệu học tập của khóa học.</p>
-                <a th:href="@{/instructor/{id}/view(id=${course.id})}" 
-                   target="_blank" 
-                   class="btn btn-primary btn-lg d-inline-flex align-items-center gap-2 px-4 shadow-sm">
-                    <i class="ph ph-eye fs-4"></i> Xem giáo trình & tài liệu học tập
-                </a>
+            <div th:if="${course.sections == null or course.sections.isEmpty()}" class="text-center py-4 text-muted border rounded bg-light mt-3 mb-4">
+                <i class="ph ph-folder-open fs-3 d-block mb-1"></i>
+                Chưa có chương học nào được tạo cho khóa học này.
+            </div>
+
+            <div th:if="${course.sections != null and !course.sections.isEmpty()}" class="accordion curriculum-accordion mt-3 mb-4" id="curriculumAccordion">
+                <div th:each="section, secStat : ${course.sections}" class="accordion-item border rounded mb-2 overflow-hidden shadow-sm">
+                    <h2 class="accordion-header" th:id="'heading-' + ${secStat.index}">
+                        <button class="accordion-button bg-light py-3 px-4 d-flex align-items-center gap-2" type="button" 
+                                data-bs-toggle="collapse" 
+                                th:data-bs-target="'#collapse-' + ${secStat.index}" 
+                                aria-expanded="true" 
+                                th:aria-controls="'collapse-' + ${secStat.index}">
+                            <div class="d-flex justify-content-between align-items-center w-100 pe-3">
+                                <span class="fw-bold text-dark text-break fs-6" th:text="${section.title}">Chương 1: Giới thiệu</span>
+                                <span class="badge bg-secondary rounded-pill font-monospace" th:text="${section.lessons != null ? section.lessons.size() + ' bài học' : '0 bài học'}">3 bài học</span>
+                            </div>
+                        </button>
+                    </h2>
+                    <div th:id="'collapse-' + ${secStat.index}" class="accordion-collapse collapse show" 
+                         th:aria-labelledby="'heading-' + ${secStat.index}">
+                        <div class="accordion-body p-0">
+                            <ul class="lesson-list mb-0 list-unstyled">
+                                <li th:each="lesson : ${section.lessons}" class="lesson-item-container p-3 border-bottom bg-white">
+                                    <div class="d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row gap-3">
+                                        <!-- Left Side: Title, Duration, & Materials/Quizzes list underneath -->
+                                        <div class="lesson-info-block flex-grow-1">
+                                            <div class="lesson-title-container d-flex align-items-center flex-wrap gap-2">
+                                                <i class="ph ph-play-circle text-primary fs-5"></i>
+                                                <span th:text="${lesson.title}" class="fw-semibold text-dark text-break">Bài 1: Cài đặt môi trường</span>
+                                                <span class="lesson-duration text-muted fs-xs ms-2" th:if="${lesson.durationSeconds != null}" 
+                                                      th:text="${(lesson.durationSeconds / 60) + ' phút'}">5 phút</span>
+                                            </div>
+                                            
+                                            <!-- Materials list below the title -->
+                                            <div class="lesson-materials-section mt-2 ps-4" th:if="${lesson.materials != null and !lesson.materials.isEmpty()}">
+                                                <div class="text-muted fs-xs mb-1 d-flex align-items-center gap-1">
+                                                    <i class="ph ph-paperclip text-info"></i>
+                                                    <span>Tài liệu đính kèm:</span>
+                                                </div>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <a th:each="mat : ${lesson.materials}" 
+                                                       th:href="@{/material/{id}/view(id=${mat.id})}" 
+                                                       target="_blank" 
+                                                       class="lesson-material-link btn btn-sm py-1 px-2 btn-light border d-inline-flex align-items-center gap-1 text-decoration-none">
+                                                        <i class="ph ph-file-pdf text-danger" th:if="${mat.fileType == 'pdf' or (mat.fileName != null and mat.fileName.endsWith('.pdf'))}"></i>
+                                                        <i class="ph ph-file-text text-info" th:if="${!(mat.fileType == 'pdf' or (mat.fileName != null and mat.fileName.endsWith('.pdf')))}"></i>
+                                                        <span th:text="${mat.fileName}">Tài liệu.pdf</span>
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                            <!-- Quizzes list below the title -->
+                                            <div class="lesson-quizzes-section mt-2 ps-4" th:if="${lesson.quizzes != null and !lesson.quizzes.isEmpty()}">
+                                                <div class="text-muted fs-xs mb-1 d-flex align-items-center gap-1">
+                                                    <i class="ph ph-question text-warning"></i>
+                                                    <span>Câu hỏi ôn tập (Quiz):</span>
+                                                </div>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <a th:each="qz : ${lesson.quizzes}" 
+                                                       th:href="@{/quiz/lesson/{lessonId}(lessonId=${lesson.id})}" 
+                                                       target="_blank" 
+                                                       class="btn btn-sm py-1 px-2 btn-light border border-warning text-dark d-inline-flex align-items-center gap-1 text-decoration-none">
+                                                        <i class="ph ph-question text-warning"></i>
+                                                        <span th:text="${qz.title != null ? qz.title : 'Bài kiểm tra ôn tập'}">Quiz</span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Right Side: Action Buttons -->
+                                        <div class="lesson-actions-block d-flex align-items-center flex-wrap gap-2 mt-2 mt-md-0 align-self-end align-self-md-center">
+                                            <!-- Watch Video Button -->
+                                            <a th:if="${lesson.videoUrl != null and !lesson.videoUrl.isEmpty()}" 
+                                               th:href="@{/lesson/{id}/video(id=${lesson.id})}" 
+                                               target="_blank" 
+                                               class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1.5 px-3">
+                                                <i class="ph ph-video"></i> Xem Video
+                                            </a>
+                                            
+                                            <!-- View Material Button (if exists) -->
+                                            <div th:if="${lesson.materials != null and !lesson.materials.isEmpty()}" class="d-inline-block">
+                                                <a th:if="${lesson.materials.size() == 1}" 
+                                                   th:href="@{/material/{id}/view(id=${lesson.materials.get(0).id})}" 
+                                                   target="_blank" 
+                                                   class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1 py-1.5 px-3">
+                                                    <i class="ph ph-file-text"></i> Xem Tài liệu
+                                                </a>
+                                                <div th:if="${lesson.materials.size() > 1}" class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-info dropdown-toggle d-inline-flex align-items-center gap-1 py-1.5 px-3" 
+                                                            type="button" 
+                                                            data-bs-toggle="dropdown" 
+                                                            aria-expanded="false">
+                                                        <i class="ph ph-file-text"></i> Xem Tài liệu
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                        <li th:each="mat : ${lesson.materials}">
+                                                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" 
+                                                               th:href="@{/material/{id}/view(id=${mat.id})}" 
+                                                               target="_blank">
+                                                                <i class="ph ph-file-text text-info"></i>
+                                                                <span th:text="${mat.fileName}">Tài liệu</span>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <!-- View Quiz Button (if exists) -->
+                                            <div th:if="${lesson.quizzes != null and !lesson.quizzes.isEmpty()}" class="d-inline-block">
+                                                <a th:href="@{/quiz/lesson/{lessonId}(lessonId=${lesson.id})}" 
+                                                   target="_blank" 
+                                                   class="btn btn-sm btn-outline-warning text-dark d-inline-flex align-items-center gap-1 py-1.5 px-3">
+                                                    <i class="ph ph-question"></i> Xem Quiz
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Course Communication & Activity Audit Log -->
