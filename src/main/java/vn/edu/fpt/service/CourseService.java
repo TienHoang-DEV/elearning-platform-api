@@ -123,6 +123,12 @@ public class CourseService {
         if (isUpdate) {
             course = courseRepository.findById(courseCreateDto.getId())
                     .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
+                    
+            if (vn.edu.fpt.enums.CourseStatus.PUBLISHED.equals(course.getStatus()) || 
+                vn.edu.fpt.enums.CourseStatus.PENDING.equals(course.getStatus())) {
+                throw new CourseValidationException("status", "Không thể chỉnh sửa khóa học khi đang ở trạng thái " + course.getStatus().getLabel() + ".");
+            }
+
             if (courseRepository.existsDuplicateTitleForInstructor(user.getId(), normalizedTitle, course.getId())) {
                 throw new CourseValidationException(
                         "title",

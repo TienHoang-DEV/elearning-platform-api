@@ -72,6 +72,23 @@ public class CartService {
 
     public CartPageDetailsDto getCartPageDetails(User user) {
         Cart cart = getOrCreateCartForUserWithDetails(user);
+        
+        // Auto-remove owned courses
+        if (cart.getItems() != null && !cart.getItems().isEmpty()) {
+            List<CartItem> toRemove = new ArrayList<>();
+            for (CartItem item : cart.getItems()) {
+                if (item.getCourse() != null && enrollmentRepository.existsByUserAndCourse(user, item.getCourse())) {
+                    toRemove.add(item);
+                }
+            }
+            if (!toRemove.isEmpty()) {
+                for (CartItem item : toRemove) {
+                    cartItemService.deleteById(item.getId());
+                    cart.getItems().remove(item);
+                }
+            }
+        }
+
         CartDto cartDto = dtoMapper.toCartDto(cart);
 
         // Nhóm các CartItemDto theo Giảng viên của khóa học
@@ -159,6 +176,10 @@ public class CartService {
         Cart cart = getOrCreateCartForUser(user);
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khóa học với ID: " + courseId));
+        
+        if (!vn.edu.fpt.enums.CourseStatus.PUBLISHED.equals(course.getStatus())) {
+            throw new IllegalArgumentException("Không thể thêm vào giỏ hàng vì khóa học chưa được xuất bản.");
+        }
 
         boolean newlyAdded = cartItemService.addCourseToCart(cart, course);
         int cartSize = cartItemService.countItemsInCart(cart);
