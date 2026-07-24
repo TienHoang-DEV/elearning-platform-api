@@ -30,6 +30,21 @@
 
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @media (min-width: 992px) {
+            .category-accordion .accordion-item:hover .accordion-button {
+                background-color: var(--bs-accordion-active-bg);
+                color: var(--bs-accordion-active-color);
+            }
+            .category-accordion .accordion-item:hover .accordion-button::after {
+                background-image: var(--bs-accordion-btn-active-icon);
+                transform: var(--bs-accordion-btn-icon-transform);
+            }
+        }
+        .no-caret::after {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body class="bg-light bg-opacity-25">
@@ -59,21 +74,34 @@
                                     Danh mục
                                 </h4>
                                 <div class="accordion category-accordion" id="categoryAccordion">
-                                    <div class="accordion-item" th:each="parentCat : ${parentCategories}">
+                                    <div class="accordion-item border-0 mb-1">
+                                        <h2 class="accordion-header">
+                                            <button
+                                                class="accordion-button collapsed no-caret bg-transparent shadow-none border-0"
+                                                th:classappend="${categoryId == null} ? 'active-category text-primary fw-bold' : 'text-dark'"
+                                                type="button"
+                                                th:onclick="'selectCategory(null); return false;'">
+                                                Tất cả khóa học
+                                            </button>
+                                        </h2>
+                                    </div>
+                                    <div class="accordion-item border-0 mb-1" th:each="parentCat : ${parentCategories}">
                                         <h2 class="accordion-header" th:id="'heading-' + ${parentCat.id}">
                                             <button
                                                 class="accordion-button collapsed bg-transparent shadow-none border-0"
+                                                th:classappend="${categoryId == parentCat.id} ? 'active-category text-primary fw-bold' : 'text-dark'"
                                                 type="button" data-bs-toggle="collapse"
                                                 th:data-bs-target="'#collapse-' + ${parentCat.id}" aria-expanded="false"
                                                 th:aria-controls="'collapse-' + ${parentCat.id}"
-                                                th:text="${parentCat.name}">
+                                                th:text="${parentCat.name}"
+                                                th:onclick="'selectCategory(' + ${parentCat.id} + '); return false;'">
                                                 Lập trình Front-End
                                             </button>
                                         </h2>
                                         <div th:id="'collapse-' + ${parentCat.id}" class="accordion-collapse collapse"
                                             th:aria-labelledby="'heading-' + ${parentCat.id}"
                                             data-bs-parent="#categoryAccordion">
-                                            <div class="accordion-body p-0 ps-3 pt-2">
+                                            <div class="accordion-body p-0 ps-3 pt-2 pb-2">
                                                 <ul class="list-unstyled d-flex flex-column gap-2 m-0 fs-7">
                                                     <li th:each="childCat : ${parentCat.children}">
                                                         <a href="#"
@@ -547,6 +575,30 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (window.innerWidth >= 992) {
+                const accordionItems = document.querySelectorAll('.category-accordion .accordion-item');
+                accordionItems.forEach(item => {
+                    const collapseEl = item.querySelector('.accordion-collapse');
+                    if (collapseEl) {
+                        let timeout;
+                        item.addEventListener('mouseenter', () => {
+                            clearTimeout(timeout);
+                            const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false });
+                            bsCollapse.show();
+                        });
+                        item.addEventListener('mouseleave', () => {
+                            timeout = setTimeout(() => {
+                                const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false });
+                                bsCollapse.hide();
+                            }, 100);
+                        });
+                    }
+                });
+            }
+        });
+    </script>
     <script>lucide.createIcons();</script>
 </body>
 

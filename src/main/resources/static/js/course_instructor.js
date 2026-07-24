@@ -6,17 +6,91 @@ document.addEventListener('DOMContentLoaded', function () {
 
     initToastNotifications();
     initSubmitReviewPolicy();
+
+    /* =====================================================
+       1. SIDEBAR NAVIGATION (SPA mode - náº¿u dÃ¹ng 1 file)
+          Náº¿u Ä‘Ã£ tÃ¡ch file thÃ¬ bá» qua pháº§n nÃ y,
+          sidebar dÃ¹ng href bÃ¬nh thÆ°á»ng.
+    ===================================================== */
     initSidebarNav();
+
+    /* =====================================================
+       2. TABS
+    ===================================================== */
     initTabs();
+
+    /* =====================================================
+       3. MODALS
+    ===================================================== */
     initModals();
+
+    /* =====================================================
+       4. RICH TEXT EDITOR
+    ===================================================== */
     initRichEditors();
+
+    /* =====================================================
+       5. AVATAR PREVIEW
+    ===================================================== */
     initAvatarPreview();
+
+    /* =====================================================
+       6. THUMBNAIL PREVIEW
+    ===================================================== */
     initThumbnailPreview();
+
+    /* =====================================================
+       7. PROFILE PREVIEW (live update)
+    ===================================================== */
     initProfilePreview();
+
+    /* =====================================================
+       8. COURSE PREVIEW (live update)
+    ===================================================== */
+    initCoursePreview();
+
+    /* =====================================================
+       9. CURRICULUM - Add Section & Lesson (JS fallback)
+          Náº¿u backend xá»­ lÃ½ thÃ¬ bá» qua.
+    ===================================================== */
     initCurriculum();
+
+    /* =====================================================
+       10. QUIZ - Add Question (JS fallback)
+    ===================================================== */
+    /* =====================================================
+       11. PRICING - Price display & Voucher
+    ===================================================== */
+    initPricing();
+
+    /* =====================================================
+       12. VIDEO PREVIEW
+    ===================================================== */
     initVideoUpload();
+
     initEditVideoUpload();
+
+
+
+
+
+    /* =====================================================
+       13. SUBMIT REQUEST (step 5)
+    ===================================================== */
+    initSubmitRequest();
+
+    /* =====================================================
+       14. WIZARD STEP BUTTONS (náº¿u dÃ¹ng 1 file)
+    ===================================================== */
+    initWizardButtons();
+
+    /* =====================================================
+       15. MATERIAL FILE PREVIEW
+    ===================================================== */
     initMaterialPreview();
+
+    initEditMaterialPreview();
+
     initMaterialFileValidation();
     initLessonUploadSubmitLock();
     initMaterialUploadSubmitLock();
@@ -38,7 +112,7 @@ function initSidebarNav() {
 }
 
 function initTabs() {
-    // Xử lý click chuyển tab.
+    // === Xá»­ lÃ½ click chuyá»ƒn tab (giá»¯ nguyÃªn logic cÅ©) ===
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const group = this.dataset.tabGroup;
@@ -434,6 +508,35 @@ function initProfilePreview() {
     }
 }
 
+function initCoursePreview() {
+    const titleInput = document.getElementById('courseTitleInput');
+    const shortInput = document.getElementById('courseShortInput');
+    const previewTitle = document.getElementById('previewCourseTitle');
+    const previewShort = document.getElementById('previewCourseShort');
+
+    if (titleInput && previewTitle) {
+        titleInput.addEventListener('input', function () {
+            previewTitle.textContent = this.value || 'Tiêu đề khóa học sẽ hiện ở đây';
+        });
+    }
+    if (shortInput && previewShort) {
+        shortInput.addEventListener('input', function () {
+            previewShort.textContent = this.value || 'Mô tả ngắn về khóa học...';
+        });
+    }
+}
+
+function initPricing() {
+    const priceInput   = document.getElementById('priceInput');
+    const priceDisplay = document.getElementById('priceDisplay');
+    if (!priceInput || !priceDisplay) return;
+
+    priceInput.addEventListener('input', function () {
+        const val = parseInt(this.value) || 0;
+        priceDisplay.textContent = val.toLocaleString('vi-VN') + ' VNĐ';
+    });
+}
+
 function initVideoUpload(){
     initVideoUploadById(
         'videoFileInput',
@@ -492,6 +595,11 @@ function initVideoUploadById(inputId, containerId, durationId) {
 
 
 
+/* =====================
+   CURRICULUM (JS-only fallback - dÃ¹ng náº¿u khÃ´ng submit form)
+===================== */
+let sectionCounter = 0;
+
 function initCurriculum() {
     const addSectionBtn = document.getElementById('addSectionBtn');
     if (!addSectionBtn) return;
@@ -499,6 +607,121 @@ function initCurriculum() {
     addSectionBtn.addEventListener('click', function () {
         openModal('modal-add-section');
     });
+
+    // Confirm add section (JS only mode)
+    const confirmBtn = document.getElementById('confirmAddSection');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function () {
+            const name = document.getElementById('sectionNameInput')?.value.trim();
+            if (!name) { alert('Vui lòng nhập tên chương.'); return; }
+            addSectionToUI(name);
+            document.getElementById('sectionNameInput').value = '';
+            closeModal('modal-add-section');
+        });
+    }
+}
+
+function addSectionToUI(title) {
+    sectionCounter++;
+    const list = document.getElementById('curriculumList');
+    if (!list) return;
+
+    const sectionEl = document.createElement('div');
+    sectionEl.className = 'section-item';
+    sectionEl.dataset.sectionIndex = sectionCounter;
+    sectionEl.innerHTML = `
+    <div class="section-header">
+      <span class="drag-handle">⠿</span>
+      <span class="section-number">Chương ${sectionCounter}</span>
+      <span class="section-title">${escapeHtml(title)}</span>
+      <div class="section-actions">
+        <button type="button" class="btn btn-sm btn-outline add-lesson-btn" data-section-index="${sectionCounter}">
+          + Thêm Bài Giảng
+        </button>
+        <button type="button" class="btn btn-sm btn-danger delete-section-btn">🗑</button>
+      </div>
+    </div>
+    <div class="lesson-list" id="lessons-${sectionCounter}">
+      <div class="table-empty" style="padding:10px 16px;font-size:.85rem;">Chưa có bài giảng</div>
+    </div>
+  `;
+
+    sectionEl.querySelector('.add-lesson-btn').addEventListener('click', function () {
+        currentSectionIndex = parseInt(this.dataset.sectionIndex);
+        openModal('modal-add-lesson');
+    });
+    sectionEl.querySelector('.delete-section-btn').addEventListener('click', function () {
+        if (confirm('Xóa chương này?')) sectionEl.remove();
+    });
+
+    list.appendChild(sectionEl);
+    updateCurriculumPreview();
+}
+
+
+let currentSectionIndex = null;
+
+// Called from curriculum step modal confirm
+document.addEventListener('click', function (e) {
+    const confirmLesson = e.target.closest('#confirmAddLesson');
+    if (!confirmLesson) return;
+    const name = document.getElementById('lessonNameInput')?.value.trim();
+    if (!name) { alert('Vui lòng nhập tên bài giảng.'); return; }
+    addLessonToSection(currentSectionIndex, name);
+    document.getElementById('lessonNameInput').value = '';
+    closeModal('modal-add-lesson');
+});
+
+
+
+
+
+function addLessonToSection(sectionIndex, title) {
+    const lessonList = document.getElementById(`lessons-${sectionIndex}`);
+    if (!lessonList) return;
+
+    // Remove empty state message
+    const empty = lessonList.querySelector('.table-empty');
+    if (empty) empty.remove();
+
+    const lessonEl = document.createElement('div');
+    lessonEl.className = 'lesson-item';
+    lessonEl.innerHTML = `
+    <span class="drag-handle">⠿</span>
+    <span class="lesson-icon">🎬</span>
+    <span class="lesson-title">${escapeHtml(title)}</span>
+    <div class="lesson-actions">
+      <button type="button" class="btn btn-sm btn-danger delete-lesson-btn">🗑</button>
+    </div>
+  `;
+    lessonEl.querySelector('.delete-lesson-btn').addEventListener('click', function () {
+        if (confirm('Xóa bài giảng này?')) lessonEl.remove();
+    });
+    lessonList.appendChild(lessonEl);
+    updateCurriculumPreview();
+}
+
+function updateCurriculumPreview() {
+    const preview = document.getElementById('curriculumPreview');
+    if (!preview) return;
+    const sections = document.querySelectorAll('#curriculumList .section-item');
+    if (!sections.length) {
+        preview.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;">Các chương và bài giảng sẽ hiện ở đây...</p>';
+        return;
+    }
+    let html = '';
+    sections.forEach((sec, i) => {
+        const title   = sec.querySelector('.section-title')?.textContent || '';
+        const lessons = sec.querySelectorAll('.lesson-title');
+        html += `<div style="margin-bottom:10px;"><strong>Chương ${i+1}: ${title}</strong>`;
+        if (lessons.length) {
+            html += '<ul style="margin:4px 0 0 16px;">';
+            lessons.forEach(l => { html += `<li style="font-size:13px;color:var(--text-muted);">${l.textContent}</li>`; });
+            html += '</ul>';
+        }
+        html += '</div>';
+    });
+    preview.innerHTML = html;
 }
 
 function openEditSectionModal(dataset) {
@@ -556,7 +779,7 @@ function openEditLessonModal(dataset) {
     if (oldVideoUrl && oldVideoUrl !== 'null' && oldVideoUrl !== '') {
         videoPreviewContainer.innerHTML = `
             <div class="old-video-info" style="margin-top: 10px; padding: 10px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px;">
-                <p style="font-size: 13px; color: #555; margin-bottom: 5px;"><strong>Video hiện tại của bài giảng:</strong></p>
+                <p style="font-size: 13px; color: #555; margin-bottom: 5px;">🎬 <strong>Video hiện tại của bài giảng:</strong></p>
                 <video src="${oldVideoUrl}" controls style="width:100%; border-radius:4px; max-height:180px;"></video>
             </div>
         `;
@@ -582,7 +805,7 @@ function deleteLesson(lessonId, courseId, source) {
         return;
     }
 
-    if (!confirm('Xóa bài giảng này? Tất cả tài liệu và quiz sẽ bị xóa theo.')) {
+    if (!confirm('Xóa bài giảng này? Tất cả materials và quizzes sẽ bị xóa theo.')) {
         return;
     }
 
@@ -597,7 +820,7 @@ function deleteLesson(lessonId, courseId, source) {
 function deleteMaterial(courseId, materialId, source) {
     source = source || 'create';
     if (!materialId || !courseId) {
-        alert('ID không hợp lệ!');
+        alert(' ID không hợp lệ!');
         return;
     }
 
@@ -605,7 +828,7 @@ function deleteMaterial(courseId, materialId, source) {
         return;
     }
 
-    // Tạo form ẩn để submit.
+    // Táº¡o form áº©n Ä‘á»ƒ submit
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = `/instructor/materials/${materialId}/delete?source=${source}`;
@@ -618,6 +841,50 @@ function deleteMaterial(courseId, materialId, source) {
     form.submit();
 }
 
+
+
+function renderExistingMaterials(materials, lessonId, courseId) {
+    const container = document.getElementById('existingMaterialsContainer');
+    if (!materials || materials.length === 0) {
+        container.innerHTML = '<p style="color:#999; font-size:0.9rem;">📭 Chưa có tài liệu nào</p>';
+        return;
+    }
+
+    const iconMap = {
+        pdf:  { icon: 'ti-file-type-pdf', color: '#E24B4A' },
+        docx: { icon: 'ti-file-type-doc', color: '#185FA5' },
+        pptx: { icon: 'ti-file-type-ppt', color: '#D85A30' },
+        xlsx: { icon: 'ti-file-type-xls', color: '#3B6D11' },
+    };
+
+    container.innerHTML = materials.map(material => {
+        const ext = material.fileName.split('.').pop().toLowerCase();
+        const m = iconMap[ext] || { icon: 'ti-file', color: '#888' };
+        const mb = (material.fileSize / 1024 / 1024).toFixed(1);
+
+        return `
+        <div style="display:flex; align-items:center; gap:10px; margin-top:8px; padding:10px 12px; 
+                    border:0.5px solid var(--border-color); border-radius:8px; background:var(--bg-light);">
+            <i class="ti ${m.icon}" style="font-size:20px; color:${m.color}; flex-shrink:0;"></i>
+            <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${material.fileName}
+                </div>
+                <div style="font-size:12px; color:var(--text-muted);">${mb} MB</div>
+            </div>
+            <form method="POST" 
+                  action="/instructor/materials/${material.id}/delete?lessonId=${lessonId}&courseId=${courseId}"
+                  style="display:inline;">
+                <button type="submit" 
+                        onclick="return confirm('Xóa tài liệu này?');"
+                        style="background:none; border:none; cursor:pointer; color:var(--text-danger); 
+                               padding:4px; font-size:16px;">
+                    ✕
+                </button>
+            </form>
+        </div>`;
+    }).join('');
+}
 
 
 function deleteSection(sectionId, courseId, source) {
@@ -656,6 +923,20 @@ function openAddLessonModal(sectionId, source, courseId) {
 }
 
 
+
+/* =====================
+   SUBMIT REQUEST (step 5)
+===================== */
+function initSubmitRequest() {
+    const btn = document.getElementById('submitRequestBtn');
+    const msg = document.getElementById('submitSuccessMsg');
+    if (!btn || !msg) return;
+    btn.addEventListener('click', function () {
+        msg.style.display = 'flex';
+        btn.disabled = true;
+        btn.textContent = '✅ Đã Gửi';
+    });
+}
 
 function initSubmitReviewPolicy() {
     const form = document.getElementById('submitReviewForm');
@@ -735,31 +1016,75 @@ function initSubmitReviewPolicy() {
 }
 
 /* =====================
+   WIZARD BUTTONS (single-file SPA mode)
+===================== */
+function initWizardButtons() {
+    const prevBtn = document.getElementById('stepPrevBtn');
+    const nextBtn = document.getElementById('stepNextBtn');
+    if (!prevBtn || !nextBtn) return;
+
+    let currentStep = 1;
+    const totalSteps = 5;
+
+    function showStep(step) {
+        for (let i = 1; i <= totalSteps; i++) {
+            const el = document.getElementById(`step-${i}`);
+            if (el) el.style.display = i === step ? '' : 'none';
+        }
+        document.querySelectorAll('.wizard-step').forEach((s, i) => {
+            s.classList.toggle('active', i + 1 === step);
+        });
+        prevBtn.disabled = step === 1;
+        nextBtn.textContent = step === totalSteps ? '🚀 Gửi Duyệt' : 'Tiếp Theo →';
+    }
+
+    prevBtn.addEventListener('click', () => { if (currentStep > 1) showStep(--currentStep); });
+    nextBtn.addEventListener('click', () => {
+        if (currentStep < totalSteps) showStep(++currentStep);
+        else document.getElementById('submitRequestBtn')?.click();
+    });
+
+    document.querySelectorAll('.wizard-step[data-step]').forEach(s => {
+        s.addEventListener('click', function () {
+            const step = parseInt(this.dataset.step);
+            if (step) { currentStep = step; showStep(step); }
+        });
+    });
+}
+
+/* =====================
    MATERIAL FILE PREVIEW
 ===================== */
 function initMaterialPreview(){
     initMaterialPreviewByID(
-        "addMaterialFile",
-        "addMaterialPreview"
+        "MaterialInput",
+        "materialList"
     );
 }
 
+function initEditMaterialPreview(){
+    initMaterialPreviewByID(
+        "editMaterialInput",
+        "editMaterialList"
+    );
+}
 function initMaterialPreviewByID(inputId, listId) {
     const input     = document.getElementById(inputId);
     const list      = document.getElementById(listId);
-    const dt        = new DataTransfer(); // Giữ file trong input thật.
+    const dt        = new DataTransfer(); // giá»¯ file trong input tháº­t
 
     if (!input || !list) return;
 
     input.addEventListener('change', function () {
         Array.from(this.files).forEach(file => {
-            // Tránh trùng tên file.
+            // trÃ¡nh trÃ¹ng tÃªn
             if (![...dt.files].find(f => f.name === file.name)) {
                 dt.items.add(file);
             }
         });
-        input.files = dt.files;
+        input.files = dt.files; // gáº¯n láº¡i vÃ o input
         renderList();
+        // this.value = '';
     });
 
     function renderList() {
@@ -793,7 +1118,7 @@ function initMaterialPreviewByID(inputId, listId) {
 
     window.removeMaterial = function(index) {
         dt.items.remove(index);
-        input.files = dt.files; // Cập nhật lại input.
+        input.files = dt.files; // cáº­p nháº­t láº¡i input
         renderList();
     };
 }
@@ -849,3 +1174,7 @@ function initToastNotifications() {
 }
 
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}

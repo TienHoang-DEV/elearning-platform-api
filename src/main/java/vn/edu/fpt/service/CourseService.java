@@ -96,7 +96,7 @@ public class CourseService {
             throw new CourseValidationException("status", "Chỉ khóa học đang bán mới được ẩn.");
         }
         course.setStatus(CourseStatus.HIDDEN);
-        course.setUpdateAt(LocalDateTime.now());
+        course.setUpdatedAt(LocalDateTime.now());
         courseRepository.save(course);
     }
 
@@ -106,7 +106,7 @@ public class CourseService {
             throw new CourseValidationException("status", "Chỉ khóa học đã ẩn mới được hiện lại.");
         }
         course.setStatus(CourseStatus.PUBLISHED);
-        course.setUpdateAt(LocalDateTime.now());
+        course.setUpdatedAt(LocalDateTime.now());
         courseRepository.save(course);
     }
 
@@ -187,7 +187,7 @@ public class CourseService {
         // Course intro video: luu blobName video gioi thieu chung cua khoa hoc, khong gan vao tung lesson.
         course.setIntroVideoUrl(introVideoUrl);
         course.setLevel(courseCreateDto.getLevel());
-        course.setUpdateAt(LocalDateTime.now());
+        course.setUpdatedAt(LocalDateTime.now());
         return courseRepository.save(course);
     }
 
@@ -572,7 +572,7 @@ public class CourseService {
         course.setRejectionReason(null);
         course.setApprovedAt(null);
         course.setApprovedBy(null);
-        course.setUpdateAt(LocalDateTime.now());
+        course.setUpdatedAt(LocalDateTime.now());
         courseRepository.save(course);
     }
 

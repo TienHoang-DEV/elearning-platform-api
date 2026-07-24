@@ -1,8 +1,10 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Initialize Lucide Icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
 
+    // 2. Lucide Icons re-render when Bootstrap Collapse / Tabs / Modal are triggered
     const modalEl = document.getElementById('videoModal');
     if (modalEl) {
         modalEl.addEventListener('shown.bs.modal', () => {
@@ -12,7 +14,19 @@
         });
     }
 
-    // 3. Load more reviews functionality
+    // 3. Review form validation
+    const reviewForm = document.getElementById('reviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', (e) => {
+            const rating = reviewForm.querySelector('input[name="rating"]:checked');
+            if (!rating) {
+                e.preventDefault();
+                alert('Vui lòng chọn số sao đánh giá!');
+            }
+        });
+    }
+
+    // 4. Load more reviews functionality
     const btnLoadMore = document.getElementById('btn-load-more-reviews');
     if (btnLoadMore) {
         btnLoadMore.addEventListener('click', () => {
@@ -35,7 +49,7 @@
         });
     }
 
-    // 4. Edit review modal load setup
+    // 5. Edit review modal load setup
     const editReviewModal = document.getElementById('editReviewModal');
     if (editReviewModal) {
         editReviewModal.addEventListener('show.bs.modal', function (event) {
@@ -61,50 +75,35 @@
         });
     }
 
-    // 5. Preview video modal setup
+    // 6. Preview video modal setup
     const videoModal = document.getElementById('videoModal');
     if (videoModal) {
         videoModal.addEventListener('show.bs.modal', async function (event) {
             const trigger = event.relatedTarget;
             if (!trigger) return;
 
-            const lessonId = trigger.getAttribute('data-lesson-id');
             const lessonTitle = trigger.getAttribute('data-lesson-title');
             const introVideoUrl = trigger.getAttribute('data-intro-video-url');
 
             const video = document.getElementById('previewVideo');
             const modalTitle = document.getElementById('videoModalLabel');
 
-            if (video && (introVideoUrl || lessonId)) {
+            if (video && introVideoUrl) {
                 if (lessonTitle && modalTitle) {
                     modalTitle.textContent = "Xem thử khóa học - " + lessonTitle;
                 }
 
-                if (introVideoUrl) {
-                    video.src = introVideoUrl;
-                    video.load();
-                    video.play().catch(e => console.log("Autoplay prevented:", e));
-                    return;
-                }
-
-                try {
-                    const response = await fetch("/lesson/" + lessonId);
-                    if (!response.ok) {
-                        if (response.status === 401) {
-                            showToast('Vui lòng đăng nhập để xem!', 'warning');
-                            return;
-                        }
-                        throw new Error('Có lỗi khi tải video xem thử.');
+                video.onerror = function() {
+                    if (typeof showToast === 'function') {
+                        showToast('Lỗi: Không thể tải video xem thử.', 'warning');
+                    } else {
+                        alert('Lỗi: Không thể tải video xem thử.');
                     }
-                    
-                    const url = await response.text();
-                    video.src = url;
-                    video.load();
-                    video.play().catch(e => console.log("Autoplay prevented:", e));
-                } catch (err) {
-                    console.error("Error loading preview video:", err);
-                    showToast(err.message, 'warning');
-                }
+                };
+
+                video.src = introVideoUrl;
+                video.load();
+                video.play().catch(e => console.log("Autoplay prevented:", e));
             }
         });
 
@@ -118,6 +117,15 @@
         });
     }
 
+    // 7. Check for pending toast on load
+    const pendingToast = sessionStorage.getItem('pendingToast');
+    if (pendingToast) {
+        try {
+            const data = JSON.parse(pendingToast);
+            showToast(data.message, data.type);
+        } catch (e) {}
+        sessionStorage.removeItem('pendingToast');
+    }
 });
 
 // Global functions for detail page actions

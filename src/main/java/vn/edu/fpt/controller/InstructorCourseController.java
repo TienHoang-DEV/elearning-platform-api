@@ -77,7 +77,7 @@ public class InstructorCourseController {
                                     @RequestParam(name = "tab", defaultValue = "all") String activeTab,
                                     Model model){
         User  user = SecurityUtils.getCurrentUser();
-        Sort sort = Sort.by("updateAt").descending();
+        Sort sort = Sort.by("updatedAt").descending();
         int size = 8;
         Page<CourseDto> published = courseService.findByInstructorAndStatus(user, PageRequest.of(pagePushlished, size, sort), CourseStatus.PUBLISHED);
         Page<CourseDto> draft = courseService.findByInstructorAndStatus(user, PageRequest.of(pageDraf, size, sort), CourseStatus.DRAFT);
