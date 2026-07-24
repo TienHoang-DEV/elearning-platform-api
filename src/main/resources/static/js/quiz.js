@@ -1,5 +1,4 @@
 document.addEventListener("click", function (e) {
-    // Handle Quiz Sidebar collapse/expand toggle
     const toggleBtn = e.target.closest("#toggleQuizSidebarBtn, .quiz-toggle-btn");
     if (toggleBtn) {
         const container = toggleBtn.closest(".quiz-container-layout");
@@ -12,7 +11,7 @@ document.addEventListener("click", function (e) {
         return;
     }
 
-    // Toggle older attempt history
+
     const toggleAttemptsBtn = e.target.closest(".btn-toggle-attempts");
     if (toggleAttemptsBtn) {
         const list = toggleAttemptsBtn.closest(".quiz-attempt-list");
@@ -36,7 +35,6 @@ document.addEventListener("click", function (e) {
         return;
     }
 
-    // Handle Quiz option item AJAX fetching
     const link = e.target.closest(".quiz-option-link");
     if (!link) return;
 
