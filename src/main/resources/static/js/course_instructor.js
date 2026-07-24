@@ -6,91 +6,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     initToastNotifications();
     initSubmitReviewPolicy();
-
-    /* =====================================================
-       1. SIDEBAR NAVIGATION (SPA mode - náº¿u dÃ¹ng 1 file)
-          Náº¿u Ä‘Ã£ tÃ¡ch file thÃ¬ bá» qua pháº§n nÃ y,
-          sidebar dÃ¹ng href bÃ¬nh thÆ°á»ng.
-    ===================================================== */
     initSidebarNav();
-
-    /* =====================================================
-       2. TABS
-    ===================================================== */
     initTabs();
-
-    /* =====================================================
-       3. MODALS
-    ===================================================== */
     initModals();
-
-    /* =====================================================
-       4. RICH TEXT EDITOR
-    ===================================================== */
     initRichEditors();
-
-    /* =====================================================
-       5. AVATAR PREVIEW
-    ===================================================== */
     initAvatarPreview();
-
-    /* =====================================================
-       6. THUMBNAIL PREVIEW
-    ===================================================== */
     initThumbnailPreview();
-
-    /* =====================================================
-       7. PROFILE PREVIEW (live update)
-    ===================================================== */
     initProfilePreview();
-
-    /* =====================================================
-       8. COURSE PREVIEW (live update)
-    ===================================================== */
-    initCoursePreview();
-
-    /* =====================================================
-       9. CURRICULUM - Add Section & Lesson (JS fallback)
-          Náº¿u backend xá»­ lÃ½ thÃ¬ bá» qua.
-    ===================================================== */
     initCurriculum();
-
-    /* =====================================================
-       10. QUIZ - Add Question (JS fallback)
-    ===================================================== */
-    /* =====================================================
-       11. PRICING - Price display & Voucher
-    ===================================================== */
-    initPricing();
-
-    /* =====================================================
-       12. VIDEO PREVIEW
-    ===================================================== */
     initVideoUpload();
-
     initEditVideoUpload();
-
-
-
-
-
-    /* =====================================================
-       13. SUBMIT REQUEST (step 5)
-    ===================================================== */
-    initSubmitRequest();
-
-    /* =====================================================
-       14. WIZARD STEP BUTTONS (náº¿u dÃ¹ng 1 file)
-    ===================================================== */
-    initWizardButtons();
-
-    /* =====================================================
-       15. MATERIAL FILE PREVIEW
-    ===================================================== */
     initMaterialPreview();
-
-    initEditMaterialPreview();
-
     initMaterialFileValidation();
     initLessonUploadSubmitLock();
     initMaterialUploadSubmitLock();
@@ -112,7 +38,7 @@ function initSidebarNav() {
 }
 
 function initTabs() {
-    // === Xá»­ lÃ½ click chuyá»ƒn tab (giá»¯ nguyÃªn logic cÅ©) ===
+    // Xử lý click chuyển tab.
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const group = this.dataset.tabGroup;
@@ -503,38 +429,9 @@ function initProfilePreview() {
 
     if (bioEditor && previewBio) {
         bioEditor.addEventListener('input', function () {
-            previewBio.innerHTML = this.innerHTML || 'Giá»›i thiá»‡u báº£n thÃ¢n cá»§a báº¡n sáº½ hiá»‡n á»Ÿ Ä‘Ã¢y...';
+            previewBio.innerHTML = this.innerHTML || 'Giới thiệu bản thân của bạn sẽ hiện ở đây...';
         });
     }
-}
-
-function initCoursePreview() {
-    const titleInput = document.getElementById('courseTitleInput');
-    const shortInput = document.getElementById('courseShortInput');
-    const previewTitle = document.getElementById('previewCourseTitle');
-    const previewShort = document.getElementById('previewCourseShort');
-
-    if (titleInput && previewTitle) {
-        titleInput.addEventListener('input', function () {
-            previewTitle.textContent = this.value || 'TiÃªu Ä‘á» khÃ³a há»c sáº½ hiá»‡n á»Ÿ Ä‘Ã¢y';
-        });
-    }
-    if (shortInput && previewShort) {
-        shortInput.addEventListener('input', function () {
-            previewShort.textContent = this.value || 'MÃ´ táº£ ngáº¯n vá» khÃ³a há»c...';
-        });
-    }
-}
-
-function initPricing() {
-    const priceInput   = document.getElementById('priceInput');
-    const priceDisplay = document.getElementById('priceDisplay');
-    if (!priceInput || !priceDisplay) return;
-
-    priceInput.addEventListener('input', function () {
-        const val = parseInt(this.value) || 0;
-        priceDisplay.textContent = val.toLocaleString('vi-VN') + ' VNÄ';
-    });
 }
 
 function initVideoUpload(){
@@ -595,11 +492,6 @@ function initVideoUploadById(inputId, containerId, durationId) {
 
 
 
-/* =====================
-   CURRICULUM (JS-only fallback - dÃ¹ng náº¿u khÃ´ng submit form)
-===================== */
-let sectionCounter = 0;
-
 function initCurriculum() {
     const addSectionBtn = document.getElementById('addSectionBtn');
     if (!addSectionBtn) return;
@@ -607,121 +499,6 @@ function initCurriculum() {
     addSectionBtn.addEventListener('click', function () {
         openModal('modal-add-section');
     });
-
-    // Confirm add section (JS only mode)
-    const confirmBtn = document.getElementById('confirmAddSection');
-    if (confirmBtn) {
-        confirmBtn.addEventListener('click', function () {
-            const name = document.getElementById('sectionNameInput')?.value.trim();
-            if (!name) { alert('Vui lÃ²ng nháº­p tÃªn chÆ°Æ¡ng.'); return; }
-            addSectionToUI(name);
-            document.getElementById('sectionNameInput').value = '';
-            closeModal('modal-add-section');
-        });
-    }
-}
-
-function addSectionToUI(title) {
-    sectionCounter++;
-    const list = document.getElementById('curriculumList');
-    if (!list) return;
-
-    const sectionEl = document.createElement('div');
-    sectionEl.className = 'section-item';
-    sectionEl.dataset.sectionIndex = sectionCounter;
-    sectionEl.innerHTML = `
-    <div class="section-header">
-      <span class="drag-handle">â ¿</span>
-      <span class="section-number">ChÆ°Æ¡ng ${sectionCounter}</span>
-      <span class="section-title">${escapeHtml(title)}</span>
-      <div class="section-actions">
-        <button type="button" class="btn btn-sm btn-outline add-lesson-btn" data-section-index="${sectionCounter}">
-          + ThÃªm BÃ i Giáº£ng
-        </button>
-        <button type="button" class="btn btn-sm btn-danger delete-section-btn">ðŸ—‘</button>
-      </div>
-    </div>
-    <div class="lesson-list" id="lessons-${sectionCounter}">
-      <div class="table-empty" style="padding:10px 16px;font-size:.85rem;">ChÆ°a cÃ³ bÃ i giáº£ng</div>
-    </div>
-  `;
-
-    sectionEl.querySelector('.add-lesson-btn').addEventListener('click', function () {
-        currentSectionIndex = parseInt(this.dataset.sectionIndex);
-        openModal('modal-add-lesson');
-    });
-    sectionEl.querySelector('.delete-section-btn').addEventListener('click', function () {
-        if (confirm('XÃ³a chÆ°Æ¡ng nÃ y?')) sectionEl.remove();
-    });
-
-    list.appendChild(sectionEl);
-    updateCurriculumPreview();
-}
-
-
-let currentSectionIndex = null;
-
-// Called from curriculum step modal confirm
-document.addEventListener('click', function (e) {
-    const confirmLesson = e.target.closest('#confirmAddLesson');
-    if (!confirmLesson) return;
-    const name = document.getElementById('lessonNameInput')?.value.trim();
-    if (!name) { alert('Vui lÃ²ng nháº­p tÃªn bÃ i giáº£ng.'); return; }
-    addLessonToSection(currentSectionIndex, name);
-    document.getElementById('lessonNameInput').value = '';
-    closeModal('modal-add-lesson');
-});
-
-
-
-
-
-function addLessonToSection(sectionIndex, title) {
-    const lessonList = document.getElementById(`lessons-${sectionIndex}`);
-    if (!lessonList) return;
-
-    // Remove empty state message
-    const empty = lessonList.querySelector('.table-empty');
-    if (empty) empty.remove();
-
-    const lessonEl = document.createElement('div');
-    lessonEl.className = 'lesson-item';
-    lessonEl.innerHTML = `
-    <span class="drag-handle">â ¿</span>
-    <span class="lesson-icon">ðŸŽ¬</span>
-    <span class="lesson-title">${escapeHtml(title)}</span>
-    <div class="lesson-actions">
-      <button type="button" class="btn btn-sm btn-danger delete-lesson-btn">ðŸ—‘</button>
-    </div>
-  `;
-    lessonEl.querySelector('.delete-lesson-btn').addEventListener('click', function () {
-        if (confirm('XÃ³a bÃ i giáº£ng nÃ y?')) lessonEl.remove();
-    });
-    lessonList.appendChild(lessonEl);
-    updateCurriculumPreview();
-}
-
-function updateCurriculumPreview() {
-    const preview = document.getElementById('curriculumPreview');
-    if (!preview) return;
-    const sections = document.querySelectorAll('#curriculumList .section-item');
-    if (!sections.length) {
-        preview.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;">CÃ¡c chÆ°Æ¡ng vÃ  bÃ i giáº£ng sáº½ hiá»‡n á»Ÿ Ä‘Ã¢y...</p>';
-        return;
-    }
-    let html = '';
-    sections.forEach((sec, i) => {
-        const title   = sec.querySelector('.section-title')?.textContent || '';
-        const lessons = sec.querySelectorAll('.lesson-title');
-        html += `<div style="margin-bottom:10px;"><strong>ChÆ°Æ¡ng ${i+1}: ${title}</strong>`;
-        if (lessons.length) {
-            html += '<ul style="margin:4px 0 0 16px;">';
-            lessons.forEach(l => { html += `<li style="font-size:13px;color:var(--text-muted);">${l.textContent}</li>`; });
-            html += '</ul>';
-        }
-        html += '</div>';
-    });
-    preview.innerHTML = html;
 }
 
 function openEditSectionModal(dataset) {
@@ -779,7 +556,7 @@ function openEditLessonModal(dataset) {
     if (oldVideoUrl && oldVideoUrl !== 'null' && oldVideoUrl !== '') {
         videoPreviewContainer.innerHTML = `
             <div class="old-video-info" style="margin-top: 10px; padding: 10px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px;">
-                <p style="font-size: 13px; color: #555; margin-bottom: 5px;">ðŸŽ¬ <strong>Video hiá»‡n táº¡i cá»§a bÃ i giáº£ng:</strong></p>
+                <p style="font-size: 13px; color: #555; margin-bottom: 5px;"><strong>Video hiện tại của bài giảng:</strong></p>
                 <video src="${oldVideoUrl}" controls style="width:100%; border-radius:4px; max-height:180px;"></video>
             </div>
         `;
@@ -801,11 +578,11 @@ function openEditLessonModal(dataset) {
 function deleteLesson(lessonId, courseId, source) {
     source = source || 'create';
     if (!lessonId || !courseId) {
-        alert('ID khÃ´ng há»£p lá»‡!');
+        alert('ID không hợp lệ!');
         return;
     }
 
-    if (!confirm('XÃ³a bÃ i giáº£ng nÃ y? Táº¥t cáº£ materials vÃ  quizzes sáº½ bá»‹ xÃ³a theo.')) {
+    if (!confirm('Xóa bài giảng này? Tất cả tài liệu và quiz sẽ bị xóa theo.')) {
         return;
     }
 
@@ -820,15 +597,15 @@ function deleteLesson(lessonId, courseId, source) {
 function deleteMaterial(courseId, materialId, source) {
     source = source || 'create';
     if (!materialId || !courseId) {
-        alert(' ID khÃ´ng há»£p lá»‡!');
+        alert('ID không hợp lệ!');
         return;
     }
 
-    if (!confirm('XÃ³a tÃ i liá»‡u nÃ y?')) {
+    if (!confirm('Xóa tài liệu này?')) {
         return;
     }
 
-    // Táº¡o form áº©n Ä‘á»ƒ submit
+    // Tạo form ẩn để submit.
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = `/instructor/materials/${materialId}/delete?source=${source}`;
@@ -843,53 +620,9 @@ function deleteMaterial(courseId, materialId, source) {
 
 
 
-function renderExistingMaterials(materials, lessonId, courseId) {
-    const container = document.getElementById('existingMaterialsContainer');
-    if (!materials || materials.length === 0) {
-        container.innerHTML = '<p style="color:#999; font-size:0.9rem;">ðŸ“­ ChÆ°a cÃ³ tÃ i liá»‡u nÃ o</p>';
-        return;
-    }
-
-    const iconMap = {
-        pdf:  { icon: 'ti-file-type-pdf', color: '#E24B4A' },
-        docx: { icon: 'ti-file-type-doc', color: '#185FA5' },
-        pptx: { icon: 'ti-file-type-ppt', color: '#D85A30' },
-        xlsx: { icon: 'ti-file-type-xls', color: '#3B6D11' },
-    };
-
-    container.innerHTML = materials.map(material => {
-        const ext = material.fileName.split('.').pop().toLowerCase();
-        const m = iconMap[ext] || { icon: 'ti-file', color: '#888' };
-        const mb = (material.fileSize / 1024 / 1024).toFixed(1);
-
-        return `
-        <div style="display:flex; align-items:center; gap:10px; margin-top:8px; padding:10px 12px; 
-                    border:0.5px solid var(--border-color); border-radius:8px; background:var(--bg-light);">
-            <i class="ti ${m.icon}" style="font-size:20px; color:${m.color}; flex-shrink:0;"></i>
-            <div style="flex:1; min-width:0;">
-                <div style="font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                    ${material.fileName}
-                </div>
-                <div style="font-size:12px; color:var(--text-muted);">${mb} MB</div>
-            </div>
-            <form method="POST" 
-                  action="/instructor/materials/${material.id}/delete?lessonId=${lessonId}&courseId=${courseId}"
-                  style="display:inline;">
-                <button type="submit" 
-                        onclick="return confirm('XÃ³a tÃ i liá»‡u nÃ y?');"
-                        style="background:none; border:none; cursor:pointer; color:var(--text-danger); 
-                               padding:4px; font-size:16px;">
-                    âœ•
-                </button>
-            </form>
-        </div>`;
-    }).join('');
-}
-
-
 function deleteSection(sectionId, courseId, source) {
     source = source || 'create';
-    if (!confirm('XÃ³a chÆ°Æ¡ng nÃ y vÃ  táº¥t cáº£ bÃ i giáº£ng bÃªn trong?')) return;
+    if (!confirm('Xóa chương này và tất cả bài giảng bên trong?')) return;
     fetch(`/instructor/${courseId}/sections/${sectionId}/delete?source=${source}`, { method: 'POST' })
         .then(r => { if (r.ok) location.reload(); });
 }
@@ -923,20 +656,6 @@ function openAddLessonModal(sectionId, source, courseId) {
 }
 
 
-
-/* =====================
-   SUBMIT REQUEST (step 5)
-===================== */
-function initSubmitRequest() {
-    const btn = document.getElementById('submitRequestBtn');
-    const msg = document.getElementById('submitSuccessMsg');
-    if (!btn || !msg) return;
-    btn.addEventListener('click', function () {
-        msg.style.display = 'flex';
-        btn.disabled = true;
-        btn.textContent = 'âœ… ÄÃ£ Gá»­i';
-    });
-}
 
 function initSubmitReviewPolicy() {
     const form = document.getElementById('submitReviewForm');
@@ -1016,75 +735,31 @@ function initSubmitReviewPolicy() {
 }
 
 /* =====================
-   WIZARD BUTTONS (single-file SPA mode)
-===================== */
-function initWizardButtons() {
-    const prevBtn = document.getElementById('stepPrevBtn');
-    const nextBtn = document.getElementById('stepNextBtn');
-    if (!prevBtn || !nextBtn) return;
-
-    let currentStep = 1;
-    const totalSteps = 5;
-
-    function showStep(step) {
-        for (let i = 1; i <= totalSteps; i++) {
-            const el = document.getElementById(`step-${i}`);
-            if (el) el.style.display = i === step ? '' : 'none';
-        }
-        document.querySelectorAll('.wizard-step').forEach((s, i) => {
-            s.classList.toggle('active', i + 1 === step);
-        });
-        prevBtn.disabled = step === 1;
-        nextBtn.textContent = step === totalSteps ? 'ðŸš€ Gá»­i Duyá»‡t' : 'Tiáº¿p Theo â†’';
-    }
-
-    prevBtn.addEventListener('click', () => { if (currentStep > 1) showStep(--currentStep); });
-    nextBtn.addEventListener('click', () => {
-        if (currentStep < totalSteps) showStep(++currentStep);
-        else document.getElementById('submitRequestBtn')?.click();
-    });
-
-    document.querySelectorAll('.wizard-step[data-step]').forEach(s => {
-        s.addEventListener('click', function () {
-            const step = parseInt(this.dataset.step);
-            if (step) { currentStep = step; showStep(step); }
-        });
-    });
-}
-
-/* =====================
    MATERIAL FILE PREVIEW
 ===================== */
 function initMaterialPreview(){
     initMaterialPreviewByID(
-        "MaterialInput",
-        "materialList"
+        "addMaterialFile",
+        "addMaterialPreview"
     );
 }
 
-function initEditMaterialPreview(){
-    initMaterialPreviewByID(
-        "editMaterialInput",
-        "editMaterialList"
-    );
-}
 function initMaterialPreviewByID(inputId, listId) {
     const input     = document.getElementById(inputId);
     const list      = document.getElementById(listId);
-    const dt        = new DataTransfer(); // giá»¯ file trong input tháº­t
+    const dt        = new DataTransfer(); // Giữ file trong input thật.
 
     if (!input || !list) return;
 
     input.addEventListener('change', function () {
         Array.from(this.files).forEach(file => {
-            // trÃ¡nh trÃ¹ng tÃªn
+            // Tránh trùng tên file.
             if (![...dt.files].find(f => f.name === file.name)) {
                 dt.items.add(file);
             }
         });
-        input.files = dt.files; // gáº¯n láº¡i vÃ o input
+        input.files = dt.files;
         renderList();
-        // this.value = '';
     });
 
     function renderList() {
@@ -1118,7 +793,7 @@ function initMaterialPreviewByID(inputId, listId) {
 
     window.removeMaterial = function(index) {
         dt.items.remove(index);
-        input.files = dt.files; // cáº­p nháº­t láº¡i input
+        input.files = dt.files; // Cập nhật lại input.
         renderList();
     };
 }
@@ -1131,7 +806,7 @@ function openAddMaterialModal(dataset) {
     const form = document.getElementById('addMaterialForm');
    const source = dataset.source || 'create';
     if (!form || !dataset.lessonId) {
-        alert('KhÃ´ng tÃ¬m tháº¥y thÃ´ng tin bÃ i giáº£ng!');
+        alert('Không tìm thấy thông tin bài giảng!');
         return;
     }
 
@@ -1174,7 +849,3 @@ function initToastNotifications() {
 }
 
 
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
