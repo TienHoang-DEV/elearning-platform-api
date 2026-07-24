@@ -50,7 +50,7 @@ public class ManagerInstructorController {
         int startPage = 0;
         int endPage = 0;
         if (requestPage.getTotalPages() > 0) {
-            startPage = (requestPage.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * vn.edu.fpt.util.AppConstants.NUMBER_PAGE_PER_BLOCK;
+            startPage = (requestPage.getNumber() / AppConstants.NUMBER_PAGE_PER_BLOCK) * AppConstants.NUMBER_PAGE_PER_BLOCK;
             endPage = Math.min(startPage + AppConstants.NUMBER_PAGE_PER_BLOCK - 1, requestPage.getTotalPages() - 1);
         }
 
