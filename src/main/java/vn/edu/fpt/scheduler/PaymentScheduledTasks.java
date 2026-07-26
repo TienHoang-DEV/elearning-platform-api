@@ -35,15 +35,4 @@ public class PaymentScheduledTasks {
         }
     }
 
-    @Scheduled(fixedRateString = "#{T(vn.edu.fpt.util.AppConstants).FAILED_WEBHOOK_CHECK_INTERVAL_MINUTES * 60 * 1000}")
-    public void retryFailedWebhooks() {
-        try {
-            log.debug("[SCHEDULED TASK] Bắt đầu retryFailedWebhooks");
-            int retriedCount = paymentSyncService.retryFailedWebhooks();
-            log.debug("[SCHEDULED TASK] Hoàn tất retryFailedWebhooks: {} giao dịch đã retry", retriedCount);
-        } catch (Exception e) {
-            log.error("[SCHEDULED TASK] Lỗi trong retryFailedWebhooks: {}", e.getMessage(), e);
-        }
-    }
-
 }

@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.Payment;
 import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.repository.PaymentRepository;
-import vn.edu.fpt.util.AppConstants;
 import vn.payos.PayOS;
 import vn.payos.model.v2.paymentRequests.PaymentLink;
 
@@ -113,35 +112,6 @@ public class PaymentSyncService {
         } catch (Exception e) {
             log.error("Lỗi khi query PayOS cho Payment ID {}: {}", payment.getId(), e.getMessage(), e);
             return false;
-        }
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public int retryFailedWebhooks() {
-        try {
-            log.info("Bắt đầu retry webhook bị fail...");
-            List<Payment> failedPayments = paymentRepository.findPaymentsForWebhookRetry(AppConstants.PAYMENT_WEBHOOK_RETRY_ATTEMPTS);
-            if (failedPayments.isEmpty()) {
-                log.debug("Không có giao dịch nào cần retry webhook");
-                return 0;
-            }
-            log.debug("Tìm thấy {} giao dịch cần retry webhook", failedPayments.size());
-            int count = 0;
-            for (Payment payment : failedPayments) {
-                try {
-                    payment.setWebhookRetryCount(payment.getWebhookRetryCount() + 1);
-                    syncPaymentStatusWithPayOs(payment);
-                    log.debug("Retry webhook cho Payment ID {} (lần {})", payment.getId(), payment.getWebhookRetryCount());
-                    count++;
-                } catch (Exception e) {
-                    log.warn("Lỗi khi retry webhook cho Payment ID {}: {}", payment.getId(), e.getMessage());
-                }
-            }
-            log.info("Hoàn tất: {} giao dịch đã retry webhook", count);
-            return count;
-        } catch (Exception e) {
-            log.error("Lỗi nghiêm trọng trong retryFailedWebhooks: {}", e.getMessage(), e);
-            return 0;
         }
     }
 

@@ -13,7 +13,6 @@ public enum LogAction {
 
     // Payment & Transactions
     CREATE_PAYMENT("Tạo yêu cầu thanh toán"),
-    PAYMENT_WEBHOOK_RECEIVED("Nhận webhook thanh toán"),
     PAYMENT_COMPLETED("Thanh toán thành công"),
     CANCEL_PAYMENT("Hủy thanh toán"),
     EXPIRE_PAYMENT("Thanh toán hết hạn"),
