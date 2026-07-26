@@ -6,13 +6,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
+import vn.edu.fpt.dto.quizdto.LessonQuizPageDTO;
+import vn.edu.fpt.dto.quizdto.QuizAnswerViewDTO;
+import vn.edu.fpt.dto.quizdto.QuizAttemptViewDTO;
 import vn.edu.fpt.dto.quizdto.QuizDTO;
 import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
+import vn.edu.fpt.dto.quizdto.QuizQuestionViewDTO;
+import vn.edu.fpt.dto.quizdto.QuizViewDTO;
 import vn.edu.fpt.entity.Lesson;
 import vn.edu.fpt.entity.Quiz;
+import vn.edu.fpt.entity.QuizAnswer;
 import vn.edu.fpt.entity.QuizAttempt;
 import vn.edu.fpt.entity.QuizAttemptAnswer;
+import vn.edu.fpt.entity.QuizQuestion;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.QuizStatus;
 import vn.edu.fpt.exception.ResourceNotFoundException;
@@ -45,67 +51,197 @@ public class QuizService {
         this.quizAttemptAnswerRepository = quizAttemptAnswerRepository;
     }
 
-    public void populateLessonQuizModel(Integer lessonId, User user, boolean retake, Integer activeQuizId, Integer activeAttemptId, Model model) {
-        Lesson lesson = lessonRepository.findByIdWithQuizzes(lessonId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lesson với id " + lessonId));
-        List<QuizDTO> quizzes = dtoMapper.toQuizDtos(lesson.getQuizzes());
-        int totalQuestions = totalQuestion(quizzes);
-        Map<Integer, List<QuizAttempt>> quizAttemptsMap = new HashMap<>();
-        List<Integer> allAttemptIds = new ArrayList<>();
+    public LessonQuizPageDTO getLessonQuizPage(Integer lessonId, User user, boolean retake, Integer activeQuizId, Integer activeAttemptId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lesson với id " + lessonId));
 
-        for (QuizDTO q : quizzes) {
-            List<QuizAttempt> attempts = quizAttemptRepository.findByUserIdAndQuizIdOrderBySubmittedAtDesc(user.getId(), q.getId());
-            quizAttemptsMap.put(q.getId(), attempts);
-            for (QuizAttempt att : attempts) {
-                allAttemptIds.add(att.getId());
+        List<Quiz> quizzes = repository.findByLessonId(lessonId);
+        sortQuizzes(quizzes);
+
+        Integer selectedQuizId = chooseActiveQuizId(quizzes, activeQuizId);
+        List<QuizViewDTO> quizViews = new ArrayList<>();
+        QuizViewDTO activeQuiz = null;
+
+        for (Quiz quiz : quizzes) {
+            boolean active = Objects.equals(quiz.getId(), selectedQuizId);
+            List<QuizAttempt> attempts = quizAttemptRepository.findByUserIdAndQuizIdOrderBySubmittedAtDesc(user.getId(), quiz.getId());
+            QuizAttempt selectedAttempt = active ? chooseSelectedAttempt(attempts, activeAttemptId) : null;
+            boolean showingResult = active && !retake && selectedAttempt != null;
+            Set<Integer> selectedAnswerIds = showingResult ? findSelectedAnswerIds(selectedAttempt.getId()) : Set.of();
+            QuizViewDTO quizView = toQuizView(quiz, attempts, selectedAttempt, selectedAnswerIds, active, showingResult);
+
+            quizViews.add(quizView);
+            if (active) {
+                activeQuiz = quizView;
             }
         }
 
-        Map<Integer, Set<Integer>> attemptSelectedAnswersMap = new HashMap<>();
-        if (!allAttemptIds.isEmpty()) {
-            List<QuizAttemptAnswer> attemptAnswers = quizAttemptAnswerRepository.findByAttemptIdIn(allAttemptIds);
-            for (QuizAttemptAnswer qaa : attemptAnswers) {
-                if (qaa.getAttempt() != null && qaa.getSelectedAnswer() != null) {
-                    Integer attemptId = qaa.getAttempt().getId();
-                    if (!attemptSelectedAnswersMap.containsKey(attemptId)) {
-                        attemptSelectedAnswersMap.put(attemptId, new HashSet<>());
-                    }
-                    attemptSelectedAnswersMap.get(attemptId).add(qaa.getSelectedAnswer().getId());
-                }
+        return LessonQuizPageDTO.builder()
+                .lessonId(lesson.getId())
+                .lessonTitle(lesson.getTitle())
+                .activeQuizId(selectedQuizId)
+                .retake(retake)
+                .activeQuiz(activeQuiz)
+                .quizzes(quizViews)
+                .build();
+    }
+
+    private void sortQuizzes(List<Quiz> quizzes) {
+        quizzes.sort((q1, q2) -> {
+            Integer id1 = q1.getId();
+            Integer id2 = q2.getId();
+            if (id1 == null && id2 == null) return 0;
+            if (id1 == null) return 1;
+            if (id2 == null) return -1;
+            return id1.compareTo(id2);
+        });
+    }
+
+    private Integer chooseActiveQuizId(List<Quiz> quizzes, Integer activeQuizId) {
+        if (quizzes == null || quizzes.isEmpty()) {
+            return null;
+        }
+
+        if (activeQuizId == null) {
+            return quizzes.get(0).getId();
+        }
+
+        for (Quiz quiz : quizzes) {
+            if (Objects.equals(quiz.getId(), activeQuizId)) {
+                return activeQuizId;
             }
         }
 
-        Integer finalActiveQuizId = activeQuizId != null ? activeQuizId : (quizzes.isEmpty() ? null : quizzes.get(0).getId());
+        return quizzes.get(0).getId();
+    }
 
-        QuizAttempt currentAttempt = null;
-        if (activeAttemptId != null) {
-            for (List<QuizAttempt> list : quizAttemptsMap.values()) {
-                for (QuizAttempt att : list) {
-                    if (att.getId().equals(activeAttemptId)) {
-                        currentAttempt = att;
-                        break;
-                    }
-                }
-                if (currentAttempt != null) break;
-            }
+    private QuizAttempt chooseSelectedAttempt(List<QuizAttempt> attempts, Integer activeAttemptId) {
+        if (attempts == null || attempts.isEmpty()) {
+            return null;
         }
-        if (currentAttempt == null && finalActiveQuizId != null) {
-            List<QuizAttempt> attempts = quizAttemptsMap.get(finalActiveQuizId);
-            if (attempts != null && !attempts.isEmpty()) {
-                currentAttempt = attempts.get(0);
+
+        if (activeAttemptId == null) {
+            return attempts.get(0);
+        }
+
+        for (QuizAttempt attempt : attempts) {
+            if (Objects.equals(attempt.getId(), activeAttemptId)) {
+                return attempt;
             }
         }
 
-        model.addAttribute("lessonId", lesson.getId());
-        model.addAttribute("lessonTitle", lesson.getTitle());
-        model.addAttribute("quizzes", quizzes);
-        model.addAttribute("quizCount", quizzes.size());
-        model.addAttribute("totalQuestions", totalQuestions);
-        model.addAttribute("quizAttemptsMap", quizAttemptsMap);
-        model.addAttribute("attemptSelectedAnswersMap", attemptSelectedAnswersMap);
-        model.addAttribute("retake", retake);
-        model.addAttribute("activeQuizId", finalActiveQuizId);
-        model.addAttribute("activeAttemptId", activeAttemptId);
-        model.addAttribute("currentAttempt", currentAttempt);
+        return attempts.get(0);
+    }
+
+    private Set<Integer> findSelectedAnswerIds(Integer attemptId) {
+        List<QuizAttemptAnswer> attemptAnswers = quizAttemptAnswerRepository.findByAttemptId(attemptId);
+        Set<Integer> selectedAnswerIds = new HashSet<>();
+
+        for (QuizAttemptAnswer attemptAnswer : attemptAnswers) {
+            if (attemptAnswer.getSelectedAnswer() != null) {
+                selectedAnswerIds.add(attemptAnswer.getSelectedAnswer().getId());
+            }
+        }
+
+        return selectedAnswerIds;
+    }
+
+    private QuizViewDTO toQuizView(Quiz quiz, List<QuizAttempt> attempts, QuizAttempt selectedAttempt, Set<Integer> selectedAnswerIds, boolean active, boolean showingResult) {
+        return QuizViewDTO.builder()
+                .id(quiz.getId())
+                .title(quiz.getTitle())
+                .passScorePercent(quiz.getPassScorePercent())
+                .timeLimitMinutes(quiz.getTimeLimitMinutes())
+                .active(active)
+                .showingResult(showingResult)
+                .selectedAttempt(toAttemptView(selectedAttempt, attempts, true))
+                .attempts(toAttemptViews(attempts, selectedAttempt))
+                .questions(toQuestionViews(quiz.getQuestions(), selectedAnswerIds))
+                .build();
+    }
+
+    private List<QuizAttemptViewDTO> toAttemptViews(List<QuizAttempt> attempts, QuizAttempt selectedAttempt) {
+        List<QuizAttemptViewDTO> result = new ArrayList<>();
+        if (attempts == null) {
+            return result;
+        }
+
+        int totalAttempts = attempts.size();
+        for (int index = 0; index < attempts.size(); index++) {
+            QuizAttempt attempt = attempts.get(index);
+            boolean active = selectedAttempt != null && Objects.equals(attempt.getId(), selectedAttempt.getId());
+            result.add(toAttemptView(attempt, totalAttempts - index, index == 0, active));
+        }
+
+        return result;
+    }
+
+    private QuizAttemptViewDTO toAttemptView(QuizAttempt attempt, List<QuizAttempt> attempts, boolean active) {
+        if (attempt == null) {
+            return null;
+        }
+
+        int attemptIndex = attempts != null ? attempts.indexOf(attempt) : -1;
+        int attemptNumber = attemptIndex >= 0 ? attempts.size() - attemptIndex : 1;
+        boolean latest = attemptIndex == 0;
+
+        return toAttemptView(attempt, attemptNumber, latest, active);
+    }
+
+    private QuizAttemptViewDTO toAttemptView(QuizAttempt attempt, int attemptNumber, boolean latest, boolean active) {
+        return QuizAttemptViewDTO.builder()
+                .id(attempt.getId())
+                .score(attempt.getScore())
+                .passed(Boolean.TRUE.equals(attempt.getPassed()))
+                .submittedAt(attempt.getSubmittedAt())
+                .attemptNumber(attemptNumber)
+                .latest(latest)
+                .active(active)
+                .build();
+    }
+
+    private List<QuizQuestionViewDTO> toQuestionViews(List<QuizQuestion> questions, Set<Integer> selectedAnswerIds) {
+        List<QuizQuestion> sortedQuestions = new ArrayList<>(questions != null ? questions : List.of());
+        sortedQuestions.sort(Comparator
+                .comparing(QuizQuestion::getPosition, Comparator.nullsLast(Integer::compareTo))
+                .thenComparing(QuizQuestion::getId, Comparator.nullsLast(Integer::compareTo)));
+
+        List<QuizQuestionViewDTO> result = new ArrayList<>();
+        for (int index = 0; index < sortedQuestions.size(); index++) {
+            QuizQuestion question = sortedQuestions.get(index);
+            result.add(QuizQuestionViewDTO.builder()
+                    .id(question.getId())
+                    .questionText(question.getQuestionText())
+                    .questionType(question.getQuestionType())
+                    .points(question.getPoints())
+                    .position(question.getPosition())
+                    .explanation(question.getExplanation())
+                    .formIndex(index)
+                    .answers(toAnswerViews(question.getAnswers(), selectedAnswerIds))
+                    .build());
+        }
+
+        return result;
+    }
+
+    private List<QuizAnswerViewDTO> toAnswerViews(List<QuizAnswer> answers, Set<Integer> selectedAnswerIds) {
+        List<QuizAnswer> sortedAnswers = new ArrayList<>(answers != null ? answers : List.of());
+        sortedAnswers.sort(Comparator
+                .comparing(QuizAnswer::getPosition, Comparator.nullsLast(Integer::compareTo))
+                .thenComparing(QuizAnswer::getId, Comparator.nullsLast(Integer::compareTo)));
+
+        List<QuizAnswerViewDTO> result = new ArrayList<>();
+        for (QuizAnswer answer : sortedAnswers) {
+            result.add(QuizAnswerViewDTO.builder()
+                    .id(answer.getId())
+                    .answerText(answer.getAnswerText())
+                    .position(answer.getPosition())
+                    .correct(Boolean.TRUE.equals(answer.getCorrect()))
+                    .selected(selectedAnswerIds != null && selectedAnswerIds.contains(answer.getId()))
+                    .build());
+        }
+
+        return result;
     }
 
     public List<Quiz> findAll() {
