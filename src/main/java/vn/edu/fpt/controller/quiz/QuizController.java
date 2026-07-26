@@ -23,9 +23,9 @@ public class QuizController {
     private final QuizAttemptService quizAttemptService;
 
     @GetMapping("/quiz/lesson/{lessonId}")
-    public String viewQuiz(@PathVariable("lessonId") Integer lessonId, @RequestParam(value = "retake", required = false, defaultValue = "false") boolean retake, @RequestParam(value = "activeQuizId", required = false) Integer activeQuizId,Model model) {
+    public String viewQuiz(@PathVariable("lessonId") Integer lessonId, @RequestParam(value = "retake", required = false, defaultValue = "false") boolean retake, @RequestParam(value = "activeQuizId", required = false) Integer activeQuizId, @RequestParam(value = "activeAttemptId", required = false) Integer activeAttemptId, Model model) {
         User user = SecurityUtils.getCurrentUser();
-        quizService.populateLessonQuizModel(lessonId, user, retake, activeQuizId, model);
+        quizService.populateLessonQuizModel(lessonId, user, retake, activeQuizId, activeAttemptId, model);
         return "quiz/lesson-quiz :: quizContent";
     }
 

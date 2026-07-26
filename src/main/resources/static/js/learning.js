@@ -79,7 +79,7 @@ function initializeQuizAjax() {
     const container = document.getElementById("quiz-content-container");
     if (!container) return;
 
-    // Handle form submit (submitting quiz) inside container
+    // submit quiz
     container.addEventListener("submit", (event) => {
         if (event.target.tagName === "FORM") {
             event.preventDefault();

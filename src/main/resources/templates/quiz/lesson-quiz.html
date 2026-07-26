@@ -105,10 +105,11 @@
 
                             <div class="quiz-attempt-list"
                                 style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
-                                <div th:each="attempt, stat : ${quizAttemptsMap.get(quiz.id)}"
-                                    class="quiz-attempt-item"
-                                    th:classappend="${!stat.first} ? 'older-attempt' : 'latest-attempt'"
-                                    th:style="${!stat.first} ? 'display: none; justify-content: space-between; align-items: center; padding: 14px 18px; border: 1px solid var(--quiz-border); border-radius: 14px; background: #fff; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);' : 'display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border: 1px solid var(--quiz-border); border-radius: 14px; background: #fff; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);'">
+                                <a th:each="attempt, stat : ${quizAttemptsMap.get(quiz.id)}"
+                                   th:href="@{/quiz/lesson/{lessonId}(lessonId=${lessonId}, activeQuizId=${quiz.id}, activeAttemptId=${attempt.id})}"
+                                   class="quiz-attempt-item quiz-option-link text-decoration-none"
+                                   th:classappend="${(activeAttemptId != null and activeAttemptId == attempt.id) or (activeAttemptId == null and stat.first)} ? 'active-attempt-item' : 'older-attempt'"
+                                   th:style="${(activeAttemptId != null and activeAttemptId == attempt.id) or (activeAttemptId == null and stat.first) or stat.first} ? 'display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border: 1px solid var(--quiz-border); border-radius: 14px; background: #fff; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);' : 'display: none; justify-content: space-between; align-items: center; padding: 14px 18px; border: 1px solid var(--quiz-border); border-radius: 14px; background: #fff; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);'">
                                     <div>
                                         <div style="font-weight: 700; font-size: 15px; color: var(--quiz-text);"
                                             th:text="${'Lần làm bài thứ ' + (quizAttemptsMap.get(quiz.id).size() - stat.index) + (stat.first ? ' (Gần nhất)' : '')}">
@@ -125,7 +126,7 @@
                                             th:styleappend="${attempt.passed} ? 'color: var(--quiz-success);' : 'color: #ef4444;'"
                                             th:text="${attempt.passed} ? 'ĐẠT' : 'KHÔNG ĐẠT'">Đạt</div>
                                     </div>
-                                </div>
+                                </a>
 
                                 <!-- Nút mở rộng/thu gọn danh sách lần làm bài cũ -->
                                 <div th:if="${quizAttemptsMap.get(quiz.id).size() > 1}" style="text-align: center; margin-top: 4px;">
@@ -147,10 +148,11 @@
 
                             <!-- Đáp án & Giải thích chi tiết -->
                             <div class="quiz-review-section"
-                                th:with="latestAttempt=${quizAttemptsMap.get(quiz.id).get(0)}, selectedAnswerIds=${attemptSelectedAnswersMap != null ? attemptSelectedAnswersMap.get(quizAttemptsMap.get(quiz.id).get(0).id) : null}"
-                                style="margin-top: 40px; border-top: 1px dashed var(--quiz-border); padding-top: 30px;">
+                                 th:with="allAttempts=${quizAttemptsMap.get(quiz.id)}, selectedAnswerIds=${attemptSelectedAnswersMap != null and currentAttempt != null ? attemptSelectedAnswersMap.get(currentAttempt.id) : null}"
+                                 style="margin-top: 40px; border-top: 1px dashed var(--quiz-border); padding-top: 30px;">
                                 <h3 class="quiz-history-title"
-                                    style="font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--quiz-text);">
+                                    style="font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--quiz-text);"
+                                    th:text="${'Đáp án & Giải thích chi tiết (Lần làm bài ' + (activeAttemptId != null ? 'thứ ' + (allAttempts.size() - allAttempts.indexOf(currentAttempt)) + (allAttempts.indexOf(currentAttempt) == 0 ? ' - Gần nhất' : '') : 'gần nhất') + ')'}">
                                     Đáp án & Giải thích chi tiết (Lần làm bài gần nhất)
                                 </h3>
 

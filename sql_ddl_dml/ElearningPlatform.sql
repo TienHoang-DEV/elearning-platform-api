@@ -789,6 +789,11 @@ CREATE TABLE payments (
     -- Số lần retry webhook (tối đa 3 lần)
     -- Tăng mỗi khi scheduled task retry
 
+                           account_number VARCHAR(100) NULL,
+                           description NVARCHAR(500) NULL,
+                           bank_name NVARCHAR(100) NULL,
+                           account_holder NVARCHAR(255) NULL,
+
                           created_at DATETIME NOT NULL DEFAULT GETDATE(),
     -- Thời điểm tạo giao dịch
 

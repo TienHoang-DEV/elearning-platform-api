@@ -45,7 +45,7 @@ public class QuizService {
         this.quizAttemptAnswerRepository = quizAttemptAnswerRepository;
     }
 
-    public void populateLessonQuizModel(Integer lessonId, User user, boolean retake, Integer activeQuizId, Model model) {
+    public void populateLessonQuizModel(Integer lessonId, User user, boolean retake, Integer activeQuizId, Integer activeAttemptId, Model model) {
         Lesson lesson = lessonRepository.findByIdWithQuizzes(lessonId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lesson với id " + lessonId));
         List<QuizDTO> quizzes = dtoMapper.toQuizDtos(lesson.getQuizzes());
         int totalQuestions = totalQuestion(quizzes);
@@ -65,10 +65,33 @@ public class QuizService {
             List<QuizAttemptAnswer> attemptAnswers = quizAttemptAnswerRepository.findByAttemptIdIn(allAttemptIds);
             for (QuizAttemptAnswer qaa : attemptAnswers) {
                 if (qaa.getAttempt() != null && qaa.getSelectedAnswer() != null) {
-                    attemptSelectedAnswersMap
-                            .computeIfAbsent(qaa.getAttempt().getId(), k -> new HashSet<>())
-                            .add(qaa.getSelectedAnswer().getId());
+                    Integer attemptId = qaa.getAttempt().getId();
+                    if (!attemptSelectedAnswersMap.containsKey(attemptId)) {
+                        attemptSelectedAnswersMap.put(attemptId, new HashSet<>());
+                    }
+                    attemptSelectedAnswersMap.get(attemptId).add(qaa.getSelectedAnswer().getId());
                 }
+            }
+        }
+
+        Integer finalActiveQuizId = activeQuizId != null ? activeQuizId : (quizzes.isEmpty() ? null : quizzes.get(0).getId());
+
+        QuizAttempt currentAttempt = null;
+        if (activeAttemptId != null) {
+            for (List<QuizAttempt> list : quizAttemptsMap.values()) {
+                for (QuizAttempt att : list) {
+                    if (att.getId().equals(activeAttemptId)) {
+                        currentAttempt = att;
+                        break;
+                    }
+                }
+                if (currentAttempt != null) break;
+            }
+        }
+        if (currentAttempt == null && finalActiveQuizId != null) {
+            List<QuizAttempt> attempts = quizAttemptsMap.get(finalActiveQuizId);
+            if (attempts != null && !attempts.isEmpty()) {
+                currentAttempt = attempts.get(0);
             }
         }
 
@@ -80,7 +103,9 @@ public class QuizService {
         model.addAttribute("quizAttemptsMap", quizAttemptsMap);
         model.addAttribute("attemptSelectedAnswersMap", attemptSelectedAnswersMap);
         model.addAttribute("retake", retake);
-        model.addAttribute("activeQuizId", activeQuizId != null ? activeQuizId : (quizzes.isEmpty() ? null : quizzes.get(0).getId()));
+        model.addAttribute("activeQuizId", finalActiveQuizId);
+        model.addAttribute("activeAttemptId", activeAttemptId);
+        model.addAttribute("currentAttempt", currentAttempt);
     }
 
     public List<Quiz> findAll() {

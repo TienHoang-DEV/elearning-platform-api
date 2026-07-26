@@ -39,7 +39,7 @@ document.addEventListener("click", function (e) {
     if (!link) return;
 
     const href = link.getAttribute("href");
-    if (href && typeof loadQuizContent === "function") {
+    if (href) {
         e.preventDefault();
         loadQuizContent(href);
     }

@@ -466,7 +466,7 @@ VALUES
 (
     11,
     9,
-    N'Lập Trình Hướng Đối Tượng Java Core Cơ Bản',
+    N'Khóa học lập trình java đến OOP',
     N'Học 4 tính chất OOP cơ bản trong Java: Kế thừa, Đa hình, Đóng gói, Trừu tượng.',
     N'Lập Trình Hướng Đối Tượng Java Core Cơ Bản.jpg',
     150000,
@@ -676,7 +676,7 @@ INSERT INTO course_sections (course_id, title, position) VALUES
 
 -- Course 19: Lập Trình Hướng Đối Tượng Java Core Cơ Bản
 INSERT INTO course_sections (course_id, title, position) VALUES
-(19, N'Chương 1: Cú pháp cơ bản Java', 1),
+(19, N'Chương 1: Giới thiệu về Java và cách cài đặt môi trường', 1),
 (19, N'Chương 2: Lớp và Đối tượng', 2),
 (19, N'Chương 3: Tính chất OOP cơ bản', 3);
 
