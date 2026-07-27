@@ -340,12 +340,16 @@ public class LessonMaterialService {
         if (!hasAccessToMaterial(user, lessonMaterial)) {
             return null;
         }
-        String publicUrl = azureBlobService.getPublicUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
+        String publicUrl = azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
         String fileType = lessonMaterial.getFileType() != null ? lessonMaterial.getFileType().toLowerCase().trim() : "";
         if ("pdf".equals(fileType)) {
             return publicUrl;
         } else if ("doc".equals(fileType) || "docx".equals(fileType) || "xls".equals(fileType) || "xlsx".equals(fileType) || "ppt".equals(fileType) || "pptx".equals(fileType)) {
-            return AppConstants.OFFICE_VIEWER_BASE_URL + publicUrl;
+            try {
+                return AppConstants.OFFICE_VIEWER_BASE_URL + java.net.URLEncoder.encode(publicUrl, "UTF-8");
+            } catch (java.io.UnsupportedEncodingException e) {
+                return AppConstants.OFFICE_VIEWER_BASE_URL + publicUrl;
+            }
         }
         return null;
     }
@@ -362,12 +366,16 @@ public class LessonMaterialService {
         if (!hasAccessToMaterial(user, lessonMaterial)) {
             return "redirect:/course/" + lessonMaterial.getLesson().getCourseSection().getCourse().getId();
         }
-        String publicUrl = azureBlobService.getPublicUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
+        String publicUrl = azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
         String fileType = lessonMaterial.getFileType() != null ? lessonMaterial.getFileType().toLowerCase().trim() : "";
         if ("pdf".equals(fileType)) {
             return "redirect:" + publicUrl;
         } else if ("doc".equals(fileType) || "docx".equals(fileType) || "xls".equals(fileType) || "xlsx".equals(fileType) || "ppt".equals(fileType) || "pptx".equals(fileType)) {
-            return "redirect:" + AppConstants.OFFICE_VIEWER_BASE_URL + publicUrl;
+            try {
+                return "redirect:" + AppConstants.OFFICE_VIEWER_BASE_URL + java.net.URLEncoder.encode(publicUrl, "UTF-8");
+            } catch (java.io.UnsupportedEncodingException e) {
+                return "redirect:" + AppConstants.OFFICE_VIEWER_BASE_URL + publicUrl;
+            }
         }
         return "redirect:/material/" + id + "/download";
     }

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -465,18 +465,7 @@
                             .then(res => res.text())
                             .then(url => {
                                 if (openLink) openLink.href = url;
-
-                                if (docFrame) {
-                                    // Kiểm tra xem file có phải là định dạng Excel hoặc Word/Powerpoint không
-                                    const ext = mName ? mName.split('.').pop().toLowerCase() : '';
-                                    if (['xlsx', 'xls', 'docx', 'doc', 'pptx', 'ppt'].includes(ext)) {
-                                        // Nếu là file Office, bọc qua Office Viewer của Microsoft để xem trực tiếp (Yêu cầu URL public)
-                                        docFrame.src = "https://view.officeapps.live.com/op/view.aspx?src=" + encodeURIComponent(url);
-                                    } else {
-                                        // Nếu là file PDF hoặc định dạng khác trình duyệt đọc được, giữ nguyên URL gốc
-                                        docFrame.src = url;
-                                    }
-                                }
+                                if (docFrame) docFrame.src = url;
                             })
                             .catch(err => {
                                 console.error("Error fetching material URL:", err);
