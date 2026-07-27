@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const inputFeedbackId = editReviewModal.querySelector('#editFeedbackId');
             const textareaComment = editReviewModal.querySelector('#edit-review-comment');
-            
+
             inputFeedbackId.value = feedbackId;
             textareaComment.value = comment;
 
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     modalTitle.textContent = "Xem thử khóa học - " + lessonTitle;
                 }
 
-                video.onerror = function() {
+                video.onerror = function () {
                     if (typeof showToast === 'function') {
                         showToast('Lỗi: Không thể tải video xem thử.', 'warning');
                     } else {
@@ -117,13 +117,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 8. Delete review modal setup
+    const deleteReviewModal = document.getElementById('deleteReviewModal');
+    if (deleteReviewModal) {
+        deleteReviewModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const feedbackId = button.getAttribute('data-feedback-id');
+            const confirmBtn = document.getElementById('confirmDeleteReviewBtn');
+
+            // Xóa sự kiện cũ để không gọi hàm nhiều lần
+            confirmBtn.onclick = null;
+
+            confirmBtn.onclick = function () {
+                deleteReview(button, feedbackId);
+                const modalInstance = bootstrap.Modal.getInstance(deleteReviewModal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            };
+        });
+    }
+
     // 7. Check for pending toast on load
     const pendingToast = sessionStorage.getItem('pendingToast');
     if (pendingToast) {
         try {
             const data = JSON.parse(pendingToast);
             showToast(data.message, data.type);
-        } catch (e) {}
+        } catch (e) { }
         sessionStorage.removeItem('pendingToast');
     }
 });
@@ -132,11 +153,11 @@ document.addEventListener('DOMContentLoaded', () => {
 async function addToCart(btn, courseId) {
     btn.disabled = true;
     try {
-        const response = await fetch('/api/cart/add?courseId=' + courseId, { 
+        const response = await fetch('/api/cart/add?courseId=' + courseId, {
             method: 'POST',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
-        
+
         if (response.redirected || response.url.includes('/login') || response.url.includes('/login_no')) {
             showToast('Bạn chưa đăng nhập. Vui lòng đăng nhập để thực hiện chức năng này.', 'warning');
             return;
@@ -151,7 +172,7 @@ async function addToCart(btn, courseId) {
             try {
                 const errData = await response.json();
                 errMsg = errData.message || errData.error || errMsg;
-            } catch (e) {}
+            } catch (e) { }
             throw new Error(errMsg);
         }
 
@@ -161,7 +182,7 @@ async function addToCart(btn, courseId) {
         }
 
         const data = await response.json();
-        
+
         if (data.success) {
             const badge = document.getElementById('cart-badge-count');
             if (badge) {
@@ -258,7 +279,7 @@ async function deleteReview(btn, feedbackId) {
             try {
                 const errData = await response.json();
                 errMsg = errData.message || errMsg;
-            } catch (e) {}
+            } catch (e) { }
             throw new Error(errMsg);
         }
 
@@ -336,7 +357,7 @@ async function submitEditReview(event) {
             try {
                 const errData = await response.json();
                 errMsg = errData.message || errMsg;
-            } catch (e) {}
+            } catch (e) { }
             throw new Error(errMsg);
         }
 
@@ -429,14 +450,14 @@ async function submitAddReview(event) {
             try {
                 const errData = await response.json();
                 errMsg = errData.message || errMsg;
-            } catch (e) {}
+            } catch (e) { }
             throw new Error(errMsg);
         }
 
         const data = await response.json();
         if (data.success) {
             showToast(data.message || 'Gửi đánh giá thành công!', 'success');
-            
+
             const noReviewsAlert = document.getElementById('no-reviews-alert');
             if (noReviewsAlert) {
                 noReviewsAlert.remove();
@@ -446,7 +467,7 @@ async function submitAddReview(event) {
 
             const container = document.getElementById('reviews-list-container');
             const fb = data.feedback;
-            
+
             let starsHtml = '';
             for (let i = 1; i <= 5; i++) {
                 const isFilled = i <= fb.rating;
@@ -486,7 +507,7 @@ async function submitAddReview(event) {
                             </button>
                             <button class="btn btn-link btn-sm text-danger p-0 me-2 text-decoration-none fs-8 fw-semibold btn-delete-review"
                                     data-feedback-id="${fb.id}"
-                                    onclick="deleteReview(this, ${fb.id})">
+                                    data-bs-toggle="modal" data-bs-target="#deleteReviewModal">
                                 <i class="fa-regular fa-trash-can me-1"></i>Xóa
                             </button>
                             <span class="text-muted fs-8">Vừa xong</span>
@@ -495,9 +516,9 @@ async function submitAddReview(event) {
                     <p class="feedback-comment text-muted fs-7 mb-0 text-justify">${fb.comment}</p>
                 </div>
             `;
-            
+
             container.insertAdjacentHTML('afterbegin', reviewHtml);
-            
+
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }

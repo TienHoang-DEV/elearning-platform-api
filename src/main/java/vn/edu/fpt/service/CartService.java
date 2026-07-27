@@ -7,6 +7,7 @@ import vn.edu.fpt.dto.cart.CartItemDto;
 import vn.edu.fpt.dto.cart.CartPageDetailsDto;
 import vn.edu.fpt.dto.user.UserDto;
 import vn.edu.fpt.entity.*;
+import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.enums.OrderStatus;
 import vn.edu.fpt.repository.*;
 import vn.edu.fpt.mapper.DtoMapper;
@@ -177,7 +178,7 @@ public class CartService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khóa học với ID: " + courseId));
         
-        if (!vn.edu.fpt.enums.CourseStatus.PUBLISHED.equals(course.getStatus())) {
+        if (!CourseStatus.PUBLISHED.equals(course.getStatus())) {
             throw new IllegalArgumentException("Không thể thêm vào giỏ hàng vì khóa học chưa được xuất bản.");
         }
 
