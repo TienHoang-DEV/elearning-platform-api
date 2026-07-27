@@ -7,8 +7,7 @@ import vn.edu.fpt.repository.CategoryRepository;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.dto.course.CategoryDto;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Transactional
@@ -38,7 +37,7 @@ public class CategoryService {
 
         // 2. Fetch course counts for published courses grouped by category
         List<Object[]> counts = repository.findCourseCountsByCategoryStatus("ACTIVE");
-        java.util.Map<Integer, Integer> courseCountMap = new java.util.HashMap<>();
+        Map<Integer, Integer> courseCountMap = new HashMap<>();
         for (Object[] row : counts) {
             Integer catId = (Integer) row[0];
             Long count = (Long) row[1];
@@ -46,8 +45,8 @@ public class CategoryService {
         }
 
         // 3. Map basic fields to DTOs in memory
-        List<CategoryDto> parentDtos = new java.util.ArrayList<>();
-        java.util.Map<Integer, CategoryDto> dtoMap = new java.util.HashMap<>();
+        List<CategoryDto> parentDtos = new ArrayList<>();
+        Map<Integer, CategoryDto> dtoMap = new HashMap<>();
 
         for (Category category : allCategories) {
             CategoryDto dto = CategoryDto.builder()
@@ -56,7 +55,7 @@ public class CategoryService {
                     .description(category.getDescription())
                     .status(category.getStatus())
                     .courseCount(courseCountMap.getOrDefault(category.getId(), 0))
-                    .children(new java.util.LinkedHashSet<>())
+                    .children(new LinkedHashSet<>())
                     .build();
             dtoMap.put(category.getId(), dto);
         }

@@ -59,6 +59,13 @@ public class QuizService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lesson với id " + lessonId));
 
         List<Quiz> quizzes = repository.findByLessonId(lessonId);
+        List<Quiz> publishedQuizzes = new ArrayList<>();
+        for (Quiz quiz : quizzes) {
+            if ("PUBLISHED".equalsIgnoreCase(quiz.getStatus())) {
+                publishedQuizzes.add(quiz);
+            }
+        }
+        quizzes = publishedQuizzes;
         sortQuizzes(quizzes);
 
         Integer selectedQuizId = chooseActiveQuizId(quizzes, activeQuizId);

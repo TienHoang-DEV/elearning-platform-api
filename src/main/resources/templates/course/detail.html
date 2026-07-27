@@ -142,16 +142,6 @@
                         </div>
                     </div>
 
-                    <!-- Course Description Box -->
-                    <div class="description-card p-4 rounded-3 mb-4"
-                        style="background-color: #e6f0fa; border-left: 5px solid var(--bs-primary);">
-                        <p class="m-0 fs-7 text-justify" style="color: #274060;" th:text="${course.description}">
-                            Chào mừng bạn đến với khóa học guitar điện trực tuyến toàn diện của chúng tôi! Cho dù bạn là
-                            người mới bắt đầu mong muốn nắm vững những điều cơ bản hay người chơi trung cấp đang tìm
-                            cách nâng cao kỹ năng của mình, khóa học này được thiết kế để đưa bạn vào một hành trình âm
-                            nhạc thú vị.
-                        </p>
-                    </div>
 
                     <!-- Tabs Navigation (Bootstrap powered) -->
                     <div class="tabs-nav-wrapper border-bottom mb-4">
@@ -186,21 +176,14 @@
                         <div class="tab-pane fade show active" id="about-tab-pane" role="tabpanel"
                             aria-labelledby="about-tab" tabindex="0">
                             <h3 class="panel-title fw-bold font-heading mb-3">Về Khóa Học</h3>
-                            <p class="text-muted fs-7">Khóa học này sẽ hướng dẫn bạn từ các bước cơ bản nhất để làm quen
-                                với đàn guitar điện, cách chỉnh phím, sử dụng phơ (effects), amply, cho đến các kỹ thuật
-                                gảy phím, slide, bend dây và chơi các câu solo kinh điển.</p>
-                            <h4 class="sub-panel-title fw-semibold fs-6 mb-2 mt-3">Mục tiêu khóa học:</h4>
-                            <ul class="list-unstyled d-flex flex-column gap-2 ps-1">
-                                <li class="text-muted fs-7 d-flex align-items-center gap-2"><i data-lucide="check"
-                                        class="text-success" style="width:16px;"></i> Nắm vững cấu tạo và cách sử dụng
-                                    guitar điện, amply, phơ.</li>
-                                <li class="text-muted fs-7 d-flex align-items-center gap-2"><i data-lucide="check"
-                                        class="text-success" style="width:16px;"></i> Làm chủ các kỹ thuật ngón cơ bản
-                                    và trung cấp.</li>
-                                <li class="text-muted fs-7 d-flex align-items-center gap-2"><i data-lucide="check"
-                                        class="text-success" style="width:16px;"></i> Tự tin đánh solo 1 bài hát guitar
-                                    điện hoàn chỉnh.</li>
-                            </ul>
+                            
+                            <!-- Course Description Box -->
+                            <div class="description-card p-4 rounded-3 mb-4"
+                                style="background-color: #e6f0fa; border-left: 5px solid var(--bs-primary);">
+                                <div class="m-0 fs-7 text-justify" style="color: #274060;" th:utext="${course.description}">
+                                    Mô tả khóa học...
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Panel 2: Course Content -->
@@ -460,7 +443,7 @@
                                             <button th:if="${currentUser != null && currentUser.id == fb.user.id}"
                                                 class="btn btn-link btn-sm text-danger p-0 me-2 text-decoration-none fs-8 fw-semibold btn-delete-review"
                                                 th:data-feedback-id="${fb.id}"
-                                                th:onclick="'deleteReview(this, ' + ${fb.id} + ')'">
+                                                data-bs-toggle="modal" data-bs-target="#deleteReviewModal">
                                                 <i class="fa-regular fa-trash-can me-1"></i>Xóa
                                             </button>
                                             <span class="text-muted fs-8"
@@ -600,21 +583,12 @@
                         aria-label="Đóng"></button>
                 </div>
                 <div class="modal-body p-0 bg-dark">
-                    <!-- Real video player or fallback -->
-                    <div th:if="${course.introVideoPath != null or course.getFirstLessonId() != null}" class="ratio ratio-16x9 w-100 bg-black">
+                    <!-- Real video player -->
+                    <div class="ratio ratio-16x9 w-100 bg-black">
                         <video controls style="width: 100%; height: 100%; object-fit: contain;" id="previewVideo"
-                            th:src="${course.introVideoPath}"
-                            th:data-lesson-id="${course.getFirstLessonId()}">
+                            th:src="${course.introVideoPath}">
                             Trình duyệt của bạn không hỗ trợ thẻ video.
                         </video>
-                    </div>
-                    <div th:unless="${course.introVideoPath != null or course.getFirstLessonId() != null}"
-                        class="simulated-player position-relative w-100 bg-black d-flex align-items-center justify-content-center"
-                        style="aspect-ratio: 16/9; overflow: hidden;">
-                        <img th:src="${course.thumbnailPath}" alt="Course Preview"
-                            class="w-100 h-100 object-fit-cover opacity-50"
-                            onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
-                        <div class="position-absolute text-white fs-5 fw-bold">Chưa có video xem thử</div>
                     </div>
                 </div>
             </div>
@@ -663,6 +637,24 @@
                         <button type="submit" class="btn btn-primary rounded-3 fw-bold fs-7 px-4 py-2">Lưu Thay Đổi</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    <!-- Delete Review Confirmation Modal -->
+    <div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-labelledby="deleteReviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content rounded-3 border-0 shadow-lg bg-white">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold text-dark font-heading fs-6" id="deleteReviewModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <p class="text-muted fs-7 mb-0 text-center">Bạn có chắc chắn muốn xóa đánh giá này không?</p>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 justify-content-center">
+                    <button type="button" class="btn btn-light btn-sm fw-semibold px-3" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger btn-sm fw-semibold px-3" id="confirmDeleteReviewBtn">Xóa</button>
+                </div>
             </div>
         </div>
     </div>

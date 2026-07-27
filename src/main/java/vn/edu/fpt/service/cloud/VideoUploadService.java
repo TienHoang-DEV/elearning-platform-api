@@ -22,7 +22,11 @@ public class VideoUploadService {
 
     public Map<String, String> generateDirectUploadUrl(String fileName, Integer sectionId, User user) {
         validateInstructorOwnsSection(sectionId, user);
-        String blobName = normalizeOriginalFileName(fileName);
+        String extension = ".mp4";
+        if (fileName != null && fileName.contains(".")) {
+            extension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
+        }
+        String blobName = UUID.randomUUID().toString() + extension;
         String uploadUrl = azureBlobService.generateUploadSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, blobName);
         return Map.of(
                 "uploadUrl", uploadUrl,

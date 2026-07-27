@@ -46,6 +46,9 @@ public class QuizController {
         if (!lessonService.hasAccessToLesson(user, quiz.getLesson())) {
             throw new AccessDeniedException("Bạn không có quyền làm bài tập này");
         }
+        if (!"PUBLISHED".equalsIgnoreCase(quiz.getStatus())) {
+            throw new AccessDeniedException("Bài tập này chưa được xuất bản.");
+        }
         submitDTO.setQuizId(quizId);
         QuizAttempt attempt = quizAttemptService.submitQuiz(quizId, user, submitDTO);
         return "redirect:/quiz/lesson/" + attempt.getQuiz().getLesson().getId() + "?activeQuizId=" + quizId;

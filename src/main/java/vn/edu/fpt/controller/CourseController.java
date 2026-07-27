@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.course.CourseListDto;
+import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.enums.RoleType;
@@ -70,7 +71,7 @@ public class CourseController {
         model.addAttribute("categoryId", categoryId);
         if (categoryId != null) {
             try {
-                vn.edu.fpt.entity.Category selectedCategory = categoryService.findByIdAndStatus(categoryId, "ACTIVE");
+                Category selectedCategory = categoryService.findByIdAndStatus(categoryId, "ACTIVE");
                 if (selectedCategory != null) {
                     model.addAttribute("selectedCategoryName", selectedCategory.getName());
                 }
@@ -103,13 +104,17 @@ public class CourseController {
         } else if (user != null) {
             if (courseDto.getInstructor() != null && user.getId().equals(courseDto.getInstructor().getId())) {
                 hasAccess = true;
-            } else if (user.getRole() == vn.edu.fpt.enums.RoleType.MANAGER
-                    || user.getRole() == vn.edu.fpt.enums.RoleType.ADMIN) {
+            } else if (user.getRole() == RoleType.MANAGER
+                    || user.getRole() == RoleType.ADMIN) {
                 hasAccess = true;
             } else {
-                Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
-                if (enrolledCourseIds.contains(id)) {
-                    hasAccess = true;
+                if (CourseStatus.DRAFT.equals(courseDto.getStatus())) {
+                    hasAccess = false;
+                } else {
+                    Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
+                    if (enrolledCourseIds.contains(id)) {
+                        hasAccess = true;
+                    }
                 }
             }
         }

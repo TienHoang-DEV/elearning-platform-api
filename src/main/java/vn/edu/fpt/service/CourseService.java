@@ -457,8 +457,12 @@ public class CourseService {
     }
 
     public Course findByCourseIdAndUserId(Integer courseId, Integer userId) {
-        return courseRepository.findByCourseIdAndUserId(courseId, userId)
+        Course course = courseRepository.findByCourseIdAndUserId(courseId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
+        if (CourseStatus.DRAFT.equals(course.getStatus())) {
+            throw new ResourceNotFoundException("Khóa học không tồn tại hoặc chưa được xuất bản.");
+        }
+        return course;
     }
 
     public CourseSubmitReviewDto getSubmitReview(Integer courseId, User user, boolean acceptedPolicy) {
@@ -618,7 +622,7 @@ public class CourseService {
         long totalLearners = userRepository.countLearners();
 
         long totalFeedbacks = feedbackRepository.count();
-        int ratingPercent = 98; // Mặc định là 98% nếu chưa có đánh giá nào trong DB
+        int ratingPercent = 98;
         if (totalFeedbacks > 0) {
             long highRatingFeedbacks = feedbackRepository.countByRatingGreaterThanEqual(4);
             ratingPercent = (int) Math.round((double) highRatingFeedbacks / totalFeedbacks * 100);
@@ -639,14 +643,14 @@ public class CourseService {
             return builder.hasFavorites(false).build();
         }
 
-        Set<Category> favorites = user.getFavoriteCategories();
-        if (favorites == null || favorites.isEmpty()) {
+        Set<vn.edu.fpt.entity.UserFavoriteCategory> favoriteCategories = user.getFavoriteCategories();
+        if (favoriteCategories == null || favoriteCategories.isEmpty()) {
             return builder.hasFavorites(false).build();
         }
 
-        // Lấy danh mục con yêu thích (dùng for thay cho stream)
         List<CategoryDto> favoriteChildren = new java.util.ArrayList<>();
-        for (Category c : favorites) {
+        for (vn.edu.fpt.entity.UserFavoriteCategory ufc : favoriteCategories) {
+            Category c = ufc.getCategory();
             if ("ACTIVE".equals(c.getStatus()) && c.getParent() != null) {
                 favoriteChildren.add(dtoMapper.toCategoryDto(c));
             }
@@ -656,9 +660,9 @@ public class CourseService {
             return builder.hasFavorites(false).build();
         }
 
-        // Lấy danh mục cha của các danh mục con yêu thích (dùng for thay cho stream)
         Category parent = null;
-        for (Category c : favorites) {
+        for (vn.edu.fpt.entity.UserFavoriteCategory ufc : favoriteCategories) {
+            Category c = ufc.getCategory();
             if (c.getParent() != null) {
                 parent = c.getParent();
                 break;
@@ -673,7 +677,7 @@ public class CourseService {
 
         Map<Integer, List<CourseListDto>> coursesMap = new HashMap<>();
 
-        // 1. Lấy top 4 khóa học cho từng danh mục con
+
         for (CategoryDto child : favoriteChildren) {
             List<CourseListDto> top4 = courseRepository.findTop4ByCategoryIdsOrderByAverageRatingDesc(
                     java.util.Collections.singletonList(child.getId()),

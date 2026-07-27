@@ -9,16 +9,15 @@ import vn.edu.fpt.dto.revenueInstructor.RecentOrderDto;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.EnrollmentRepository;
 import vn.edu.fpt.repository.OrderItemRepository;
+import vn.edu.fpt.util.AppConstants;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,25 +33,20 @@ public class DashboardInstructorService {
     public DashboardInstructorDto getStats(Integer instructorId, String period, Integer year, Integer month) {
 
         LocalDateTime[] current = resolveDateRange(period, year, month);
-        LocalDateTime[] previous = previousRange(current);
 
         DashboardInstructorDto dto = new DashboardInstructorDto();
 
 
         BigDecimal curRevenue = orDefault(orderItemRepository.sumTotalRevenueByInstructor(instructorId, current[0], current[1]));
-        BigDecimal preRevenue = orDefault(orderItemRepository.sumTotalRevenueByInstructor(instructorId, previous[0], previous[1]));
         dto.setTotalRevenue(curRevenue);
-        dto.setRevenueDeltaPercent(percentChange(curRevenue, preRevenue));
+        dto.setProfit(curRevenue.multiply(BigDecimal.valueOf(1-AppConstants.PLATFORM_FEE)));
+
 
         long curOrders = orDefaultLong(orderItemRepository.countOrder(instructorId, current[0], current[1]));
-        long prevOrders = orDefaultLong(orderItemRepository.countOrder(instructorId, previous[0], previous[1]));
         dto.setTotalOrders(curOrders);
-        dto.setOrdersDeltaPercent(percentChange(BigDecimal.valueOf(curOrders), BigDecimal.valueOf(prevOrders)));
 
         long curStudents = enrollmentRepository.countDistictStudents(instructorId, current[0], current[1]);
-        long prevStudents = enrollmentRepository.countDistictStudents(instructorId, previous[0], previous[1]);
         dto.setTotalStudents(curStudents);
-        dto.setStudentsDeltaPercent(percentChange(BigDecimal.valueOf(curStudents), BigDecimal.valueOf(prevStudents)));
 
 
         long totalCourse = courseRepository.countPublishedCourse(instructorId, current[0], current[1]);
@@ -250,21 +244,4 @@ public class DashboardInstructorService {
         };
     }
 
-    private LocalDateTime[] previousRange(LocalDateTime[] current) {
-        long days = ChronoUnit.DAYS.between(current[0], current[1]) + 1;
-        return new LocalDateTime[]{
-                current[0].minusDays(days),
-                current[0].minusSeconds(1)
-        };
-    }
-
-    private BigDecimal percentChange(BigDecimal current, BigDecimal previous) {
-        if (previous == null || previous.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-        }
-        if (current == null) current = BigDecimal.ZERO;
-        return current.subtract(previous)
-                .multiply(BigDecimal.valueOf(100))
-                .divide(previous, 2, RoundingMode.HALF_UP);
-    }
 }

@@ -1,6 +1,4 @@
 package vn.edu.fpt.dto.revenueInstructor;
-
-import com.azure.core.annotation.Get;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,14 +13,12 @@ import java.util.List;
 @AllArgsConstructor
 public class DashboardInstructorDto {
     private BigDecimal totalRevenue;
-    private BigDecimal revenueDeltaPercent;
 
     private long totalOrders;
-    private BigDecimal ordersDeltaPercent;
 
+    private BigDecimal profit;
 
     private long totalStudents;
-    private BigDecimal studentsDeltaPercent;
 
     private long totalCourse;
     private long newCoursesInPeriod;

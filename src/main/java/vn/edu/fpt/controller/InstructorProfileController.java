@@ -46,13 +46,13 @@ public class InstructorProfileController {
     ) {
         if (result.hasErrors()) {
             addProfileAttributes(model, instructorProfileService.getCurrentInstructorProfileForInvalidForm(profileDto));
-            model.addAttribute("error", "Vui long kiem tra lai thong tin chua hop le.");
+            model.addAttribute("error", "Vui lòng kiểm tra thông tin chưa hợp lệ!.");
             return "instructor_course/profile";
         }
 
         try {
             instructorProfileService.updateCurrentInstructorProfile(profileDto);
-            redirectAttributes.addFlashAttribute("success", "Thay doi thanh cong!");
+            redirectAttributes.addFlashAttribute("success", "Thay đổi thành công!");
             return "redirect:/instructor/sidebar";
         } catch (UserValidationException e) {
             result.rejectValue(e.getField(), "error", e.getMessage());

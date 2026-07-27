@@ -172,6 +172,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             "LEFT JOIN FETCH c.instructor i " +
             "LEFT JOIN FETCH c.category cat " +
             "WHERE c.status != vn.edu.fpt.enums.CourseStatus.DRAFT " +
+            "AND c.status != vn.edu.fpt.enums.CourseStatus.HIDDEN " +
             "AND (:status IS NULL OR c.status = :status) " +
             "AND (:categoryId IS NULL OR cat.id = :categoryId) " +
             "AND (:keyword IS NULL OR :keyword = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')))")

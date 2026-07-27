@@ -114,8 +114,8 @@
                     </h3>
                     <div class="card border border-light-subtle rounded-3 p-4 bg-light bg-opacity-25"
                          style="border-radius: var(--radius-md) !important;">
-                        <p class="text-muted fs-7 m-0 leading-relaxed" th:text="${sidebar.courseDescription}">
-                        </p>
+                        <div class="text-muted fs-7 m-0 leading-relaxed" th:utext="${sidebar.courseDescription}">
+                        </div>
                     </div>
                 </div>
 
@@ -517,6 +517,7 @@
         crossorigin="anonymous"></script>
 
 <!-- Custom JavaScript -->
+<script th:src="@{/js/quiz.js}"></script>
 <script th:src="@{/js/learning.js}"></script>
 <!-- Dynamic Review Data for learning.js -->
 <div id="course-review-data"

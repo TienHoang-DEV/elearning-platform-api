@@ -119,7 +119,10 @@ public class LessonService {
         }
 
         if(normalizedTitle.isEmpty()){
-            throw new RuntimeException("Tiêu đề bài học được để trống");
+            throw new RuntimeException("Tiêu đề bài học không được để trống");
+        }
+        if(normalizedTitle.length() < 5){
+            throw new RuntimeException("Tiêu đề bài học phải đạt tối thiểu 5 kí tự");
         }
         if(normalizedTitle.length() > 255){
             throw new RuntimeException("Tiêu đề bài học đã dài quá mức cho phép");
@@ -266,14 +269,16 @@ public class LessonService {
         lesson.setTitle(normalizedTitle);
 
         if (blobName != null && !blobName.isBlank()) {
-            if (lesson.getVideoUrl() != null && !lesson.getVideoUrl().isEmpty()) {
+            String newBlobName = blobName.trim();
+            String oldBlobName = lesson.getVideoUrl();
+            if (oldBlobName != null && !oldBlobName.isEmpty() && !oldBlobName.equals(newBlobName)) {
                 try {
-                    azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
+                    azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, oldBlobName);
                 } catch (Exception e) {
-                    System.err.println("âš ï¸ Warning: KhÃ´ng thá»ƒ xÃ³a video cÅ©: " + e.getMessage());
+                    System.err.println("Không thể xóa video cũ: " + e.getMessage());
                 }
             }
-            lesson.setVideoUrl(blobName);
+            lesson.setVideoUrl(newBlobName);
             if (lessonDto.getDurationSeconds() != null && lessonDto.getDurationSeconds() > 0) {
                 lesson.setDurationSeconds(lessonDto.getDurationSeconds());
             }
@@ -282,7 +287,7 @@ public class LessonService {
                 try {
                     azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, lesson.getVideoUrl());
                 } catch (Exception e) {
-                    System.err.println("⚠️ Warning: Không thể xóa video cũ: " + e.getMessage());
+                    System.err.println("Không thể xóa video cũ: " + e.getMessage());
                 }
             }
 

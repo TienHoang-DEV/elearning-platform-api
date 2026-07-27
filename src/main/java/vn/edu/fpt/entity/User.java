@@ -66,14 +66,9 @@ public class User extends BaseEntity {
     @Column(name = "favorite_setup_completed", nullable = false)
     private boolean favoriteSetupCompleted = false;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "user_favorite_categories",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private Set<Category> favoriteCategories = new HashSet<>();
+    private Set<UserFavoriteCategory> favoriteCategories = new HashSet<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)

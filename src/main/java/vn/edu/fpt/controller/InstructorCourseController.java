@@ -219,7 +219,6 @@ public class InstructorCourseController {
     public Map<String, String> uploadCourseIntroVideo(@RequestParam("fileName") String fileName,
                                                       @RequestParam(name = "courseId", required = false) Integer courseId) {
         User user = SecurityUtils.getCurrentUser();
-        // Course intro upload: Spring chi cap SAS URL, video gioi thieu duoc browser upload thang len Azure.
         return videoUploadService.generateCourseIntroUploadUrl(fileName, courseId, user);
     }
 
@@ -240,11 +239,13 @@ public class InstructorCourseController {
     }
 
     @GetMapping("/{id}/view")
-    public String viewCourse(@PathVariable("id") Integer courseId, Model model)
+    public String viewCourse(@PathVariable("id") Integer courseId,
+                             @RequestParam(name = "source", required = false) String source,
+                             @RequestParam(name = "tab", defaultValue = "all") String tab,
+                             Model model)
     {
         User user = SecurityUtils.getCurrentUser();
         CourseRespon courseRespon = courseService.getCourseDetailToView(courseId, user);
-        // Trong controller
         int totalLessons = courseRespon.getSections().stream()
                 .mapToInt(s -> s.getLessons().size())
                 .sum();
@@ -252,7 +253,16 @@ public class InstructorCourseController {
         model.addAttribute("courseDetal", courseRespon);
         model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
         model.addAttribute("urlVideo", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS + "/");
+        String backUrl = "submit-review".equals(source)
+                ? "/instructor/" + courseId + "/submit-review"
+                : "/instructor/courses?tab=" + normalizeCourseListTab(tab);
+        model.addAttribute("backUrl", backUrl);
         return "instructor_course/viewCourse";
+    }
+
+    private String normalizeCourseListTab(String tab) {
+        List<String> allowedTabs = List.of("all", "pending", "draft", "rejected", "resubmit", "hidden");
+        return allowedTabs.contains(tab) ? tab : "all";
     }
 
     @GetMapping("/{id}/submit-review")
