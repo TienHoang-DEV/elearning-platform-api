@@ -9,6 +9,7 @@ import vn.edu.fpt.dto.revenueInstructor.RecentOrderDto;
 import vn.edu.fpt.repository.CourseRepository;
 import vn.edu.fpt.repository.EnrollmentRepository;
 import vn.edu.fpt.repository.OrderItemRepository;
+import vn.edu.fpt.util.AppConstants;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -42,7 +43,9 @@ public class DashboardInstructorService {
         BigDecimal curRevenue = orDefault(orderItemRepository.sumTotalRevenueByInstructor(instructorId, current[0], current[1]));
         BigDecimal preRevenue = orDefault(orderItemRepository.sumTotalRevenueByInstructor(instructorId, previous[0], previous[1]));
         dto.setTotalRevenue(curRevenue);
+        dto.setProfit(curRevenue.multiply(BigDecimal.valueOf(1-AppConstants.PLATFORM_FEE)));
         dto.setRevenueDeltaPercent(percentChange(curRevenue, preRevenue));
+
 
         long curOrders = orDefaultLong(orderItemRepository.countOrder(instructorId, current[0], current[1]));
         long prevOrders = orDefaultLong(orderItemRepository.countOrder(instructorId, previous[0], previous[1]));

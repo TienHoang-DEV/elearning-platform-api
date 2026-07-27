@@ -28,7 +28,7 @@
             <div class="course-review-hero-main">
                 <div class="course-review-status" th:text="${course.statusLabel}">Published</div>
                 <h2 th:text="${course.title}">Tên khóa học</h2>
-                <p th:text="${course.description ?: 'Khóa học chưa có mô tả.'}">Mô tả khóa học</p>
+                <div th:utext="${course.description ?: 'Khóa học chưa có mô tả.'}">Mô tả khóa học</div>
                 <div class="course-review-meta">
                     <span th:text="${course.category != null ? course.category.name : 'Chưa có danh mục'}">Danh mục</span>
                     <span th:text="${course.level ?: 'Chưa cập nhật cấp độ'}">Beginner</span>

@@ -44,9 +44,9 @@
             <!-- Course Info Section -->
             <div class="p-4 border-bottom bg-light bg-opacity-25">
                 <div class="mb-3">
-                    <a th:href="@{/instructor/courses}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
+                    <a th:href="@{/instructor/{id}/submit-review(id=${courseDetal.id})}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
                         <i class="fa-solid fa-arrow-left"></i>
-                        Quay lại danh sách khóa học
+                          Quay lại
                     </a>
                 </div>
                 <div class="row g-4">
@@ -81,7 +81,7 @@
                             </div>
                         </div>
 
-                        <p class="text-muted fs-7 mb-0" th:text="${courseDetal.description}">Mô tả khóa học</p>
+                        <div class="text-muted fs-7 mb-0" th:utext="${courseDetal.description}">Mô tả khóa học</div>
                     </div>
                 </div>
             </div>
@@ -136,8 +136,8 @@
                     </h3>
                     <div class="card border border-light-subtle rounded-3 p-4 bg-light bg-opacity-25"
                          style="border-radius: var(--radius-md) !important;">
-                        <p class="text-muted fs-7 m-0 leading-relaxed" th:text="${courseDetal.description}">
-                        </p>
+                        <div class="text-muted fs-7 m-0 leading-relaxed" th:utext="${courseDetal.description}">
+                        </div>
                     </div>
                 </div>
 
@@ -238,6 +238,12 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="mb-3">
+                <a th:href="@{/instructor/courses}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Quay lại danh sách khóa học
+                </a>
             </div>
         </aside>
 
