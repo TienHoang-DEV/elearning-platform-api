@@ -103,8 +103,14 @@ public class ManagerCourseController {
             @RequestParam(value = "rejectionReason", required = false) String rejectionReason,
             RedirectAttributes redirectAttributes) {
 
-        managerCourseService.updateCourseStatus(id, status, rejectionReason);
-        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái khóa học thành công.");
+        try {
+            managerCourseService.updateCourseStatus(id, status, rejectionReason);
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái khóa học thành công.");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (org.springframework.orm.ObjectOptimisticLockingFailureException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Khóa học này đã được phê duyệt hoặc thay đổi bởi quản lý khác trước đó.");
+        }
         return "redirect:/manager/course/detail/" + id;
     }
 }
