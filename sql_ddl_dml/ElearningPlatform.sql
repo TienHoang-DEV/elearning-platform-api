@@ -249,9 +249,9 @@ CREATE TABLE categories (
 
 -- Bảng trung gian lưu danh mục yêu thích của người dùng (Many-to-Many)
 CREATE TABLE user_favorite_categories (
+    id INT PRIMARY KEY IDENTITY(1,1),
     user_id INT NOT NULL,
     category_id INT NOT NULL,
-    PRIMARY KEY (user_id, category_id),
     CONSTRAINT FK_user_favorite_categories_user
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT FK_user_favorite_categories_category
