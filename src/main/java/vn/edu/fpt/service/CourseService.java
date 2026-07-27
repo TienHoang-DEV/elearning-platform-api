@@ -622,7 +622,7 @@ public class CourseService {
         long totalLearners = userRepository.countLearners();
 
         long totalFeedbacks = feedbackRepository.count();
-        int ratingPercent = 98; // Mặc định là 98% nếu chưa có đánh giá nào trong DB
+        int ratingPercent = 98;
         if (totalFeedbacks > 0) {
             long highRatingFeedbacks = feedbackRepository.countByRatingGreaterThanEqual(4);
             ratingPercent = (int) Math.round((double) highRatingFeedbacks / totalFeedbacks * 100);
@@ -648,7 +648,6 @@ public class CourseService {
             return builder.hasFavorites(false).build();
         }
 
-        // Lấy danh mục con yêu thích (dùng for thay cho stream)
         List<CategoryDto> favoriteChildren = new java.util.ArrayList<>();
         for (vn.edu.fpt.entity.UserFavoriteCategory ufc : favoriteCategories) {
             Category c = ufc.getCategory();
@@ -661,7 +660,6 @@ public class CourseService {
             return builder.hasFavorites(false).build();
         }
 
-        // Lấy danh mục cha của các danh mục con yêu thích (dùng for thay cho stream)
         Category parent = null;
         for (vn.edu.fpt.entity.UserFavoriteCategory ufc : favoriteCategories) {
             Category c = ufc.getCategory();
@@ -679,7 +677,7 @@ public class CourseService {
 
         Map<Integer, List<CourseListDto>> coursesMap = new HashMap<>();
 
-        // 1. Lấy top 4 khóa học cho từng danh mục con
+
         for (CategoryDto child : favoriteChildren) {
             List<CourseListDto> top4 = courseRepository.findTop4ByCategoryIdsOrderByAverageRatingDesc(
                     java.util.Collections.singletonList(child.getId()),

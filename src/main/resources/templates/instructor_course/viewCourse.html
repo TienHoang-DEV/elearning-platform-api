@@ -29,6 +29,35 @@
 
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .instructor-course-summary,
+        .instructor-course-summary * {
+            min-width: 0;
+        }
+
+        .instructor-course-title,
+        .course-lesson-title,
+        .instructor-course-description {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .instructor-course-title {
+            max-width: 100%;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .instructor-course-description {
+            max-width: 100%;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
 </head>
 
 <body class="bg-white">
@@ -39,26 +68,27 @@
     <div class="row g-0">
 
         <!-- Left Panel: Video & Tabs (70%) -->
-        <main class="col-lg-8 col-12 main-player-content">
+        <main class="col-lg-8 col-12 main-player-content" style="min-width:0;">
 
             <!-- Course Info Section -->
-            <div class="p-4 border-bottom bg-light bg-opacity-25">
-                <div class="mb-3">
-                    <a th:href="@{/instructor/{id}/submit-review(id=${courseDetal.id})}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
+            <div class="border-bottom bg-light bg-opacity-25">
+                <div class="px-4 py-3 border-bottom bg-white d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                    <a th:href="${backUrl != null ? backUrl : '/instructor/courses'}"
+                       class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
                         <i class="fa-solid fa-arrow-left"></i>
-                          Quay lại
+                        <span>Quay lại</span>
                     </a>
                 </div>
-                <div class="row g-4">
+                <div class="row g-4 align-items-start p-4">
                     <!-- Course Thumbnail -->
-                    <div class="col-lg-3 col-12">
+                    <div class="col-xl-3 col-lg-4 col-12">
                         <img th:src="${courseDetal.thumnaiUrl != null} ? ${urlAvatar + courseDetal.thumnaiUrl} : 'https://via.placeholder.com/300x200?text=Khóa+Học'"
                              alt="Course Thumbnail" class="img-fluid rounded-3" style="width: 100%; object-fit: cover; height: 180px;">
                     </div>
 
                     <!-- Course Details -->
-                    <div class="col-lg-9 col-12">
-                        <h2 class="fw-bold font-heading mb-3" th:text="${courseDetal.tittle}">
+                    <div class="col-xl-9 col-lg-8 col-12 instructor-course-summary">
+                        <h2 class="fw-bold font-heading mb-3 lh-sm instructor-course-title" th:text="${courseDetal.tittle}">
                             Tên khóa học
                         </h2>
 
@@ -81,7 +111,7 @@
                             </div>
                         </div>
 
-                        <div class="text-muted fs-7 mb-0" th:utext="${courseDetal.description}">Mô tả khóa học</div>
+                        <div class="text-muted fs-7 mb-0 instructor-course-description" th:utext="${courseDetal.description}">Mô tả khóa học</div>
                     </div>
                 </div>
             </div>
@@ -105,7 +135,7 @@
             <!-- Course Title & Actions -->
             <div class="p-4 border-bottom">
                 <div class="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
-                    <h1 class="course-lesson-title fw-bold font-heading m-0" th:text="${courseDetal.tittle}">
+                    <h1 class="course-lesson-title fw-bold font-heading m-0 w-100" th:text="${courseDetal.tittle}">
                         Guitar điện cơ bản cùng Khoa (FPTU MUSIC)</h1>
                 </div>
             </div>
@@ -238,12 +268,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="mb-3">
-                <a th:href="@{/instructor/courses}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Quay lại danh sách khóa học
-                </a>
             </div>
         </aside>
 
@@ -468,13 +492,28 @@
                         //         if (openLink) openLink.classList.add('disabled');
                         //     });
                         fetch("/material/" + mId)
-                            .then(res => res.text())
+                            .then(res => {
+                                if (!res.ok) {
+                                    throw new Error("Không thể tải tài liệu (HTTP " + res.status + ")");
+                                }
+                                return res.text();
+                            })
                             .then(url => {
+                                if (!url || url.trim() === "" || url.trim() === "null") {
+                                    throw new Error("Không tìm thấy đường dẫn tài liệu.");
+                                }
                                 if (openLink) openLink.href = url;
+                                // Instructor viewCourse material fix: backend đã trả URL xem được (PDF SAS hoặc Office Viewer),
+                                // nên iframe dùng trực tiếp URL này, không bọc Office Viewer thêm lần nữa.
                                 if (docFrame) docFrame.src = url;
                             })
                             .catch(err => {
                                 console.error("Error fetching material URL:", err);
+                                if (docFrame) {
+                                    docFrame.removeAttribute("src");
+                                    docFrame.closest(".lesson-document-frame-shell").innerHTML =
+                                        `<div class="p-4 text-center text-muted">${err.message || "Không thể hiển thị tài liệu."}</div>`;
+                                }
                                 if (openLink) openLink.classList.add('disabled');
                             });
                     });

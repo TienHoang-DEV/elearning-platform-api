@@ -1,4 +1,4 @@
-
+﻿
 
 
 
@@ -112,7 +112,6 @@ function initSidebarNav() {
 }
 
 function initTabs() {
-    // === Xá»­ lÃ½ click chuyá»ƒn tab (giá»¯ nguyÃªn logic cÅ©) ===
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const group = this.dataset.tabGroup;
@@ -296,13 +295,13 @@ function setUploadModalLock(form, locked, fallbackLoadingText) {
         }
         submitButton.disabled = true;
         submitButton.classList.add('btn-loading');
-        submitButton.textContent = submitButton.dataset.loadingText || fallbackLoadingText || 'Dang luu...';
+        submitButton.textContent = submitButton.dataset.loadingText || fallbackLoadingText || 'Đang Lưu...';
         return;
     }
 
     submitButton.disabled = false;
     submitButton.classList.remove('btn-loading');
-    submitButton.textContent = submitButton.dataset.originalText || 'Luu';
+    submitButton.textContent = submitButton.dataset.originalText || 'Lưu';
 }
 
 function initLessonUploadSubmitLock() {
@@ -412,7 +411,7 @@ function initMaterialUploadSubmitLock() {
         }
 
         form.dataset.submitting = 'true';
-        setUploadModalLock(form, true, 'Đang tải tài liệu lên Azure...');
+        setUploadModalLock(form, true, 'Đang tải tài liệu lên...');
 
         try {
             form.querySelectorAll('.js-material-blob-input').forEach(el => el.remove());
@@ -517,7 +516,7 @@ function resolveLessonFormSectionId(form) {
         return match[1];
     }
 
-    throw new Error('Khong tim thay section de upload video.');
+    throw new Error('Không tìm thấy chương để tải video lên.');
 }
 
 async function uploadLessonVideoDirectToAzure(file, sectionId, onProgress) {
@@ -536,7 +535,7 @@ async function uploadLessonVideoDirectToAzure(file, sectionId, onProgress) {
     }
 
     if (!sasResponse.ok) {
-        throw new Error('Khong lay duoc URL upload video.');
+        throw new Error('Không lấy được đường dẫn để tải video lên.');
     }
 
     const uploadInfo = await sasResponse.json();
@@ -607,7 +606,7 @@ async function uploadBlockBlobToAzure(uploadUrl, file, onProgress) {
         });
 
         if (!commitResponse.ok) {
-            throw new Error('Khong the hoan tat upload video len Azure.');
+            throw new Error('Không thể hoàn tất tải tài liệu lên.');
         }
         if (typeof onProgress === 'function') {
             onProgress(100);
@@ -666,14 +665,13 @@ function initAvatarPreview() {
         if (!file) return;
         const url = URL.createObjectURL(file);
 
-        // Update small avatar in form
+
         preview.innerHTML = `<img src="${url}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
 
-        // Also update sidebar avatar
         const sidebarAvatar = document.getElementById('sidebarAvatar');
         if (sidebarAvatar) sidebarAvatar.innerHTML = `<img src="${url}" alt=""/>`;
 
-        // Update profile preview card
+
         const ppAvatar = document.querySelector('.profile-preview-avatar img');
         if (ppAvatar) ppAvatar.src = url;
     });
@@ -806,7 +804,7 @@ function initVideoUploadById(inputId, containerId, durationId) {
 
 
 /* =====================
-   CURRICULUM (JS-only fallback - dÃ¹ng náº¿u khÃ´ng submit form)
+   CURRICULUM
 ===================== */
 let sectionCounter = 0;
 
@@ -871,7 +869,7 @@ function addSectionToUI(title) {
 
 let currentSectionIndex = null;
 
-// Called from curriculum step modal confirm
+
 document.addEventListener('click', function (e) {
     const confirmLesson = e.target.closest('#confirmAddLesson');
     if (!confirmLesson) return;

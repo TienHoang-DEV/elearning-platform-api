@@ -60,8 +60,6 @@
         .kpi-label{ font-size:13px; color:#6b7280; }
         .kpi-value{ font-size:22px; font-weight:700; color:#111827; margin-bottom:6px;}
         .kpi-delta{ font-size:12px; font-weight:600; }
-        .kpi-delta.up{ color:#16a34a; }
-        .kpi-delta.down{ color:#dc2626; }
         .kpi-delta.neutral{ color:#6b7280; }
 
         /* ---------- Card ---------- */
@@ -168,38 +166,22 @@
             <div class="kpi-top"><span class="kpi-icon"></span><span class="kpi-label">Tổng doanh thu</span></div>
             <div class="kpi-value"
                  th:text="${#numbers.formatDecimal(stats.totalRevenue ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">12.450.000đ</div>
-            <div class="kpi-delta"
-                 th:with="delta=${stats.revenueDeltaPercent ?: 0}"
-                 th:classappend="${delta.signum() > 0} ? 'up' : (${delta.signum() < 0} ? 'down' : 'neutral')"
-                 th:text="(${delta.signum() > 0} ? '↑ ' : (${delta.signum() < 0} ? '↓ ' : '')) + ${#numbers.formatDecimal(delta.abs(), 0, 1)} + '% so với kỳ trước'">↑ 12% so với tháng trước</div>
         </div>
 
         <div class="kpi-card">
             <div class="kpi-top"><span class="kpi-icon"></span><span class="kpi-label">Lợi nhuận</span></div>
             <div class="kpi-value"
                  th:text="${#numbers.formatDecimal(stats.profit ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'">12.450.000đ</div>
-            <div class="kpi-delta"
-                 th:with="delta=${stats.revenueDeltaPercent ?: 0}"
-                 th:classappend="${delta.signum() > 0} ? 'up' : (${delta.signum() < 0} ? 'down' : 'neutral')"
-                 th:text="(${delta.signum() > 0} ? '↑ ' : (${delta.signum() < 0} ? '↓ ' : '')) + ${#numbers.formatDecimal(delta.abs(), 0, 1)} + '% so với kỳ trước'">↑ 12% so với tháng trước</div>
         </div>
 
         <div class="kpi-card">
             <div class="kpi-top"><span class="kpi-icon"></span><span class="kpi-label">Tổng đơn hàng</span></div>
             <div class="kpi-value" th:text="${stats.totalOrders}">245</div>
-            <div class="kpi-delta"
-                 th:with="delta=${stats.ordersDeltaPercent ?: 0}"
-                 th:classappend="${delta.signum() > 0} ? 'up' : (${delta.signum() < 0} ? 'down' : 'neutral')"
-                 th:text="(${delta.signum() > 0} ? '↑ ' : (${delta.signum() < 0} ? '↓ ' : '')) + ${#numbers.formatDecimal(delta.abs(), 0, 1)} + '% so với kỳ trước'">↑ 8%</div>
         </div>
 
         <div class="kpi-card">
             <div class="kpi-top"><span class="kpi-icon"></span><span class="kpi-label">Tổng học viên</span></div>
             <div class="kpi-value" th:text="${stats.totalStudents}">180</div>
-            <div class="kpi-delta"
-                 th:with="delta=${stats.studentsDeltaPercent ?: 0}"
-                 th:classappend="${delta.signum() > 0} ? 'up' : (${delta.signum() < 0} ? 'down' : 'neutral')"
-                 th:text="(${delta.signum() > 0} ? '↑ ' : (${delta.signum() < 0} ? '↓ ' : '')) + ${#numbers.formatDecimal(delta.abs(), 0, 1)} + '% so với kỳ trước'">↑ 15%</div>
         </div>
 
 

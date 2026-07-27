@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <div th:fragment="content" class="submit-review-panel">
     <header class="review-header">
@@ -110,7 +110,7 @@
     </section>
 
     <footer class="review-actions">
-        <a class="preview-btn" th:href="@{/instructor/{id}/view(id=${submitReview.courseId})}">
+        <a class="preview-btn" th:href="@{/instructor/{id}/view(id=${submitReview.courseId}, source='submit-review')}">
             <i class="bi bi-eye"></i>
             Xem trước khóa học
         </a>

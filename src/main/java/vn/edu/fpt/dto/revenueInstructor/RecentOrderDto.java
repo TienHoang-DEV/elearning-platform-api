@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.enums.OrderStatus;
 import vn.edu.fpt.enums.PaymentStatus;
+import vn.edu.fpt.util.AppConstants;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -85,7 +86,9 @@ public class RecentOrderDto {
         if (!paidByPayment && !paidByOrder) {
             return BigDecimal.ZERO;
         }
-        return finalPrice == null ? BigDecimal.ZERO : finalPrice;
+        BigDecimal paid = finalPrice == null ? BigDecimal.ZERO : finalPrice;
+        // Dashboard instructor/order list: tien giang vien nhan = tien hoc vien tra sau khi tru phi nen tang.
+        return paid.multiply(BigDecimal.valueOf(1 - AppConstants.PLATFORM_FEE));
     }
 
     public String getPaymentStatusText() {
