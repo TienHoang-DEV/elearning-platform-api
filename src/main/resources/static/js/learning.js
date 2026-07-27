@@ -646,7 +646,7 @@ function initializeReviews() {
             setTimeout(function () {
                 const modalEl = document.getElementById('courseReviewModal');
                 if (modalEl) {
-                    const reviewModal = new bootstrap.Modal(modalEl);
+                    const reviewModal = bootstrap.Modal.getOrCreateInstance(modalEl);
                     reviewModal.show();
                 }
             }, 3000);
@@ -674,7 +674,7 @@ function initializeReviews() {
         tabReviewBtn.addEventListener("click", function () {
             const modalEl = document.getElementById('courseReviewModal');
             if (modalEl) {
-                const reviewModal = new bootstrap.Modal(modalEl);
+                const reviewModal = bootstrap.Modal.getOrCreateInstance(modalEl);
                 reviewModal.show();
             }
         });
@@ -703,11 +703,13 @@ function initializeReviews() {
                     reviewModal.hide();
                 }
 
-                if (response.ok && result.success) {
-                    showStatusModal(true, result.message || "Gửi đánh giá thành công!");
-                } else {
-                    showStatusModal(false, result.message || "Gửi đánh giá thất bại.");
-                }
+                setTimeout(() => {
+                    if (response.ok && result.success) {
+                        showStatusModal(true, result.message || "Gửi đánh giá thành công!");
+                    } else {
+                        showStatusModal(false, result.message || "Gửi đánh giá thất bại.");
+                    }
+                }, 350);
             } catch (err) {
                 console.error(err);
                 const reviewModalEl = document.getElementById('courseReviewModal');
@@ -715,7 +717,9 @@ function initializeReviews() {
                 if (reviewModal) {
                     reviewModal.hide();
                 }
-                showStatusModal(false, "Không thể kết nối đến máy chủ.");
+                setTimeout(() => {
+                    showStatusModal(false, "Không thể kết nối đến máy chủ.");
+                }, 350);
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
@@ -769,7 +773,7 @@ function showStatusModal(success, message) {
 
     const statusModalEl = document.getElementById('reviewStatusModal');
     if (statusModalEl) {
-        const statusModal = new bootstrap.Modal(statusModalEl);
+        const statusModal = bootstrap.Modal.getOrCreateInstance(statusModalEl);
         statusModal.show();
     }
 }

@@ -443,7 +443,7 @@
                                             <button th:if="${currentUser != null && currentUser.id == fb.user.id}"
                                                 class="btn btn-link btn-sm text-danger p-0 me-2 text-decoration-none fs-8 fw-semibold btn-delete-review"
                                                 th:data-feedback-id="${fb.id}"
-                                                th:onclick="'deleteReview(this, ' + ${fb.id} + ')'">
+                                                data-bs-toggle="modal" data-bs-target="#deleteReviewModal">
                                                 <i class="fa-regular fa-trash-can me-1"></i>Xóa
                                             </button>
                                             <span class="text-muted fs-8"
@@ -583,21 +583,12 @@
                         aria-label="Đóng"></button>
                 </div>
                 <div class="modal-body p-0 bg-dark">
-                    <!-- Real video player or fallback -->
-                    <div th:if="${course.introVideoPath != null or course.getFirstLessonId() != null}" class="ratio ratio-16x9 w-100 bg-black">
+                    <!-- Real video player -->
+                    <div class="ratio ratio-16x9 w-100 bg-black">
                         <video controls style="width: 100%; height: 100%; object-fit: contain;" id="previewVideo"
-                            th:src="${course.introVideoPath}"
-                            th:data-lesson-id="${course.getFirstLessonId()}">
+                            th:src="${course.introVideoPath}">
                             Trình duyệt của bạn không hỗ trợ thẻ video.
                         </video>
-                    </div>
-                    <div th:unless="${course.introVideoPath != null or course.getFirstLessonId() != null}"
-                        class="simulated-player position-relative w-100 bg-black d-flex align-items-center justify-content-center"
-                        style="aspect-ratio: 16/9; overflow: hidden;">
-                        <img th:src="${course.thumbnailPath}" alt="Course Preview"
-                            class="w-100 h-100 object-fit-cover opacity-50"
-                            onerror="this.onerror=null; this.src='/images/course_thumbnail.png';">
-                        <div class="position-absolute text-white fs-5 fw-bold">Chưa có video xem thử</div>
                     </div>
                 </div>
             </div>
@@ -646,6 +637,24 @@
                         <button type="submit" class="btn btn-primary rounded-3 fw-bold fs-7 px-4 py-2">Lưu Thay Đổi</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    <!-- Delete Review Confirmation Modal -->
+    <div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-labelledby="deleteReviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content rounded-3 border-0 shadow-lg bg-white">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold text-dark font-heading fs-6" id="deleteReviewModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <p class="text-muted fs-7 mb-0 text-center">Bạn có chắc chắn muốn xóa đánh giá này không?</p>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 justify-content-center">
+                    <button type="button" class="btn btn-light btn-sm fw-semibold px-3" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger btn-sm fw-semibold px-3" id="confirmDeleteReviewBtn">Xóa</button>
+                </div>
             </div>
         </div>
     </div>

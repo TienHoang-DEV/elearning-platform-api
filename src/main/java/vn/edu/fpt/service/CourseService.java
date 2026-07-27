@@ -643,14 +643,15 @@ public class CourseService {
             return builder.hasFavorites(false).build();
         }
 
-        Set<Category> favorites = user.getFavoriteCategories();
-        if (favorites == null || favorites.isEmpty()) {
+        Set<vn.edu.fpt.entity.UserFavoriteCategory> favoriteCategories = user.getFavoriteCategories();
+        if (favoriteCategories == null || favoriteCategories.isEmpty()) {
             return builder.hasFavorites(false).build();
         }
 
         // Lấy danh mục con yêu thích (dùng for thay cho stream)
         List<CategoryDto> favoriteChildren = new java.util.ArrayList<>();
-        for (Category c : favorites) {
+        for (vn.edu.fpt.entity.UserFavoriteCategory ufc : favoriteCategories) {
+            Category c = ufc.getCategory();
             if ("ACTIVE".equals(c.getStatus()) && c.getParent() != null) {
                 favoriteChildren.add(dtoMapper.toCategoryDto(c));
             }
@@ -662,7 +663,8 @@ public class CourseService {
 
         // Lấy danh mục cha của các danh mục con yêu thích (dùng for thay cho stream)
         Category parent = null;
-        for (Category c : favorites) {
+        for (vn.edu.fpt.entity.UserFavoriteCategory ufc : favoriteCategories) {
+            Category c = ufc.getCategory();
             if (c.getParent() != null) {
                 parent = c.getParent();
                 break;

@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.entity.UserFavoriteCategory;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.CategoryRepository;
 import vn.edu.fpt.repository.UserRepository;
@@ -110,7 +111,12 @@ public class UserFavoriteController {
         }
 
         user.getFavoriteCategories().clear();
-        user.getFavoriteCategories().addAll(newFavorites);
+        for (Category c : newFavorites) {
+            UserFavoriteCategory ufc = new UserFavoriteCategory();
+            ufc.setUser(user);
+            ufc.setCategory(c);
+            user.getFavoriteCategories().add(ufc);
+        }
         user.setFavoriteSetupCompleted(true);
 
         User savedUser = userRepository.save(user);
