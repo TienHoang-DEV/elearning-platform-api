@@ -15,9 +15,7 @@
         <input type="text" name="title" class="form-control" id="courseTitleInput"
                th:field="*{title}"
                th:classappend="${#fields.hasErrors('title')} ? ' is-invalid' : ''"
-               placeholder="Tiêu đề từ 8 đến 60 ký tự" required
-               oninput="validateSingleField('title')"
-               onchange="validateSingleField('title')"/>
+               placeholder="Tiêu đề từ 8 đến 60 ký tự" required/>
         <div class="form-hint">Tối đa 60 ký tự</div>
         <p class="text-danger"
            th:if="${#fields.hasErrors('title')}"
@@ -30,8 +28,7 @@
         <div class="rich-editor" id="courseDescEditor" contenteditable="true"
              th:utext="*{description}"
              th:classappend="${#fields.hasErrors('description')} ? ' is-invalid' : ''"
-             data-placeholder="Nhập mô tả đầy đủ cho khóa học..."
-             oninput="validateSingleField('description')"></div>
+             data-placeholder="Nhập mô tả đầy đủ cho khóa học..."></div>
         <input type="hidden" th:field="*{description}" id="descHidden" required/>
         <p
           class="text-danger"
@@ -44,8 +41,7 @@
         <div class="form-group">
           <label>Trình Độ Khóa Học</label>
           <select th:field="*{level}" class="form-control"
-                  th:classappend="${#fields.hasErrors('level')} ? ' is-invalid' : ''"
-                  onchange="validateSingleField('level')">
+                  th:classappend="${#fields.hasErrors('level')} ? ' is-invalid' : ''">
             <option value="">Chọn Trình Độ</option>
             <option th:each="l : ${courselevels}"
                     th:value="${l.name()}"
@@ -63,8 +59,7 @@
         </div>
         <div class="form-group">
           <label>Danh Mục Chính Khóa Học</label>
-          <select name="parentCategory" class="form-control" id="parentCategory"
-                  onchange="validateSingleField('parentCategory'); validateSingleField('categoryId')">
+          <select name="parentCategory" class="form-control" id="parentCategory">
             <option value="">Chọn Danh Mục</option>
             <option th:each="ca : ${categoryparents}"
                     th:value="${ca.id}"
@@ -74,8 +69,7 @@
           </select>
           <label>Danh Mục Phụ Khóa Học</label>
           <select th:field="*{categoryId}" class="form-control" id="categoryId"
-                  th:classappend="${#fields.hasErrors('categoryId')} ? ' is-invalid' : ''"
-                  onchange="validateSingleField('categoryId')">
+                  th:classappend="${#fields.hasErrors('categoryId')} ? ' is-invalid' : ''">
             <option value="">Chọn Danh Mục</option>
             <option th:each="c : ${categorychilds}"
                     th:value="${c.id}"
@@ -102,9 +96,7 @@
                inputmode="numeric"
                pattern="[0-9]*"
                autocomplete="off"
-               data-price-input
-               oninput="validateSingleField('price')"
-               onchange="validateSingleField('price')"/>
+               data-price-input/>
         <div class="form-hint">Nhập 0 nếu khóa học miễn phí; giá thu phí phải lớn hơn 2.000 VNĐ và chia hết cho 1.000</div>
         <p class="text-danger"
            th:if="${#fields.hasErrors('price')}"
@@ -339,6 +331,35 @@
           };
         }
 
+        // Validate thumbnail
+        const thumbnailInput = document.getElementById('thumbnailInput');
+        const previewImg = document.getElementById('thumbnailPreview');
+        const hasNewThumbnail = thumbnailInput && thumbnailInput.files && thumbnailInput.files.length > 0;
+        const hasExistingThumbnail = previewImg && previewImg.style.display !== 'none' && previewImg.getAttribute('src') !== '';
+        if (!hasNewThumbnail && !hasExistingThumbnail) {
+          return {
+            valid: false,
+            field: 'thumbnailFile',
+            element: document.querySelector('.thumbnail-upload'),
+            message: 'Vui lòng chọn hình thu nhỏ cho khóa học.'
+          };
+        }
+
+        // Validate intro video
+        const introVideoInput = document.getElementById('introVideoInput');
+        const introVideoBlob = document.getElementById('introVideoBlobName')?.value || '';
+        const introVideoPreview = document.getElementById('introVideoPreview');
+        const hasNewVideo = introVideoInput && introVideoInput.files && introVideoInput.files.length > 0;
+        const hasExistingVideo = (introVideoBlob !== '') || (introVideoPreview && introVideoPreview.querySelector('video') !== null);
+        if (!hasNewVideo && !hasExistingVideo) {
+          return {
+            valid: false,
+            field: 'introVideo',
+            element: document.querySelector('.file-upload-area'),
+            message: 'Vui lòng chọn video giới thiệu cho khóa học.'
+          };
+        }
+
         return { valid: true };
       }
 
@@ -381,7 +402,7 @@
       }
 
       function clearCourseInfoErrors() {
-        ['title', 'description', 'level', 'categoryId', 'price', 'introVideo'].forEach(clearCourseInfoError);
+        ['title', 'description', 'level', 'categoryId', 'price', 'introVideo', 'thumbnailFile'].forEach(clearCourseInfoError);
       }
 
       function getCourseInfoFieldElement(field) {
@@ -391,7 +412,8 @@
           level: form.querySelector('[name="level"]'),
           categoryId: document.getElementById('categoryId'),
           price: document.querySelector('[data-price-input]'),
-          introVideo: document.getElementById('introVideoInput')
+          introVideo: document.getElementById('introVideoInput'),
+          thumbnailFile: document.querySelector('.thumbnail-upload')
         }[field] || null;
       }
 
@@ -562,85 +584,7 @@
         });
       }
 
-      window.validateSingleField = function(field) {
-        const titleInput = document.getElementById('courseTitleInput');
-        const levelInput = form.querySelector('[name="level"]');
-        const parentCategoryInput = document.getElementById('parentCategory');
-        const categoryInput = document.getElementById('categoryId');
-        const priceInput = document.querySelector('[data-price-input]');
-        const editor = document.getElementById('courseDescEditor');
 
-        if (field === 'title') {
-          const title = titleInput?.value?.trim() || '';
-          if (title.length < 10 || title.length > 120) {
-            showCourseInfoError('title', 'Tiêu đề khóa học phải từ 10 đến 120 ký tự.', titleInput);
-            return false;
-          }
-          clearCourseInfoError('title');
-        }
-
-        if (field === 'description') {
-          const descriptionText = getPlainTextFromHtml(editor?.innerHTML || '');
-          if (descriptionText.length < 50) {
-            showCourseInfoError('description', 'Mô tả khóa học phải có tối thiểu 50 ký tự.', editor);
-            return false;
-          }
-          clearCourseInfoError('description');
-        }
-
-        if (field === 'level') {
-          if (!levelInput?.value) {
-            showCourseInfoError('level', 'Vui lòng chọn trình độ khóa học.', levelInput);
-            return false;
-          }
-          clearCourseInfoError('level');
-        }
-
-        if (field === 'parentCategory') {
-          if (!parentCategoryInput?.value) {
-            showCourseInfoError('parentCategory', 'Vui lòng chọn danh mục chính khóa học.', parentCategoryInput);
-            return false;
-          }
-          clearCourseInfoError('parentCategory');
-        }
-
-        if (field === 'categoryId') {
-          if (!categoryInput?.value) {
-            showCourseInfoError('categoryId', 'Vui lòng chọn danh mục phụ khóa học.', categoryInput);
-            return false;
-          }
-          clearCourseInfoError('categoryId');
-        }
-
-        if (field === 'price') {
-          const priceText = priceInput?.value?.trim() || '';
-          if (!priceText) {
-            showCourseInfoError('price', 'Vui lòng nhập giá khóa học.', priceInput);
-            return false;
-          }
-          const price = Number(priceText);
-          if (!Number.isFinite(price) || price < 0) {
-            showCourseInfoError('price', 'Giá khóa học không được âm.', priceInput);
-            return false;
-          }
-          if (price !== 0 && price < 2000) {
-            showCourseInfoError('price', 'Giá khóa học phải từ 2.000 VNĐ trở lên hoặc bằng 0 nếu miễn phí.', priceInput);
-            return false;
-          }
-          if (price % 1000 !== 0) {
-            showCourseInfoError('price', 'Giá khóa học phải chia hết cho 1.000 VNĐ.', priceInput);
-            return false;
-          }
-          clearCourseInfoError('price');
-        }
-
-        return true;
-      };
-
-      // Check level on load
-      validateSingleField('level');
-      validateSingleField('parentCategory');
-      validateSingleField('categoryId');
 
       // Ẩn category con
       const parent = document.getElementById('parentCategory');
