@@ -48,7 +48,6 @@
                         <th>Tên</th>
                         <th>Email</th>
                         <th>Điện thoại</th>
-                        <th class="text-center">Số khóa học</th>
                         <th>Trạng thái</th>
                         <th>Thao tác</th>
                     </tr>
@@ -62,7 +61,6 @@
                         </td>
                         <td th:text="${request.email}">nguyenvana@example.com</td>
                         <td th:text="${request.phone != null ? request.phone : 'N/A'}">0123456789</td>
-                        <td class="text-center" th:text="${request.courseCount != null ? request.courseCount : 0}">0</td>
                         <td>
                             <span
                                 th:class="${'badge badge-' + (request.status != null and request.status.name() == 'ACTIVE' ? 'success' : 'danger')}"
@@ -78,7 +76,7 @@
                         </td>
                     </tr>
                     <tr th:if="${requestPage.isEmpty()}">
-                        <td colspan="6" class="text-center py-4">Không tìm thấy giảng viên nào.</td>
+                        <td colspan="5" class="text-center py-4">Không tìm thấy giảng viên nào.</td>
                     </tr>
                 </tbody>
             </table>

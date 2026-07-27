@@ -34,6 +34,13 @@ public interface DtoMapper {
     @Mapping(target = "hasPassword", expression = "java(user.getPasswordHash() != null && !user.getPasswordHash().isEmpty())")
     UserDto toUserDto(User user);
 
+    @Named("toInstructorListDto")
+    @Mapping(target = "avatarUrl", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "courseCount", ignore = true)
+    @Mapping(target = "hasPassword", ignore = true)
+    UserDto toInstructorListDto(User user);
+
     @Named("toSimpleUserDto")
     @Mapping(target = "avatarUrl", expression = "java(user.getFullAvatarUrl())")
     @Mapping(target = "role", ignore = true)
