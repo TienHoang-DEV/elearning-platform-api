@@ -768,13 +768,6 @@ CREATE TABLE payments (
 
                           gateway_response NVARCHAR(MAX) NULL,
     -- JSON response từ PayOS
-
-                          webhook_received BIT NOT NULL DEFAULT 0,
-    -- Đã nhận webhook hay chưa
-
-                          webhook_received_at DATETIME NULL,
-    -- Thời điểm nhận webhook
-
                           expired_at DATETIME NULL,
     -- Thời điểm QR/link hết hạn
 
@@ -784,10 +777,10 @@ CREATE TABLE payments (
                           last_synced_at DATETIME NULL,
     -- Thời điểm sync gần nhất với PayOS
     -- Dùng để tránh query PayOS quá tần suất (skip nếu < 5 phút)
-
-                          webhook_retry_count INT NOT NULL DEFAULT 0,
-    -- Số lần retry webhook (tối đa 3 lần)
-    -- Tăng mỗi khi scheduled task retry
+                           account_number VARCHAR(100) NULL,
+                           description NVARCHAR(500) NULL,
+                           bank_name NVARCHAR(100) NULL,
+                           account_holder NVARCHAR(255) NULL,
 
                           created_at DATETIME NOT NULL DEFAULT GETDATE(),
     -- Thời điểm tạo giao dịch
@@ -883,10 +876,8 @@ CREATE INDEX IX_enrollments_lookup ON enrollments(user_id, course_id);
 CREATE INDEX IX_payment_status_expired_at ON payments(status, expired_at, updated_at);
 
 -- Index 2: Tối ưu query tìm PENDING cần sync từ PayOS (syncPendingPaymentsFromPayOs)
-CREATE INDEX IX_payment_status_created_at ON payments(status, created_at, webhook_received, last_synced_at);
+CREATE INDEX IX_payment_status_created_at ON payments(status, created_at, last_synced_at);
 
--- Index 3: Tối ưu query tìm webhook cần retry (retryFailedWebhooks)
-CREATE INDEX IX_payment_webhook_retry ON payments(status, webhook_received, webhook_retry_count, created_at);
 
 
 

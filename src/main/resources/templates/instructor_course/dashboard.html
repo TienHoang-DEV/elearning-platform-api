@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Bảng điều khiển Giảng viên - Learning Hub</title>
     <link rel="stylesheet" th:href="@{/css/course_manage.css}"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box;}
         body {
@@ -204,17 +205,11 @@
 
     <div class="card">
         <div class="card-header"><h2>Xu hướng doanh thu</h2></div>
-        <svg viewBox="0 0 700 220" width="100%" height="220" preserveAspectRatio="none">
-            <polyline th:attr="points=${stats.chartPoints}"
-                      points="0,180 100,150 200,160 300,100 400,110 500,60 600,80 700,40"
-                      fill="none" stroke="#4f7cff" stroke-width="3"/>
-            <polygon th:attr="points=${stats.chartPoints} + ' 700,220 0,220'"
-                     points="0,180 100,150 200,160 300,100 400,110 500,60 600,80 700,40 700,220 0,220"
-                     fill="#4f7cff" opacity="0.08"/>
-            <line x1="0" y1="219" x2="700" y2="219" stroke="#e5e7eb" stroke-width="1"/>
-        </svg>
-        <div th:if="${stats.revenueTrendValues == null or stats.revenueTrendValues.isEmpty()}"
-             style="text-align:center; color:#9ca3af; font-size:13px; margin-top:-40px;">
+        <div style="position: relative; width: 100%; height: 260px; margin-bottom: 10px;">
+            <canvas id="revenueChart"></canvas>
+        </div>
+        <div id="noDataMessage" th:if="${stats.revenueTrendValues == null or stats.revenueTrendValues.isEmpty()}"
+             style="text-align:center; color:#9ca3af; font-size:13px;">
             Chưa có dữ liệu doanh thu trong khoảng thời gian này
         </div>
     </div>
@@ -307,6 +302,104 @@
     document.addEventListener('click', function(e) {
         const box = document.getElementById('timeFilter');
         if (!box.contains(e.target)) box.classList.remove('open');
+    });
+</script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const labels = /*[[${stats.revenueTrendLabels}]]*/ [];
+    const values = /*[[${stats.revenueTrendValues}]]*/ [];
+    /*]]>*/
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const canvas = document.getElementById('revenueChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        
+        const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+        gradient.addColorStop(0, 'rgba(79, 124, 255, 0.25)');
+        gradient.addColorStop(1, 'rgba(79, 124, 255, 0.0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh thu (đ)',
+                    data: values,
+                    borderColor: '#4f7cff',
+                    borderWidth: 3,
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#4f7cff',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#4f7cff',
+                    pointHoverBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#1f2937',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 10,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                let value = context.raw || 0;
+                                return 'Doanh thu: ' + new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: {
+                            color: '#f3f4f6'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 1000000) {
+                                    return (value / 1000000).toFixed(1) + 'Mđ';
+                                } else if (value >= 1000) {
+                                    return (value / 1000).toFixed(0) + 'Kđ';
+                                }
+                                return value + 'đ';
+                            },
+                            color: '#6b7280',
+                            font: {
+                                family: 'Segoe UI',
+                                size: 11
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                family: 'Segoe UI',
+                                size: 11
+                            }
+                        }
+                    }
+                }
+            }
+        });
     });
 </script>
 

@@ -1,41 +1,49 @@
 
 package vn.edu.fpt.controller;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.service.material.LessonMaterialService;
+import vn.edu.fpt.service.cloud.VideoUploadService;
 import vn.edu.fpt.util.SecurityUtils;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/instructor/materials")
 public class InstructorMaterialController {
     private final LessonMaterialService lessonMaterialService;
+    private final VideoUploadService videoUploadService;
 
     @PostMapping("/lesson/{lessonId}")
     public String createMaterial(@RequestParam(value = "source", defaultValue = "create") String source,
                                  @RequestParam("courseId") Integer courseId,
                                  @PathVariable("lessonId") Integer lessonId,
-                                 @RequestParam(value = "materialFiles", required = false) List<MultipartFile> newMaterials,
+                                 @RequestParam(value = "materialBlobNames", required = false) List<String> blobNames,
+                                 @RequestParam(value = "materialFileNames", required = false) List<String> fileNames,
+                                 @RequestParam(value = "materialFileSizes", required = false) List<Long> fileSizes,
                                  RedirectAttributes redirectAttributes) {
         User user = SecurityUtils.getCurrentUser();
         try {
-            lessonMaterialService.saveAllMaterial(newMaterials, lessonId, user);
+            lessonMaterialService.saveAllMaterialDirect(blobNames, fileNames, fileSizes, lessonId, user);
             redirectAttributes.addFlashAttribute("success", "Thêm tài liệu thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi khi thêm tài liệu: " + e.getMessage());
         }
         return redirectAfterCurriculumAction(source, courseId);
+    }
+
+    @PostMapping("/upload-url")
+    @ResponseBody
+    public Map<String, String> getMaterialUploadUrl(@RequestParam("fileName") String fileName) {
+        User user = SecurityUtils.getCurrentUser();
+        return videoUploadService.generateMaterialUploadUrl(fileName, user);
     }
 
     @PostMapping("/{materialId}/delete")

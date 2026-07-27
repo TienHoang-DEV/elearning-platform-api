@@ -66,6 +66,9 @@ async function loadQuizContent(url) {
         }
         const html = await response.text();
         container.innerHTML = html;
+        if (typeof initQuizCountdown === "function") {
+            initQuizCountdown();
+        }
     } catch (error) {
         container.innerHTML = `
             <div class="alert alert-danger rounded-3" role="alert">
@@ -79,7 +82,7 @@ function initializeQuizAjax() {
     const container = document.getElementById("quiz-content-container");
     if (!container) return;
 
-    // Handle form submit (submitting quiz) inside container
+    // submit quiz
     container.addEventListener("submit", (event) => {
         if (event.target.tagName === "FORM") {
             event.preventDefault();
@@ -107,6 +110,9 @@ function initializeQuizAjax() {
             })
             .then(html => {
                 container.innerHTML = html;
+                if (typeof initQuizCountdown === "function") {
+                    initQuizCountdown();
+                }
             })
             .catch(error => {
                 container.innerHTML = `

@@ -49,13 +49,6 @@ public class Payment extends BaseEntity {
     @Column(name = "gateway_response", columnDefinition = "NVARCHAR(MAX)")
     private String gatewayResponse;
 
-    @Builder.Default
-    @Column(name = "webhook_received", nullable = false)
-    private Boolean webhookReceived = false;
-
-    @Column(name = "webhook_received_at")
-    private LocalDateTime webhookReceivedAt;
-
     @Column(name = "expired_at")
     private LocalDateTime expiredAt;
 
@@ -77,11 +70,4 @@ public class Payment extends BaseEntity {
     @Column(name = "last_synced_at")
     private LocalDateTime lastSyncedAt;
 
-    @Builder.Default
-    @Column(name = "webhook_retry_count")
-    private Integer webhookRetryCount = 0;
-
-    public Integer getWebhookRetryCount() {
-        return webhookRetryCount != null ? webhookRetryCount : 0;
-    }
 }

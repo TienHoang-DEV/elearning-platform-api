@@ -4,6 +4,8 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.quizdto.QuizAttemptDTO;
+import vn.edu.fpt.dto.quizdto.QuizQuestionSubmitDTO;
+import vn.edu.fpt.dto.quizdto.QuizSubmitDTO;
 import vn.edu.fpt.entity.*;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.mapper.DtoMapper;
@@ -31,8 +33,10 @@ public class QuizAttemptService {
         this.dtoMapper = dtoMapper;
     }
 
-    public QuizAttempt submitQuiz(Integer quizId, User user, Map<String, String[]> parameterMap) {
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new ResourceNotFoundException("Không thấy Quiz"));
+    public QuizAttempt submitQuiz(Integer quizId, User user, QuizSubmitDTO submitDTO) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không thấy Quiz"));
+        Map<Integer, List<Integer>> selectedAnswerIdsByQuestion = selectedAnswerIdsByQuestion(submitDTO);
 
         int totalPoints = 0;
         int userPoints = 0;
@@ -50,47 +54,31 @@ public class QuizAttemptService {
         QuizAttempt savedAttempt = repository.save(attempt);
 
         for (QuizQuestion question : quiz.getQuestions()) {
-            int qPoints = question.getPoints() != null ? question.getPoints() : 1;
-            totalPoints += qPoints;
+            int questionPoints = question.getPoints() != null ? question.getPoints() : 1;
+            totalPoints += questionPoints;
 
-            List<Integer> correctAnswers = new ArrayList<>();
-            for (QuizAnswer answer : question.getAnswers()) {
-                if (Boolean.TRUE.equals(answer.getCorrect())) {
-                    correctAnswers.add(answer.getId());
+            List<Integer> correctAnswerIds = correctAnswerIds(question);
+            List<Integer> selectedAnswerIds = selectedAnswerIdsByQuestion.getOrDefault(question.getId(), List.of());
+            List<Integer> validSelectedAnswerIds = new ArrayList<>();
+
+            for (Integer answerId : selectedAnswerIds) {
+                QuizAnswer selectedAnswer = findAnswer(question, answerId);
+                if (selectedAnswer == null) {
+                    continue;
                 }
+
+                validSelectedAnswerIds.add(answerId);
+                attemptAnswers.add(QuizAttemptAnswer.builder()
+                        .attempt(savedAttempt)
+                        .question(question)
+                        .selectedAnswer(selectedAnswer)
+                        .isCorrect(correctAnswerIds.contains(answerId))
+                        .build());
             }
-            Collections.sort(correctAnswers);
 
-            String[] paramValues = parameterMap.get("quiz-" + quizId + "-question-" + question.getId());
-            List<Integer> userSelected = new ArrayList<>();
-            if (paramValues != null) {
-                for (String val : paramValues) {
-                    try {
-                        Integer ansId = Integer.parseInt(val);
-                        userSelected.add(ansId);
-
-                        QuizAnswer selectedAns = question.getAnswers().stream()
-                                .filter(a -> a.getId().equals(ansId))
-                                .findFirst().orElse(null);
-
-                        boolean isOptionCorrect = correctAnswers.contains(ansId);
-
-                        QuizAttemptAnswer qaa = QuizAttemptAnswer.builder()
-                                .attempt(savedAttempt)
-                                .question(question)
-                                .selectedAnswer(selectedAns)
-                                .isCorrect(isOptionCorrect)
-                                .build();
-                        attemptAnswers.add(qaa);
-                    } catch (NumberFormatException ignored) {
-                    }
-                }
-            }
-            Collections.sort(userSelected);
-
-            boolean isCorrect = userSelected.equals(correctAnswers);
-            if (isCorrect) {
-                userPoints += qPoints;
+            Collections.sort(validSelectedAnswerIds);
+            if (validSelectedAnswerIds.equals(correctAnswerIds)) {
+                userPoints += questionPoints;
             }
         }
 
@@ -106,6 +94,48 @@ public class QuizAttemptService {
         }
 
         return repository.save(savedAttempt);
+    }
+
+    private Map<Integer, List<Integer>> selectedAnswerIdsByQuestion(QuizSubmitDTO submitDTO) {
+        Map<Integer, List<Integer>> result = new HashMap<>();
+        if (submitDTO == null || submitDTO.getQuestions() == null) {
+            return result;
+        }
+
+        for (QuizQuestionSubmitDTO question : submitDTO.getQuestions()) {
+            if (question.getQuestionId() == null) {
+                continue;
+            }
+            List<Integer> selectedAnswerIds = question.getSelectedAnswerIds() != null ? question.getSelectedAnswerIds() : List.of();
+            result.put(question.getQuestionId(), selectedAnswerIds);
+        }
+
+        return result;
+    }
+
+    private List<Integer> correctAnswerIds(QuizQuestion question) {
+        List<Integer> result = new ArrayList<>();
+        for (QuizAnswer answer : question.getAnswers()) {
+            if (Boolean.TRUE.equals(answer.getCorrect())) {
+                result.add(answer.getId());
+            }
+        }
+        Collections.sort(result);
+        return result;
+    }
+
+    private QuizAnswer findAnswer(QuizQuestion question, Integer answerId) {
+        if (question.getAnswers() == null || answerId == null) {
+            return null;
+        }
+
+        for (QuizAnswer answer : question.getAnswers()) {
+            if (Objects.equals(answer.getId(), answerId)) {
+                return answer;
+            }
+        }
+
+        return null;
     }
 
     public List<QuizAttempt> findAll() {
@@ -138,7 +168,7 @@ public class QuizAttemptService {
             int size,
             String sortBy,
             String searchKeyword,
-            String status // <-- Nhận thêm parameter status từ Controller
+            String status
     ) {
         Sort sort;
         switch (sortBy != null ? sortBy : "") {
@@ -158,7 +188,6 @@ public class QuizAttemptService {
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<QuizAttempt> attempts;
 
-        // Xử lý chuyển đổi String status -> Boolean passed
         Boolean passedStatus = null;
         if ("passed".equalsIgnoreCase(status)) {
             passedStatus = true;
@@ -169,7 +198,6 @@ public class QuizAttemptService {
         boolean hasKeyword = (searchKeyword != null && !searchKeyword.trim().isEmpty());
         boolean hasStatus = (passedStatus != null);
 
-        // Rẽ 4 nhánh điều kiện để gọi Repo tương ứng
         if (hasKeyword && hasStatus) {
             attempts = repository.searchAttemptsWithStatus(quizId, searchKeyword.trim(), passedStatus, pageable);
         } else if (hasKeyword) {

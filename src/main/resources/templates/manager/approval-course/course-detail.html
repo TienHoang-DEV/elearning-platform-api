@@ -77,6 +77,14 @@
             <div class="detail-desc-content text-break" th:utext="${course.description != null ? course.description : 'Không có mô tả cho khóa học này.'}">
                 Học các mẫu thiết kế nâng cao để xây dựng các ứng dụng React có khả năng mở rộng.
             </div>
+            <div class="detail-section-title">
+                <i class="ph ph-tag"></i>
+                <span>Danh mục</span>
+            </div>
+            <div class="detail-desc-content text-break"
+                 th:text="${course.category != null ? course.category.name : 'Chưa phân loại'}">
+                Danh mục
+            </div>
 
             <!-- Course Curriculum & Integrated Materials -->
             <div class="detail-section-title mt-4">

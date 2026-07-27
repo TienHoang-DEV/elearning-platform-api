@@ -172,20 +172,6 @@
                     <span class="detail-label-large">Cổng thanh toán:</span>
                     <span class="detail-value-large" th:text="${transactionDetail.gateWay}"></span>
                 </div>
-
-                <div class="detail-row detail-row-large" th:if="${transactionDetail.webhookReceivedAt != null}">
-                    <span class="detail-label-large">Webhook nhận lúc:</span>
-                    <span class="detail-value-large"
-                          th:text="${#temporals.format(transactionDetail.webhookReceivedAt, 'dd/MM/yyyy HH:mm:ss')}">
-                    </span>
-                </div>
-
-                <div class="detail-row detail-row-large" th:if="${transactionDetail.webhookReceive != null}">
-                    <span class="detail-label-large">Đã nhận webhook:</span>
-                    <span class="detail-value-large"
-                          th:text="${transactionDetail.webhookReceive ? 'Có' : 'Không'}">
-                    </span>
-                </div>
             </div>
         </div>
 

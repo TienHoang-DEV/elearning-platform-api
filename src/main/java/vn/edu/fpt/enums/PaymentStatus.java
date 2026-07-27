@@ -7,7 +7,7 @@ public enum PaymentStatus {
     PENDING("Chờ thanh toán"),
 
     /**
-     * Payment successful (from PayOS webhook)
+     * Payment successful
      */
     PAID("Đã thanh toán"),
 

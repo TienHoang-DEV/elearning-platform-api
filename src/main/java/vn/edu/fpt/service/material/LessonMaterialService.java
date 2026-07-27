@@ -88,7 +88,33 @@ public class LessonMaterialService {
 
             repository.save(lessonMaterial);
         }
+    }
 
+    public void saveAllMaterialDirect(List<String> blobNames, List<String> fileNames, List<Long> fileSizes, Integer lessonId, User user) {
+        if (blobNames == null || blobNames.isEmpty()) return;
+
+        Lesson lesson = lessonRepository.findById(lessonId).orElseThrow();
+
+        for (int i = 0; i < blobNames.size(); i++) {
+            String blobName = blobNames.get(i);
+            if (blobName == null || blobName.isBlank()) continue;
+
+            String fileName = fileNames.get(i);
+            String fileType = getValidatedMaterialExtension(fileName);
+            Long fileSize = fileSizes.get(i);
+
+            LessonMaterial lessonMaterial = new LessonMaterial();
+            lessonMaterial.setLesson(lesson);
+            lessonMaterial.setCourse(lesson.getCourseSection() != null ? lesson.getCourseSection().getCourse() : null);
+            lessonMaterial.setFileType(fileType);
+            lessonMaterial.setFileName(fileName);
+            lessonMaterial.setFileSize(fileSize);
+            lessonMaterial.setFileUrl(blobName);
+            lessonMaterial.setInstructor(user);
+            lesson.setCreatedAt(LocalDateTime.now());
+
+            repository.save(lessonMaterial);
+        }
     }
 
     public List<LessonMaterial> findAll() {
@@ -314,12 +340,16 @@ public class LessonMaterialService {
         if (!hasAccessToMaterial(user, lessonMaterial)) {
             return null;
         }
-        String publicUrl = azureBlobService.getPublicUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
+        String publicUrl = azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
         String fileType = lessonMaterial.getFileType() != null ? lessonMaterial.getFileType().toLowerCase().trim() : "";
         if ("pdf".equals(fileType)) {
             return publicUrl;
         } else if ("doc".equals(fileType) || "docx".equals(fileType) || "xls".equals(fileType) || "xlsx".equals(fileType) || "ppt".equals(fileType) || "pptx".equals(fileType)) {
-            return AppConstants.OFFICE_VIEWER_BASE_URL + publicUrl;
+            try {
+                return AppConstants.OFFICE_VIEWER_BASE_URL + java.net.URLEncoder.encode(publicUrl, "UTF-8");
+            } catch (java.io.UnsupportedEncodingException e) {
+                return AppConstants.OFFICE_VIEWER_BASE_URL + publicUrl;
+            }
         }
         return null;
     }
@@ -336,12 +366,16 @@ public class LessonMaterialService {
         if (!hasAccessToMaterial(user, lessonMaterial)) {
             return "redirect:/course/" + lessonMaterial.getLesson().getCourseSection().getCourse().getId();
         }
-        String publicUrl = azureBlobService.getPublicUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
+        String publicUrl = azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, lessonMaterial.getFileUrl());
         String fileType = lessonMaterial.getFileType() != null ? lessonMaterial.getFileType().toLowerCase().trim() : "";
         if ("pdf".equals(fileType)) {
             return "redirect:" + publicUrl;
         } else if ("doc".equals(fileType) || "docx".equals(fileType) || "xls".equals(fileType) || "xlsx".equals(fileType) || "ppt".equals(fileType) || "pptx".equals(fileType)) {
-            return "redirect:" + AppConstants.OFFICE_VIEWER_BASE_URL + publicUrl;
+            try {
+                return "redirect:" + AppConstants.OFFICE_VIEWER_BASE_URL + java.net.URLEncoder.encode(publicUrl, "UTF-8");
+            } catch (java.io.UnsupportedEncodingException e) {
+                return "redirect:" + AppConstants.OFFICE_VIEWER_BASE_URL + publicUrl;
+            }
         }
         return "redirect:/material/" + id + "/download";
     }

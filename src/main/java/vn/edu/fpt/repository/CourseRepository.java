@@ -236,12 +236,22 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
 
     @Query("""
-        select new vn.edu.fpt.dto.course.CourseGrantDTO(c.id, c.title) from Course c 
+        select new vn.edu.fpt.dto.course.CourseGrantDTO(c.id, c.title) from Course c
+        where c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED
 """)
     List<CourseGrantDTO> findAllCourseGrantDTO();
 
     @Query("""
-        select new vn.edu.fpt.dto.course.CourseGrantDTO(c.id, c.title) from Course c 
+        select new vn.edu.fpt.dto.course.CourseGrantDTO(c.id, c.title) from Course c
+        where c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED
+        and c.id not in (
+            select e.course.id from Enrollment e where e.user.id = :userId
+        )
+""")
+    List<CourseGrantDTO> findAvailablePublishedCoursesForUser(@Param("userId") Integer userId);
+
+    @Query("""
+        select new vn.edu.fpt.dto.course.CourseGrantDTO(c.id, c.title) from Course c
         where c.id not in (
             select e.course.id from Enrollment e where e.user.id = :userId
         )
