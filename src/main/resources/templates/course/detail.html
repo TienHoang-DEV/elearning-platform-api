@@ -142,16 +142,6 @@
                         </div>
                     </div>
 
-                    <!-- Course Description Box -->
-                    <div class="description-card p-4 rounded-3 mb-4"
-                        style="background-color: #e6f0fa; border-left: 5px solid var(--bs-primary);">
-                        <p class="m-0 fs-7 text-justify" style="color: #274060;" th:text="${course.description}">
-                            Chào mừng bạn đến với khóa học guitar điện trực tuyến toàn diện của chúng tôi! Cho dù bạn là
-                            người mới bắt đầu mong muốn nắm vững những điều cơ bản hay người chơi trung cấp đang tìm
-                            cách nâng cao kỹ năng của mình, khóa học này được thiết kế để đưa bạn vào một hành trình âm
-                            nhạc thú vị.
-                        </p>
-                    </div>
 
                     <!-- Tabs Navigation (Bootstrap powered) -->
                     <div class="tabs-nav-wrapper border-bottom mb-4">
@@ -186,21 +176,14 @@
                         <div class="tab-pane fade show active" id="about-tab-pane" role="tabpanel"
                             aria-labelledby="about-tab" tabindex="0">
                             <h3 class="panel-title fw-bold font-heading mb-3">Về Khóa Học</h3>
-                            <p class="text-muted fs-7">Khóa học này sẽ hướng dẫn bạn từ các bước cơ bản nhất để làm quen
-                                với đàn guitar điện, cách chỉnh phím, sử dụng phơ (effects), amply, cho đến các kỹ thuật
-                                gảy phím, slide, bend dây và chơi các câu solo kinh điển.</p>
-                            <h4 class="sub-panel-title fw-semibold fs-6 mb-2 mt-3">Mục tiêu khóa học:</h4>
-                            <ul class="list-unstyled d-flex flex-column gap-2 ps-1">
-                                <li class="text-muted fs-7 d-flex align-items-center gap-2"><i data-lucide="check"
-                                        class="text-success" style="width:16px;"></i> Nắm vững cấu tạo và cách sử dụng
-                                    guitar điện, amply, phơ.</li>
-                                <li class="text-muted fs-7 d-flex align-items-center gap-2"><i data-lucide="check"
-                                        class="text-success" style="width:16px;"></i> Làm chủ các kỹ thuật ngón cơ bản
-                                    và trung cấp.</li>
-                                <li class="text-muted fs-7 d-flex align-items-center gap-2"><i data-lucide="check"
-                                        class="text-success" style="width:16px;"></i> Tự tin đánh solo 1 bài hát guitar
-                                    điện hoàn chỉnh.</li>
-                            </ul>
+                            
+                            <!-- Course Description Box -->
+                            <div class="description-card p-4 rounded-3 mb-4"
+                                style="background-color: #e6f0fa; border-left: 5px solid var(--bs-primary);">
+                                <div class="m-0 fs-7 text-justify" style="color: #274060;" th:utext="${course.description}">
+                                    Mô tả khóa học...
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Panel 2: Course Content -->

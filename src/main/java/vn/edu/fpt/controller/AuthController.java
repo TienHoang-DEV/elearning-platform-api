@@ -34,11 +34,17 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String loginPage(Model model) {
+    public String loginPage(Model model, @RequestParam(value = "authRequired", required = false) String authRequired) {
 
         model.addAttribute(
                 "loginRequest",
                 new LoginRequest());
+        
+        if (authRequired != null) {
+            model.addAttribute("errorMessage", "Bạn cần login để thực hiện được thao tác này");
+            model.addAttribute("toastType", "error");
+        }
+        
         System.out.println("LOGIN HIT");
         return "auth/login";
     }
