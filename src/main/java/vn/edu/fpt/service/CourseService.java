@@ -336,7 +336,7 @@ public class CourseService {
         return dto;
     }
 
-    private String resolveVideoPreviewUrl(String blobName) {
+    public String resolveVideoPreviewUrl(String blobName) {
         if (!hasText(blobName)) {
             return null;
         }
@@ -865,6 +865,6 @@ public class CourseService {
     }
 
     public List<CourseGrantDTO> findAvailableCoursesForUser(Integer userId) {
-        return courseRepository.findAvailableCoursesForUser(userId);
+        return courseRepository.findAvailablePublishedCoursesForUser(userId);
     }
 }

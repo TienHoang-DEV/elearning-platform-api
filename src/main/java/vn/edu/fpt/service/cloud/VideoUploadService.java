@@ -10,6 +10,7 @@ import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.util.AppConstants;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +32,11 @@ public class VideoUploadService {
 
     public Map<String, String> generateCourseIntroUploadUrl(String fileName, Integer courseId, User user) {
         validateCourseIntroUploadPermission(courseId, user);
-        String blobName = normalizeOriginalFileName(fileName);
+        String extension = ".mp4";
+        if (fileName != null && fileName.contains(".")) {
+            extension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
+        }
+        String blobName = UUID.randomUUID().toString() + extension;
         String uploadUrl = azureBlobService.generateUploadSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, blobName);
         return Map.of(
                 "uploadUrl", uploadUrl,
@@ -76,5 +81,21 @@ public class VideoUploadService {
         if (!ownsCourse) {
             throw new AccessDeniedException("Ban khong co quyen tai video cho khoa hoc nay.");
         }
+    }
+
+    public Map<String, String> generateMaterialUploadUrl(String fileName, User user) {
+        if (user == null) {
+            throw new AccessDeniedException("Ban can dang nhap de tai tai lieu.");
+        }
+        String extension = ".pdf";
+        if (fileName != null && fileName.contains(".")) {
+            extension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
+        }
+        String blobName = UUID.randomUUID().toString() + extension;
+        String uploadUrl = azureBlobService.generateUploadSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS, blobName);
+        return Map.of(
+                "uploadUrl", uploadUrl,
+                "blobName", blobName
+        );
     }
 }

@@ -1,4 +1,4 @@
-﻿
+
 
 
 
@@ -378,25 +378,80 @@ function resetUploadProgress(form) {
         text.textContent = '0%';
     }
 }
-
 function initMaterialUploadSubmitLock() {
     const form = document.getElementById('addMaterialForm');
     if (!form) return;
 
-    form.addEventListener('submit', function (event) {
+    form.addEventListener('submit', async function (event) {
         const materialInput = document.getElementById('addMaterialFile');
         if (!validateMaterialFiles(materialInput)) {
             event.preventDefault();
             return;
         }
 
+        const files = materialInput?.files;
+        if (!files || files.length === 0 || form.dataset.uploaded === 'true') {
+            return;
+        }
+
+        event.preventDefault();
+
         if (form.dataset.submitting === 'true') {
-            event.preventDefault();
             return;
         }
 
         form.dataset.submitting = 'true';
-        setUploadModalLock(form, true, 'Dang luu tai lieu...');
+        setUploadModalLock(form, true, 'Đang tải tài liệu lên Azure...');
+
+        try {
+            form.querySelectorAll('.js-material-blob-input').forEach(el => el.remove());
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const requestBody = new FormData();
+                requestBody.append('fileName', file.name);
+
+                const sasResponse = await fetch('/instructor/materials/upload-url', {
+                    method: 'POST',
+                    body: requestBody
+                });
+                if (!sasResponse.ok) {
+                    throw new Error(`Không lấy được URL tải lên cho tệp: ${file.name}`);
+                }
+
+                const uploadInfo = await sasResponse.json();
+                await uploadBlockBlobToAzure(uploadInfo.uploadUrl, file);
+
+                const blobInput = document.createElement('input');
+                blobInput.type = 'hidden';
+                blobInput.name = 'materialBlobNames';
+                blobInput.value = uploadInfo.blobName;
+                blobInput.className = 'js-material-blob-input';
+                form.appendChild(blobInput);
+
+                const nameInput = document.createElement('input');
+                nameInput.type = 'hidden';
+                nameInput.name = 'materialFileNames';
+                nameInput.value = file.name;
+                nameInput.className = 'js-material-blob-input';
+                form.appendChild(nameInput);
+
+                const sizeInput = document.createElement('input');
+                sizeInput.type = 'hidden';
+                sizeInput.name = 'materialFileSizes';
+                sizeInput.value = file.size;
+                sizeInput.className = 'js-material-blob-input';
+                form.appendChild(sizeInput);
+            }
+
+            form.dataset.uploaded = 'true';
+            setUploadModalLock(form, false);
+            form.submit();
+        } catch (error) {
+            alert('Lỗi tải tài liệu: ' + error.message);
+            form.dataset.submitting = 'false';
+            setUploadModalLock(form, false);
+        }
     });
 }
 
