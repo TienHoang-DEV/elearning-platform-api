@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.entity.*;
 import vn.edu.fpt.enums.EnrollmentGrantReason;
+import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.enums.LogAction;
 import vn.edu.fpt.enums.OrderStatus;
 import vn.edu.fpt.enums.PaymentStatus;
@@ -116,6 +117,10 @@ public class EnrollmentService {
         if (sendEmail == null) {
             sendEmail = false;
         }
+        Course courseObj = courseService.findById(courseId);
+        if (!CourseStatus.PUBLISHED.equals(courseObj.getStatus())) {
+            throw new RuntimeException("Chỉ có thể cấp quyền cho khóa học đã được xuất bản");
+        }
         if (repository.existsByUserAndCourse(User.builder().id(userId).build(),
                 Course.builder().id(courseId).build())) {
             throw new RuntimeException(
@@ -170,7 +175,6 @@ public class EnrollmentService {
                 .build();
         repository.save(enrollment);
 
-        Course courseObj = courseService.findById(courseId);
         String courseTitle = courseObj != null ? courseObj.getTitle() : "Khóa học #" + courseId;
         String finalNote = (note == null || note.trim().isEmpty()) ? "NONE" : note.trim();
         SystemLog systemLog = SystemLog.builder()

@@ -865,6 +865,6 @@ public class CourseService {
     }
 
     public List<CourseGrantDTO> findAvailableCoursesForUser(Integer userId) {
-        return courseRepository.findAvailableCoursesForUser(userId);
+        return courseRepository.findAvailablePublishedCoursesForUser(userId);
     }
 }
