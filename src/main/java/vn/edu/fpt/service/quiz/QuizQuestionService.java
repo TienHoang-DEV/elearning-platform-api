@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.dto.quizdto.QuizAnswerDTO;
@@ -11,9 +12,9 @@ import vn.edu.fpt.dto.quizdto.QuizQuestionDTO;
 import vn.edu.fpt.entity.Quiz;
 import vn.edu.fpt.entity.QuizAnswer;
 import vn.edu.fpt.entity.QuizQuestion;
+import vn.edu.fpt.entity.User;
 import vn.edu.fpt.mapper.DtoMapper;
 import vn.edu.fpt.repository.QuizQuestionRepository;
-import vn.edu.fpt.repository.QuizRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +24,15 @@ import java.util.Optional;
 @Transactional
 public class QuizQuestionService {
     private final QuizQuestionRepository repository;
-    private final QuizRepository quizRepository;
     private final DtoMapper dtoMapper;
+    private final QuizService quizService;
+
     public QuizQuestionService(QuizQuestionRepository quizQuestionRepository,
-                               QuizRepository quizRepository,
-                               DtoMapper dtoMapper) {
+                               DtoMapper dtoMapper,
+                               QuizService quizService) {
         this.repository = quizQuestionRepository;
-        this.quizRepository = quizRepository;
         this.dtoMapper = dtoMapper;
+        this.quizService = quizService;
     }
 
     public List<QuizQuestion> findAll() {
@@ -53,10 +55,8 @@ public class QuizQuestionService {
         return repository.existsById(id);
     }
 
-    public void createQuestion(QuizQuestionDTO dto, Integer quizId) {
-
-        Quiz quiz = quizRepository.findById(quizId)
-                .orElseThrow();
+    public void createQuestion(QuizQuestionDTO dto, Integer quizId, User instructor) {
+        Quiz quiz = quizService.getInstructorOwnedQuiz(quizId, instructor);
 
         Integer maxPosition =
                 repository.findMaxPositionByQuizId(quizId);
@@ -90,11 +90,12 @@ public class QuizQuestionService {
         repository.save(question);
     }
 
-    public void updateQuestion(QuizQuestionDTO dto) {
+    public void updateQuestion(QuizQuestionDTO dto, Integer quizId, User instructor) {
 
         QuizQuestion question = repository
                 .findById(dto.getId())
                 .orElseThrow();
+        requireQuestionInOwnedQuiz(question, quizId, instructor);
 
         question.setQuestionText(dto.getQuestionText());
         question.setQuestionType(dto.getQuestionType());
@@ -120,16 +121,17 @@ public class QuizQuestionService {
         repository.save(question);
     }
 
-    public void saveQuestion(QuizQuestionDTO quizQuestionDto, Integer quizId){
+    public void saveQuestion(QuizQuestionDTO quizQuestionDto, Integer quizId, User instructor){
         if(quizQuestionDto.getId() == null){
-            createQuestion(quizQuestionDto, quizId);
+            createQuestion(quizQuestionDto, quizId, instructor);
         }
         else{
-            updateQuestion(quizQuestionDto);
+            updateQuestion(quizQuestionDto, quizId, instructor);
         }
     }
 
-    public Page<QuizQuestionDTO> getQuestionsByQuizId(Integer quizId, int page, int size) {
+    public Page<QuizQuestionDTO> getQuestionsByQuizId(Integer quizId, int page, int size, User instructor) {
+        quizService.getInstructorOwnedQuiz(quizId, instructor);
 
         Pageable pageable = PageRequest.of(page, size);
 
@@ -148,7 +150,7 @@ public class QuizQuestionService {
         );
     }
 
-    public void deleteQuestion(Integer questionId){
+    public void deleteQuestion(Integer questionId, Integer quizId, User instructor){
 
         QuizQuestion question =
                 repository.findQuizQuestionById(questionId);
@@ -156,19 +158,20 @@ public class QuizQuestionService {
         if(question == null){
             return;
         }
+        requireQuestionInOwnedQuiz(question, quizId, instructor);
 
-        Integer quizId = question.getQuiz().getId();
+        Integer ownedQuizId = question.getQuiz().getId();
         Integer position = question.getPosition();
 
         repository.delete(question);
 
         repository.decreasePositionsAfter(
-                quizId,
+                ownedQuizId,
                 position
         );
     }
 
-    public Integer copyQuestion(Integer questionId){
+    public Integer copyQuestion(Integer questionId, Integer quizId, User instructor){
 
         QuizQuestion original =
                 repository.findQuizQuestionById(questionId);
@@ -176,6 +179,7 @@ public class QuizQuestionService {
         if(original == null){
             return null;
         }
+        requireQuestionInOwnedQuiz(original, quizId, instructor);
 
         Integer newPosition =
                 original.getPosition() + 1;
@@ -211,13 +215,25 @@ public class QuizQuestionService {
         return newPosition;
     }
 
-    public QuizQuestionDTO findQuizQuestionById(Integer quizQuestionId){
-        return dtoMapper.toQuizQuestionDto(repository.findQuizQuestionById(quizQuestionId));
+    public QuizQuestionDTO findQuizQuestionById(Integer quizQuestionId, Integer quizId, User instructor){
+        QuizQuestion question = repository.findQuizQuestionById(quizQuestionId);
+        if (question == null) {
+            return null;
+        }
+        requireQuestionInOwnedQuiz(question, quizId, instructor);
+        return dtoMapper.toQuizQuestionDto(question);
     }
 
     public Integer getTotalQuestionsByQuizId(Integer quizId){
         return repository.countByQuizId(quizId);
     }
 
+    private void requireQuestionInOwnedQuiz(QuizQuestion question, Integer quizId, User instructor) {
+        Integer actualQuizId = question.getQuiz().getId();
+        if (!actualQuizId.equals(quizId)) {
+            throw new AccessDeniedException("Câu hỏi không thuộc quiz được yêu cầu.");
+        }
+        quizService.getInstructorOwnedQuiz(actualQuizId, instructor);
+    }
 
 }

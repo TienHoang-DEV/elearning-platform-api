@@ -19,7 +19,17 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer> {
             """)
     List<Quiz> findByLessonId(@Param("id") Integer lessonId);
 
-    Quiz findQuizById(Integer quizId);
+
+    @Query("""
+    SELECT q
+    FROM Quiz q
+    JOIN FETCH q.lesson l
+    JOIN FETCH l.courseSection cs
+    JOIN FETCH cs.course c
+    JOIN FETCH c.instructor i
+    WHERE q.id = :quizId
+    """)
+    Quiz findQuizById(@Param("quizId") Integer quizId);
 
     @Query("""
     SELECT q

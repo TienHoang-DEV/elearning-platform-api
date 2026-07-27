@@ -13,6 +13,7 @@ import vn.edu.fpt.dto.quizdto.QuizImportRowDto;
 import vn.edu.fpt.entity.Quiz;
 import vn.edu.fpt.entity.QuizAnswer;
 import vn.edu.fpt.entity.QuizQuestion;
+import vn.edu.fpt.entity.User;
 import vn.edu.fpt.repository.QuizRepository;
 
 import java.util.*;
@@ -26,8 +27,9 @@ public class QuizImportService {
     private static final int MAX_ANSWER = 10;
 
     private final QuizRepository quizRepository;
+    private final QuizService quizService;
 
-    public void importQuiz(MultipartFile file, Integer quizId, String mode) {
+    public void importQuiz(MultipartFile file, Integer quizId, String mode, User instructor) {
 
         validateFile(file);
 
@@ -35,7 +37,7 @@ public class QuizImportService {
 
         validateRows(rows);
 
-        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new RuntimeException("Quiz not found"));
+        Quiz quiz = quizService.getInstructorOwnedQuiz(quizId, instructor);
 
         if ("OVERWRITE".equals(mode)) {
 
