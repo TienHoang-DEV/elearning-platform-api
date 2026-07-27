@@ -23,7 +23,7 @@ public class MyCourseService {
 
     public StudentLearningDto getLearningData(User user, String filter, int page) {
         List<Enrollment> enrollments = enrollmentRepository.findByUser(user);
-        
+
         List<EnrollmentDto> enrollmentDtos = new ArrayList<>();
         for (Enrollment enrollment : enrollments) {
             EnrollmentDto dto = dtoMapper.toEnrollmentDto(enrollment);
@@ -34,18 +34,18 @@ public class MyCourseService {
             }
             enrollmentDtos.add(dto);
         }
-        
+
         int pageSize = 6;
         int totalItems = enrollmentDtos.size();
         int totalPages = (int) Math.ceil((double) totalItems / pageSize);
         if (totalPages == 0) {
             totalPages = 1;
         }
-        
+
         int currentPage = Math.max(1, Math.min(page, totalPages));
         int fromIndex = (currentPage - 1) * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, totalItems);
-        
+
         List<EnrollmentDto> pagedEnrollments = new ArrayList<>();
         if (fromIndex < totalItems) {
             pagedEnrollments = enrollmentDtos.subList(fromIndex, toIndex);

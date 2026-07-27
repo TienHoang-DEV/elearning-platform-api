@@ -107,9 +107,13 @@ public class CourseController {
                     || user.getRole() == vn.edu.fpt.enums.RoleType.ADMIN) {
                 hasAccess = true;
             } else {
-                Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
-                if (enrolledCourseIds.contains(id)) {
-                    hasAccess = true;
+                if (CourseStatus.DRAFT.equals(courseDto.getStatus())) {
+                    hasAccess = false;
+                } else {
+                    Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
+                    if (enrolledCourseIds.contains(id)) {
+                        hasAccess = true;
+                    }
                 }
             }
         }

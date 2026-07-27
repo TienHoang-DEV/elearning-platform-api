@@ -457,8 +457,12 @@ public class CourseService {
     }
 
     public Course findByCourseIdAndUserId(Integer courseId, Integer userId) {
-        return courseRepository.findByCourseIdAndUserId(courseId, userId)
+        Course course = courseRepository.findByCourseIdAndUserId(courseId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
+        if (CourseStatus.DRAFT.equals(course.getStatus())) {
+            throw new ResourceNotFoundException("Khóa học không tồn tại hoặc chưa được xuất bản.");
+        }
+        return course;
     }
 
     public CourseSubmitReviewDto getSubmitReview(Integer courseId, User user, boolean acceptedPolicy) {
