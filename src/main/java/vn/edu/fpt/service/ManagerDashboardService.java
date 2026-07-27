@@ -109,24 +109,26 @@ public class ManagerDashboardService {
     }
 
     public MonthlyRevenueForManagerDTO getMonthlyRevenueForManager() {
-        MonthlyRevenueForManagerDTO monthlyRevenueForManagerDTO;
         LocalDate today = LocalDate.now();
         LocalDate startDateOfMonth = today.withDayOfMonth(1);
-        monthlyRevenueForManagerDTO = paymentRepository.getMonthlyRevenueTotal(startDateOfMonth, today);
+        MonthlyRevenueForManagerDTO monthlyRevenueForManagerDTO = paymentRepository.getMonthlyRevenueTotal(startDateOfMonth, today);
         if (monthlyRevenueForManagerDTO == null) {
             return new MonthlyRevenueForManagerDTO(BigDecimal.ZERO);
         }
-        if (monthlyRevenueForManagerDTO != null && monthlyRevenueForManagerDTO.getMonthlyRevenue().compareTo(BigDecimal.ZERO) > 0) {
+        if (monthlyRevenueForManagerDTO.getMonthlyRevenue() == null) {
+            monthlyRevenueForManagerDTO.setMonthlyRevenue(BigDecimal.ZERO);
+        }
+
+        BigDecimal totalRevenue = monthlyRevenueForManagerDTO.getMonthlyRevenue();
+        BigDecimal totalRevenuePlatform = totalRevenue.multiply(BigDecimal.valueOf(AppConstants.PLATFORM_FEE));
+        BigDecimal totalRevenueInstructor = totalRevenue.subtract(totalRevenuePlatform);
+        monthlyRevenueForManagerDTO.setInstructorRevenue(totalRevenueInstructor);
+        monthlyRevenueForManagerDTO.setPlatformRevenue(totalRevenuePlatform);
+
+        if (totalRevenue.compareTo(BigDecimal.ZERO) > 0) {
             // nếu lấy được doanh thu tháng này và phần doanh thu tháng này lớn hơn 0 thì có thể tính doanh thu theo từng tuần của tháng này, tính từ đầu tháng.
 
             // tính tổng doanh thu của tất cả giảng viên
-            BigDecimal totalRevenue = monthlyRevenueForManagerDTO.getMonthlyRevenue();
-            BigDecimal totalRevenuePlatform = totalRevenue.multiply(BigDecimal.valueOf(AppConstants.PLATFORM_FEE));
-            BigDecimal totalRevenueInstructor = totalRevenue.subtract(totalRevenuePlatform);
-            monthlyRevenueForManagerDTO.setInstructorRevenue(totalRevenueInstructor);
-            monthlyRevenueForManagerDTO.setMonthlyRevenue(totalRevenue);
-            monthlyRevenueForManagerDTO.setPlatformRevenue(totalRevenuePlatform);
-
             Map<Integer, BigDecimal> revenueByPerWeek = monthlyRevenueForManagerDTO.getRevenueByPerWeek();
             if (revenueByPerWeek == null) {
                 revenueByPerWeek = new HashMap<>();
@@ -160,7 +162,7 @@ public class ManagerDashboardService {
         LocalDate startDateOfLastMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
         LocalDate endDateOfLastMonth = startDateOfLastMonth.withDayOfMonth(startDateOfLastMonth.lengthOfMonth());
         MonthlyRevenueForManagerDTO revenueLastMonthDto = paymentRepository.getMonthlyRevenueTotal(startDateOfLastMonth, endDateOfLastMonth);
-        BigDecimal revenueLastMonth = revenueLastMonthDto.getMonthlyRevenue();
+        BigDecimal revenueLastMonth = revenueLastMonthDto == null ? BigDecimal.ZERO : revenueLastMonthDto.getMonthlyRevenue();
         if  (revenueLastMonth == null || revenueLastMonth.compareTo(BigDecimal.ZERO) <= 0) {
             if (monthlyRevenue.compareTo(BigDecimal.ZERO) == 0) {
                 return 0D;

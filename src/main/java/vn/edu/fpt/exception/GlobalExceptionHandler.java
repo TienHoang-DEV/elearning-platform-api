@@ -8,6 +8,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -106,15 +107,10 @@ public class GlobalExceptionHandler {
             return new ResponseEntity<>(body, HttpStatus.CONFLICT);
         }
 
-        // Web request: redirect về trang trước với flash message
         String referer = request.getHeader("Referer");
-        org.springframework.web.servlet.view.RedirectView redirectView =
-                new org.springframework.web.servlet.view.RedirectView(
-                        referer != null && !referer.isBlank() ? referer : "/");
-        // Dùng ModelAndView để gắn flash attribute không khả thi trực tiếp ở đây,
-        // nên forward về trang detail với param lỗi
-        ModelAndView mav = new ModelAndView("redirect:" + (referer != null && !referer.isBlank() ? referer : "/"));
-        return mav;
+        org.springframework.web.servlet.support.RequestContextUtils.getOutputFlashMap(request)
+                .put("errorMessage", "Dữ liệu khóa học vừa được cập nhật hoặc phê duyệt bởi quản lý khác.");
+        return new ModelAndView("redirect:" + (referer != null && !referer.isBlank() ? referer : "/manager/course/list"));
     }
 
     /**
@@ -135,9 +131,10 @@ public class GlobalExceptionHandler {
             return new ResponseEntity<>(body, HttpStatus.CONFLICT);
         }
 
-        // Web request: redirect về trang trước
         String referer = request.getHeader("Referer");
-        return new ModelAndView("redirect:" + (referer != null && !referer.isBlank() ? referer : "/"));
+        org.springframework.web.servlet.support.RequestContextUtils.getOutputFlashMap(request)
+                .put("errorMessage", ex.getMessage());
+        return new ModelAndView("redirect:" + (referer != null && !referer.isBlank() ? referer : "/manager/course/list"));
     }
 
     @ExceptionHandler(Exception.class)
