@@ -1,4 +1,8 @@
 document.addEventListener("click", function (e) {
+    // If learning.js is active (embedded in the learning page), let it handle the clicks
+    if (document.getElementById("quiz-content-container")) {
+        return;
+    }
     const toggleBtn = e.target.closest("#toggleQuizSidebarBtn, .quiz-toggle-btn");
     if (toggleBtn) {
         const container = toggleBtn.closest(".quiz-container-layout");

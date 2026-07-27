@@ -116,7 +116,7 @@ function initTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const group = this.dataset.tabGroup;
-            const tab   = this.dataset.tab;
+            const tab = this.dataset.tab;
             activateTab(group, tab);
         });
     });
@@ -136,7 +136,7 @@ function initTabs() {
     document.querySelectorAll('.media-tab').forEach(tab => {
         tab.addEventListener('click', function () {
             const group = this.dataset.group;
-            const type  = this.dataset.type;
+            const type = this.dataset.type;
 
             document.querySelectorAll(`.media-tab[data-group="${group}"]`)
                 .forEach(t => t.classList.toggle('active', t === this));
@@ -152,7 +152,7 @@ function initTabs() {
 
     document.querySelectorAll('.media-tab.active').forEach(tab => {
         const group = tab.dataset.group;
-        const type  = tab.dataset.type;
+        const type = tab.dataset.type;
         document.querySelectorAll(`.media-content[data-group="${group}"]`)
             .forEach(c => {
                 c.style.display = c.dataset.type === type ? '' : 'none';
@@ -229,10 +229,10 @@ function initRichEditors() {
     // Sync hidden inputs before form submit
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', function () {
-            syncRichEditor('bioEditor',          'bioHidden');
-            syncRichEditor('courseDescEditor',   'descHidden');
-            syncRichEditor('outcomeEditor',      'outcomeHidden');
-            syncRichEditor('requirementEditor',  'requirementHidden');
+            syncRichEditor('bioEditor', 'bioHidden');
+            syncRichEditor('courseDescEditor', 'descHidden');
+            syncRichEditor('outcomeEditor', 'outcomeHidden');
+            syncRichEditor('requirementEditor', 'requirementHidden');
         });
     });
 }
@@ -321,6 +321,17 @@ function initLessonUploadSubmitLock() {
             setUploadModalLock(form, true);
             if (selectedVideo && blobInput && form.dataset.directUploaded !== 'true') {
                 event.preventDefault();
+
+                const MAX_VIDEO_SIZE_MB = 500;
+                const MAX_VIDEO_SIZE_BYTES = MAX_VIDEO_SIZE_MB * 1024 * 1024;
+                if (selectedVideo.size > MAX_VIDEO_SIZE_BYTES) {
+                    const actualSizeMB = (selectedVideo.size / 1024 / 1024).toFixed(1);
+                    showAppToast(`Video vượt quá giới hạn cho phép! Kích thước tối đa: ${MAX_VIDEO_SIZE_MB} MB. File của bạn: ${actualSizeMB} MB. Vui lòng chọn video nhỏ hơn.`, 'error');
+                    form.dataset.submitting = 'false';
+                    setUploadModalLock(form, false);
+                    return;
+                }
+
                 try {
                     const sectionId = resolveLessonFormSectionId(form);
                     const progress = createUploadProgressController(form);
@@ -405,6 +416,8 @@ function initMaterialUploadSubmitLock() {
 
         try {
             form.querySelectorAll('.js-material-blob-input').forEach(el => el.remove());
+            const progress = createUploadProgressController(form);
+            progress.update(0);
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -420,7 +433,13 @@ function initMaterialUploadSubmitLock() {
                 }
 
                 const uploadInfo = await sasResponse.json();
-                await uploadBlockBlobToAzure(uploadInfo.uploadUrl, file);
+                
+                // Tải từng chặng + Commit XML BlockList + Tiến trình Real-time
+                await uploadBlockBlobToAzure(uploadInfo.uploadUrl, file, function(percent) {
+                    // Tính phần trăm tổng cho tất cả các file nếu chọn nhiều file
+                    const overallPercent = ((i + (percent / 100)) / files.length) * 100;
+                    progress.update(overallPercent);
+                });
 
                 const blobInput = document.createElement('input');
                 blobInput.type = 'hidden';
@@ -444,6 +463,7 @@ function initMaterialUploadSubmitLock() {
                 form.appendChild(sizeInput);
             }
 
+            progress.update(100);
             form.dataset.uploaded = 'true';
             setUploadModalLock(form, false);
             form.submit();
@@ -637,7 +657,7 @@ function appendAzureSasParams(uploadUrl, params) {
 }
 
 function initAvatarPreview() {
-    const input   = document.getElementById('avatarInput');
+    const input = document.getElementById('avatarInput');
     const preview = document.getElementById('avatarPreview');
     if (!input || !preview) return;
 
@@ -678,10 +698,10 @@ function initThumbnailPreview() {
 
 function initProfilePreview() {
     const firstNameInput = document.getElementById('firstName') || document.querySelector('[name="firstName"]');
-    const lastNameInput  = document.getElementById('lastName')  || document.querySelector('[name="lastName"]');
-    const previewName    = document.getElementById('previewName');
-    const bioEditor      = document.getElementById('bioEditor');
-    const previewBio     = document.getElementById('previewBio');
+    const lastNameInput = document.getElementById('lastName') || document.querySelector('[name="lastName"]');
+    const previewName = document.getElementById('previewName');
+    const bioEditor = document.getElementById('bioEditor');
+    const previewBio = document.getElementById('previewBio');
 
     if (firstNameInput && lastNameInput && previewName) {
         const updateName = () => {
@@ -717,7 +737,7 @@ function initCoursePreview() {
 }
 
 function initPricing() {
-    const priceInput   = document.getElementById('priceInput');
+    const priceInput = document.getElementById('priceInput');
     const priceDisplay = document.getElementById('priceDisplay');
     if (!priceInput || !priceDisplay) return;
 
@@ -727,7 +747,7 @@ function initPricing() {
     });
 }
 
-function initVideoUpload(){
+function initVideoUpload() {
     initVideoUploadById(
         'videoFileInput',
         'videoPreviewContainer',
@@ -736,7 +756,7 @@ function initVideoUpload(){
 }
 
 
-function initEditVideoUpload(){
+function initEditVideoUpload() {
     initVideoUploadById(
         'editVideoFileInput',
         'editVideoPreviewContainer',
@@ -901,9 +921,9 @@ function updateCurriculumPreview() {
     }
     let html = '';
     sections.forEach((sec, i) => {
-        const title   = sec.querySelector('.section-title')?.textContent || '';
+        const title = sec.querySelector('.section-title')?.textContent || '';
         const lessons = sec.querySelectorAll('.lesson-title');
-        html += `<div style="margin-bottom:10px;"><strong>Chương ${i+1}: ${title}</strong>`;
+        html += `<div style="margin-bottom:10px;"><strong>Chương ${i + 1}: ${title}</strong>`;
         if (lessons.length) {
             html += '<ul style="margin:4px 0 0 16px;">';
             lessons.forEach(l => { html += `<li style="font-size:13px;color:var(--text-muted);">${l.textContent}</li>`; });
@@ -1042,7 +1062,7 @@ function renderExistingMaterials(materials, lessonId, courseId) {
     }
 
     const iconMap = {
-        pdf:  { icon: 'ti-file-type-pdf', color: '#E24B4A' },
+        pdf: { icon: 'ti-file-type-pdf', color: '#E24B4A' },
         docx: { icon: 'ti-file-type-doc', color: '#185FA5' },
         pptx: { icon: 'ti-file-type-ppt', color: '#D85A30' },
         xlsx: { icon: 'ti-file-type-xls', color: '#3B6D11' },
@@ -1247,23 +1267,23 @@ function initWizardButtons() {
 /* =====================
    MATERIAL FILE PREVIEW
 ===================== */
-function initMaterialPreview(){
+function initMaterialPreview() {
     initMaterialPreviewByID(
         "MaterialInput",
         "materialList"
     );
 }
 
-function initEditMaterialPreview(){
+function initEditMaterialPreview() {
     initMaterialPreviewByID(
         "editMaterialInput",
         "editMaterialList"
     );
 }
 function initMaterialPreviewByID(inputId, listId) {
-    const input     = document.getElementById(inputId);
-    const list      = document.getElementById(listId);
-    const dt        = new DataTransfer(); // giá»¯ file trong input tháº­t
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(listId);
+    const dt = new DataTransfer(); // giá»¯ file trong input tháº­t
 
     if (!input || !list) return;
 
@@ -1283,7 +1303,7 @@ function initMaterialPreviewByID(inputId, listId) {
         if (!dt.files.length) { list.innerHTML = ''; return; }
 
         const iconMap = {
-            pdf:  { icon: 'ti-file-type-pdf', color: '#E24B4A' },
+            pdf: { icon: 'ti-file-type-pdf', color: '#E24B4A' },
             docx: { icon: 'ti-file-type-doc', color: '#185FA5' },
             pptx: { icon: 'ti-file-type-ppt', color: '#D85A30' },
             xlsx: { icon: 'ti-file-type-xls', color: '#3B6D11' },
@@ -1291,8 +1311,8 @@ function initMaterialPreviewByID(inputId, listId) {
 
         list.innerHTML = Array.from(dt.files).map((file, i) => {
             const ext = file.name.split('.').pop().toLowerCase();
-            const m   = iconMap[ext] || { icon: 'ti-file', color: '#888' };
-            const mb  = (file.size / 1024 / 1024).toFixed(1);
+            const m = iconMap[ext] || { icon: 'ti-file', color: '#888' };
+            const mb = (file.size / 1024 / 1024).toFixed(1);
             return `
             <div style="display:flex; align-items:center; gap:10px; margin-top:8px; padding:10px 12px; border:0.5px solid var(--border-color); border-radius:8px;">
                 <i class="ti ${m.icon}" style="font-size:20px; color:${m.color}; flex-shrink:0;"></i>
@@ -1308,20 +1328,20 @@ function initMaterialPreviewByID(inputId, listId) {
         }).join('');
     }
 
-    window.removeMaterial = function(index) {
+    window.removeMaterial = function (index) {
         dt.items.remove(index);
         input.files = dt.files; // cáº­p nháº­t láº¡i input
         renderList();
     };
 }
 
-function appendSourceParam(url, source){
+function appendSourceParam(url, source) {
     const sep = url.includes('?') ? '&' : '?';
     return url + sep + 'source=' + encodeURIComponent(source || 'create');
 }
 function openAddMaterialModal(dataset) {
     const form = document.getElementById('addMaterialForm');
-   const source = dataset.source || 'create';
+    const source = dataset.source || 'create';
     if (!form || !dataset.lessonId) {
         alert('Không tìm thấy thông tin bài giảng!');
         return;
@@ -1368,5 +1388,40 @@ function initToastNotifications() {
 
 function escapeHtml(str) {
     if (!str) return '';
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function showAppToast(message, type = 'error') {
+    let stack = document.querySelector('.toast-stack');
+    if (!stack) {
+        stack = document.createElement('div');
+        stack.className = 'toast-stack';
+        stack.setAttribute('aria-live', 'polite');
+        stack.setAttribute('aria-atomic', 'true');
+        document.body.appendChild(stack);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `app-toast toast-${type}`;
+    
+    const iconClass = type === 'success' ? 'bi-check-circle' : (type === 'warning' ? 'bi-exclamation-triangle' : 'bi-exclamation-circle');
+    
+    toast.innerHTML = `
+        <i class="bi ${iconClass}"></i>
+        <span>${escapeHtml(message)}</span>
+        <button type="button" class="toast-close" aria-label="Đóng">&times;</button>
+    `;
+
+    stack.appendChild(toast);
+
+    const closeBtn = toast.querySelector('.toast-close');
+    const hide = () => {
+        toast.classList.add('toast-hide');
+        window.setTimeout(() => toast.remove(), 180);
+    };
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', hide);
+    }
+    window.setTimeout(hide, 4200);
 }
