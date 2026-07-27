@@ -49,10 +49,6 @@ public final class AppConstants {
 
     public static final long PAYMENT_LAST_SYNC_SKIP_INTERVAL_MINUTES = 5;
 
-    public static final int PAYMENT_WEBHOOK_RETRY_ATTEMPTS = 3;
-
-    public static final long FAILED_WEBHOOK_CHECK_INTERVAL_MINUTES = 10;
-
     public static final long PAYMENT_SYNC_TIMESTAMP_INTERVAL_MINUTES = 5;
 
     public static final double PERCENT_COMPLETED_LESSON_TO_COMMENT = 30.0;

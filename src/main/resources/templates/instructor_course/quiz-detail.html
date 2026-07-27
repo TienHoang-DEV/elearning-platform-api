@@ -70,8 +70,8 @@
                     <div class="meta-icon-box bg-brand-light brand-color"><i data-lucide="clock"></i></div>
                     <div>
                         <span class="fs-8 text-muted d-block fw-medium text-uppercase">Thời gian</span>
-                        <span class="fw-bold text-dark font-heading fs-6"><span
-                                th:text="${quiz.timeLimitMinutes}">0</span> phút</span>
+                        <span class="fw-bold text-dark font-heading fs-6"
+                              th:text="${quiz.timeLimitMinutes != null ? quiz.timeLimitMinutes + ' phút' : 'Không giới hạn'}">0 phút</span>
                     </div>
                 </div>
                 <div class="meta-spec-card p-3 rounded-3 border bg-light-subtle d-flex align-items-center gap-3">

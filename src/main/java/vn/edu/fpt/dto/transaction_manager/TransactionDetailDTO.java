@@ -29,11 +29,9 @@ public class TransactionDetailDTO {
     private LocalDateTime paidAt;
     private String gateWay;
     private String paymentUrl;
-    private LocalDateTime webhookReceivedAt;
-    private Boolean webhookReceive;
     List<CourseDTO> courses;
 
-    public TransactionDetailDTO(Integer id, String customerName, String customerEmail, BigDecimal amount, String description, String gateWayOrderCode, PaymentStatus status, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime expiredAt, LocalDateTime paidAt, String gateWay, String paymentUrl, LocalDateTime webhookReceivedAt, Boolean webhookReceive, List<CourseDTO> courses) {
+    public TransactionDetailDTO(Integer id, String customerName, String customerEmail, BigDecimal amount, String description, String gateWayOrderCode, PaymentStatus status, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime expiredAt, LocalDateTime paidAt, String gateWay, String paymentUrl, List<CourseDTO> courses) {
         this.id = id;
         this.customerName = customerName;
         this.customerEmail = customerEmail;
@@ -47,8 +45,6 @@ public class TransactionDetailDTO {
         this.paidAt = paidAt;
         this.gateWay = gateWay;
         this.paymentUrl = paymentUrl;
-        this.webhookReceivedAt = webhookReceivedAt;
-        this.webhookReceive = webhookReceive;
         this.courses = courses;
     }
 
