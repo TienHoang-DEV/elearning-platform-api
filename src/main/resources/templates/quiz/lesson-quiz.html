@@ -87,6 +87,14 @@
                             <div class="quiz-badges">
                                 <span class="quiz-points">Phần trăm điểm tối thiểu để đạt: <strong th:text="${page.activeQuiz.passScorePercent != null ? page.activeQuiz.passScorePercent + '%' : '---'}">---</strong></span>
                                 <span class="quiz-points quiz-points-soft">Số câu: <strong th:text="${page.activeQuiz.questionCount}">0</strong></span>
+                                <span class="quiz-points quiz-points-soft"
+                                      th:if="${page.activeQuiz.timeLimitMinutes != null}">
+                                    Thời gian: <strong><span class="quiz-countdown"
+                                                            th:attr="data-time-limit-minutes=${page.activeQuiz.timeLimitMinutes}"
+                                                            th:text="${page.activeQuiz.timeLimitMinutes + ':00'}">15:00</span></strong>
+                                </span>
+                                <span class="quiz-points quiz-points-soft"
+                                      th:unless="${page.activeQuiz.timeLimitMinutes != null}">Không giới hạn thời gian</span>
                             </div>
                         </div>
 
@@ -183,7 +191,8 @@
                         <!-- Chế độ làm bài: hiện khi chưa có attempt hoặc người học bấm làm lại -->
                         <form th:unless="${page.activeQuiz.showingResult}"
                               th:action="@{/quiz/submit/{quizId}(quizId=${page.activeQuiz.id})}"
-                              method="POST">
+                              method="POST"
+                              th:attr="data-time-limit-minutes=${page.activeQuiz.timeLimitMinutes}">
                             <!-- Dữ liệu bind vào QuizSubmitDTO ở controller -->
                             <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                             <input type="hidden" name="quizId" th:value="${page.activeQuiz.id}" />

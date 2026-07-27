@@ -144,7 +144,7 @@
                                         <span class="badge rounded-pill" th:classappend="${q.status == 'PUBLISHED' ? 'bg-success-light text-success' : (q.status == 'DRAFT' ? 'bg-warning-light text-warning' : 'bg-secondary-light text-secondary')}" th:text="${q.status == 'PUBLISHED' ? 'Đã xuất bản' : (q.status == 'DRAFT' ? 'Bản nháp' : 'Lưu trữ')}">Status</span>
                                     </div>
                                     <div class="quiz-meta-inline-info d-flex gap-3 text-muted fs-7">
-                                        <span><i data-lucide="clock" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-top:-2px;"></i> <span th:text="${q.timeLimitMinutes}">15</span> phút</span>
+                                        <span><i data-lucide="clock" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-top:-2px;"></i> <span th:text="${q.timeLimitMinutes != null ? q.timeLimitMinutes + ' phút' : 'Không giới hạn'}">15 phút</span></span>
                                         <span><i data-lucide="award" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-top:-2px;"></i> Đạt: <span th:text="${q.passScorePercent}">80</span>%</span>
                                     </div>
                                 </div>
@@ -276,9 +276,15 @@
                             <textarea th:field="*{description}" class="form-control coupon-form-input py-2" rows="3" placeholder="Nhập hướng dẫn làm bài dành cho học viên..."></textarea>
                         </div>
                         <div class="col-md-6 col-12">
-                            <label class="form-label font-heading fw-semibold text-dark fs-7">Thời Gian Làm Bài <span class="text-danger">*</span></label>
+                            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                                <label class="form-label font-heading fw-semibold text-dark fs-7 m-0">Thời Gian Làm Bài</label>
+                                <label class="d-flex align-items-center gap-2 fs-8 fw-semibold text-muted m-0">
+                                    <input type="checkbox" class="form-check-input quiz-time-toggle" data-target="#createQuizTimeLimit">
+                                    Giới hạn thời gian
+                                </label>
+                            </div>
                             <div class="quiz-input-isolated-wrapper">
-                                <input type="number" th:field="*{timeLimitMinutes}" class="form-control coupon-form-input py-2.5" min="1" required>
+                                <input type="number" th:field="*{timeLimitMinutes}" id="createQuizTimeLimit" class="form-control coupon-form-input py-2.5 quiz-time-input" min="1" placeholder="Ví dụ: 15" disabled>
                                 <span class="quiz-unit-label">phút</span>
                             </div>
                         </div>
@@ -503,6 +509,26 @@
                 });
         }
     }
+
+    document.addEventListener("change", function (event) {
+        const toggle = event.target.closest(".quiz-time-toggle");
+        if (!toggle) {
+            return;
+        }
+
+        const input = document.querySelector(toggle.dataset.target);
+        if (!input) {
+            return;
+        }
+
+        input.disabled = !toggle.checked;
+        input.required = toggle.checked;
+        if (!toggle.checked) {
+            input.value = "";
+        } else {
+            input.focus();
+        }
+    });
 </script>
 </body>
 </html>

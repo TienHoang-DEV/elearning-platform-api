@@ -87,8 +87,8 @@
                     <div class="meta-icon-box bg-brand-light brand-color"><i data-lucide="clock"></i></div>
                     <div>
                         <span class="fs-8 text-muted d-block fw-medium text-uppercase">Thời gian</span>
-                        <span class="fw-bold text-dark font-heading fs-6"><span
-                                th:text="${quiz.timeLimitMinutes}">0</span> phút</span>
+                        <span class="fw-bold text-dark font-heading fs-6"
+                              th:text="${quiz.timeLimitMinutes != null ? quiz.timeLimitMinutes + ' phút' : 'Không giới hạn'}">0 phút</span>
                     </div>
                 </div>
                 <div class="meta-spec-card p-3 rounded-3 border bg-light-subtle d-flex align-items-center gap-3">
@@ -347,14 +347,23 @@
 
                         <div class="row g-3">
                             <div class="col-6">
-                                <label class="form-label text-dark fw-semibold fs-7 font-heading mb-1.5">Thời lượng
-                                    (Phút)</label>
+                                <div class="d-flex align-items-center justify-content-between gap-2 mb-1.5">
+                                    <label class="form-label text-dark fw-semibold fs-7 font-heading m-0">Thời lượng
+                                        (Phút)</label>
+                                    <label class="d-flex align-items-center gap-2 fs-8 fw-semibold text-muted m-0">
+                                        <input type="checkbox" class="form-check-input quiz-time-toggle" data-target="#editQuizTimeLimit"
+                                               th:checked="${quiz.timeLimitMinutes != null}">
+                                        Giới hạn
+                                    </label>
+                                </div>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0 text-muted"><i
                                             data-lucide="clock" style="width:16px;"></i></span>
                                     <input type="number" class="form-control border-start-0 fs-7 ps-1"
-                                           name="timeLimitMinutes" th:value="${quiz.timeLimitMinutes}" min="1"
-                                           placeholder="Ví dụ: 15" required>
+                                           id="editQuizTimeLimit" name="timeLimitMinutes" th:value="${quiz.timeLimitMinutes}" min="1"
+                                           placeholder="Ví dụ: 15"
+                                           th:disabled="${quiz.timeLimitMinutes == null}"
+                                           th:required="${quiz.timeLimitMinutes != null}">
                                 </div>
                             </div>
 
@@ -578,6 +587,24 @@
         if (typeof initTooltips === "function") {
             initTooltips();
         }
+
+        document.querySelectorAll(".quiz-time-toggle").forEach(function (toggle) {
+            const input = document.querySelector(toggle.dataset.target);
+            if (!input) {
+                return;
+            }
+
+            function syncTimeInput() {
+                input.disabled = !toggle.checked;
+                input.required = toggle.checked;
+                if (!toggle.checked) {
+                    input.value = "";
+                }
+            }
+
+            syncTimeInput();
+            toggle.addEventListener("change", syncTimeInput);
+        });
 
         // 2. Đọc các Flash Attributes từ Spring Boot (Đã bọc comment ẩn chống báo đỏ IDE)
         const hasToastMessage = /*[[${toastMessage != null}]]*/ false;

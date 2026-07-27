@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,14 @@ public class QuizViewDTO {
 
     public int getQuestionCount() {
         return questions != null ? questions.size() : 0;
+    }
+
+    public Integer getTotalSore() {
+        Integer totalScore = Integer.valueOf(0);
+        for (QuizQuestionViewDTO attem : questions) {
+            totalScore += attem.getPoints() == null ? 1 : attem.getPoints();
+        }
+        return totalScore;
     }
 
     public boolean hasAttempts() {
