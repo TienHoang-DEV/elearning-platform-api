@@ -149,17 +149,7 @@
 
             <div class="form-group" style="margin-bottom:16px;">
                 <label>Giới Thiệu Bản Thân</label>
-                <div class="rich-toolbar">
-                    <button data-cmd="bold" type="button"><b>B</b></button>
-                    <button data-cmd="italic" type="button"><i>I</i></button>
-                    <button data-cmd="underline" type="button"><u>U</u></button>
-                    <button data-cmd="insertUnorderedList" type="button">List</button>
-                    <button data-cmd="formatBlock" data-val="h3" type="button">H3</button>
-                </div>
-                <div class="rich-editor" id="bioEditor" contenteditable="true"
-                     th:utext="${instructor?.bio}"
-                     data-placeholder="Nhập mô tả ngắn giới thiệu bản thân..."></div>
-                <input type="hidden" th:field="*{bio}" id="bioHidden"/>
+                <textarea class="form-control" th:field="*{bio}" id="bio" rows="6" placeholder="Nhập mô tả ngắn giới thiệu bản thân..."></textarea>
                 <p class="text-danger" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}"></p>
             </div>
 
