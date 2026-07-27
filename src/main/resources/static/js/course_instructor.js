@@ -323,7 +323,10 @@ function initLessonUploadSubmitLock() {
                 event.preventDefault();
                 try {
                     const sectionId = resolveLessonFormSectionId(form);
-                    const blobName = await uploadLessonVideoDirectToAzure(selectedVideo, sectionId);
+                    const progress = createUploadProgressController(form);
+                    progress.update(0);
+                    const blobName = await uploadLessonVideoDirectToAzure(selectedVideo, sectionId, progress.update);
+                    progress.update(100);
                     blobInput.value = blobName;
                     videoInput.disabled = true;
                     form.dataset.directUploaded = 'true';
@@ -337,6 +340,43 @@ function initLessonUploadSubmitLock() {
             }
         });
     });
+}
+
+function createUploadProgressController(form) {
+    const container = form.querySelector('[data-upload-progress]');
+    const bar = form.querySelector('[data-upload-progress-bar]');
+    const text = form.querySelector('[data-upload-progress-text]');
+
+    return {
+        update(percent) {
+            const safePercent = Math.max(0, Math.min(100, Math.round(percent)));
+            if (container) {
+                container.style.display = 'block';
+            }
+            if (bar) {
+                bar.style.width = `${safePercent}%`;
+            }
+            if (text) {
+                text.textContent = `${safePercent}%`;
+            }
+        }
+    };
+}
+
+function resetUploadProgress(form) {
+    const container = form?.querySelector('[data-upload-progress]');
+    const bar = form?.querySelector('[data-upload-progress-bar]');
+    const text = form?.querySelector('[data-upload-progress-text]');
+
+    if (container) {
+        container.style.display = 'none';
+    }
+    if (bar) {
+        bar.style.width = '0%';
+    }
+    if (text) {
+        text.textContent = '0%';
+    }
 }
 
 function initMaterialUploadSubmitLock() {
@@ -405,7 +445,7 @@ function resolveLessonFormSectionId(form) {
     throw new Error('Khong tim thay section de upload video.');
 }
 
-async function uploadLessonVideoDirectToAzure(file, sectionId) {
+async function uploadLessonVideoDirectToAzure(file, sectionId, onProgress) {
     const requestBody = new FormData();
     requestBody.append('fileName', file.name);
     requestBody.append('sectionId', sectionId);
@@ -425,25 +465,120 @@ async function uploadLessonVideoDirectToAzure(file, sectionId) {
     }
 
     const uploadInfo = await sasResponse.json();
-    let azureResponse;
-    try {
-        azureResponse = await fetch(uploadInfo.uploadUrl, {
-            method: 'PUT',
-            headers: {
-                'x-ms-blob-type': 'BlockBlob',
-                'Content-Type': file.type || 'application/octet-stream'
-            },
-            body: file
-        });
-    } catch (error) {
-        throw new Error('Khong upload truc tiep len Azure duoc. Kiem tra CORS cua Azure Blob.');
-    }
-
-    if (!azureResponse.ok) {
-        throw new Error('Upload video truc tiep len Azure that bai.');
-    }
+    await uploadBlockBlobToAzure(uploadInfo.uploadUrl, file, onProgress);
 
     return uploadInfo.blobName;
+}
+
+async function uploadBlockBlobToAzure(uploadUrl, file, onProgress) {
+    const blockSize = 8 * 1024 * 1024;
+    const concurrency = 4;
+    const blockIds = [];
+    const blockLoadedBytes = [];
+    const totalBlocks = Math.ceil(file.size / blockSize);
+    let nextBlockIndex = 0;
+
+    function reportProgress() {
+        if (typeof onProgress !== 'function') {
+            return;
+        }
+        const uploadedBytes = blockLoadedBytes.reduce((sum, loaded) => sum + (loaded || 0), 0);
+        onProgress(Math.min(99, uploadedBytes * 100 / file.size));
+    }
+
+    async function uploadNextBlock() {
+        const blockIndex = nextBlockIndex++;
+        if (blockIndex >= totalBlocks) {
+            return;
+        }
+
+        const start = blockIndex * blockSize;
+        const end = Math.min(start + blockSize, file.size);
+        const block = file.slice(start, end);
+        const blockId = btoa(String(blockIndex).padStart(6, '0'));
+        blockIds[blockIndex] = blockId;
+
+        await uploadBlockWithProgress(appendAzureSasParams(uploadUrl, {
+            comp: 'block',
+            blockid: blockId
+        }), block, function (loaded) {
+            blockLoadedBytes[blockIndex] = loaded;
+            reportProgress();
+        });
+
+        await uploadNextBlock();
+    }
+
+    try {
+        const workers = Array.from(
+            { length: Math.min(concurrency, totalBlocks) },
+            uploadNextBlock
+        );
+        await Promise.all(workers);
+
+        const blockListXml = `<?xml version="1.0" encoding="utf-8"?><BlockList>${blockIds
+            .map(blockId => `<Latest>${blockId}</Latest>`)
+            .join('')}</BlockList>`;
+
+        const commitResponse = await fetch(appendAzureSasParams(uploadUrl, {
+            comp: 'blocklist'
+        }), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/xml',
+                'x-ms-blob-content-type': file.type || 'application/octet-stream'
+            },
+            body: blockListXml
+        });
+
+        if (!commitResponse.ok) {
+            throw new Error('Khong the hoan tat upload video len Azure.');
+        }
+        if (typeof onProgress === 'function') {
+            onProgress(100);
+        }
+    } catch (error) {
+        throw new Error(error.message || 'Khong upload truc tiep len Azure duoc. Kiem tra CORS cua Azure Blob.');
+    }
+}
+
+function uploadBlockWithProgress(url, block, onBlockProgress) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+
+        xhr.upload.onprogress = function (event) {
+            if (event.lengthComputable && typeof onBlockProgress === 'function') {
+                onBlockProgress(event.loaded);
+            }
+        };
+
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                if (typeof onBlockProgress === 'function') {
+                    onBlockProgress(block.size);
+                }
+                resolve();
+                return;
+            }
+            reject(new Error('Upload video truc tiep len Azure that bai.'));
+        };
+
+        xhr.onerror = function () {
+            reject(new Error('Khong upload truc tiep len Azure duoc. Kiem tra CORS cua Azure Blob.'));
+        };
+
+        xhr.send(block);
+    });
+}
+
+function appendAzureSasParams(uploadUrl, params) {
+    const url = new URL(uploadUrl);
+    Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+    });
+    return url.toString();
 }
 
 function initAvatarPreview() {
@@ -773,6 +908,7 @@ function openEditLessonModal(dataset) {
     form.dataset.submitting = 'false';
     form.dataset.directUploaded = 'false';
     setUploadModalLock(form, false);
+    resetUploadProgress(form);
 
 
     const oldVideoUrl = dataset.lessonVideoUrl || dataset.videoUrl;
@@ -918,6 +1054,7 @@ function openAddLessonModal(sectionId, source, courseId) {
     form.dataset.submitting = 'false';
     form.dataset.directUploaded = 'false';
     setUploadModalLock(form, false);
+    resetUploadProgress(form);
 
     document.getElementById('modal-add-lesson').classList.add('active');
 }
