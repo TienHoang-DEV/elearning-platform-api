@@ -280,7 +280,10 @@ public class CourseService {
     }
 
     /// Show Chi tiết khoá học
-    public CourseRespon getCourseDetailToView(Integer courseId) {
+    public CourseRespon getCourseDetailToView(Integer courseId, User user) {
+        if (user.getRole() != vn.edu.fpt.enums.RoleType.ADMIN && user.getRole() != vn.edu.fpt.enums.RoleType.MANAGER) {
+            getInstructorOwnedCourse(courseId, user);
+        }
         Course course = courseRepository.findDetailById(courseId);
         CourseRespon courseRespon = new CourseRespon();
         courseRespon.setTittle(course.getTitle());

@@ -242,7 +242,8 @@ public class InstructorCourseController {
     @GetMapping("/{id}/view")
     public String viewCourse(@PathVariable("id") Integer courseId, Model model)
     {
-        CourseRespon courseRespon = courseService.getCourseDetailToView(courseId);
+        User user = SecurityUtils.getCurrentUser();
+        CourseRespon courseRespon = courseService.getCourseDetailToView(courseId, user);
         // Trong controller
         int totalLessons = courseRespon.getSections().stream()
                 .mapToInt(s -> s.getLessons().size())

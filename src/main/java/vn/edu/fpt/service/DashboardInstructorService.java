@@ -107,7 +107,7 @@ public class DashboardInstructorService {
         }
 
         if ("MONTH".equals(period) || "CUSTOM".equals(period)) {
-            return buildDailySeries(current, revenueByDate);
+            return buildWeeklySeries(current, revenueByDate);
         }
         if ("YEAR".equals(period)) {
             return buildMonthlySeries(current[0].getYear(), revenueByDate);
@@ -115,15 +115,35 @@ public class DashboardInstructorService {
         return buildRawSeries(revenueByDate);
     }
 
-    private TrendSeries buildDailySeries(LocalDateTime[] current, Map<LocalDate, BigDecimal> revenueByDate) {
+    private TrendSeries buildWeeklySeries(LocalDateTime[] current, Map<LocalDate, BigDecimal> revenueByDate) {
         List<String> labels = new ArrayList<>();
         List<BigDecimal> values = new ArrayList<>();
         LocalDate start = current[0].toLocalDate();
         LocalDate end = current[1].toLocalDate();
+        int year = start.getYear();
+        int month = start.getMonthValue();
 
-        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
-            labels.add(date.format(DateTimeFormatter.ofPattern("dd/MM")));
-            values.add(revenueByDate.getOrDefault(date, BigDecimal.ZERO));
+        int[][] weekRanges = {
+            {1, 7},
+            {8, 14},
+            {15, 21},
+            {22, 28},
+            {29, end.getDayOfMonth()}
+        };
+
+        for (int i = 0; i < weekRanges.length; i++) {
+            int startDay = weekRanges[i][0];
+            int endDay = weekRanges[i][1];
+            if (startDay > end.getDayOfMonth()) {
+                break;
+            }
+            BigDecimal weekRevenue = BigDecimal.ZERO;
+            for (int day = startDay; day <= endDay; day++) {
+                LocalDate date = LocalDate.of(year, month, day);
+                weekRevenue = weekRevenue.add(revenueByDate.getOrDefault(date, BigDecimal.ZERO));
+            }
+            labels.add("Tuần " + (i + 1) + " (" + startDay + "/" + month + " - " + endDay + "/" + month + ")");
+            values.add(weekRevenue);
         }
         return new TrendSeries(labels, values);
     }
