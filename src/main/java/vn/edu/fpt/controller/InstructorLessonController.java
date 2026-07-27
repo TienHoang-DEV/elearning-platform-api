@@ -55,7 +55,8 @@
             QuizDTO savedQuiz =
                     quizService.createQuiz(
                             lessonId,
-                            quizDTO);
+                            quizDTO,
+                            SecurityUtils.getCurrentUser());
 
 
 
@@ -83,6 +84,9 @@
 
             model.addAttribute("currentUser", currentUser);
             Lesson lesson = lessonService.findLessonById(lessonId);
+            courseService.getInstructorOwnedCourse(
+                    lesson.getCourseSection().getCourse().getId(),
+                    currentUser);
             LessonDto lessonDto = lessonService.getLessonById(lessonId);
             CourseSectionDto courseSectionDto = courseSectionService.findByCourseSectionId(lesson.getCourseSection().getId());
             CourseDto courseDto = courseService.getCourseDetail(lesson.getCourseSection().getCourse().getId());
@@ -114,6 +118,11 @@
                                          @RequestParam(value = "status", defaultValue = "ALL") String status,
                                          Model model) {
 
+            User currentUser = SecurityUtils.getCurrentUser();
+            Lesson lesson = lessonService.findLessonById(lessonId);
+            courseService.getInstructorOwnedCourse(
+                    lesson.getCourseSection().getCourse().getId(),
+                    currentUser);
             Page<QuizDTO> quizPage = quizService.getQuizzesByStatus(page, size, status, lessonId);
 
             long endItem = Math.min(

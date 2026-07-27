@@ -28,6 +28,7 @@ import vn.edu.fpt.repository.QuizAttemptAnswerRepository;
 import vn.edu.fpt.repository.QuizAttemptRepository;
 import vn.edu.fpt.repository.QuizQuestionRepository;
 import vn.edu.fpt.repository.QuizRepository;
+import vn.edu.fpt.service.CourseService;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -41,14 +42,16 @@ public class QuizService {
     private final QuizQuestionRepository quizQuestionRepository;
     private final QuizAttemptRepository quizAttemptRepository;
     private final QuizAttemptAnswerRepository quizAttemptAnswerRepository;
+    private final CourseService courseService;
 
-    public QuizService(QuizRepository quizRepository, DtoMapper dtoMapper, LessonRepository lessonRepository, QuizQuestionRepository quizQuestionRepository, QuizAttemptRepository quizAttemptRepository, QuizAttemptAnswerRepository quizAttemptAnswerRepository) {
+    public QuizService(QuizRepository quizRepository, DtoMapper dtoMapper, LessonRepository lessonRepository, QuizQuestionRepository quizQuestionRepository, QuizAttemptRepository quizAttemptRepository, QuizAttemptAnswerRepository quizAttemptAnswerRepository, CourseService courseService) {
         this.repository = quizRepository;
         this.dtoMapper = dtoMapper;
         this.lessonRepository = lessonRepository;
         this.quizQuestionRepository = quizQuestionRepository;
         this.quizAttemptRepository = quizAttemptRepository;
         this.quizAttemptAnswerRepository = quizAttemptAnswerRepository;
+        this.courseService = courseService;
     }
 
     public LessonQuizPageDTO getLessonQuizPage(Integer lessonId, User user, boolean retake, Integer activeQuizId, Integer activeAttemptId) {
@@ -285,12 +288,16 @@ public class QuizService {
 
     public QuizDTO createQuiz(
             Integer lessonId,
-            QuizDTO request) {
+            QuizDTO request,
+            User instructor) {
 
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "Lesson not found"));
+        courseService.getInstructorOwnedCourse(
+                lesson.getCourseSection().getCourse().getId(),
+                instructor);
 
         Quiz quiz = Quiz.builder()
                 .lesson(lesson)
@@ -330,8 +337,20 @@ public class QuizService {
         return result;
     }
 
-    public QuizDTO findQuizById(Integer quizId){
-        return dtoMapper.toQuizDto(repository.findQuizById(quizId));
+    public Quiz getInstructorOwnedQuiz(Integer quizId, User instructor) {
+        Quiz quiz = repository.findQuizById(quizId);
+        if (quiz == null) {
+            throw new ResourceNotFoundException("Không tìm thấy quiz với id " + quizId);
+        }
+
+        courseService.getInstructorOwnedCourse(
+                quiz.getLesson().getCourseSection().getCourse().getId(),
+                instructor);
+        return quiz;
+    }
+
+    public QuizDTO findQuizById(Integer quizId, User instructor){
+        return dtoMapper.toQuizDto(getInstructorOwnedQuiz(quizId, instructor));
     }
 
     public Page<QuizDTO> getQuizzesByStatus(int page, int size, String status, Integer lessonId){
@@ -352,12 +371,8 @@ public class QuizService {
 
     }
 
-    public void updateQuizMeta(QuizDTO quizDto){
-        Quiz quiz = repository.findQuizById(quizDto.getId());
-        if(quiz == null){
-            System.out.println("Quiz not found !");
-            return;
-        }
+    public void updateQuizMeta(QuizDTO quizDto, User instructor){
+        Quiz quiz = getInstructorOwnedQuiz(quizDto.getId(), instructor);
 
         quiz.setTitle(quizDto.getTitle());
         quiz.setPassScorePercent(quizDto.getPassScorePercent());
@@ -366,32 +381,20 @@ public class QuizService {
 
     }
 
-    public void archived(Integer quizId){
-        Quiz quiz = repository.findQuizById(quizId);
-        if(quiz == null){
-            System.out.println("Quiz not found !");
-            return;
-        }
+    public void archived(Integer quizId, User instructor){
+        Quiz quiz = getInstructorOwnedQuiz(quizId, instructor);
 
         quiz.setStatus(QuizStatus.ARCHIVED.name());
     }
 
-    public void saveDraft(Integer quizId){
-        Quiz quiz = repository.findQuizById(quizId);
-        if(quiz == null){
-            System.out.println("Quiz not found !");
-            return;
-        }
+    public void saveDraft(Integer quizId, User instructor){
+        Quiz quiz = getInstructorOwnedQuiz(quizId, instructor);
 
         quiz.setStatus(QuizStatus.DRAFT.name());
     }
 
-    public boolean publishQuiz(Integer quizId){
-        Quiz quiz = repository.findQuizById(quizId);
-        if(quiz == null){
-            System.out.println("Quiz not found");
-            return false;
-        }
+    public boolean publishQuiz(Integer quizId, User instructor){
+        Quiz quiz = getInstructorOwnedQuiz(quizId, instructor);
 
     long quizQuestionCount = quizQuestionRepository.countByQuizId(quizId);
         if(quizQuestionCount < 1){
@@ -404,13 +407,8 @@ public class QuizService {
         return true;
     }
 
-    public void deleteQuiz(Integer quizId) {
-
-        Quiz quiz = repository.findQuizById(quizId);
-        if(quiz == null){
-            System.out.println("Quit not found !");
-            return;
-        }
+    public void deleteQuiz(Integer quizId, User instructor) {
+        Quiz quiz = getInstructorOwnedQuiz(quizId, instructor);
 
         repository.delete(quiz);
     }

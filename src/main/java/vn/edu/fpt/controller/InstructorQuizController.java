@@ -3,6 +3,7 @@ package vn.edu.fpt.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +55,7 @@ public class InstructorQuizController {
         model.addAttribute("currentUser", currentUser);
 
 
-        QuizDTO quizDto = quizService.findQuizById(quizId);
+        QuizDTO quizDto = quizService.findQuizById(quizId, currentUser);
         model.addAttribute("quiz", quizDto);
         model.addAttribute("question", new QuizQuestionDTO());
         model.addAttribute("questionTypes", QuestionType.values());
@@ -73,7 +74,8 @@ public class InstructorQuizController {
             RedirectAttributes redirectAttributes
             ) {
 
-        quizQuestionService.saveQuestion(questionDTO, quizId);
+        User currentUser = SecurityUtils.getCurrentUser();
+        quizQuestionService.saveQuestion(questionDTO, quizId, currentUser);
         System.out.println("-----START-----");
         System.out.println(questionDTO.getExplanation());
         System.out.println("-----END-----");
@@ -115,8 +117,9 @@ public class InstructorQuizController {
             RedirectAttributes redirectAttributes
     ) {
 
+        User currentUser = SecurityUtils.getCurrentUser();
         Integer newPosition =
-                quizQuestionService.copyQuestion(questionId);
+                quizQuestionService.copyQuestion(questionId, quizId, currentUser);
 
         int targetPage =
                 (newPosition - 1) / size;
@@ -144,7 +147,8 @@ public class InstructorQuizController {
                           @RequestParam(value = "size", defaultValue = "3") int size,
                           RedirectAttributes redirectAttributes,
                           Model model){
-        quizQuestionService.deleteQuestion(questionId);
+        User currentUser = SecurityUtils.getCurrentUser();
+        quizQuestionService.deleteQuestion(questionId, quizId, currentUser);
         int totalQuestions =
                 quizQuestionService.getTotalQuestionsByQuizId(quizId);
 
@@ -171,8 +175,9 @@ public class InstructorQuizController {
                         @RequestParam int size,
                         Model model){
 
-        QuizDTO quizDto = quizService.findQuizById(quizId);
-        QuizQuestionDTO quizQuestionDto = quizQuestionService.findQuizQuestionById(questionId);
+        User currentUser = SecurityUtils.getCurrentUser();
+        QuizDTO quizDto = quizService.findQuizById(quizId, currentUser);
+        QuizQuestionDTO quizQuestionDto = quizQuestionService.findQuizQuestionById(questionId, quizId, currentUser);
 
         model.addAttribute("page", page);
         model.addAttribute("size", size);
@@ -191,9 +196,9 @@ public class InstructorQuizController {
                           @RequestParam(value = "size", defaultValue = "3") int size,
                           Model model){
         User currentUser = SecurityUtils.getCurrentUser();
-        QuizDTO quizDto = quizService.findQuizById(quizId);
+        QuizDTO quizDto = quizService.findQuizById(quizId, currentUser);
 
-        Page<QuizQuestionDTO> questionPage = quizQuestionService.getQuestionsByQuizId(quizId, page, size);
+        Page<QuizQuestionDTO> questionPage = quizQuestionService.getQuestionsByQuizId(quizId, page, size, currentUser);
 
         // 2. Đẩy các thuộc tính phân trang ra Model khớp với các biến trong HTML
         model.addAttribute("currentUser", currentUser);
@@ -211,17 +216,18 @@ public class InstructorQuizController {
                       @RequestParam("status") String status,
                       RedirectAttributes redirectAttributes){
 
-        QuizDTO quizDto = quizService.findQuizById(quizId);
+        User currentUser = SecurityUtils.getCurrentUser();
+        QuizDTO quizDto = quizService.findQuizById(quizId, currentUser);
         String currentStatus = "";
 
         if(QuizStatus.DRAFT.name().equals(status)){
-            quizService.saveDraft(quizId);
+            quizService.saveDraft(quizId, currentUser);
             currentStatus = QuizStatus.DRAFT.name();
             redirectAttributes.addFlashAttribute("toastMessage", "Đã lưu bản nháp bài trắc nghiệm thành công!");
             redirectAttributes.addFlashAttribute("toastType", "success");
         }
         else if(QuizStatus.PUBLISHED.name().equals(status)){
-            if(quizService.publishQuiz(quizId)){
+            if(quizService.publishQuiz(quizId, currentUser)){
                 currentStatus = QuizStatus.PUBLISHED.name();
                 redirectAttributes.addFlashAttribute("toastMessage", "Bài trắc nghiệm đã được xuất bản công khai.");
                 redirectAttributes.addFlashAttribute("toastType", "success");
@@ -251,7 +257,7 @@ public class InstructorQuizController {
     public String updateQuizMeta(
             @ModelAttribute("quiz") QuizDTO quizDTO) {
 
-        quizService.updateQuizMeta(quizDTO);
+        quizService.updateQuizMeta(quizDTO, SecurityUtils.getCurrentUser());
 
         return "redirect:/instructor/quiz/quiz-manage/" + quizDTO.getId();
     }
@@ -259,8 +265,11 @@ public class InstructorQuizController {
     @PostMapping("/{quizId}/delete") // Đổi sang PostMapping
     public ResponseEntity<?> deleteQuiz(@PathVariable("quizId") Integer quizId) {
         try {
-            quizService.deleteQuiz(quizId);
+            quizService.deleteQuiz(quizId, SecurityUtils.getCurrentUser());
             return ResponseEntity.ok(Map.of("success", true, "message", "Xóa bài trắc nghiệm thành công!"));
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("success", false, "message", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "Lỗi: Không thể xóa bài trắc nghiệm này."));
@@ -270,8 +279,11 @@ public class InstructorQuizController {
     @PostMapping("/{quizId}/archive")
     public ResponseEntity<?> archiveQuiz(@PathVariable("quizId") Integer quizId) {
         try {
-            quizService.archived(quizId); // Logic chuyển status thành 'ARCHIVED'
+            quizService.archived(quizId, SecurityUtils.getCurrentUser()); // Logic chuyển status thành 'ARCHIVED'
             return ResponseEntity.ok(Map.of("success", true, "message", "Đã đưa bài trắc nghiệm vào kho lưu trữ!"));
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("success", false, "message", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "Lỗi: Không thể lưu trữ bài trắc nghiệm này."));
@@ -294,7 +306,7 @@ public class InstructorQuizController {
         model.addAttribute("currentUser", currentUser);
 
         // 2. Giả lập thông tin bộ Quiz tổng quan
-        QuizDTO quizDto = quizService.findQuizById(quizId);
+        QuizDTO quizDto = quizService.findQuizById(quizId, currentUser);
         model.addAttribute("quiz", quizDto);
         Integer currentSize = null;
         // 3. Xử lý logic Mock Data theo từng Tab để test phân trang chuẩn Spring Data
@@ -312,7 +324,7 @@ public class InstructorQuizController {
         } else {
             // Tab 'questions'
             currentSize = (size == 1) ? 3 : size;
-            Page<QuizQuestionDTO> quizQuestionsPage = quizQuestionService.getQuestionsByQuizId(quizId, page, currentSize);
+            Page<QuizQuestionDTO> quizQuestionsPage = quizQuestionService.getQuestionsByQuizId(quizId, page, currentSize, currentUser);
 
             model.addAttribute("questions", quizQuestionsPage.getContent());
             model.addAttribute("totalPages", quizQuestionsPage.getTotalPages());
@@ -350,7 +362,9 @@ public class InstructorQuizController {
 
                     quizId,
 
-                    importMode
+                    importMode,
+
+                    SecurityUtils.getCurrentUser()
 
             );
 
