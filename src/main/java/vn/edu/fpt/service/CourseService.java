@@ -336,7 +336,7 @@ public class CourseService {
         return dto;
     }
 
-    private String resolveVideoPreviewUrl(String blobName) {
+    public String resolveVideoPreviewUrl(String blobName) {
         if (!hasText(blobName)) {
             return null;
         }

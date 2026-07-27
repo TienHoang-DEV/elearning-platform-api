@@ -88,7 +88,33 @@ public class LessonMaterialService {
 
             repository.save(lessonMaterial);
         }
+    }
 
+    public void saveAllMaterialDirect(List<String> blobNames, List<String> fileNames, List<Long> fileSizes, Integer lessonId, User user) {
+        if (blobNames == null || blobNames.isEmpty()) return;
+
+        Lesson lesson = lessonRepository.findById(lessonId).orElseThrow();
+
+        for (int i = 0; i < blobNames.size(); i++) {
+            String blobName = blobNames.get(i);
+            if (blobName == null || blobName.isBlank()) continue;
+
+            String fileName = fileNames.get(i);
+            String fileType = getValidatedMaterialExtension(fileName);
+            Long fileSize = fileSizes.get(i);
+
+            LessonMaterial lessonMaterial = new LessonMaterial();
+            lessonMaterial.setLesson(lesson);
+            lessonMaterial.setCourse(lesson.getCourseSection() != null ? lesson.getCourseSection().getCourse() : null);
+            lessonMaterial.setFileType(fileType);
+            lessonMaterial.setFileName(fileName);
+            lessonMaterial.setFileSize(fileSize);
+            lessonMaterial.setFileUrl(blobName);
+            lessonMaterial.setInstructor(user);
+            lesson.setCreatedAt(LocalDateTime.now());
+
+            repository.save(lessonMaterial);
+        }
     }
 
     public List<LessonMaterial> findAll() {

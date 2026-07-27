@@ -169,6 +169,9 @@ public class InstructorCourseController {
         User u = SecurityUtils.getCurrentUser();
 
         if (bindingResult.hasErrors()) {
+            if (courseDto.getIntroVideoUrl() != null && !courseDto.getIntroVideoUrl().isBlank()) {
+                courseDto.setIntroVideoPreviewUrl(courseService.resolveVideoPreviewUrl(courseDto.getIntroVideoUrl()));
+            }
             loadFormModel(model);
             model.addAttribute("activeStep", "info");
             model.addAttribute("error", "Vui lòng kiểm tra lại các thông tin chưa hợp lệ.");
@@ -201,6 +204,9 @@ public class InstructorCourseController {
                     "error",
                     e.getMessage());
 
+            if (courseDto.getIntroVideoUrl() != null && !courseDto.getIntroVideoUrl().isBlank()) {
+                courseDto.setIntroVideoPreviewUrl(courseService.resolveVideoPreviewUrl(courseDto.getIntroVideoUrl()));
+            }
             loadFormModel(model);
             model.addAttribute("activeStep", "info");
             model.addAttribute("error", e.getMessage());
