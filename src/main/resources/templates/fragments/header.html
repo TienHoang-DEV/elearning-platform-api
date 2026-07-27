@@ -43,7 +43,7 @@
                 <ul class="dropdown-menu border-0 shadow-lg mt-2 p-2 category-dropdown-menu" aria-labelledby="categoryDropdown" style="min-width: 240px;">
                     <li th:each="cat : ${headerCategories}" class="mb-1">
                         <div class="dropdown-item d-flex align-items-center justify-content-between rounded py-2" style="cursor: pointer;"
-                             th:onclick="'event.stopPropagation(); document.getElementById(\'submenu-\' + ' + ${cat.id} + ').classList.toggle(\'d-none\')'">
+                             th:onclick="'event.stopPropagation(); bootstrap.Collapse.getOrCreateInstance(document.getElementById(\'submenu-\' + ' + ${cat.id} + ')).toggle()'">
                             <span class="d-flex align-items-center gap-2">
                                 <i th:data-lucide="${#strings.contains(cat.name, 'Front-End') ? 'layout' : 
                                                     (#strings.contains(cat.name, 'Back-End') ? 'server' : 
@@ -52,13 +52,15 @@
                             </span>
                             <i data-lucide="chevron-right" style="width:14px; height:14px;" th:if="${cat.children != null && !cat.children.isEmpty()}"></i>
                         </div>
-                        <ul class="list-unstyled ps-4 py-1 d-none" th:id="'submenu-' + ${cat.id}" th:if="${cat.children != null && !cat.children.isEmpty()}">
-                            <li th:each="child : ${cat.children}" th:if="${child.status == 'ACTIVE'}">
-                                <a class="dropdown-item rounded py-1.5 fs-7 text-muted" th:href="@{/courses(categoryId=${child.id})}">
-                                    <span th:text="${child.name}">Subcategory Name</span>
-                                </a>
-                            </li>
-                        </ul>
+                        <div class="collapse submenu-collapse" th:id="'submenu-' + ${cat.id}" th:if="${cat.children != null && !cat.children.isEmpty()}">
+                            <ul class="list-unstyled ps-4 py-1 mb-0">
+                                <li th:each="child : ${cat.children}" th:if="${child.status == 'ACTIVE'}">
+                                    <a class="dropdown-item rounded py-1.5 fs-7 text-muted" th:href="@{/courses(categoryId=${child.id})}">
+                                        <span th:text="${child.name}">Subcategory Name</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -143,6 +145,51 @@
             </th:block>
         </div>
     </div>
+    
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (window.innerWidth >= 992) {
+                // Hover for main category dropdown in header
+                const categoryDropdown = document.querySelector('.header-search .dropdown');
+                if (categoryDropdown) {
+                    const dropdownToggle = categoryDropdown.querySelector('.dropdown-toggle');
+                    let mainTimeout;
+                    categoryDropdown.addEventListener('mouseenter', () => {
+                        clearTimeout(mainTimeout);
+                        const bsDropdown = bootstrap.Dropdown.getOrCreateInstance(dropdownToggle);
+                        bsDropdown.show();
+                    });
+                    categoryDropdown.addEventListener('mouseleave', () => {
+                        mainTimeout = setTimeout(() => {
+                            const bsDropdown = bootstrap.Dropdown.getOrCreateInstance(dropdownToggle);
+                            bsDropdown.hide();
+                        }, 150);
+                    });
+                }
+
+                // Hover for subcategories in header
+                const headerCategoryItems = document.querySelectorAll('.header-search .category-dropdown-menu > li');
+                headerCategoryItems.forEach(item => {
+                    const collapseEl = item.querySelector('.submenu-collapse');
+                    if (collapseEl) {
+                        let subTimeout;
+                        item.addEventListener('mouseenter', () => {
+                            clearTimeout(subTimeout);
+                            const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false });
+                            bsCollapse.show();
+                        });
+                        item.addEventListener('mouseleave', () => {
+                            subTimeout = setTimeout(() => {
+                                const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false });
+                                bsCollapse.hide();
+                            }, 100);
+                        });
+                    }
+                });
+            }
+        });
+    </script>
 </header>
 </body>
 </html>

@@ -655,4 +655,19 @@ html, body {
     color: #991b1b !important;
 }
 
+/* Active style for interactive quiz attempt items */
+.quiz-attempt-item.quiz-option-link {
+    transition: all 0.2s ease-in-out;
+}
+.quiz-attempt-item.quiz-option-link:hover {
+    border-color: var(--quiz-primary) !important;
+    background-color: var(--quiz-primary-soft) !important;
+    transform: translateY(-1px);
+}
+.quiz-attempt-item.active-attempt-item {
+    border: 2px solid var(--quiz-primary) !important;
+    background-color: var(--quiz-primary-soft) !important;
+    box-shadow: 0 4px 12px rgba(29, 78, 216, 0.08) !important;
+}
+
 

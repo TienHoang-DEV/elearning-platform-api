@@ -90,10 +90,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
                         @Param("fromDate") LocalDateTime fromDate,
                         @Param("toDate") LocalDateTime toDate);
 
-    @Query("""
-            select distinct c from Course c left join fetch c.sections s left join fetch s.lessons where c.id = :id
-            """)
-    Optional<Course> findByIdWithSectionsAndLessons(@Param("id") Integer id);
+
 
     @Query("select count(s) from CourseSection s where s.course.id = :courseId")
     long countSectionsByCourseId(@Param("courseId") Integer courseId);
@@ -192,7 +189,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
         LEFT JOIN FETCH c.category cat
         WHERE c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED
           AND (:search IS NULL OR :search = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :search, '%')))
-          AND (:categoryId IS NULL OR cat.id = :categoryId)
+          AND (:categoryId IS NULL OR cat.id = :categoryId OR cat.parent.id = :categoryId)
           AND (:minRating IS NULL OR (SELECT COALESCE(AVG(f.rating), 0.0) FROM Feedback f WHERE f.course.id = c.id) >= :minRating)
           AND (:minPrice IS NULL OR c.price >= :minPrice)
           AND (:maxPrice IS NULL OR c.price <= :maxPrice)
@@ -211,7 +208,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
         LEFT JOIN FETCH c.category cat
         WHERE c.status = vn.edu.fpt.enums.CourseStatus.PUBLISHED
           AND (:search IS NULL OR :search = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :search, '%')))
-          AND (:categoryId IS NULL OR cat.id = :categoryId)
+          AND (:categoryId IS NULL OR cat.id = :categoryId OR cat.parent.id = :categoryId)
           AND (:minRating IS NULL OR (SELECT COALESCE(AVG(f.rating), 0.0) FROM Feedback f WHERE f.course.id = c.id) >= :minRating)
           AND (:minPrice IS NULL OR c.price >= :minPrice)
           AND (:maxPrice IS NULL OR c.price <= :maxPrice)

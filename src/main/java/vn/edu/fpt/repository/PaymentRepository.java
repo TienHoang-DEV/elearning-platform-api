@@ -73,7 +73,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     Page<TransactionListDTO> getTransactionByFilter(PaymentStatus status, LocalDateTime fromDate, LocalDateTime toDate, String keyword, Pageable pageable);
 
     @Query("""
-        SELECT new vn.edu.fpt.dto.transaction_manager.TransactionDetailDTO(p.id, (concat(p.order.user.firstName, ' ', p.order.user.lastName)), p.order.user.email, p.amount, p.description, p.gatewayOrderCode, p.status, p.createdAt, p.updatedAt, p.expiredAt, p.paidAt, p.gateway, p.paymentUrl, p.webhookReceivedAt, p.webhookReceived, null) FROM Payment p WHERE p.id = :paymentId
+        SELECT new vn.edu.fpt.dto.transaction_manager.TransactionDetailDTO(p.id, (concat(p.order.user.firstName, ' ', p.order.user.lastName)), p.order.user.email, p.amount, p.description, p.gatewayOrderCode, p.status, p.createdAt, p.updatedAt, p.expiredAt, p.paidAt, p.gateway, p.paymentUrl, null) FROM Payment p WHERE p.id = :paymentId
 """)
     TransactionDetailDTO getTransactionDetailByPaymentId(@Param("paymentId") Integer paymentId);
 
@@ -95,19 +95,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
         SELECT p FROM Payment p 
         WHERE p.status = vn.edu.fpt.enums.PaymentStatus.PENDING
           AND p.createdAt > (CURRENT_TIMESTAMP - 30 MINUTE)
-          AND p.webhookReceived = false
           AND (p.lastSyncedAt IS NULL OR p.lastSyncedAt < (CURRENT_TIMESTAMP - 5 MINUTE))
         ORDER BY p.createdAt ASC
     """)
     List<Payment> findPendingPaymentsForSync();
-
-    @Query("""
-        SELECT p FROM Payment p 
-        WHERE p.status = vn.edu.fpt.enums.PaymentStatus.PENDING
-          AND p.webhookReceived = false 
-          AND p.webhookRetryCount < :maxAttempts
-          AND p.createdAt > (CURRENT_TIMESTAMP - 30 MINUTE)
-        ORDER BY p.createdAt ASC
-    """)
-    List<Payment> findPaymentsForWebhookRetry(@Param("maxAttempts") int maxAttempts);
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <link rel="icon" type="image/png" th:href="@{/images/logo-background.png}">
@@ -78,6 +78,11 @@
         <span th:text="${success}">Thành công</span>
         <button type="button" class="toast-close" aria-label="Đóng">&times;</button>
     </div>
+    <div class="app-toast toast-warning" th:if="${warning != null}">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span th:text="${warning}">Cảnh báo</span>
+        <button type="button" class="toast-close" aria-label="Đóng">&times;</button>
+    </div>
 </div>
 
 <!-- Modals dùng chung cho editor -->
@@ -86,3 +91,4 @@
 <script th:src="@{/js/course_instructor.js}"></script>
 </body>
 </html>
+

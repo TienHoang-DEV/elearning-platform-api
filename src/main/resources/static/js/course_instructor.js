@@ -1,4 +1,4 @@
-
+﻿
 
 
 
@@ -8,9 +8,9 @@ document.addEventListener('DOMContentLoaded', function () {
     initSubmitReviewPolicy();
 
     /* =====================================================
-       1. SIDEBAR NAVIGATION (SPA mode - nếu dùng 1 file)
-          Nếu đã tách file thì bỏ qua phần này,
-          sidebar dùng href bình thường.
+       1. SIDEBAR NAVIGATION (SPA mode - náº¿u dÃ¹ng 1 file)
+          Náº¿u Ä‘Ã£ tÃ¡ch file thÃ¬ bá» qua pháº§n nÃ y,
+          sidebar dÃ¹ng href bÃ¬nh thÆ°á»ng.
     ===================================================== */
     initSidebarNav();
 
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* =====================================================
        9. CURRICULUM - Add Section & Lesson (JS fallback)
-          Nếu backend xử lý thì bỏ qua.
+          Náº¿u backend xá»­ lÃ½ thÃ¬ bá» qua.
     ===================================================== */
     initCurriculum();
 
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initSubmitRequest();
 
     /* =====================================================
-       14. WIZARD STEP BUTTONS (nếu dùng 1 file)
+       14. WIZARD STEP BUTTONS (náº¿u dÃ¹ng 1 file)
     ===================================================== */
     initWizardButtons();
 
@@ -112,7 +112,7 @@ function initSidebarNav() {
 }
 
 function initTabs() {
-    // === Xử lý click chuyển tab (giữ nguyên logic cũ) ===
+    // === Xá»­ lÃ½ click chuyá»ƒn tab (giá»¯ nguyÃªn logic cÅ©) ===
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const group = this.dataset.tabGroup;
@@ -323,7 +323,10 @@ function initLessonUploadSubmitLock() {
                 event.preventDefault();
                 try {
                     const sectionId = resolveLessonFormSectionId(form);
-                    const blobName = await uploadLessonVideoDirectToAzure(selectedVideo, sectionId);
+                    const progress = createUploadProgressController(form);
+                    progress.update(0);
+                    const blobName = await uploadLessonVideoDirectToAzure(selectedVideo, sectionId, progress.update);
+                    progress.update(100);
                     blobInput.value = blobName;
                     videoInput.disabled = true;
                     form.dataset.directUploaded = 'true';
@@ -337,6 +340,43 @@ function initLessonUploadSubmitLock() {
             }
         });
     });
+}
+
+function createUploadProgressController(form) {
+    const container = form.querySelector('[data-upload-progress]');
+    const bar = form.querySelector('[data-upload-progress-bar]');
+    const text = form.querySelector('[data-upload-progress-text]');
+
+    return {
+        update(percent) {
+            const safePercent = Math.max(0, Math.min(100, Math.round(percent)));
+            if (container) {
+                container.style.display = 'block';
+            }
+            if (bar) {
+                bar.style.width = `${safePercent}%`;
+            }
+            if (text) {
+                text.textContent = `${safePercent}%`;
+            }
+        }
+    };
+}
+
+function resetUploadProgress(form) {
+    const container = form?.querySelector('[data-upload-progress]');
+    const bar = form?.querySelector('[data-upload-progress-bar]');
+    const text = form?.querySelector('[data-upload-progress-text]');
+
+    if (container) {
+        container.style.display = 'none';
+    }
+    if (bar) {
+        bar.style.width = '0%';
+    }
+    if (text) {
+        text.textContent = '0%';
+    }
 }
 
 function initMaterialUploadSubmitLock() {
@@ -405,7 +445,7 @@ function resolveLessonFormSectionId(form) {
     throw new Error('Khong tim thay section de upload video.');
 }
 
-async function uploadLessonVideoDirectToAzure(file, sectionId) {
+async function uploadLessonVideoDirectToAzure(file, sectionId, onProgress) {
     const requestBody = new FormData();
     requestBody.append('fileName', file.name);
     requestBody.append('sectionId', sectionId);
@@ -425,25 +465,120 @@ async function uploadLessonVideoDirectToAzure(file, sectionId) {
     }
 
     const uploadInfo = await sasResponse.json();
-    let azureResponse;
-    try {
-        azureResponse = await fetch(uploadInfo.uploadUrl, {
-            method: 'PUT',
-            headers: {
-                'x-ms-blob-type': 'BlockBlob',
-                'Content-Type': file.type || 'application/octet-stream'
-            },
-            body: file
-        });
-    } catch (error) {
-        throw new Error('Khong upload truc tiep len Azure duoc. Kiem tra CORS cua Azure Blob.');
-    }
-
-    if (!azureResponse.ok) {
-        throw new Error('Upload video truc tiep len Azure that bai.');
-    }
+    await uploadBlockBlobToAzure(uploadInfo.uploadUrl, file, onProgress);
 
     return uploadInfo.blobName;
+}
+
+async function uploadBlockBlobToAzure(uploadUrl, file, onProgress) {
+    const blockSize = 8 * 1024 * 1024;
+    const concurrency = 4;
+    const blockIds = [];
+    const blockLoadedBytes = [];
+    const totalBlocks = Math.ceil(file.size / blockSize);
+    let nextBlockIndex = 0;
+
+    function reportProgress() {
+        if (typeof onProgress !== 'function') {
+            return;
+        }
+        const uploadedBytes = blockLoadedBytes.reduce((sum, loaded) => sum + (loaded || 0), 0);
+        onProgress(Math.min(99, uploadedBytes * 100 / file.size));
+    }
+
+    async function uploadNextBlock() {
+        const blockIndex = nextBlockIndex++;
+        if (blockIndex >= totalBlocks) {
+            return;
+        }
+
+        const start = blockIndex * blockSize;
+        const end = Math.min(start + blockSize, file.size);
+        const block = file.slice(start, end);
+        const blockId = btoa(String(blockIndex).padStart(6, '0'));
+        blockIds[blockIndex] = blockId;
+
+        await uploadBlockWithProgress(appendAzureSasParams(uploadUrl, {
+            comp: 'block',
+            blockid: blockId
+        }), block, function (loaded) {
+            blockLoadedBytes[blockIndex] = loaded;
+            reportProgress();
+        });
+
+        await uploadNextBlock();
+    }
+
+    try {
+        const workers = Array.from(
+            { length: Math.min(concurrency, totalBlocks) },
+            uploadNextBlock
+        );
+        await Promise.all(workers);
+
+        const blockListXml = `<?xml version="1.0" encoding="utf-8"?><BlockList>${blockIds
+            .map(blockId => `<Latest>${blockId}</Latest>`)
+            .join('')}</BlockList>`;
+
+        const commitResponse = await fetch(appendAzureSasParams(uploadUrl, {
+            comp: 'blocklist'
+        }), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/xml',
+                'x-ms-blob-content-type': file.type || 'application/octet-stream'
+            },
+            body: blockListXml
+        });
+
+        if (!commitResponse.ok) {
+            throw new Error('Khong the hoan tat upload video len Azure.');
+        }
+        if (typeof onProgress === 'function') {
+            onProgress(100);
+        }
+    } catch (error) {
+        throw new Error(error.message || 'Khong upload truc tiep len Azure duoc. Kiem tra CORS cua Azure Blob.');
+    }
+}
+
+function uploadBlockWithProgress(url, block, onBlockProgress) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+
+        xhr.upload.onprogress = function (event) {
+            if (event.lengthComputable && typeof onBlockProgress === 'function') {
+                onBlockProgress(event.loaded);
+            }
+        };
+
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                if (typeof onBlockProgress === 'function') {
+                    onBlockProgress(block.size);
+                }
+                resolve();
+                return;
+            }
+            reject(new Error('Upload video truc tiep len Azure that bai.'));
+        };
+
+        xhr.onerror = function () {
+            reject(new Error('Khong upload truc tiep len Azure duoc. Kiem tra CORS cua Azure Blob.'));
+        };
+
+        xhr.send(block);
+    });
+}
+
+function appendAzureSasParams(uploadUrl, params) {
+    const url = new URL(uploadUrl);
+    Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+    });
+    return url.toString();
 }
 
 function initAvatarPreview() {
@@ -596,7 +731,7 @@ function initVideoUploadById(inputId, containerId, durationId) {
 
 
 /* =====================
-   CURRICULUM (JS-only fallback - dùng nếu không submit form)
+   CURRICULUM (JS-only fallback - dÃ¹ng náº¿u khÃ´ng submit form)
 ===================== */
 let sectionCounter = 0;
 
@@ -667,8 +802,7 @@ document.addEventListener('click', function (e) {
     if (!confirmLesson) return;
     const name = document.getElementById('lessonNameInput')?.value.trim();
     if (!name) { alert('Vui lòng nhập tên bài giảng.'); return; }
-    const isFree = document.getElementById('lessonFreeToggle')?.checked;
-    addLessonToSection(currentSectionIndex, name, isFree);
+    addLessonToSection(currentSectionIndex, name);
     document.getElementById('lessonNameInput').value = '';
     closeModal('modal-add-lesson');
 });
@@ -677,7 +811,7 @@ document.addEventListener('click', function (e) {
 
 
 
-function addLessonToSection(sectionIndex, title, isFree) {
+function addLessonToSection(sectionIndex, title) {
     const lessonList = document.getElementById(`lessons-${sectionIndex}`);
     if (!lessonList) return;
 
@@ -691,7 +825,6 @@ function addLessonToSection(sectionIndex, title, isFree) {
     <span class="drag-handle">⠿</span>
     <span class="lesson-icon">🎬</span>
     <span class="lesson-title">${escapeHtml(title)}</span>
-    ${isFree ? '<span class="badge badge-free">Miễn phí</span>' : ''}
     <div class="lesson-actions">
       <button type="button" class="btn btn-sm btn-danger delete-lesson-btn">🗑</button>
     </div>
@@ -766,9 +899,6 @@ function openEditLessonModal(dataset) {
     document.getElementById('editLessonId').value = lessonId;
 
     document.getElementById('editLessonName').value = dataset.lessonTitle || '';
-    document.getElementById('editLessonFreeToggle').checked = dataset.lessonFree === 'true';
-
-
     const videoPreviewContainer = document.getElementById('editVideoPreviewContainer');
     videoPreviewContainer.innerHTML = '';
     const editVideoInput = document.getElementById('editVideoFileInput');
@@ -778,6 +908,7 @@ function openEditLessonModal(dataset) {
     form.dataset.submitting = 'false';
     form.dataset.directUploaded = 'false';
     setUploadModalLock(form, false);
+    resetUploadProgress(form);
 
 
     const oldVideoUrl = dataset.lessonVideoUrl || dataset.videoUrl;
@@ -833,7 +964,7 @@ function deleteMaterial(courseId, materialId, source) {
         return;
     }
 
-    // Tạo form ẩn để submit
+    // Táº¡o form áº©n Ä‘á»ƒ submit
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = `/instructor/materials/${materialId}/delete?source=${source}`;
@@ -923,6 +1054,7 @@ function openAddLessonModal(sectionId, source, courseId) {
     form.dataset.submitting = 'false';
     form.dataset.directUploaded = 'false';
     setUploadModalLock(form, false);
+    resetUploadProgress(form);
 
     document.getElementById('modal-add-lesson').classList.add('active');
 }
@@ -1076,18 +1208,18 @@ function initEditMaterialPreview(){
 function initMaterialPreviewByID(inputId, listId) {
     const input     = document.getElementById(inputId);
     const list      = document.getElementById(listId);
-    const dt        = new DataTransfer(); // giữ file trong input thật
+    const dt        = new DataTransfer(); // giá»¯ file trong input tháº­t
 
     if (!input || !list) return;
 
     input.addEventListener('change', function () {
         Array.from(this.files).forEach(file => {
-            // tránh trùng tên
+            // trÃ¡nh trÃ¹ng tÃªn
             if (![...dt.files].find(f => f.name === file.name)) {
                 dt.items.add(file);
             }
         });
-        input.files = dt.files; // gắn lại vào input
+        input.files = dt.files; // gáº¯n láº¡i vÃ o input
         renderList();
         // this.value = '';
     });
@@ -1123,7 +1255,7 @@ function initMaterialPreviewByID(inputId, listId) {
 
     window.removeMaterial = function(index) {
         dt.items.remove(index);
-        input.files = dt.files; // cập nhật lại input
+        input.files = dt.files; // cáº­p nháº­t láº¡i input
         renderList();
     };
 }

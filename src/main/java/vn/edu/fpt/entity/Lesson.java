@@ -38,10 +38,6 @@ public class Lesson extends BaseEntity {
     @Column(name = "is_published")
     private Boolean published = false;
 
-    @Builder.Default
-    @Column(name = "is_free_preview")
-    private Boolean isFreePreview = false;
-
     @Column(name = "moderation_status", length = 20)
     private String moderationStatus;
 

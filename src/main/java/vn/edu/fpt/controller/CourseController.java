@@ -14,6 +14,8 @@ import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.course.CourseListDto;
 import vn.edu.fpt.entity.User;
+import vn.edu.fpt.enums.CourseStatus;
+import vn.edu.fpt.enums.RoleType;
 import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.entity.Feedback;
 import org.springframework.data.domain.Page;
@@ -91,10 +93,33 @@ public class CourseController {
     }
 
     @GetMapping("/course/detail")
-    public String showCourseDetail(@RequestParam("id") Integer id, Model model) {
+    public String showCourseDetail(@RequestParam("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
         CourseDto courseDto = courseService.getCourseDetail(id);
-        model.addAttribute("course", courseDto);
         User user = getSessionUser();
+
+        boolean hasAccess = false;
+        if (CourseStatus.PUBLISHED.equals(courseDto.getStatus())) {
+            hasAccess = true;
+        } else if (user != null) {
+            if (courseDto.getInstructor() != null && user.getId().equals(courseDto.getInstructor().getId())) {
+                hasAccess = true;
+            } else if (user.getRole() == vn.edu.fpt.enums.RoleType.MANAGER
+                    || user.getRole() == vn.edu.fpt.enums.RoleType.ADMIN) {
+                hasAccess = true;
+            } else {
+                Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
+                if (enrolledCourseIds.contains(id)) {
+                    hasAccess = true;
+                }
+            }
+        }
+
+        if (!hasAccess) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Khóa học không tồn tại hoặc chưa được xuất bản.");
+            return "redirect:/courses";
+        }
+
+        model.addAttribute("course", courseDto);
         if (user != null) {
             Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
             model.addAttribute("enrolledCourseIds", enrolledCourseIds);

@@ -3,6 +3,7 @@ package vn.edu.fpt.service;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.entity.Role;
@@ -91,12 +92,33 @@ public class CustomOAuth2UserService
             userRepository.save(user);
 
         } else {
+            if (user.getStatus() == UserStatus.BANNED) {
+                throw new OAuth2AuthenticationException(
+                        new OAuth2Error("user_banned"),
+                        "Tài khoản của bạn đã bị khóa (BANNED). Vui lòng liên hệ quản trị viên."
+                );
+            }
 
+            if (user.getStatus() == UserStatus.INACTIVE) {
+                throw new OAuth2AuthenticationException(
+                        new OAuth2Error("user_inactive"),
+                        "Tài khoản chưa được kích hoạt (INACTIVE). Vui lòng xác thực email."
+                );
+            }
+
+            boolean isChanged = false;
             if (user.getGoogleId() == null) {
+                user.setGoogleId(googleId);
+                isChanged = true;
+            }
 
-                user.setGoogleId(
-                        googleId);
+            String picture = oAuth2User.getAttribute("picture");
+            if (picture != null && !picture.isBlank() && (user.getAvatarUrl() == null || user.getAvatarUrl().isBlank())) {
+                user.setAvatarUrl(picture);
+                isChanged = true;
+            }
 
+            if (isChanged) {
                 userRepository.save(user);
             }
         }

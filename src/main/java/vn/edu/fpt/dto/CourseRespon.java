@@ -19,6 +19,8 @@ public class CourseRespon {
     private String category;
     private String description;
     private String thumnaiUrl;
+    private String introVideoUrl;
+    private String introVideoPreviewUrl;
     private BigDecimal price;
     private String level;
     private LocalDateTime createAt;

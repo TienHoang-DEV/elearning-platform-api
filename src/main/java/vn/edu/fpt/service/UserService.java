@@ -150,13 +150,17 @@ public class UserService {
      * Cập nhật trạng thái tài khoản giảng viên (ACTIVE / BANNED).
      */
     public void updateInstructorStatus(Integer id, UserStatus status) {
+        User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser != null && currentUser.getId().equals(id)) {
+            throw new IllegalArgumentException("Bạn không thể tự thay đổi trạng thái tài khoản của chính mình!");
+        }
+
         User instructor = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên với ID: " + id));
         instructor.setStatus(status);
         repository.save(instructor);
 
         // Log action to SystemLog
-        User currentUser = SecurityUtils.getCurrentUser();
         if (currentUser != null) {
             LogAction action = (status == UserStatus.ACTIVE) ? LogAction.UNBLOCK_USER : 
                                (status == UserStatus.BANNED) ? LogAction.BLOCK_USER : null;
@@ -192,6 +196,11 @@ public class UserService {
      * Cập nhật trạng thái tài khoản manager (ACTIVE / BANNED).
      */
     public void updateManagerStatus(Integer id, UserStatus status) {
+        User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser != null && currentUser.getId().equals(id)) {
+            throw new IllegalArgumentException("Bạn không thể tự thay đổi trạng thái tài khoản của chính mình!");
+        }
+
         User manager = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy manager với ID: " + id));
         manager.setStatus(status);

@@ -37,6 +37,9 @@ public class Course extends BaseEntity {
     @Column(name = "thumbnail_url", length = 500, columnDefinition = "NVARCHAR(500)")
     private String thumbnailUrl;
 
+    @Column(name = "intro_video_url", length = 500, columnDefinition = "NVARCHAR(500)")
+    private String introVideoUrl;
+
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
@@ -53,11 +56,7 @@ public class Course extends BaseEntity {
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
-    @Column(name = "update_at")
-    private LocalDateTime updateAt;
 
-    @Column(name = "create_at")
-    private LocalDateTime createAt;
 
     @Column(name = "rejection_reason", columnDefinition = "NVARCHAR(1000)")
     private String rejectionReason;

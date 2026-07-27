@@ -23,10 +23,6 @@ import vn.edu.fpt.exception.CourseNotFoundException;
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.exception.ResourceNotFoundException;
 import vn.edu.fpt.repository.*;
-
-import java.math.BigDecimal;
-import java.util.Objects;
-
 import vn.edu.fpt.enums.CourseLevel;
 import vn.edu.fpt.mapper.DtoMapper;
 
@@ -34,19 +30,17 @@ import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.service.lesson.LessonNoteService;
 import vn.edu.fpt.service.lesson.LessonService;
 import vn.edu.fpt.util.AppConstants;
-import org.springframework.data.domain.PageRequest;
-
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.time.LocalDateTime;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class CourseService {
-    private final CourseRepository repository;
+    private final CourseRepository courseRepository;
     private final DtoMapper dtoMapper;
     private final CategoryRepository categoryRepository;
     private final AzureBlobService azureBlobService;
@@ -59,21 +53,36 @@ public class CourseService {
     private final LessonService lessonService;
     private final FeedbackService feedbackService;
     private final LessonNoteService lessonNoteService;
-
+    private final EnrollmentRepository enrollmentRepository;
 
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
-        return repository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
+        return courseRepository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
     }
 
+    public void deleteCourseById(Integer courseId, User user) {
+        Course course = getInstructorOwnedCourse(courseId, user);
 
-    public void deleteCourseById(Integer courseId, User user){
-        getInstructorOwnedCourse(courseId, user);
-        repository.deleteCourseById(courseId);
+        if (course.getStatus() != CourseStatus.DRAFT && course.getStatus() != CourseStatus.REJECTED) {
+            throw new CourseValidationException("status", "Chỉ có thể xóa khóa học ở trạng thái Bản nháp (DRAFT) hoặc Bị từ chối (REJECTED).");
+        }
+
+        if (enrollmentRepository.countByCourseId(courseId) > 0) {
+            throw new CourseValidationException("enrollment", "Khóa học đã có học viên đăng ký, không thể xóa.");
+        }
+
+        if (hasText(course.getIntroVideoUrl())) {
+            try {
+                azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, course.getIntroVideoUrl());
+            } catch (Exception e) {
+                System.err.println("Warning: Khong the xoa video gioi thieu khoa hoc: " + e.getMessage());
+            }
+        }
+
+        courseRepository.deleteCourseById(courseId);
     }
-
 
     public Course getInstructorOwnedCourse(Integer courseId, User user) {
-        Course course = repository.findById(courseId)
+        Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id = " + courseId));
         if (user == null || course.getInstructor() == null || !course.getInstructor().getId().equals(user.getId())) {
             throw new AccessDeniedException("Bạn không có quyền thao tác với khóa học này");
@@ -81,17 +90,15 @@ public class CourseService {
         return course;
     }
 
-
     public void hidePublishedCourse(Integer courseId, User user) {
         Course course = getInstructorOwnedCourse(courseId, user);
         if (course.getStatus() != CourseStatus.PUBLISHED) {
             throw new CourseValidationException("status", "Chỉ khóa học đang bán mới được ẩn.");
         }
         course.setStatus(CourseStatus.HIDDEN);
-        course.setUpdateAt(LocalDateTime.now());
-        repository.save(course);
+        course.setUpdatedAt(LocalDateTime.now());
+        courseRepository.save(course);
     }
-
 
     public void publishHiddenCourse(Integer courseId, User user) {
         Course course = getInstructorOwnedCourse(courseId, user);
@@ -99,8 +106,8 @@ public class CourseService {
             throw new CourseValidationException("status", "Chỉ khóa học đã ẩn mới được hiện lại.");
         }
         course.setStatus(CourseStatus.PUBLISHED);
-        course.setUpdateAt(LocalDateTime.now());
-        repository.save(course);
+        course.setUpdatedAt(LocalDateTime.now());
+        courseRepository.save(course);
     }
 
     public List<Feedback> getInstructorCourseReviews(Integer courseId, User user) {
@@ -114,9 +121,15 @@ public class CourseService {
         String normalizedTitle = courseCreateDto.getTitle() != null ? courseCreateDto.getTitle().trim() : "";
 
         if (isUpdate) {
-            course = repository.findById(courseCreateDto.getId())
+            course = courseRepository.findById(courseCreateDto.getId())
                     .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-            if (repository.existsDuplicateTitleForInstructor(user.getId(), normalizedTitle, course.getId())) {
+                    
+            if (vn.edu.fpt.enums.CourseStatus.PUBLISHED.equals(course.getStatus()) || 
+                vn.edu.fpt.enums.CourseStatus.PENDING.equals(course.getStatus())) {
+                throw new CourseValidationException("status", "Không thể chỉnh sửa khóa học khi đang ở trạng thái " + course.getStatus().getLabel() + ".");
+            }
+
+            if (courseRepository.existsDuplicateTitleForInstructor(user.getId(), normalizedTitle, course.getId())) {
                 throw new CourseValidationException(
                         "title",
                         "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
@@ -124,7 +137,7 @@ public class CourseService {
         } else {
             validateInstructorProfileReadyForCreateCourse(user);
             course = new Course();
-            if (repository.existsDuplicateTitleForInstructor(user.getId(), normalizedTitle, null)) {
+            if (courseRepository.existsDuplicateTitleForInstructor(user.getId(), normalizedTitle, null)) {
                 throw new CourseValidationException(
                         "title",
                         "Bạn đã tạo một khóa học với tiêu đề này. Vui lòng sử dụng tiêu đề khác.");
@@ -151,7 +164,22 @@ public class CourseService {
 
         String thumbnailUrl = course.getThumbnailUrl();
         if (courseCreateDto.getThumbnailFile() != null && !courseCreateDto.getThumbnailFile().isEmpty()) {
-            thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(), AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS);
+            thumbnailUrl = azureBlobService.saveFile(courseCreateDto.getThumbnailFile(),
+                    AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS);
+        }
+
+        String introVideoUrl = course.getIntroVideoUrl();
+        if (hasText(courseCreateDto.getIntroVideoUrl())) {
+            String newIntroVideoUrl = courseCreateDto.getIntroVideoUrl().trim();
+            // Course intro video: neu instructor thay video moi thi xoa blob cu de tranh file rac tren Azure.
+            if (hasText(introVideoUrl) && !introVideoUrl.equals(newIntroVideoUrl)) {
+                try {
+                    azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, introVideoUrl);
+                } catch (Exception e) {
+                    System.err.println("Warning: Khong the xoa video gioi thieu cu: " + e.getMessage());
+                }
+            }
+            introVideoUrl = newIntroVideoUrl;
         }
 
         Category category = categoryRepository.findById(courseCreateDto.getCategoryId())
@@ -162,31 +190,39 @@ public class CourseService {
         course.setCategory(category);
         course.setPrice(courseCreateDto.getPrice());
         course.setThumbnailUrl(thumbnailUrl);
+        // Course intro video: luu blobName video gioi thieu chung cua khoa hoc, khong gan vao tung lesson.
+        course.setIntroVideoUrl(introVideoUrl);
         course.setLevel(courseCreateDto.getLevel());
-        course.setUpdateAt(LocalDateTime.now());
-        return repository.save(course);
+        course.setUpdatedAt(LocalDateTime.now());
+        return courseRepository.save(course);
     }
 
     public void validateInstructorProfileReadyForCreateCourse(User user) {
         List<String> missingFields = getMissingInstructorProfileFields(user);
         if (!missingFields.isEmpty()) {
-            // Create course guard: rule nghiep vu dat trong service de ca GET create va POST save deu dung chung.
+            // Create course guard: rule nghiep vu dat trong service de ca GET create va
+            // POST save deu dung chung.
             throw new CourseValidationException(
                     "profile",
                     "Vui lòng cập nhật đầy đủ hồ sơ giảng viên trước khi tạo khóa học: "
-                            + String.join(", ", missingFields) + "."
-            );
+                            + String.join(", ", missingFields) + ".");
         }
     }
 
     private List<String> getMissingInstructorProfileFields(User user) {
         List<String> missingFields = new ArrayList<>();
-        if (user == null || !hasText(user.getFirstName())) missingFields.add("Tên");
-        if (user == null || !hasText(user.getLastName())) missingFields.add("Họ");
-        if (user == null || !hasText(user.getEmail())) missingFields.add("Email");
-        if (user == null || !hasText(user.getPhone())) missingFields.add("Số điện thoại");
-        if (user == null || !hasText(user.getBio())) missingFields.add("Mô tả bản thân");
-        if (user == null || !hasText(user.getAvatarUrl())) missingFields.add("Ảnh đại diện");
+        if (user == null || !hasText(user.getFirstName()))
+            missingFields.add("Tên");
+        if (user == null || !hasText(user.getLastName()))
+            missingFields.add("Họ");
+        if (user == null || !hasText(user.getEmail()))
+            missingFields.add("Email");
+        if (user == null || !hasText(user.getPhone()))
+            missingFields.add("Số điện thoại");
+        if (user == null || !hasText(user.getBio()))
+            missingFields.add("Mô tả bản thân");
+        if (user == null || !hasText(user.getAvatarUrl()))
+            missingFields.add("Ảnh đại diện");
         return missingFields;
     }
 
@@ -201,14 +237,14 @@ public class CourseService {
             return;
         }
 
-        if (price.compareTo(BigDecimal.valueOf(2000)) <= 0) {
-            throw new CourseValidationException("price", "Giá khóa học phải lớn hơn 2.000 VNĐ hoặc bằng 0 nếu miễn phí.");
+        if (price.compareTo(BigDecimal.valueOf(2000)) < 0) {
+            throw new CourseValidationException("price",
+                    "Giá khóa học phải từ 2.000 VNĐ trở lên hoặc bằng 0 nếu miễn phí.");
         }
         if (price.remainder(BigDecimal.valueOf(1000)).compareTo(BigDecimal.ZERO) != 0) {
             throw new CourseValidationException("price", "Giá khóa học phải chia hết cho 1.000 VNĐ.");
         }
     }
-
 
     private String toPlainText(String html) {
         if (html == null) {
@@ -220,11 +256,12 @@ public class CourseService {
                 .trim();
     }
 
-    ///getCourseForEdit
-    public CourseCreateDto getCourseForEdit(Integer coureId, User user){
-        Course course = repository.findById(coureId).orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khoá học có id = " + coureId));
+    /// getCourseForEdit
+    public CourseCreateDto getCourseForEdit(Integer coureId, User user) {
+        Course course = courseRepository.findById(coureId)
+                .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khoá học có id = " + coureId));
 
-        if(!course.getInstructor().getId().equals(user.getId())){
+        if (!course.getInstructor().getId().equals(user.getId())) {
             throw new AccessDeniedException("Bạn không có quyền chỉnh sửa khoá học này");
         }
 
@@ -234,15 +271,17 @@ public class CourseService {
         courseCreateDto.setDescription(course.getDescription());
         courseCreateDto.setPrice(course.getPrice());
         courseCreateDto.setThumbnailUrl(course.getThumbnailUrl());
+        courseCreateDto.setIntroVideoUrl(course.getIntroVideoUrl());
+        courseCreateDto.setIntroVideoPreviewUrl(resolveVideoPreviewUrl(course.getIntroVideoUrl()));
         courseCreateDto.setLevel(course.getLevel());
         courseCreateDto.setCategoryId(course.getCategory() != null ? course.getCategory().getId() : null);
 
         return courseCreateDto;
     }
 
-    ///Show Chi tiết khoá học
-    public CourseRespon getCourseDetailToView(Integer courseId){
-        Course course = repository.findDetailById(courseId);
+    /// Show Chi tiết khoá học
+    public CourseRespon getCourseDetailToView(Integer courseId) {
+        Course course = courseRepository.findDetailById(courseId);
         CourseRespon courseRespon = new CourseRespon();
         courseRespon.setTittle(course.getTitle());
         courseRespon.setId(course.getId());
@@ -252,148 +291,59 @@ public class CourseService {
         courseRespon.setLevel(course.getLevel());
         courseRespon.setCreateAt(course.getCreatedAt());
         courseRespon.setThumnaiUrl(course.getThumbnailUrl());
+        courseRespon.setIntroVideoUrl(course.getIntroVideoUrl());
+        courseRespon.setIntroVideoPreviewUrl(resolveVideoPreviewUrl(course.getIntroVideoUrl()));
 
-        List<SectionRespon> sections = course.getSections().
-                stream().map(section -> {
-                    SectionRespon sr = new SectionRespon();
-                    sr.setId(section.getId());
-                    sr.setPosition(section.getPosition());
-                    sr.setTitle(section.getTitle());
-                    sr.setCreateAt(section.getCreatedAt());
+        List<SectionRespon> sections = course.getSections().stream().map(section -> {
+            SectionRespon sr = new SectionRespon();
+            sr.setId(section.getId());
+            sr.setPosition(section.getPosition());
+            sr.setTitle(section.getTitle());
+            sr.setCreateAt(section.getCreatedAt());
 
-                    List<LessonRespon> lessons = section.getLessons().
-                            stream().map(lesson -> {
-                                LessonRespon lr = new LessonRespon();
-                                lr.setId(lesson.getId());
-                                lr.setPosition(lesson.getPosition());
-                                lr.setTitle(lesson.getTitle());
-                                lr.setCreateAt(lesson.getCreatedAt());
-                                lr.setVideoUrl(lesson.getVideoUrl());
-                                lr.setDutationSecond(lesson.getDurationSeconds());
+            List<LessonRespon> lessons = section.getLessons().stream().map(lesson -> {
+                LessonRespon lr = new LessonRespon();
+                lr.setId(lesson.getId());
+                lr.setPosition(lesson.getPosition());
+                lr.setTitle(lesson.getTitle());
+                lr.setCreateAt(lesson.getCreatedAt());
+                lr.setVideoUrl(lesson.getVideoUrl());
+                lr.setDutationSecond(lesson.getDurationSeconds());
 
-                                List<LessonMaterialRespon> materials = lesson.getMaterials().
-                                        stream().map(material -> {
-                                            LessonMaterialRespon lms = new LessonMaterialRespon();
-                                            lms.setId(material.getId());
-                                            lms.setFile_name(material.getFileName());
-                                            return lms;
-                                        }).toList();
-                                lr.setMaterials(materials);
-                                return lr;
-                            }).toList();
-                    sr.setLessons(lessons);
-                    return sr;
+                List<LessonMaterialRespon> materials = lesson.getMaterials().stream().map(material -> {
+                    LessonMaterialRespon lms = new LessonMaterialRespon();
+                    lms.setId(material.getId());
+                    lms.setFile_name(material.getFileName());
+                    return lms;
                 }).toList();
+                lr.setMaterials(materials);
+                return lr;
+            }).toList();
+            sr.setLessons(lessons);
+            return sr;
+        }).toList();
 
         courseRespon.setSections(sections);
 
         return courseRespon;
     }
 
-
-    public List<CourseDto> getCoursesBySearch(String search) {
-        List<Course> courses;
-        if (search != null && !search.trim().isEmpty()) {
-            courses = repository.findByTitleContainingIgnoreCase(search.trim());
-        } else {
-            courses = repository.findAll();
-        }
-        List<CourseDto> dtos = new java.util.ArrayList<>();
-        for (Course course : courses) {
-            dtos.add(dtoMapper.toCourseDto(course));
-        }
-        return dtos;
-    }
-
-    public List<CourseDto> getFilteredAndSortedCourses(
-            String search,
-            Integer categoryId,
-            List<Double> ratings,
-            List<String> prices,
-            String sort) {
-
-        List<CourseDto> allCourses = getCoursesBySearch(search);
-        List<CourseDto> filteredCourses = new java.util.ArrayList<>();
-
-
-        for (CourseDto course : allCourses) {
-
-            // Lọc theo danh mục
-            if (categoryId != null) {
-                if (course.getCategory() == null || !course.getCategory().getId().equals(categoryId)) {
-                    continue;
-                }
-            }
-
-
-            if (ratings != null && !ratings.isEmpty()) {
-                boolean matchRating = false;
-                double avgRating = course.getAverageRating();
-                for (Double r : ratings) {
-                    if (avgRating >= r) {
-                        matchRating = true;
-                        break;
-                    }
-                }
-                if (!matchRating) {
-                    continue;
-                }
-            }
-
-            // Lọc theo khoảng giá
-            if (prices != null && !prices.isEmpty()) {
-                boolean matchPrice = false;
-                double priceVal = course.getPrice() != null ? course.getPrice().doubleValue() : 0.0;
-                for (String pRange : prices) {
-                    String[] parts = pRange.split("-");
-                    if (parts.length == 2) {
-                        try {
-                            double min = Double.parseDouble(parts[0]);
-                            double max = Double.parseDouble(parts[1]);
-                            if (priceVal >= min && priceVal <= max) {
-                                matchPrice = true;
-                                break;
-                            }
-                        } catch (NumberFormatException e) {
-
-                        }
-                    }
-                }
-                if (!matchPrice) {
-                    continue;
-                }
-            }
-
-            filteredCourses.add(course);
-        }
-
-
-        filteredCourses.sort((c1, c2) -> {
-            if ("rating".equals(sort)) {
-                return Double.compare(c2.getAverageRating(), c1.getAverageRating());
-            } else if ("price-asc".equals(sort)) {
-                double p1 = c1.getPrice() != null ? c1.getPrice().doubleValue() : 0.0;
-                double p2 = c2.getPrice() != null ? c2.getPrice().doubleValue() : 0.0;
-                return Double.compare(p1, p2);
-            } else if ("price-desc".equals(sort)) {
-                double p1 = c1.getPrice() != null ? c1.getPrice().doubleValue() : 0.0;
-                double p2 = c2.getPrice() != null ? c2.getPrice().doubleValue() : 0.0;
-                return Double.compare(p2, p1);
-            } else {
-                int id1 = c1.getId() != null ? c1.getId() : 0;
-                int id2 = c2.getId() != null ? c2.getId() : 0;
-                return Integer.compare(id2, id1);
-            }
-        });
-
-        return filteredCourses;
-    }
-
-
     public CourseDto getCourseDetail(Integer id) {
-        Course course = repository.findByIdWithDetails(id)
+        Course course = courseRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-        return dtoMapper.toCourseDto(course);
+        CourseDto dto = dtoMapper.toCourseDto(course);
+        dto.setIntroVideoUrl(resolveVideoPreviewUrl(course.getIntroVideoUrl()));
+        return dto;
+    }
+
+    private String resolveVideoPreviewUrl(String blobName) {
+        if (!hasText(blobName)) {
+            return null;
+        }
+        if (blobName.startsWith("http://") || blobName.startsWith("https://")) {
+            return blobName;
+        }
+        return azureBlobService.generateSasUrl(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, blobName);
     }
 
     public Page<CourseListDto> getPagedCoursesSummary(
@@ -419,9 +369,12 @@ public class CourseService {
                     try {
                         BigDecimal min = new BigDecimal(parts[0].trim());
                         BigDecimal max = new BigDecimal(parts[1].trim());
-                        if (minPrice == null || min.compareTo(minPrice) < 0) minPrice = min;
-                        if (maxPrice == null || max.compareTo(maxPrice) > 0) maxPrice = max;
-                    } catch (NumberFormatException ignored) {}
+                        if (minPrice == null || min.compareTo(minPrice) < 0)
+                            minPrice = min;
+                        if (maxPrice == null || max.compareTo(maxPrice) > 0)
+                            maxPrice = max;
+                    } catch (NumberFormatException ignored) {
+                    }
                 }
             }
         }
@@ -431,7 +384,8 @@ public class CourseService {
 
         if ("rating".equals(sort)) {
             pageable = PageRequest.of(currentPage - 1, size);
-            coursePage = repository.findPublishedCoursesOrderByRating(search, categoryId, minRating, minPrice, maxPrice, pageable);
+            coursePage = courseRepository.findPublishedCoursesOrderByRating(search, categoryId, minRating, minPrice, maxPrice,
+                    pageable);
         } else {
             Sort sortObj = switch (sort == null ? "" : sort) {
                 case "price-asc" -> Sort.by(Sort.Direction.ASC, "price");
@@ -439,15 +393,17 @@ public class CourseService {
                 default -> Sort.by(Sort.Direction.DESC, "id");
             };
             pageable = PageRequest.of(currentPage - 1, size, sortObj);
-            coursePage = repository.findPublishedCourses(search, categoryId, minRating, minPrice, maxPrice, pageable);
+            coursePage = courseRepository.findPublishedCourses(search, categoryId, minRating, minPrice, maxPrice, pageable);
         }
 
         if (coursePage.isEmpty() && currentPage > 1 && coursePage.getTotalPages() > 0) {
             pageable = PageRequest.of(coursePage.getTotalPages() - 1, size, pageable.getSort());
             if ("rating".equals(sort)) {
-                coursePage = repository.findPublishedCoursesOrderByRating(search, categoryId, minRating, minPrice, maxPrice, pageable);
+                coursePage = courseRepository.findPublishedCoursesOrderByRating(search, categoryId, minRating, minPrice,
+                        maxPrice, pageable);
             } else {
-                coursePage = repository.findPublishedCourses(search, categoryId, minRating, minPrice, maxPrice, pageable);
+                coursePage = courseRepository.findPublishedCourses(search, categoryId, minRating, minPrice, maxPrice,
+                        pageable);
             }
         }
 
@@ -475,29 +431,16 @@ public class CourseService {
     }
 
     public List<Course> findAll() {
-        return repository.findAll();
-    }
-
-    public Course findByIdWithSectionsAndLessons(Integer id) {
-        return repository.findByIdWithSectionsAndLessons(id)
-                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-    }
-
-    public void deleteById(Integer id) {
-        repository.deleteById(id);
-    }
-
-    public boolean existsById(Integer id) {
-        return repository.existsById(id);
+        return courseRepository.findAll();
     }
 
     public Course findByIdWithEnrollmentAndLessonProgress(Integer courseId) {
-        return repository.findByIdWithEnrollmentAndLessonProgress(courseId)
+        return courseRepository.findByIdWithEnrollmentAndLessonProgress(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học với id " + courseId));
     }
 
     public Course findById(Integer courseId) {
-        return repository.findById(courseId)
+        return courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id " + courseId));
     }
 
@@ -510,71 +453,13 @@ public class CourseService {
         return null;
     }
 
-    public Course save(User instructor, String title, String shortdesc, String desc, String outcome, String requirement,
-            CourseLevel level, Integer categoryId, MultipartFile file, BigDecimal price) {
-        if (instructor == null) {
-            throw new RuntimeException("User do not have");
-        }
-        if (title == null || title.isEmpty()) {
-            throw new RuntimeException("Title can not null. Please try again");
-        }
-        if (shortdesc == null || shortdesc.isEmpty()) {
-            throw new RuntimeException("Short can not null. Please try again");
-        }
-        if (desc == null || desc.isEmpty()) {
-            throw new RuntimeException("Description can not null. Please try again");
-        }
-        if (outcome == null || outcome.isEmpty()) {
-            throw new RuntimeException(("Outcome can not null. Please try again"));
-        }
-        if (requirement == null || requirement.isEmpty()) {
-            throw new RuntimeException("Requirement can not null. Please try again");
-        }
-
-        if (level == null) {
-            throw new RuntimeException(("Level can not null. Please try again"));
-        }
-
-        Category category = categoryService.findByIdAndStatus(categoryId, "ACTIVE");
-        if (file == null || file.isEmpty()) {
-            throw new RuntimeException("File can not null. Please try again");
-        }
-        if (price == null) {
-            throw new RuntimeException("price can not null");
-        }
-        if (price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("Price have to >= 0");
-        }
-        String url = azureBlobService.saveFile(file, "user-avatars");
-        Course course = new Course();
-        course.setTitle(title);
-        course.setThumbnailUrl(url);
-        course.setCategory(category);
-        course.setCreatedAt(LocalDateTime.now());
-        course.setStatus(CourseStatus.DRAFT);
-        course.setPrice(price);
-        course.setInstructor(instructor);
-
-        return repository.save(course);
-    }
-
-    public List<Course> findByInstructorAndStatus(User user, CourseStatus status) {
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
-        if (status == null) {
-            throw new RuntimeException("Status can not null");
-        }
-        return repository.findByInstructorAndStatus(user, status);
-    }
-
     public Course findByCourseIdAndUserId(Integer courseId, Integer userId) {
-        return repository.findByCourseIdAndUserId(courseId, userId)
+        return courseRepository.findByCourseIdAndUserId(courseId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
     }
 
     public CourseSubmitReviewDto getSubmitReview(Integer courseId, User user, boolean acceptedPolicy) {
-        Course course = repository.findById(courseId)
+        Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id " + courseId));
 
         CourseSubmitReviewDto dto = new CourseSubmitReviewDto();
@@ -585,16 +470,16 @@ public class CourseService {
         boolean owner = user != null
                 && course.getInstructor() != null
                 && course.getInstructor().getId().equals(user.getId());
-        boolean editableStatus = course.getStatus() == CourseStatus.DRAFT 
-                || course.getStatus() == CourseStatus.REJECTED 
+        boolean editableStatus = course.getStatus() == CourseStatus.DRAFT
+                || course.getStatus() == CourseStatus.REJECTED
                 || course.getStatus() == CourseStatus.RESUBMIT;
         boolean noPendingRequest = course.getStatus() != CourseStatus.PENDING;
 
-        long sectionCount = repository.countSectionsByCourseId(courseId);
-        long lessonCount = repository.countLessonsByCourseId(courseId);
-        long videoLessonCount = repository.countLessonsHavingVideoByCourseId(courseId);
-        long materialCount = repository.countMaterialsByCourseId(courseId);
-        long quizCount = repository.countQuizzesByCourseId(courseId);
+        long sectionCount = courseRepository.countSectionsByCourseId(courseId);
+        long lessonCount = courseRepository.countLessonsByCourseId(courseId);
+        long videoLessonCount = courseRepository.countLessonsHavingVideoByCourseId(courseId);
+        long materialCount = courseRepository.countMaterialsByCourseId(courseId);
+        long quizCount = courseRepository.countQuizzesByCourseId(courseId);
 
         addCheck(dto.getContentChecks(), dto.getMissingMessages(),
                 "Tiêu đề khóa học: 10-120 ký tự",
@@ -618,7 +503,7 @@ public class CourseService {
                 "Khóa học cần có ít nhất 1 section");
         addCheck(dto.getContentChecks(), dto.getMissingMessages(),
                 "Mỗi section có ít nhất 1 bài học",
-                sectionCount > 0 && repository.countSectionsWithoutLessons(courseId) == 0,
+                sectionCount > 0 && courseRepository.countSectionsWithoutLessons(courseId) == 0,
                 "Mỗi section cần có ít nhất 1 bài học");
         addCheck(dto.getContentChecks(), dto.getMissingMessages(),
                 "Có ít nhất 1 video bài học",
@@ -662,10 +547,12 @@ public class CourseService {
         int total = dto.getContentChecks().size() + dto.getBusinessChecks().size();
         int completed = 0;
         for (CourseSubmitReviewDto.CheckItem item : dto.getContentChecks()) {
-            if (item.isPassed()) completed++;
+            if (item.isPassed())
+                completed++;
         }
         for (CourseSubmitReviewDto.CheckItem item : dto.getBusinessChecks()) {
-            if (item.isPassed()) completed++;
+            if (item.isPassed())
+                completed++;
         }
 
         dto.setTotalCount(total);
@@ -681,7 +568,7 @@ public class CourseService {
             throw new CourseValidationException("submitReview", String.join("; ", review.getMissingMessages()));
         }
 
-        Course course = repository.findById(courseId)
+        Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học có id " + courseId));
         if (course.getStatus() == CourseStatus.REJECTED || course.getStatus() == CourseStatus.RESUBMIT) {
             course.setStatus(CourseStatus.RESUBMIT);
@@ -691,12 +578,12 @@ public class CourseService {
         course.setRejectionReason(null);
         course.setApprovedAt(null);
         course.setApprovedBy(null);
-        course.setUpdateAt(LocalDateTime.now());
-        repository.save(course);
+        course.setUpdatedAt(LocalDateTime.now());
+        courseRepository.save(course);
     }
 
     private void addCheck(List<CourseSubmitReviewDto.CheckItem> checks, List<String> missingMessages,
-                          String label, boolean passed, String missingMessage) {
+            String label, boolean passed, String missingMessage) {
         checks.add(new CourseSubmitReviewDto.CheckItem(label, passed));
         if (!passed && missingMessage != null) {
             missingMessages.add(missingMessage);
@@ -722,36 +609,8 @@ public class CourseService {
         return value.replaceAll("<[^>]*>", "").trim().length();
     }
 
-
-
-    public void resubmitCourse(Integer id) {
-        Course course = repository.findById(id)
-                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-        if (course.getStatus() == CourseStatus.REJECTED) {
-            course.setStatus(CourseStatus.RESUBMIT);
-            repository.save(course);
-        }
-    }
-
-    public void submitForApproval(Integer id) {
-        Course course = repository.findById(id)
-                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-        if (course.getStatus() == CourseStatus.DRAFT) {
-            course.setStatus(CourseStatus.PENDING);
-            repository.save(course);
-        }
-    }
-
-    public void withdrawCourse(Integer id) {
-        Course course = repository.findById(id)
-                .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-        if (course.getStatus() == CourseStatus.PENDING) {
-            course.setStatus(CourseStatus.DRAFT);
-            repository.save(course);
-        }
-    }
     public HomeDto getHomeData(User currentUser) {
-        long totalCourses = repository.countByStatus(CourseStatus.PUBLISHED);
+        long totalCourses = courseRepository.countByStatus(CourseStatus.PUBLISHED);
         long totalInstructors = userRepository.countInstructors();
         long totalLearners = userRepository.countLearners();
 
@@ -813,14 +672,11 @@ public class CourseService {
 
         // 1. Lấy top 4 khóa học cho từng danh mục con
         for (CategoryDto child : favoriteChildren) {
-            List<CourseListDto> top4 = repository.findTop4ByCategoryIdsOrderByAverageRatingDesc(
-                    java.util.Collections.singletonList(child.getId()), 
-                    PageRequest.of(0, 4)
-            );
+            List<CourseListDto> top4 = courseRepository.findTop4ByCategoryIdsOrderByAverageRatingDesc(
+                    java.util.Collections.singletonList(child.getId()),
+                    PageRequest.of(0, 4));
             coursesMap.put(child.getId(), top4);
         }
-
-
 
         return builder
                 .hasFavorites(true)
@@ -833,9 +689,12 @@ public class CourseService {
     public CourseContentSidebarDTO viewCourseContent(User user, Integer courseId, Integer sectionId, Integer lessonId) {
         CourseContentSidebarDTO courseContentSidebarDTO = new CourseContentSidebarDTO();
 
-        Course course = repository.findByCourseIdAndUserId(courseId, user.getId()).orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này hoặc khóa học không tồn tại trong hệ thống!"));
+        Course course = courseRepository.findByCourseIdAndUserId(courseId, user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Người dùng chưa mua khóa học này hoặc khóa học không tồn tại trong hệ thống!"));
 
-        List<SectionSiderbarDTO> sectionSiderbarDTOS = courseSectionRepository.findSectionSiderbarDTOByCourseId(courseId);
+        List<SectionSiderbarDTO> sectionSiderbarDTOS = courseSectionRepository
+                .findSectionSiderbarDTOByCourseId(courseId);
 
         Set<Integer> lessonIdCompleted = lessonProgressRepository.findByUserIdAndCourseId(user.getId(), courseId);
 
@@ -853,7 +712,7 @@ public class CourseService {
                 }
                 if (lessonIdCompleted.contains(lessonSiderbarDTO.getId())) {
                     lessonSiderbarDTO.setCompleted(true);
-                } else  {
+                } else {
                     sectionCompleted = false;
                 }
             }
@@ -862,16 +721,17 @@ public class CourseService {
             dto.setLessons(lessonSiderbarDTOS);
         }
 
-
         courseContentSidebarDTO.setSections(sectionSiderbarDTOS);
         courseContentSidebarDTO.setTotalLesson(totalLesson);
         courseContentSidebarDTO.setCompletedLesson(lessonIdCompleted.size());
         courseContentSidebarDTO.setCurrentLessonId(lessonId);
         courseContentSidebarDTO.setCurrentLessonTitle(currentLessonTitle);
         courseContentSidebarDTO.setCourseId(courseId);
-        courseContentSidebarDTO.setThumbanailURL(AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + course.getThumbnailUrl());
+        courseContentSidebarDTO.setThumbanailURL(AppConstants.AZURE_STORAGE_BASE_URL + "/"
+                + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/" + course.getThumbnailUrl());
 
-        Lesson nextLesson = lessonService.findNextLessonByCurrentLesson(lessonId, courseId ,totalLesson, lessonIdCompleted.size());
+        Lesson nextLesson = lessonService.findNextLessonByCurrentLesson(lessonId, courseId, totalLesson,
+                lessonIdCompleted.size());
         if (nextLesson != null) {
             courseContentSidebarDTO.setNextLessonId(nextLesson.getId());
             courseContentSidebarDTO.setNextLessonTitle(nextLesson.getTitle());
@@ -913,7 +773,8 @@ public class CourseService {
         courseContentSidebarDTO.setShowReviewPrompt(showReviewPrompt);
 
         // tải ghi chú của tôi
-        List<LessonNoteSiderbarDTO> lessonNoteSiderbarDTOS = lessonNoteService.findLessonNoteByUserIdAndLessonId(user.getId(), lessonId);
+        List<LessonNoteSiderbarDTO> lessonNoteSiderbarDTOS = lessonNoteService
+                .findLessonNoteByUserIdAndLessonId(user.getId(), lessonId);
 
         courseContentSidebarDTO.setLessonNoteSiderbarDTOS(lessonNoteSiderbarDTOS);
         return courseContentSidebarDTO;
@@ -923,11 +784,12 @@ public class CourseService {
         if (user == null || courseId == null) {
             return false;
         }
-        Optional<Course> courseOpt = repository.findByCourseIdAndUserId(courseId, user.getId());
+        Optional<Course> courseOpt = courseRepository.findByCourseIdAndUserId(courseId, user.getId());
         if (courseOpt.isEmpty()) {
             return false;
         }
-        List<SectionSiderbarDTO> sectionSiderbarDTOS = courseSectionRepository.findSectionSiderbarDTOByCourseId(courseId);
+        List<SectionSiderbarDTO> sectionSiderbarDTOS = courseSectionRepository
+                .findSectionSiderbarDTOByCourseId(courseId);
         Set<Integer> lessonIdCompleted = lessonProgressRepository.findByUserIdAndCourseId(user.getId(), courseId);
         int totalLesson = 0;
         for (SectionSiderbarDTO dto : sectionSiderbarDTOS) {
@@ -947,10 +809,11 @@ public class CourseService {
         }
 
         if (!canUserReviewCourse(user, courseId)) {
-            throw new IllegalArgumentException("Bạn cần hoàn thành ít nhất 30% tiến trình bài học để đánh giá khóa học này!");
+            throw new IllegalArgumentException(
+                    "Bạn cần hoàn thành ít nhất 30% tiến trình bài học để đánh giá khóa học này!");
         }
 
-        Course course = repository.findById(courseId)
+        Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Không tìm thấy khóa học"));
 
         Feedback feedback = Feedback.builder()
@@ -965,7 +828,8 @@ public class CourseService {
         return feedbackRepository.save(feedback);
     }
 
-    public Map<String, Object> addCourseReviewAndBuildData(User user, Integer courseId, Integer rating, String comment) {
+    public Map<String, Object> addCourseReviewAndBuildData(User user, Integer courseId, Integer rating,
+            String comment) {
         Feedback feedback = addCourseReview(user, courseId, rating, comment);
 
         Map<String, Object> fbData = new HashMap<>();
@@ -997,11 +861,10 @@ public class CourseService {
     }
 
     public List<CourseGrantDTO> findAllCourseGrant() {
-        return repository.findAllCourseGrantDTO();
+        return courseRepository.findAllCourseGrantDTO();
     }
 
     public List<CourseGrantDTO> findAvailableCoursesForUser(Integer userId) {
-        return repository.findAvailableCoursesForUser(userId);
+        return courseRepository.findAvailableCoursesForUser(userId);
     }
 }
-

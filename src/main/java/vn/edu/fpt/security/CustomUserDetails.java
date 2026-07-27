@@ -20,25 +20,21 @@ public class CustomUserDetails implements UserDetails {
 
     private final User user;
 
-
     public CustomUserDetails(User user) {
         this.user = user;
     }
 
     @Override
-    public Collection<? extends GrantedAuthority>
-    getAuthorities() {
+    public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         if (user.getRoles() != null) {
             for (Role role : user.getRoles()) {
                 authorities.add(new SimpleGrantedAuthority(
-                        "ROLE_" + role.getName().name().toUpperCase()
-                ));
+                        "ROLE_" + role.getName().name().toUpperCase()));
             }
         }
         return authorities;
     }
-
 
     @Override
     public String getPassword() {
@@ -61,7 +57,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return user.getStatus() != UserStatus.BANNED;
     }
 
     @Override

@@ -1,5 +1,4 @@
 document.addEventListener("click", function (e) {
-    // Handle Quiz Sidebar collapse/expand toggle
     const toggleBtn = e.target.closest("#toggleQuizSidebarBtn, .quiz-toggle-btn");
     if (toggleBtn) {
         const container = toggleBtn.closest(".quiz-container-layout");
@@ -12,7 +11,7 @@ document.addEventListener("click", function (e) {
         return;
     }
 
-    // Toggle older attempt history
+
     const toggleAttemptsBtn = e.target.closest(".btn-toggle-attempts");
     if (toggleAttemptsBtn) {
         const list = toggleAttemptsBtn.closest(".quiz-attempt-list");
@@ -36,13 +35,58 @@ document.addEventListener("click", function (e) {
         return;
     }
 
-    // Handle Quiz option item AJAX fetching
     const link = e.target.closest(".quiz-option-link");
     if (!link) return;
 
     const href = link.getAttribute("href");
-    if (href && typeof loadQuizContent === "function") {
+    if (href) {
         e.preventDefault();
         loadQuizContent(href);
     }
 });
+
+let quizCountdownTimer = null;
+
+function initQuizCountdown() {
+    if (quizCountdownTimer) {
+        clearInterval(quizCountdownTimer);
+        quizCountdownTimer = null;
+    }
+
+    const form = document.querySelector("form[data-time-limit-minutes]");
+    const countdown = document.querySelector(".quiz-countdown[data-time-limit-minutes]");
+    if (!form || !countdown) {
+        return;
+    }
+
+    const limitMinutes = Number(form.dataset.timeLimitMinutes || countdown.dataset.timeLimitMinutes);
+    if (!Number.isFinite(limitMinutes) || limitMinutes <= 0) {
+        return;
+    }
+
+    let remainingSeconds = Math.round(limitMinutes * 60);
+
+    function renderCountdown() {
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+        countdown.textContent = `${minutes}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    renderCountdown();
+    quizCountdownTimer = setInterval(function () {
+        remainingSeconds -= 1;
+        renderCountdown();
+
+        if (remainingSeconds <= 0) {
+            clearInterval(quizCountdownTimer);
+            quizCountdownTimer = null;
+            if (typeof form.requestSubmit === "function") {
+                form.requestSubmit();
+            } else {
+                form.submit();
+            }
+        }
+    }, 1000);
+}
+
+document.addEventListener("DOMContentLoaded", initQuizCountdown);

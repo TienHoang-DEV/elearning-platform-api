@@ -82,35 +82,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const trigger = event.relatedTarget;
             if (!trigger) return;
 
-            const lessonId = trigger.getAttribute('data-lesson-id');
             const lessonTitle = trigger.getAttribute('data-lesson-title');
+            const introVideoUrl = trigger.getAttribute('data-intro-video-url');
 
             const video = document.getElementById('previewVideo');
             const modalTitle = document.getElementById('videoModalLabel');
 
-            if (video && lessonId) {
+            if (video && introVideoUrl) {
                 if (lessonTitle && modalTitle) {
                     modalTitle.textContent = "Xem thử khóa học - " + lessonTitle;
                 }
 
-                try {
-                    const response = await fetch("/lesson/" + lessonId);
-                    if (!response.ok) {
-                        if (response.status === 401) {
-                            showToast('Vui lòng đăng nhập để xem!', 'warning');
-                            return;
-                        }
-                        throw new Error('Có lỗi khi tải video xem thử.');
+                video.onerror = function() {
+                    if (typeof showToast === 'function') {
+                        showToast('Lỗi: Không thể tải video xem thử.', 'warning');
+                    } else {
+                        alert('Lỗi: Không thể tải video xem thử.');
                     }
-                    
-                    const url = await response.text();
-                    video.src = url;
-                    video.load();
-                    video.play().catch(e => console.log("Autoplay prevented:", e));
-                } catch (err) {
-                    console.error("Error loading preview video:", err);
-                    showToast(err.message, 'warning');
-                }
+                };
+
+                video.src = introVideoUrl;
+                video.load();
+                video.play().catch(e => console.log("Autoplay prevented:", e));
             }
         });
 

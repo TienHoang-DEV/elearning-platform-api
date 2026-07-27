@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,6 +21,7 @@ import vn.edu.fpt.enums.CourseStatus;
 
 import vn.edu.fpt.exception.CourseValidationException;
 import vn.edu.fpt.service.CategoryService;
+import vn.edu.fpt.service.cloud.VideoUploadService;
 import vn.edu.fpt.service.section.CourseSectionService;
 import vn.edu.fpt.service.CourseService;
 import vn.edu.fpt.service.lesson.LessonService;
@@ -47,22 +47,25 @@ public class InstructorCourseController {
     private final CourseSectionService courseSectionService;
     private final LessonService lessonService;
     private final SystemLogService systemLogService;
+    private final VideoUploadService videoUploadService;
 
     public InstructorCourseController(CategoryService categoryService, 
                                        CourseService courseService, 
                                        CourseSectionService courseSectionService, 
                                        LessonService lessonService,
-                                       SystemLogService systemLogService) {
+                                       SystemLogService systemLogService,
+                                       VideoUploadService videoUploadService) {
         this.categoryService = categoryService;
         this.courseService = courseService;
         this.courseSectionService = courseSectionService;
         this.lessonService = lessonService;
         this.systemLogService = systemLogService;
+        this.videoUploadService = videoUploadService;
     }
 
 
 
-    ///Danh sách khoá học theo từng status
+        /// Danh sach khoa hoc theo tung status
 
     @GetMapping("/courses")
     public String getAllListCourse (@RequestParam(name = "pagePublished", defaultValue = "0") int pagePushlished,
@@ -74,7 +77,7 @@ public class InstructorCourseController {
                                     @RequestParam(name = "tab", defaultValue = "all") String activeTab,
                                     Model model){
         User  user = SecurityUtils.getCurrentUser();
-        Sort sort = Sort.by("updateAt").descending();
+        Sort sort = Sort.by("updatedAt").descending();
         int size = 8;
         Page<CourseDto> published = courseService.findByInstructorAndStatus(user, PageRequest.of(pagePushlished, size, sort), CourseStatus.PUBLISHED);
         Page<CourseDto> draft = courseService.findByInstructorAndStatus(user, PageRequest.of(pageDraf, size, sort), CourseStatus.DRAFT);
@@ -135,6 +138,8 @@ public class InstructorCourseController {
         model.addAttribute("activeStep", "info");
         model.addAttribute("section", new CourseSectionDto());
         model.addAttribute("lesson", new LessonDto());
+        model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
+        model.addAttribute("urlVideo", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS + "/");
         return "instructor_course/editcourse";
     }
 
@@ -150,6 +155,7 @@ public class InstructorCourseController {
         model.addAttribute("lesson", new LessonDto());
         model.addAttribute("courselevels", levels);
         model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
+        model.addAttribute("urlVideo", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS + "/");
     }
 
     @PostMapping("/save")
@@ -175,7 +181,7 @@ public class InstructorCourseController {
             boolean isUpdate = courseDto.getId() != null;
 
             attributes.addFlashAttribute("success",
-                    isUpdate ? "Cập nhật khoá học thành công!" : "Thêm khoá học thành công!");
+                    isUpdate ? "Cập nhật khóa học thành công!" : "Thêm khóa học thành công!");
             if (isUpdate && ("save".equals(status) || "save_publish".equals(status))) {
                 return "redirect:/instructor/" + id + "/submit-review";
             }
@@ -202,6 +208,15 @@ public class InstructorCourseController {
         }
     }
 
+    @PostMapping("/course-intro-upload-url")
+    @ResponseBody
+    public Map<String, String> uploadCourseIntroVideo(@RequestParam("fileName") String fileName,
+                                                      @RequestParam(name = "courseId", required = false) Integer courseId) {
+        User user = SecurityUtils.getCurrentUser();
+        // Course intro upload: Spring chi cap SAS URL, video gioi thieu duoc browser upload thang len Azure.
+        return videoUploadService.generateCourseIntroUploadUrl(fileName, courseId, user);
+    }
+
     @GetMapping("/{courseId}/curriculum")
     public String getCurriculumPage(@PathVariable Integer courseId, Model model) {
         List<CourseSectionDto> listSection = courseSectionService.findByCourseAndLesson(courseId);
@@ -218,7 +233,6 @@ public class InstructorCourseController {
 
     }
 
-    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'MANAGER')")
     @GetMapping("/{id}/view")
     public String viewCourse(@PathVariable("id") Integer courseId, Model model)
     {
@@ -230,6 +244,7 @@ public class InstructorCourseController {
         model.addAttribute("totalLessons", totalLessons);
         model.addAttribute("courseDetal", courseRespon);
         model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
+        model.addAttribute("urlVideo", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS + "/");
         return "instructor_course/viewCourse";
     }
 
@@ -305,12 +320,20 @@ public class InstructorCourseController {
         try {
             Course course = courseService.findById(courseId);
             boolean isResubmit = course.getStatus() == CourseStatus.REJECTED || course.getStatus() == CourseStatus.RESUBMIT;
+            long rejectionCountBeforeSubmit = systemLogService.countCourseRejections(courseId);
+
+            if (isResubmit && rejectionCountBeforeSubmit >= 3) {
+
+                model.addAttribute("error", "B\u1ea1n \u0111\u00e3 v\u01b0\u1ee3t qu\u00e1 s\u1ed1 l\u1ea7n quy \u0111\u1ecbnh. Kh\u00f3a h\u1ecdc n\u00e0y kh\u00f4ng \u0111\u01b0\u1ee3c g\u1eedi duy\u1ec7t n\u1eefa.");
+                loadSubmitReviewModel(courseId, user, model);
+                return "instructor_course/editcourse";
+            }
 
             courseService.submitCourseForApproval(courseId, user, acceptPolicy);
 
             String logMeta = (resubmitNote != null && !resubmitNote.isBlank()) 
                              ? resubmitNote 
-                             : (isResubmit ? "Giảng viên đã chỉnh sửa và gửi lại yêu cầu xét duyệt khóa học." : "Giảng viên đã gửi yêu cầu xét duyệt khóa học.");
+                             : (isResubmit ? "Giang vien da chinh sua va gui lai yeu cau xet duyet khoa hoc." : "Giang vien da gui yeu cau xet duyet khoa hoc.");
 
             systemLogService.log(user, isResubmit ? LogAction.RESUBMIT_COURSE : LogAction.CREATE_COURSE, "COURSE", String.valueOf(courseId), logMeta);
 
@@ -344,7 +367,7 @@ public class InstructorCourseController {
         model.addAttribute("courseId", courseId);
         model.addAttribute("urlAvatar", AppConstants.AZURE_STORAGE_BASE_URL + "/" + AppConstants.AZURE_STORAGE_CONTAINER_COURSE_THUMBNAILS + "/");
 
-        ///Object rộng để binding
+                /// Object rong de binding
         loadFormModel(model);
 
        return "instructor_course/editcourse";
@@ -366,7 +389,7 @@ public class InstructorCourseController {
      try{
          User user = SecurityUtils.getCurrentUser();
          courseService.save(user, coursedto);
-         redirectAttributes.addFlashAttribute("success", "Chỉnh Sửa Khoá Học Thành Công");
+         redirectAttributes.addFlashAttribute("success", "Chỉnh sửa khóa học thành công");
          return "redirect:/instructor/"+coursedto.getId()+"/submit-review";
      }catch(CourseValidationException e){
 
@@ -392,9 +415,9 @@ public class InstructorCourseController {
         User user = SecurityUtils.getCurrentUser();
         try {
             courseService.deleteCourseById(courseId, user);
-            redirectAttributes.addFlashAttribute("success", "Xoá khoá học thành công");
+            redirectAttributes.addFlashAttribute("success", "Xóa khóa học thành công");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Lỗi khi xoá khoá học: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa khóa học: " + e.getMessage());
         }
         return "redirect:/instructor/courses?tab=" + tab;
     }

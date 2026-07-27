@@ -54,7 +54,7 @@
                 </a>
                 <div class="dropdown">
                     <button class="dropdown-toggle">
-                        <img th:src="${currentUser?.avatarUrl ?: '/images/avatar.png'}"
+                        <img th:src="${currentUser?.getFullAvatarUrl() ?: '/images/avatar.png'}"
                              alt="Avatar" class="avatar-sm"/>
                         <span th:text="${currentUser?.fullName ?: 'Tài khoản'}">Tài khoản</span>
                     </button>
@@ -91,38 +91,41 @@
 <footer class="main-footer" th:fragment="footer">
     <div class="footer-container">
         <div class="footer-brand">
-            <span class="logo-icon">🎓</span>
-            <span class="logo-text">EduCourse</span>
+            <a th:href="@{/}" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
+                <span class="logo-icon">🎓</span>
+                <span class="logo-text">LearningHub</span>
+            </a>
             <p class="footer-tagline">Học không giới hạn, phát triển không ngừng.</p>
         </div>
 
         <div class="footer-links">
             <div class="footer-col">
-                <h4>Khóa học</h4>
+                <h4>Học tập</h4>
                 <ul>
                     <li><a th:href="@{/courses}">Tất cả khóa học</a></li>
+                    <li><a th:href="@{/student/my-learning}">Khóa học của tôi</a></li>
+                    <li><a th:href="@{/cart}">Giỏ hàng</a></li>
                 </ul>
             </div>
             <div class="footer-col">
                 <h4>Tài khoản</h4>
                 <ul>
-                    <li><a th:href="@{/user/profile}">Hồ sơ</a></li>
-                    <li><a th:href="@{/my-learning}">Học của tôi</a></li>
-                    <li><a th:href="@{/purchase-history}">Lịch sử mua</a></li>
+                    <li><a th:href="@{/student/profile}">Hồ sơ cá nhân</a></li>
+                    <li><a th:href="@{/student/purchase-history}">Lịch sử mua hàng</a></li>
                 </ul>
             </div>
             <div class="footer-col">
                 <h4>Hỗ trợ</h4>
                 <ul>
                     <li><a href="#">Trung tâm trợ giúp</a></li>
-                    <li><a href="#">Liên hệ</a></li>
                     <li><a href="#">Điều khoản sử dụng</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
                 </ul>
             </div>
         </div>
     </div>
     <div class="footer-bottom">
-        <p>&copy; <span th:text="${#dates.year(#dates.createNow())}">2025</span> EduCourse. All rights reserved.</p>
+        <p>&copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> LearningHub. All rights reserved.</p>
     </div>
 </footer>
 

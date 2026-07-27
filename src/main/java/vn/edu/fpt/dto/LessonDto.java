@@ -18,7 +18,6 @@ public class LessonDto {
     private String videoUrl;
     private Integer durationSeconds;
     private Integer position;
-    private Boolean isFreePreview;
     List<LessonMaterialDto> materials;
 
     public String getDurationtext(){

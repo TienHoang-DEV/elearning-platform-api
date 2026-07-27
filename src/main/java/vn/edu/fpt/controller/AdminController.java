@@ -115,8 +115,12 @@ public class AdminController {
             @RequestParam("status") UserStatus status,
             RedirectAttributes redirectAttributes) {
 
-        userService.updateManagerStatus(id, status);
-        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái tài khoản Manager thành công.");
+        try {
+            userService.updateManagerStatus(id, status);
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái tài khoản Manager thành công.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
 
         return "redirect:/admin/manager/detail/" + id;
     }

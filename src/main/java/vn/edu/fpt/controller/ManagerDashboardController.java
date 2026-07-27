@@ -12,22 +12,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import vn.edu.fpt.dto.manager.ManagerDashboardDTO;
-import vn.edu.fpt.dto.transaction_manager.TransactionCountByStatusDTO;
 import vn.edu.fpt.dto.revenue_manager.MonthlyRevenueForManagerDTO;
-import vn.edu.fpt.dto.transaction_manager.TransactionDetailDTO;
-import vn.edu.fpt.dto.transaction_manager.TransactionListDTO;
-import vn.edu.fpt.enums.PaymentStatus;
 import vn.edu.fpt.service.ManagerDashboardService;
-import vn.edu.fpt.service.payment.PaymentService;
 import vn.edu.fpt.util.AppConstants;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import vn.edu.fpt.dto.revenue_manager.InstructorRevenueForManagerDTO;
 import vn.edu.fpt.dto.revenue_manager.InstructorCourseRevenueDTO;
 import vn.edu.fpt.entity.User;
-import java.math.BigDecimal;
 
 @Controller
 @RequestMapping("/manager")
@@ -43,6 +36,7 @@ public class ManagerDashboardController {
         model.addAttribute("totalInstructors", data.getTotalInstructors());
         model.addAttribute("totalLearners", data.getTotalLearners());
         model.addAttribute("pendingCourses", data.getPendingCourses());
+        model.addAttribute("totalRevenue", data.getTotalRevenue());
         model.addAttribute("monthlyRevenue", data.getMonthlyRevenue());
         model.addAttribute("chartLabels", data.getChartLabels());
         model.addAttribute("chartData", data.getChartData());
