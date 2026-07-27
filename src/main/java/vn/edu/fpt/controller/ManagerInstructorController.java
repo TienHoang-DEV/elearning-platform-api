@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.user.UserDto;
-import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.UserStatus;
+import vn.edu.fpt.service.AuthService;
 import vn.edu.fpt.service.UserService;
 import vn.edu.fpt.util.AppConstants;
 
@@ -25,17 +26,14 @@ import java.util.List;
 public class ManagerInstructorController {
 
     private final UserService userService;
-    private final vn.edu.fpt.service.AuthService authService;
+    private final AuthService authService;
 
-    public ManagerInstructorController(UserService userService, vn.edu.fpt.service.AuthService authService) {
+    public ManagerInstructorController(UserService userService, AuthService authService) {
         this.userService = userService;
         this.authService = authService;
     }
 
-    /**
-     * GET /manager/instructor/list
-     * Hiển thị danh sách giảng viên, hỗ trợ tìm kiếm và lọc theo trạng thái tài khoản.
-     */
+    // List instructors.
     @GetMapping("/list")
     public String listInstructors(
             @RequestParam(defaultValue = "") String keyword,
@@ -64,14 +62,11 @@ public class ManagerInstructorController {
         return "manager/approval-instructor/instructor-list";
     }
 
-    /**
-     * GET /manager/instructor/detail/{id}
-     * Hiển thị trang chi tiết của một giảng viên.
-     */
+    // instructor detail.
     @GetMapping("/detail/{id}")
     public String detailInstructor(@PathVariable Integer id, Model model) {
         UserDto request = userService.getInstructorDetail(id);
-        List<Course> courses = userService.getInstructorCourses(id);
+        List<CourseDto> courses = userService.getInstructorCourses(id);
 
         model.addAttribute("request", request);
         model.addAttribute("courses", courses);
@@ -79,10 +74,7 @@ public class ManagerInstructorController {
         return "manager/approval-instructor/instructor-detail";
     }
 
-    /**
-     * POST /manager/instructor/edit/{id}
-     * Cập nhật trạng thái tài khoản giảng viên (ACTIVE / BANNED).
-     */
+    // Update instructor status.
     @PostMapping("/edit/{id}")
     public String updateInstructorStatus(
             @PathVariable Integer id,
@@ -99,10 +91,7 @@ public class ManagerInstructorController {
         return "redirect:/manager/instructor/detail/" + id;
     }
 
-    /**
-     * POST /manager/instructor/create
-     * Tạo tài khoản giảng viên mới và gửi email.
-     */
+    // Create instructor account.
     @PostMapping("/create")
     public String createInstructor(
             @RequestParam("firstName") String firstName,

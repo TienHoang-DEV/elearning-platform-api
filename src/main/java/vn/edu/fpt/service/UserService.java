@@ -13,8 +13,8 @@ import vn.edu.fpt.service.cloud.AzureBlobService;
 import vn.edu.fpt.util.AppConstants;
 import vn.edu.fpt.util.Validation;
 
+import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.user.UserDto;
-import vn.edu.fpt.entity.Course;
 import vn.edu.fpt.enums.UserStatus;
 import vn.edu.fpt.enums.LogAction;
 import vn.edu.fpt.mapper.DtoMapper;
@@ -119,11 +119,7 @@ public class UserService {
      */
     public Page<UserDto> searchAndFilterInstructors(String keyword, UserStatus status, Pageable pageable) {
         Page<User> instructorPage = repository.searchAndFilterInstructors(keyword, status, pageable);
-        return instructorPage.map(user -> {
-            UserDto dto = dtoMapper.toUserDto(user);
-            dto.setCourseCount((int) user.getCourses().stream().filter(c -> c.getStatus() == vn.edu.fpt.enums.CourseStatus.PUBLISHED).count());
-            return dto;
-        });
+        return instructorPage.map(dtoMapper::toInstructorListDto);
     }
 
     /**
@@ -140,10 +136,13 @@ public class UserService {
     /**
      * Lấy danh sách khóa học của một giảng viên.
      */
-    public List<Course> getInstructorCourses(Integer instructorId) {
+    public List<CourseDto> getInstructorCourses(Integer instructorId) {
         User instructor = repository.findById(instructorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên với ID: " + instructorId));
-        return courseRepository.findByInstructorAndStatus(instructor, vn.edu.fpt.enums.CourseStatus.PUBLISHED);
+        return courseRepository.findByInstructorAndStatus(instructor, vn.edu.fpt.enums.CourseStatus.PUBLISHED)
+                .stream()
+                .map(dtoMapper::toSimpleCourseDto)
+                .toList();
     }
 
     /**
