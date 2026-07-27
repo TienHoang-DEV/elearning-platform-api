@@ -20,6 +20,7 @@ public class DashboardInstructorDto {
     private long totalOrders;
     private BigDecimal ordersDeltaPercent;
 
+    private BigDecimal profit;
 
     private long totalStudents;
     private BigDecimal studentsDeltaPercent;
