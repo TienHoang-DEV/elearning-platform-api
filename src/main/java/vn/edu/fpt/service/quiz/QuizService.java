@@ -156,7 +156,11 @@ public class QuizService {
                 .showingResult(showingResult)
                 .selectedAttempt(toAttemptView(selectedAttempt, attempts, true))
                 .attempts(toAttemptViews(attempts, selectedAttempt))
-                .questions(toQuestionViews(quiz.getQuestions(), selectedAnswerIds))
+                .questions(toQuestionViews(
+                        quiz.getQuestions(),
+                        selectedAnswerIds,
+                        Boolean.TRUE.equals(quiz.getIsRandomQuestion()) && !showingResult
+                ))
                 .build();
     }
 
@@ -200,11 +204,15 @@ public class QuizService {
                 .build();
     }
 
-    private List<QuizQuestionViewDTO> toQuestionViews(List<QuizQuestion> questions, Set<Integer> selectedAnswerIds) {
+    private List<QuizQuestionViewDTO> toQuestionViews(List<QuizQuestion> questions, Set<Integer> selectedAnswerIds, boolean randomQuestion) {
         List<QuizQuestion> sortedQuestions = new ArrayList<>(questions != null ? questions : List.of());
         sortedQuestions.sort(Comparator
                 .comparing(QuizQuestion::getPosition, Comparator.nullsLast(Integer::compareTo))
                 .thenComparing(QuizQuestion::getId, Comparator.nullsLast(Integer::compareTo)));
+
+        if (randomQuestion) {
+            Collections.shuffle(sortedQuestions);
+        }
 
         List<QuizQuestionViewDTO> result = new ArrayList<>();
         for (int index = 0; index < sortedQuestions.size(); index++) {
