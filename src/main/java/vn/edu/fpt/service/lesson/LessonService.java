@@ -339,7 +339,7 @@ public class LessonService {
 
 
         if (lesson.getMaterials() != null && !lesson.getMaterials().isEmpty()) {
-            lesson.getMaterials().forEach(material -> {
+            new java.util.ArrayList<>(lesson.getMaterials()).forEach(material -> {
                 try {
                     lessonMaterialService.deleteMaterialById(material.getId());
                 } catch (Exception e) {

@@ -811,6 +811,10 @@ public class CourseService {
     }
 
     public Feedback addCourseReview(User user, Integer courseId, Integer rating, String comment) {
+        if (comment != null && comment.trim().length() > 500) {
+            throw new IllegalArgumentException("Nội dung nhận xét không được vượt quá 500 ký tự.");
+        }
+
         if (feedbackService.hasUserReviewedCourse(user.getId(), courseId)) {
             throw new IllegalArgumentException("Bạn đã gửi đánh giá cho khóa học này trước đó rồi!");
         }

@@ -387,8 +387,15 @@ function initializeNotes() {
         formNote.addEventListener("submit", async (e) => {
             e.preventDefault();
             if (!noteInputText || !noteInputText.value.trim()) return;
+
+            const noteText = noteInputText.value.trim();
+            if (noteText.length > 500) {
+                alert("Nội dung ghi chú không được vượt quá 500 ký tự.");
+                return;
+            }
+
             const formData = new FormData(formNote);
-            formData.append("noteContent", noteInputText.value.trim());
+            formData.append("noteContent", noteText);
             formData.append("videoTimeSeconds", activeNoteSeconds);
             formData.append("lessonId", video.dataset.lessonId);
 

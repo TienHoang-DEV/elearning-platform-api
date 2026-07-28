@@ -34,6 +34,10 @@ public class FeedbackService {
     }
 
     public void updateReview(Integer feedbackId, Integer rating, String comment, User user) {
+        if (comment != null && comment.trim().length() > 500) {
+            throw new IllegalArgumentException("Nội dung nhận xét không được vượt quá 500 ký tự.");
+        }
+
         Feedback feedback = repository.findById(feedbackId)
                 .orElseThrow(() -> new ResourceNotFoundException("Đánh giá không tồn tại"));
 

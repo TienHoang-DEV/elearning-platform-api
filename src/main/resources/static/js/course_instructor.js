@@ -1,4 +1,4 @@
-﻿
+
 
 
 
@@ -467,7 +467,7 @@ function initMaterialUploadSubmitLock() {
             setUploadModalLock(form, false);
             form.submit();
         } catch (error) {
-            alert('Lỗi tải tài liệu: ' + error.message);
+            showAppToast('Lỗi tải tài liệu: ' + error.message, 'error');
             form.dataset.submitting = 'false';
             setUploadModalLock(form, false);
         }
@@ -480,6 +480,8 @@ function validateMaterialFiles(input) {
     }
 
     const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
+    const maxSizeBytes = 150 * 1024 * 1024; // 150MB
+
     const invalidFiles = Array.from(input.files).filter(file => {
         const extension = file.name.includes('.')
             ? file.name.split('.').pop().toLowerCase()
@@ -487,13 +489,20 @@ function validateMaterialFiles(input) {
         return !allowedExtensions.includes(extension);
     });
 
-    if (invalidFiles.length === 0) {
-        return true;
+    if (invalidFiles.length > 0) {
+        showAppToast('Chỉ chấp nhận tài liệu định dạng: pdf, doc, docx, xls, xlsx, ppt, pptx.', 'error');
+        input.value = '';
+        return false;
     }
 
-    alert('Chi chap nhan material dang: pdf, doc, docx, xls, xlsx, ppt, pptx.');
-    input.value = '';
-    return false;
+    const oversizedFiles = Array.from(input.files).filter(file => file.size > maxSizeBytes);
+    if (oversizedFiles.length > 0) {
+        showAppToast('Kích thước tài liệu tải lên không được vượt quá 150MB.', 'error');
+        input.value = '';
+        return false;
+    }
+
+    return true;
 }
 
 function initMaterialFileValidation() {

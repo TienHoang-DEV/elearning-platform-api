@@ -32,6 +32,10 @@ public class LessonNoteService {
     }
 
     public LessonNote save(Integer userId, Integer lessonId, Integer noteId, Integer videoTimeSeconds, String noteContent) {
+        if (noteContent != null && noteContent.trim().length() > 500) {
+            throw new IllegalArgumentException("Nội dung ghi chú không được vượt quá 500 ký tự.");
+        }
+
         LessonNote note;
         if (noteId != null) {
             note = lessonNoteRepository.findById(noteId)

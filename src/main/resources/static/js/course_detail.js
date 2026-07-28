@@ -335,6 +335,12 @@ async function submitEditReview(event) {
         return;
     }
 
+    if (comment && comment.length > 500) {
+        showToast('Nội dung nhận xét không được vượt quá 500 ký tự.', 'warning');
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+    }
+
     const rating = ratingInput.value;
 
     try {
@@ -424,6 +430,12 @@ async function submitAddReview(event) {
 
     if (!ratingInput) {
         showToast('Vui lòng chọn số sao đánh giá!', 'warning');
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+    }
+
+    if (comment && comment.length > 500) {
+        showToast('Nội dung nhận xét không được vượt quá 500 ký tự.', 'warning');
         if (submitBtn) submitBtn.disabled = false;
         return;
     }
