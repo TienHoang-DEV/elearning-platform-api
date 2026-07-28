@@ -53,6 +53,8 @@ public final class AppConstants {
 
     public static final double PERCENT_COMPLETED_LESSON_TO_COMMENT = 30.0;
 
+    public static final long MAX_MATERIAL_FILE_SIZE_BYTES = 50 * 1024 * 1024L; // 50MB limit per BR-35 & PERF-04
+
     public static final String RETURN_URL = "https://learninghubswp391.eastasia.cloudapp.azure.com/payment/success";
     public static final String CANCEL_URL = "https://learninghubswp391.eastasia.cloudapp.azure.com/payment/cancel";
 

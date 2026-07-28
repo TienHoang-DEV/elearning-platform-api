@@ -74,6 +74,7 @@ public class LessonMaterialService {
             String fileName = f.getOriginalFilename();
             String fileType = getValidatedMaterialExtension(fileName);
             Long fileSize = f.getSize();
+            validateMaterialFileSize(fileSize);
 
             String url = azureBlobService.saveFile(f, "materials");
             LessonMaterial lessonMaterial = new LessonMaterial();
@@ -101,7 +102,8 @@ public class LessonMaterialService {
 
             String fileName = fileNames.get(i);
             String fileType = getValidatedMaterialExtension(fileName);
-            Long fileSize = fileSizes.get(i);
+            Long fileSize = fileSizes != null && i < fileSizes.size() ? fileSizes.get(i) : null;
+            validateMaterialFileSize(fileSize);
 
             LessonMaterial lessonMaterial = new LessonMaterial();
             lessonMaterial.setLesson(lesson);
@@ -301,15 +303,23 @@ public class LessonMaterialService {
         for(MultipartFile file : materialFile){
             String fileName = file.getOriginalFilename();
             String fileType = getValidatedMaterialExtension(fileName);
+            validateMaterialFileSize(file.getSize());
             String newFilePath = azureBlobService.saveFile(file, AppConstants.AZURE_STORAGE_CONTAINER_MATERIALS);
 
             material.setFileName(fileName);
             material.setFileType(fileType);
+            material.setFileSize(file.getSize());
             material.setFileUrl(newFilePath);
             material.setInstructor(user);
             material.setUpdatedAt(LocalDateTime.now());
 
             repository.save(material);
+        }
+    }
+
+    private void validateMaterialFileSize(Long fileSize) {
+        if (fileSize != null && fileSize > AppConstants.MAX_MATERIAL_FILE_SIZE_BYTES) {
+            throw new RuntimeException("Dung lượng file tài liệu không được vượt quá 50MB (BR-35).");
         }
     }
 

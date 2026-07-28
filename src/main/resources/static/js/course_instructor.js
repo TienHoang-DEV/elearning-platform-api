@@ -420,6 +420,9 @@ function initMaterialUploadSubmitLock() {
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
+                if (file.size > 50 * 1024 * 1024) {
+                    throw new Error(`Dung lượng tệp '${file.name}' vượt quá 50MB (BR-35). Vui lòng chọn tệp nhỏ hơn.`);
+                }
                 const requestBody = new FormData();
                 requestBody.append('fileName', file.name);
 
