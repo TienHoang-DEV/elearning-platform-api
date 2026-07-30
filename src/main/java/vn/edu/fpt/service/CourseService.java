@@ -54,6 +54,7 @@ public class CourseService {
     private final FeedbackService feedbackService;
     private final LessonNoteService lessonNoteService;
     private final EnrollmentRepository enrollmentRepository;
+    private final ProfanityFilterService profanityFilterService;
 
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
         return courseRepository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
@@ -822,6 +823,10 @@ public class CourseService {
         if (!canUserReviewCourse(user, courseId)) {
             throw new IllegalArgumentException(
                     "Bạn cần hoàn thành ít nhất 30% tiến trình bài học để đánh giá khóa học này!");
+        }
+
+        if (profanityFilterService.containsProfanity(comment)) {
+            throw new IllegalArgumentException("Nội dung nhận xét chứa từ ngữ không phù hợp. Vui lòng kiểm tra lại!");
         }
 
         Course course = courseRepository.findById(courseId)

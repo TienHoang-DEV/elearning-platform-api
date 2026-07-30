@@ -16,9 +16,11 @@ import java.util.Optional;
 @Transactional
 public class FeedbackService {
     private final FeedbackRepository repository;
+    private final ProfanityFilterService profanityFilterService;
 
-    public FeedbackService(FeedbackRepository feedbackRepository) {
+    public FeedbackService(FeedbackRepository feedbackRepository, ProfanityFilterService profanityFilterService) {
         this.repository = feedbackRepository;
+        this.profanityFilterService = profanityFilterService;
     }
 
     public List<Feedback> findAll() { return repository.findAll(); }
@@ -36,6 +38,10 @@ public class FeedbackService {
     public void updateReview(Integer feedbackId, Integer rating, String comment, User user) {
         if (comment != null && comment.trim().length() > 500) {
             throw new IllegalArgumentException("Nội dung nhận xét không được vượt quá 500 ký tự.");
+        }
+
+        if (profanityFilterService.containsProfanity(comment)) {
+            throw new IllegalArgumentException("Nội dung nhận xét chứa từ ngữ không phù hợp. Vui lòng kiểm tra lại!");
         }
 
         Feedback feedback = repository.findById(feedbackId)
