@@ -1,7 +1,6 @@
 package vn.edu.fpt.security;
 
 import lombok.Getter;
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -9,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import vn.edu.fpt.entity.Role;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.UserStatus;
-import vn.edu.fpt.util.AppConstants;
 
 import java.util.ArrayList;
 import java.util.Collection;

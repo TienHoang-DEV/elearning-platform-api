@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>vn.edu.fpt</groupId>
-    <artifactId>SE2034-SWP391-G4</artifactId>
+    <artifactId>elearning-platform-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>SE2034-SWP391-G4</name>
-    <description>SE2034-SWP391-G4</description>
+    <name>elearning-platform-api</name>
+    <description>E-learning platform REST API</description>
     <url/>
     <licenses>
         <license/>

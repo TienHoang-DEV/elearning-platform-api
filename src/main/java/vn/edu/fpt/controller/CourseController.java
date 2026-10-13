@@ -13,7 +13,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.course.CategoryDto;
 import vn.edu.fpt.dto.course.CourseDto;
 import vn.edu.fpt.dto.course.CourseListDto;
-import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.enums.CourseStatus;
 import vn.edu.fpt.enums.RoleType;
@@ -71,7 +70,7 @@ public class CourseController {
         model.addAttribute("categoryId", categoryId);
         if (categoryId != null) {
             try {
-                Category selectedCategory = categoryService.findByIdAndStatus(categoryId, "ACTIVE");
+                vn.edu.fpt.entity.Category selectedCategory = categoryService.findByIdAndStatus(categoryId, "ACTIVE");
                 if (selectedCategory != null) {
                     model.addAttribute("selectedCategoryName", selectedCategory.getName());
                 }
@@ -86,6 +85,36 @@ public class CourseController {
         model.addAttribute("totalCourses", coursePage.getTotalElements());
 
         return "course/list";
+    }
+
+    /**
+     * PHIÊN BẢN REST API DÙNG DTO CÓ SẴN (Page<CourseListDto>):
+     * 1. URL: /api/courses
+     * 2. Kiểu trả về: ResponseEntity<Page<CourseListDto>>.
+     * 3. Spring Boot + Jackson tự động biến đối tượng Page và CourseListDto thành JSON.
+     * 4. JSON trả về sẽ có sẵn:
+     *    - "content": danh sách các CourseListDto (id, title, price, instructor, rating, thumbnailPath,...)
+     *    - "totalPages": tổng số trang
+     *    - "totalElements": tổng số khóa học
+     *    - "number": trang hiện tại
+     *    - "size": số lượng phần tử trên 1 trang
+     */
+    @GetMapping("/api/courses")
+    @ResponseBody
+    public ResponseEntity<Page<CourseListDto>> showCourseListRest(
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "categoryId", required = false) Integer categoryId,
+            @RequestParam(value = "ratings", required = false) List<Double> ratings,
+            @RequestParam(value = "prices", required = false) List<String> prices,
+            @RequestParam(value = "sort", required = false, defaultValue = "rating") String sort,
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page) {
+
+        // Lấy dữ liệu phân trang chứa danh sách CourseListDto
+        Page<CourseListDto> coursePage = courseService.getPagedCoursesSummary(
+                search, categoryId, ratings, prices, sort, page, 4);
+
+        // Trả về trực tiếp Page<CourseListDto> dưới dạng JSON
+        return ResponseEntity.ok(coursePage);
     }
 
     @GetMapping("/coursemanager")
@@ -108,13 +137,9 @@ public class CourseController {
                     || user.getRole() == RoleType.ADMIN) {
                 hasAccess = true;
             } else {
-                if (CourseStatus.DRAFT.equals(courseDto.getStatus())) {
-                    hasAccess = false;
-                } else {
-                    Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
-                    if (enrolledCourseIds.contains(id)) {
-                        hasAccess = true;
-                    }
+                Set<Integer> enrolledCourseIds = enrollmentService.getEnrolledCourseIds(user);
+                if (enrolledCourseIds.contains(id)) {
+                    hasAccess = true;
                 }
             }
         }

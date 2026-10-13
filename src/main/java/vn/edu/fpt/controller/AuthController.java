@@ -19,9 +19,6 @@ import vn.edu.fpt.dto.RegisterRequest;
 import vn.edu.fpt.entity.User;
 import vn.edu.fpt.service.AuthService;
 
-import java.util.Collections;
-import java.util.List;
-
 @Controller
 @SessionAttributes("registerRequest")
 public class AuthController {
@@ -39,16 +36,15 @@ public class AuthController {
         model.addAttribute(
                 "loginRequest",
                 new LoginRequest());
-        
+
         if (authRequired != null) {
             model.addAttribute("errorMessage", "Bạn cần login để thực hiện được thao tác này");
             model.addAttribute("toastType", "error");
         }
-        
+
         System.out.println("LOGIN HIT");
         return "auth/login";
     }
-
 
     @GetMapping("/register")
     public String registerPage(
@@ -64,17 +60,14 @@ public class AuthController {
     @PostMapping("/register")
     public String register(
 
-            @Valid
-            @ModelAttribute("registerRequest")
-            RegisterRequest request,
+            @Valid @ModelAttribute("registerRequest") RegisterRequest request,
             BindingResult result,
             Model model,
             HttpSession session) {
 
-        if(result.hasErrors()) {
+        if (result.hasErrors()) {
             return "auth/register";
         }
-
 
         if (authService.isActiveEmail(request.getEmail())) {
             result.rejectValue(
@@ -83,7 +76,8 @@ public class AuthController {
                     "Email đã tồn tại");
         }
 
-        if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank() && authService.isActivePhone(request.getPhoneNumber())) {
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank()
+                && authService.isActivePhone(request.getPhoneNumber())) {
             result.rejectValue(
                     "phoneNumber",
                     "duplicate",
@@ -113,8 +107,7 @@ public class AuthController {
 
     @PostMapping("/verify-otp")
     public String verifyOtp(
-            @RequestParam("otpCode")
-            String otp,
+            @RequestParam("otpCode") String otp,
             HttpSession session,
             RedirectAttributes redirectAttributes,
             Model model) {
@@ -165,7 +158,6 @@ public class AuthController {
 
             model.addAttribute("showOtp", true);
             model.addAttribute("otpSuccess", "OTP mới đã được gửi");
-
 
         }
 

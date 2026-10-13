@@ -6,19 +6,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.fpt.dto.course.CategoryDto;
-import vn.edu.fpt.entity.Category;
 import vn.edu.fpt.entity.User;
-import vn.edu.fpt.entity.UserFavoriteCategory;
 import vn.edu.fpt.mapper.DtoMapper;
-import vn.edu.fpt.repository.CategoryRepository;
-import vn.edu.fpt.repository.UserRepository;
 import vn.edu.fpt.service.CategoryService;
+import vn.edu.fpt.service.UserFavoriteService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.*;
 
@@ -26,18 +20,15 @@ import java.util.*;
 @Transactional
 public class UserFavoriteController {
 
-    private final UserRepository userRepository;
-    private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
+    private final UserFavoriteService userFavoriteService;
     private final DtoMapper dtoMapper;
 
-    public UserFavoriteController(UserRepository userRepository,
-                                  CategoryRepository categoryRepository,
-                                  CategoryService categoryService,
+    public UserFavoriteController(CategoryService categoryService,
+                                  UserFavoriteService userFavoriteService,
                                   DtoMapper dtoMapper) {
-        this.userRepository = userRepository;
-        this.categoryRepository = categoryRepository;
         this.categoryService = categoryService;
+        this.userFavoriteService = userFavoriteService;
         this.dtoMapper = dtoMapper;
     }
 
@@ -67,19 +58,12 @@ public class UserFavoriteController {
             return "redirect:/login";
         }
 
-        Category parent = categoryRepository.findByIdAndStatus(parentId, "ACTIVE")
-                .orElseThrow(() -> new RuntimeException("Category not found"));
-
-        List<Category> childEntities = categoryRepository.findByParentIdAndStatus(parentId, "ACTIVE");
-        List<CategoryDto> children = new ArrayList<>();
-        for (Category child : childEntities) {
-            children.add(dtoMapper.toCategoryDto(child));
-        }
-
+        CategoryDto parent = userFavoriteService.getActiveParentCategoryDto(parentId);
+        List<CategoryDto> children = userFavoriteService.getActiveChildrenCategoryDtos(parentId);
         Set<Integer> selectedChildIds = new HashSet<>();
 
         model.addAttribute("currentUser", dtoMapper.toUserDto(user));
-        model.addAttribute("parent", dtoMapper.toCategoryDto(parent));
+        model.addAttribute("parent", parent);
         model.addAttribute("children", children);
         model.addAttribute("selectedChildIds", selectedChildIds);
 
@@ -96,30 +80,7 @@ public class UserFavoriteController {
             return "redirect:/login";
         }
 
-        Set<Category> newFavorites = new HashSet<>();
-
-        if (childIds == null || childIds.isEmpty()) {
-            List<Category> allChildren = categoryRepository.findByParentIdAndStatus(parentId, "ACTIVE");
-            if (allChildren != null && !allChildren.isEmpty()) {
-                newFavorites.addAll(allChildren);
-            } else {
-                categoryRepository.findById(parentId).ifPresent(newFavorites::add);
-            }
-        } else {
-            List<Category> selectedChildren = categoryRepository.findAllById(childIds);
-            newFavorites.addAll(selectedChildren);
-        }
-
-        user.getFavoriteCategories().clear();
-        for (Category c : newFavorites) {
-            UserFavoriteCategory ufc = new UserFavoriteCategory();
-            ufc.setUser(user);
-            ufc.setCategory(c);
-            user.getFavoriteCategories().add(ufc);
-        }
-        user.setFavoriteSetupCompleted(true);
-
-        User savedUser = userRepository.save(user);
+        User savedUser = userFavoriteService.saveUserFavorites(user, parentId, childIds);
         
         // Cập nhật lại session user nếu cần thiết
         if (session.getAttribute("user") != null) {

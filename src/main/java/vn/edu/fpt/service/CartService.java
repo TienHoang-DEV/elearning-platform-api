@@ -26,12 +26,12 @@ public class CartService {
     private final OrderRepository orderRepository;
 
     public CartService(CartRepository cartRepository,
-                       CartItemService cartItemService,
-                       CourseRepository courseRepository,
-                       UserRepository userRepository,
-                       EnrollmentRepository enrollmentRepository,
-                       DtoMapper dtoMapper,
-                       OrderRepository orderRepository) {
+            CartItemService cartItemService,
+            CourseRepository courseRepository,
+            UserRepository userRepository,
+            EnrollmentRepository enrollmentRepository,
+            DtoMapper dtoMapper,
+            OrderRepository orderRepository) {
         this.repository = cartRepository;
         this.cartItemService = cartItemService;
         this.courseRepository = courseRepository;
@@ -73,7 +73,7 @@ public class CartService {
 
     public CartPageDetailsDto getCartPageDetails(User user) {
         Cart cart = getOrCreateCartForUserWithDetails(user);
-        
+
         // Auto-remove owned courses
         if (cart.getItems() != null && !cart.getItems().isEmpty()) {
             List<CartItem> toRemove = new ArrayList<>();
@@ -143,7 +143,8 @@ public class CartService {
         }
 
         long total = subtotal;
-        if (total < 0) total = 0;
+        if (total < 0)
+            total = 0;
 
         boolean allSelected = true;
         boolean noneSelected = true;
@@ -177,7 +178,7 @@ public class CartService {
         Cart cart = getOrCreateCartForUser(user);
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khóa học với ID: " + courseId));
-        
+
         if (!CourseStatus.PUBLISHED.equals(course.getStatus())) {
             throw new IllegalArgumentException("Không thể thêm vào giỏ hàng vì khóa học chưa được xuất bản.");
         }
@@ -188,7 +189,8 @@ public class CartService {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("newlyAdded", newlyAdded);
-        response.put("message", newlyAdded ? "Đã thêm khóa học vào giỏ hàng thành công!" : "Khóa học này đã có sẵn trong giỏ hàng.");
+        response.put("message",
+                newlyAdded ? "Đã thêm khóa học vào giỏ hàng thành công!" : "Khóa học này đã có sẵn trong giỏ hàng.");
         response.put("cartSize", cartSize);
         return response;
     }
@@ -202,7 +204,7 @@ public class CartService {
         return cartItemService.countItemsInCart(cart);
     }
 
-    public void  toggleSelect(Integer cartItemId, Boolean selected) {
+    public void toggleSelect(Integer cartItemId, Boolean selected) {
         CartItem item = cartItemService.findById(cartItemId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm trong giỏ hàng."));
         if (selected != null) {
@@ -232,7 +234,6 @@ public class CartService {
         }
     }
 
-
     public Map<String, Object> checkoutCart(User user) {
         Map<String, Object> response = new HashMap<>();
         Cart cart = getOrCreateCartForUser(user);
@@ -261,10 +262,12 @@ public class CartService {
         java.math.BigDecimal orderSubtotal = java.math.BigDecimal.ZERO;
 
         for (CartItem item : selectedItems) {
-            if (item.getCourse() == null) continue;
+            if (item.getCourse() == null)
+                continue;
             Course course = item.getCourse();
             java.math.BigDecimal price = course.getPrice();
-            if (price == null) price = java.math.BigDecimal.ZERO;
+            if (price == null)
+                price = java.math.BigDecimal.ZERO;
 
             OrderItem orderItem = OrderItem.builder()
                     .priceSnapshot(price)
@@ -293,7 +296,8 @@ public class CartService {
         // Process enrollments and remove from cart
         for (CartItem item : selectedItems) {
             Course course = item.getCourse();
-            if (course == null) continue;
+            if (course == null)
+                continue;
             boolean alreadyEnrolled = enrollmentRepository.existsByUserAndCourse(user, course);
             if (!alreadyEnrolled) {
                 Enrollment enrollment = Enrollment.builder()

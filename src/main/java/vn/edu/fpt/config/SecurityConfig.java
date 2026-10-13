@@ -90,9 +90,7 @@ public class SecurityConfig {
                                 "/images/**", "/oauth2/**",
                                 "/forgot-password",
                                 "/reset-password",
-                                "/password-reset-success"
-                        ).permitAll()
-                        .requestMatchers(
+                                "/password-reset-success",
                                 "/home",
                                 "/",
                                 "/courses",
@@ -110,7 +108,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .usernameParameter("email")   // thêm dòng này
+                        .usernameParameter("email")   
                         .passwordParameter("password")
                         .successHandler(customSuccessHandler())
                         .failureUrl("/login?error")

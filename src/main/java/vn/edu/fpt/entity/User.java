@@ -41,7 +41,7 @@ public class User extends BaseEntity {
 
     @Email
     @NotBlank
-    @Column(length= 255, nullable = false, unique = true)
+    @Column(length = 255, nullable = false, unique = true)
     private String email;
 
     @Column(length = 20, nullable = true)
@@ -52,6 +52,18 @@ public class User extends BaseEntity {
 
     @Column(length = 255, nullable = true)
     private String passwordHash;
+
+    @Column(name = "last_password_change_at")
+    private java.time.LocalDateTime lastPasswordChangeAt;
+
+    @Column(name = "old_password_hash_1", length = 255)
+    private String oldPasswordHash1;
+
+    @Column(name = "old_password_hash_2", length = 255)
+    private String oldPasswordHash2;
+
+    @Column(name = "old_password_hash_3", length = 255)
+    private String oldPasswordHash3;
 
     @Column(length = 500, nullable = true)
     private String avatarUrl;
@@ -74,7 +86,6 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY)
     private Set<Course> courses = new HashSet<>();
 
-
     @Builder.Default
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<Order> orders = new HashSet<>();
@@ -82,7 +93,6 @@ public class User extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<Enrollment> enrollments = new HashSet<>();
-
 
     public Set<Role> getRoles() {
         Set<Role> roles = new HashSet<>();
@@ -171,9 +181,9 @@ public class User extends BaseEntity {
         if (avatarUrl == null || avatarUrl.isBlank()) {
             return null;
         }
-        
-        if (googleId != null && !googleId.isBlank() && 
-            (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://"))) {
+
+        if (googleId != null && !googleId.isBlank() &&
+                (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://"))) {
             return avatarUrl;
         }
 

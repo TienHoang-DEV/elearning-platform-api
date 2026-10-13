@@ -39,7 +39,7 @@ public class StudentProfileService {
                 certificatesCount++;
             }
         }
-                
+
         int totalHours = 0;
         for (Enrollment en : user.getEnrollments()) {
             double pct = en.getProgressPercent() != null ? en.getProgressPercent().doubleValue() : 0.0;
@@ -54,17 +54,21 @@ public class StudentProfileService {
         Map<Integer, StudentLessonNoteDto> courseNotesMap = new LinkedHashMap<>();
         for (LessonNote note : notesList) {
             Lesson lesson = note.getLesson();
-            if (lesson == null) continue;
+            if (lesson == null)
+                continue;
             CourseSection cs = lesson.getCourseSection();
-            if (cs == null) continue;
+            if (cs == null)
+                continue;
             Course course = cs.getCourse();
-            if (course == null) continue;
+            if (course == null)
+                continue;
 
-            StudentLessonNoteDto courseDto = courseNotesMap.computeIfAbsent(course.getId(), cid -> StudentLessonNoteDto.builder()
-                    .courseId(course.getId())
-                    .courseTitle(course.getTitle())
-                    .notes(new ArrayList<>())
-                    .build());
+            StudentLessonNoteDto courseDto = courseNotesMap.computeIfAbsent(course.getId(),
+                    cid -> StudentLessonNoteDto.builder()
+                            .courseId(course.getId())
+                            .courseTitle(course.getTitle())
+                            .notes(new ArrayList<>())
+                            .build());
 
             courseDto.getNotes().add(StudentLessonNoteDto.NoteDetailDto.builder()
                     .id(note.getId())
@@ -90,7 +94,8 @@ public class StudentProfileService {
     }
 
     private String formatTime(Integer videoTimeSeconds) {
-        if (videoTimeSeconds == null) return "00:00";
+        if (videoTimeSeconds == null)
+            return "00:00";
         int h = videoTimeSeconds / 3600;
         int m = (videoTimeSeconds % 3600) / 60;
         int s = videoTimeSeconds % 60;
@@ -100,9 +105,10 @@ public class StudentProfileService {
         return String.format("%02d:%02d", m, s);
     }
 
-    public User updateProfile(User user, String firstName, String lastName, String email, String phone, 
-                              MultipartFile avatarFile, boolean deleteAvatar) throws Exception {
-        if (firstName == null || firstName.trim().isEmpty() || lastName == null || lastName.trim().isEmpty() || email == null || email.trim().isEmpty()) {
+    public User updateProfile(User user, String firstName, String lastName, String email, String phone,
+            MultipartFile avatarFile, boolean deleteAvatar) throws Exception {
+        if (firstName == null || firstName.trim().isEmpty() || lastName == null || lastName.trim().isEmpty()
+                || email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Họ tên và địa chỉ email không được để trống!");
         }
 
@@ -134,7 +140,8 @@ public class StudentProfileService {
                 throw new IllegalArgumentException("Kích thước ảnh đại diện không được vượt quá 1MB!");
             }
             try {
-                String uploadedUrl = azureBlobService.saveFile(avatarFile, AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS);
+                String uploadedUrl = azureBlobService.saveFile(avatarFile,
+                        AppConstants.AZURE_STORAGE_CONTAINER_USER_AVATARS);
                 user.setAvatarUrl(uploadedUrl);
             } catch (Exception e) {
                 throw new Exception("Lỗi xảy ra trong quá trình lưu ảnh đại diện lên cloud storage.");
@@ -145,7 +152,8 @@ public class StudentProfileService {
     }
 
     public User changePassword(User user, String oldPassword, String newPassword, String confirmPassword) {
-        user = userRepository.findById(user.getId()).orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin tài khoản."));
+        user = userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin tài khoản."));
 
         if (newPassword == null || newPassword.isEmpty() || confirmPassword == null || confirmPassword.isEmpty()) {
             throw new IllegalArgumentException("Vui lòng nhập đầy đủ thông tin mật khẩu mới.");
@@ -159,6 +167,14 @@ public class StudentProfileService {
             throw new IllegalArgumentException("Mật khẩu mới phải có ít nhất 6 ký tự.");
         }
 
+        if (user.getLastPasswordChangeAt() != null) {
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            if (java.time.Duration.between(user.getLastPasswordChangeAt(), now).toSeconds() < 30) {
+                throw new IllegalArgumentException(
+                        "Bạn chỉ có thể đổi mật khẩu sau 30s một lần. Vui lòng thử lại sau.");
+            }
+        }
+
         if (user.getPasswordHash() != null && !user.getPasswordHash().isEmpty()) {
             // User already has a password, verify old password
             if (oldPassword == null || oldPassword.isEmpty()) {
@@ -169,7 +185,29 @@ public class StudentProfileService {
             }
         }
 
+        if (user.getPasswordHash() != null && passwordEncoder.matches(newPassword, user.getPasswordHash())) {
+            throw new IllegalArgumentException(
+                    "Mật khẩu mới không được trùng với mật khẩu hiện tại hoặc 3 mật khẩu gần nhất.");
+        }
+        if (user.getOldPasswordHash1() != null && passwordEncoder.matches(newPassword, user.getOldPasswordHash1())) {
+            throw new IllegalArgumentException(
+                    "Mật khẩu mới không được trùng với mật khẩu hiện tại hoặc 3 mật khẩu gần nhất.");
+        }
+        if (user.getOldPasswordHash2() != null && passwordEncoder.matches(newPassword, user.getOldPasswordHash2())) {
+            throw new IllegalArgumentException(
+                    "Mật khẩu mới không được trùng với mật khẩu hiện tại hoặc 3 mật khẩu gần nhất.");
+        }
+        if (user.getOldPasswordHash3() != null && passwordEncoder.matches(newPassword, user.getOldPasswordHash3())) {
+            throw new IllegalArgumentException(
+                    "Mật khẩu mới không được trùng với mật khẩu hiện tại hoặc 3 mật khẩu gần nhất.");
+        }
+
+        user.setOldPasswordHash3(user.getOldPasswordHash2());
+        user.setOldPasswordHash2(user.getOldPasswordHash1());
+        user.setOldPasswordHash1(user.getPasswordHash());
         user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setLastPasswordChangeAt(java.time.LocalDateTime.now());
+
         return userRepository.save(user);
     }
 }

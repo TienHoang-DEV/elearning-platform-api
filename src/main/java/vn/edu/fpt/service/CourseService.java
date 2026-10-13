@@ -57,14 +57,16 @@ public class CourseService {
     private final ProfanityFilterService profanityFilterService;
 
     public Page<CourseDto> findByInstructorAndStatus(User instructor, Pageable pageable, CourseStatus courseStatus) {
-        return courseRepository.findByInstructorAndStatus(instructor, pageable, courseStatus).map(dtoMapper::toCourseDto);
+        return courseRepository.findByInstructorAndStatus(instructor, pageable, courseStatus)
+                .map(dtoMapper::toCourseDto);
     }
 
     public void deleteCourseById(Integer courseId, User user) {
         Course course = getInstructorOwnedCourse(courseId, user);
 
         if (course.getStatus() != CourseStatus.DRAFT && course.getStatus() != CourseStatus.REJECTED) {
-            throw new CourseValidationException("status", "Chỉ có thể xóa khóa học ở trạng thái Bản nháp (DRAFT) hoặc Bị từ chối (REJECTED).");
+            throw new CourseValidationException("status",
+                    "Chỉ có thể xóa khóa học ở trạng thái Bản nháp (DRAFT) hoặc Bị từ chối (REJECTED).");
         }
 
         if (enrollmentRepository.countByCourseId(courseId) > 0) {
@@ -124,10 +126,11 @@ public class CourseService {
         if (isUpdate) {
             course = courseRepository.findById(courseCreateDto.getId())
                     .orElseThrow(() -> new CourseNotFoundException("Khóa học không tìm thấy"));
-                    
-            if (vn.edu.fpt.enums.CourseStatus.PUBLISHED.equals(course.getStatus()) || 
-                vn.edu.fpt.enums.CourseStatus.PENDING.equals(course.getStatus())) {
-                throw new CourseValidationException("status", "Không thể chỉnh sửa khóa học khi đang ở trạng thái " + course.getStatus().getLabel() + ".");
+
+            if (vn.edu.fpt.enums.CourseStatus.PUBLISHED.equals(course.getStatus()) ||
+                    vn.edu.fpt.enums.CourseStatus.PENDING.equals(course.getStatus())) {
+                throw new CourseValidationException("status",
+                        "Không thể chỉnh sửa khóa học khi đang ở trạng thái " + course.getStatus().getLabel() + ".");
             }
 
             if (courseRepository.existsDuplicateTitleForInstructor(user.getId(), normalizedTitle, course.getId())) {
@@ -172,7 +175,8 @@ public class CourseService {
         String introVideoUrl = course.getIntroVideoUrl();
         if (hasText(courseCreateDto.getIntroVideoUrl())) {
             String newIntroVideoUrl = courseCreateDto.getIntroVideoUrl().trim();
-            // Course intro video: neu instructor thay video moi thi xoa blob cu de tranh file rac tren Azure.
+            // Course intro video: neu instructor thay video moi thi xoa blob cu de tranh
+            // file rac tren Azure.
             if (hasText(introVideoUrl) && !introVideoUrl.equals(newIntroVideoUrl)) {
                 try {
                     azureBlobService.deleteFile(AppConstants.AZURE_STORAGE_CONTAINER_VIDEOS, introVideoUrl);
@@ -191,7 +195,8 @@ public class CourseService {
         course.setCategory(category);
         course.setPrice(courseCreateDto.getPrice());
         course.setThumbnailUrl(thumbnailUrl);
-        // Course intro video: luu blobName video gioi thieu chung cua khoa hoc, khong gan vao tung lesson.
+        // Course intro video: luu blobName video gioi thieu chung cua khoa hoc, khong
+        // gan vao tung lesson.
         course.setIntroVideoUrl(introVideoUrl);
         course.setLevel(courseCreateDto.getLevel());
         course.setUpdatedAt(LocalDateTime.now());
@@ -388,7 +393,8 @@ public class CourseService {
 
         if ("rating".equals(sort)) {
             pageable = PageRequest.of(currentPage - 1, size);
-            coursePage = courseRepository.findPublishedCoursesOrderByRating(search, categoryId, minRating, minPrice, maxPrice,
+            coursePage = courseRepository.findPublishedCoursesOrderByRating(search, categoryId, minRating, minPrice,
+                    maxPrice,
                     pageable);
         } else {
             Sort sortObj = switch (sort == null ? "" : sort) {
@@ -397,7 +403,8 @@ public class CourseService {
                 default -> Sort.by(Sort.Direction.DESC, "id");
             };
             pageable = PageRequest.of(currentPage - 1, size, sortObj);
-            coursePage = courseRepository.findPublishedCourses(search, categoryId, minRating, minPrice, maxPrice, pageable);
+            coursePage = courseRepository.findPublishedCourses(search, categoryId, minRating, minPrice, maxPrice,
+                    pageable);
         }
 
         if (coursePage.isEmpty() && currentPage > 1 && coursePage.getTotalPages() > 0) {
@@ -458,12 +465,8 @@ public class CourseService {
     }
 
     public Course findByCourseIdAndUserId(Integer courseId, Integer userId) {
-        Course course = courseRepository.findByCourseIdAndUserId(courseId, userId)
+        return courseRepository.findByCourseIdAndUserId(courseId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng chưa mua khóa học này"));
-        if (CourseStatus.DRAFT.equals(course.getStatus())) {
-            throw new ResourceNotFoundException("Khóa học không tồn tại hoặc chưa được xuất bản.");
-        }
-        return course;
     }
 
     public CourseSubmitReviewDto getSubmitReview(Integer courseId, User user, boolean acceptedPolicy) {
@@ -623,7 +626,7 @@ public class CourseService {
         long totalLearners = userRepository.countLearners();
 
         long totalFeedbacks = feedbackRepository.count();
-        int ratingPercent = 98;
+        int ratingPercent = 98; // Mặc định là 98% nếu chưa có đánh giá nào trong DB
         if (totalFeedbacks > 0) {
             long highRatingFeedbacks = feedbackRepository.countByRatingGreaterThanEqual(4);
             ratingPercent = (int) Math.round((double) highRatingFeedbacks / totalFeedbacks * 100);
@@ -649,8 +652,9 @@ public class CourseService {
             return builder.hasFavorites(false).build();
         }
 
-        List<CategoryDto> favoriteChildren = new java.util.ArrayList<>();
-        for (vn.edu.fpt.entity.UserFavoriteCategory ufc : favoriteCategories) {
+        // Lấy danh mục con yêu thích (dùng for thay cho stream)
+        List<CategoryDto> favoriteChildren = new ArrayList<>();
+        for (UserFavoriteCategory ufc : favoriteCategories) {
             Category c = ufc.getCategory();
             if ("ACTIVE".equals(c.getStatus()) && c.getParent() != null) {
                 favoriteChildren.add(dtoMapper.toCategoryDto(c));
@@ -661,6 +665,7 @@ public class CourseService {
             return builder.hasFavorites(false).build();
         }
 
+        // Lấy danh mục cha của các danh mục con yêu thích (dùng for thay cho stream)
         Category parent = null;
         for (vn.edu.fpt.entity.UserFavoriteCategory ufc : favoriteCategories) {
             Category c = ufc.getCategory();
@@ -678,7 +683,7 @@ public class CourseService {
 
         Map<Integer, List<CourseListDto>> coursesMap = new HashMap<>();
 
-
+        // 1. Lấy top 4 khóa học cho từng danh mục con
         for (CategoryDto child : favoriteChildren) {
             List<CourseListDto> top4 = courseRepository.findTop4ByCategoryIdsOrderByAverageRatingDesc(
                     java.util.Collections.singletonList(child.getId()),
@@ -812,10 +817,6 @@ public class CourseService {
     }
 
     public Feedback addCourseReview(User user, Integer courseId, Integer rating, String comment) {
-        if (comment != null && comment.trim().length() > 500) {
-            throw new IllegalArgumentException("Nội dung nhận xét không được vượt quá 500 ký tự.");
-        }
-
         if (feedbackService.hasUserReviewedCourse(user.getId(), courseId)) {
             throw new IllegalArgumentException("Bạn đã gửi đánh giá cho khóa học này trước đó rồi!");
         }
